@@ -16,8 +16,17 @@ PKBank::PKBank()
 PKBank::~PKBank()
 // --------------------------------------------------
 {
-	adelete(this->savedata);
-	adelete(this->bankdata);
+	// for (u32 iB = 0; iB < PC_BOXCOUNT; iB++)
+	// {
+	// 	for (u32 iP = 0; iP < BOX_PKMCOUNT; iP++)
+	// 	{
+	// 		pkm_t* ppkm = this->savedata->pc[iB][iP];
+
+	// 		ppkm
+	// 	}
+	// }
+	cdelete(this->savedata);
+	cdelete(this->bankdata);
 	this->gametype = Game::None;
 }
 
@@ -55,8 +64,8 @@ bool PKBank::load(Result fs, Handle *sdHandle, Handle *saveHandle, FS_archive *s
 		ret = this->loadSave(saveHandle, saveArchive);
 	}
 
-	// printf(">Loading Bank from SD\n");
-	// ret &= this->loadBank(sdHandle, sdArchive);
+	printf(">Loading Bank from SD\n");
+	ret &= this->loadBank(sdHandle, sdArchive);
 
 	// hidScanInput();
 	// if (hidKeysHeld() & KEY_L)
@@ -155,6 +164,23 @@ bool PKBank::loadBank(Handle *fsHandle, FS_archive *fsArchive)
 	return true;
 }
 
+
+// --------------------------------------------------
+void PKBank::loadPokemon(ek6_t* ek6, pkm_t pkm)
+// --------------------------------------------------
+{
+	pk6_t* pk6 = new pk6_t[PK6_SIZE];
+
+	// printf("\nDecrypting...\n");
+	decryptPokemon(ek6, pk6);
+	// printf("Decrypting... OK\n");
+	// printf("Converting...\n");
+	convertPk6Pkm(pk6, pkm);
+	// printf("Converting... OK\n");
+
+	adelete(pk6);
+}
+
 // --------------------------------------------------
 void PKBank::loadPokemonSave(uint16_t box, uint16_t slot, pkm_t pkm)
 // --------------------------------------------------
@@ -166,6 +192,7 @@ void PKBank::loadPokemonSave(uint16_t box, uint16_t slot, pkm_t pkm)
 
 // --------------------------------------------------
 void PKBank::loadPokemonSave(uint32_t offsetSlot, pkm_t pkm)
+// --------------------------------------------------
 {
 	if (!savebuffer) return;
 
@@ -180,8 +207,6 @@ void PKBank::loadPokemonSave(uint32_t offsetSlot, pkm_t pkm)
 
 	adelete(ek6);
 }
-// --------------------------------------------------
-
 
 // --------------------------------------------------
 void PKBank::loadPokemonBank(uint16_t box, uint16_t slot, pkm_t pkm)
@@ -209,22 +234,6 @@ void PKBank::loadPokemonBank(uint32_t offsetSlot, pkm_t pkm)
 	loadPokemon(ek6, pkm);
 
 	adelete(ek6);
-}
-
-// --------------------------------------------------
-void PKBank::loadPokemon(ek6_t* ek6, pkm_t pkm)
-// --------------------------------------------------
-{
-	pk6_t* pk6 = new pk6_t[PK6_SIZE];
-
-	// printf("\nDecrypting...\n");
-	decryptPokemon(ek6, pk6);
-	// printf("Decrypting... OK\n");
-	// printf("Converting...\n");
-	convertPk6Pkm(pk6, pkm);
-	// printf("Converting... OK\n");
-
-	adelete(pk6);
 }
 
 
@@ -302,6 +311,49 @@ bool PKBank::backupSave(Handle *fsHandle, FS_archive *fsArchive)
 
 
 // --------------------------------------------------
+void PKBank::getPokemon(CursorBox_t* cursor)
+// --------------------------------------------------
+{
+	if (cursor->isInBank)
+	{
+		getPokemonBK(cursor);
+	}
+	else
+	{
+		getPokemonPC(cursor);
+	}
+}
+
+// --------------------------------------------------
+void PKBank::getPokemonPC(CursorBox_t* cursor)
+// --------------------------------------------------
+{
+	getPokemonPC(cursor->box * BOX_PKMCOUNT, PKM_SIZE * (cursor->row * BOX_COL_PKMCOUNT + cursor->col), cursor->sPkm);
+}
+
+// --------------------------------------------------
+void PKBank::getPokemonPC(uint16_t box, uint16_t slot, pkm_t* ppkm)
+// --------------------------------------------------
+{
+	ppkm = &(savedata->pc[box][slot]);
+}
+
+// --------------------------------------------------
+void PKBank::getPokemonBK(CursorBox_t* cursor)
+// --------------------------------------------------
+{
+	getPokemonBK(cursor->bBox * BOX_PKMCOUNT, PKM_SIZE * (cursor->bRow * BOX_COL_PKMCOUNT + cursor->bCol), cursor->sPkm);
+}
+
+// --------------------------------------------------
+void PKBank::getPokemonBK(uint16_t box, uint16_t slot, pkm_t* ppkm)
+// --------------------------------------------------
+{
+	ppkm = &(bankdata->bank[box][slot]);
+}
+
+
+// --------------------------------------------------
 Game::gametype_e PKBank::getGame(uint32_t bytesRead)
 // --------------------------------------------------
 {
@@ -325,6 +377,27 @@ Game::gametype_e PKBank::getGame(uint32_t bytesRead)
 	return gametype;
 }
 
+
+void PKBank::transferPokemon(pkm_t src, pkm_t dest)
+{
+
+}
+
+// --------------------------------------------------
+void PKBank::copyPokemon(pkm_t src, pkm_t dest)
+// --------------------------------------------------
+{
+	for (uint32_t i = 0; i < PKM_SIZE; i++)
+		dest[i] = src[i];
+}
+
+// --------------------------------------------------
+void PKBank::deletePokemon(pkm_t pkm)
+// --------------------------------------------------
+{
+	for (uint32_t i = 0; i < PKM_SIZE; i++)
+		pkm[i] = 0x00;
+}
 
 // --------------------------------------------------
 void PKBank::printPkm(pkm_t pkm, u32 key, u32 max)

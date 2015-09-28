@@ -16,11 +16,11 @@ void stateNavigateBoxDisplay(State_t *state)
 	printf("Box: %-2i Row: %-2i Col: %-2i\n", state->cursorBox.box +1, state->cursorBox.row +1, state->cursorBox.col +1);
 
 
- 	if (state->cursorBox.pkm)
+ 	if (state->cursorBox.vPkm)
  	{
- 		printf("Species: %05u\n", (*state->cursorBox.pkm)[0x08] + 0x100 * (*state->cursorBox.pkm)[0x09]);
- 		printf("TID: %05u\n", (*state->cursorBox.pkm)[0x0c] + 0x100 * (*state->cursorBox.pkm)[0x0d]);
- 		printf("SID: %05u\n", (*state->cursorBox.pkm)[0x0e] + 0x100 * (*state->cursorBox.pkm)[0x0f]);
+ 		printf("Species: %05u\n", (*state->cursorBox.vPkm)[0x08] + 0x100 * (*state->cursorBox.vPkm)[0x09]);
+ 		printf("TID: %05u\n", (*state->cursorBox.vPkm)[0x0c] + 0x100 * (*state->cursorBox.vPkm)[0x0d]);
+ 		printf("SID: %05u\n", (*state->cursorBox.vPkm)[0x0e] + 0x100 * (*state->cursorBox.vPkm)[0x0f]);
  	}
  	else
  	{
@@ -51,10 +51,10 @@ void stateNavigateBoxDisplay(State_t *state)
 		printf("\n");
 	for (uint32_t i = 0; i < 40; i++)
 		printf("-");
-	printf("<^v> : Move Inbox\n");
+	printf("DPad : Move Inbox\n");
 	printf("L/R : Previous/Next Box\n");
-	printf("A : Display Information\n");
-	printf("X : Display Encrypt summary\n");
+	printf("A : Select Pokemon\n");
+	printf("Y : Display Information\n");
 	printf("Start : Return");
 }
 
@@ -133,7 +133,7 @@ void stateNavigateBoxInput(State_t *state)
 		printf("\n Box: %-2i Row: %-2i Col: %-2i", cursorBox->box, cursorBox->row, cursorBox->col);
 
 		cursorBox->slot = cursorBox->box * BOX_PKMCOUNT + cursorBox->row * BOX_COL_PKMCOUNT + cursorBox->col;
-		cursorBox->pkm = &(state->pkBank->savedata->pc[cursorBox->box][cursorBox->row * BOX_COL_PKMCOUNT + cursorBox->col]);
+		cursorBox->vPkm = &(state->pkBank->savedata->pc[cursorBox->box][cursorBox->row * BOX_COL_PKMCOUNT + cursorBox->col]);
 		cursorBox = NULL;
 
 		consoleSelect(state->console[0]);
@@ -142,14 +142,19 @@ void stateNavigateBoxInput(State_t *state)
 		
 	}
 
-	if (kDown & KEY_A)
+	if (kDown & KEY_Y)
 	{
 		consoleSelect(state->console[0]);
 
 		printf("\n");
-		state->pkBank->printPkm(*state->cursorBox.pkm);
+		PKBank::printPkm(*state->cursorBox.vPkm);
 
 		consoleSelect(state->console[1]);
+	}
+
+	if (kDown & KEY_A)
+	{
+		// PKBank::copyPokemon(state->pkBank->bankdata, state->cursorBox.pkm)
 	}
 }
 
