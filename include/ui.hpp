@@ -9,9 +9,9 @@ struct State_t;
 
 struct UIState_t
 {
-	void (*initf)(State_t *state);
-	void (*dispf)(State_t *state);
-	void (*inputf)(State_t *state);
+	void (*initf)(State_t* state);
+	void (*dispf)(State_t* state);
+	void (*inputf)(State_t* state);
 };
 
 struct State_t
@@ -26,10 +26,11 @@ struct State_t
 	u32 kHeld;
 };
 
-extern UIState_t stateNavigateBox;
+extern UIState_t stateNavigatePCBox;
+extern UIState_t stateNavigateBKBox;
 
 
-void switchState(State_t *state, struct UIState_t newState);
+void switchState(State_t* state, struct UIState_t newState);
 
 Result mainLoop(PKBank* bank, PrintConsole* top, PrintConsole* bot);
 

@@ -21,7 +21,7 @@ Result mainLoop(PKBank* pkBank, PrintConsole* top, PrintConsole* bot)
 	state.console[1] = bot;
 	state.ret = 1;
 
-	switchState(&state, stateNavigateBox);
+	switchState(&state, stateNavigatePCBox);
 
 	while (state.ret > 0 && aptMainLoop())
 	{

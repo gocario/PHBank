@@ -50,9 +50,9 @@ int main(int argc, char **argv)
 	printf(" > Press Start to exit\n");
 
 
-	// PKBank *bank = new PKBank();
-	// mainLoop(bank, &top, &bot);
-	// cdelete(bank);
+	// PKBank *pkBank = new PKBank();
+	// mainLoop(pkBank, &top, &bot);
+	// cdelete(pkBank);
 	// gfxExit();
 	// return 0;
 
@@ -69,7 +69,7 @@ int main(int argc, char **argv)
 		printf("Init FS OK\n");
 
 
-	PKBank *bank = NULL;
+	PKBank *pkBank = NULL;
 
 
 	u32 kDown;//, kHeld, kUp;
@@ -97,49 +97,49 @@ int main(int argc, char **argv)
 		if (kDown & KEY_A)
 		{
 			printf("Creating PkBank...");
-			cdelete(bank);
-			bank = new PKBank();
-			if (bank) printf(" OK\n");
+			cdelete(pkBank);
+			pkBank = new PKBank();
+			if (pkBank) printf(" OK\n");
 			else printf(" Error\n");
 		}
 
 		if (kDown & KEY_B)
 		{
-			if (bank)
+			if (pkBank)
 			{
-				mainLoop(bank, &top, &bot);
+				mainLoop(pkBank, &top, &bot);
 				break;
 			}
 
 			/*
 			printf("Destroying PkBank...");
-			cdelete(bank);
-			if (!bank) printf(" OK\n");
+			cdelete(pkBank);
+			if (!pkBank) printf(" OK\n");
 			else printf(" Error\n");
 			*/
 		}
 
 		if (kDown & KEY_X)
 		{
-			if (bank)
+			if (pkBank)
 			{
 				printf("Loading PkBank...\n");
-				if (bank->load(fs, &sdHandle, &saveHandle, &sdArchive, &saveArchive))
-					printf("Loading PkBank... OK\n");
-				else
+				if (pkBank->readLoad(fs, &sdHandle, &saveHandle, &sdArchive, &saveArchive))
 					printf("Loading PkBank... Error\n");
+				else
+					printf("Loading PkBank... OK\n");
 			}
 		}
 
 		if (kDown & KEY_Y)
 		{
-			if (bank)
+			if (pkBank)
 			{
 				printf("Saving PkBank...\n");
-				if (bank->save(fs, &sdHandle, &saveHandle, &sdArchive, &saveArchive))
-					printf("Saving PkBank... OK\n");
-				else
+				if (pkBank->writeSave(fs, &sdHandle, &saveHandle, &sdArchive, &saveArchive))
 					printf("Saving PkBank... Error\n");
+				else
+					printf("Saving PkBank... OK\n");
 			}
 		}
 
@@ -150,8 +150,8 @@ int main(int argc, char **argv)
 		//Wait for VBlank
 		gspWaitForVBlank();
 	}
-
-	cdelete(bank);
+	
+	cdelete(pkBank);
 
 	filesysExit(&sdHandle, &saveHandle, &sdArchive, &saveArchive);
 	gfxExit();

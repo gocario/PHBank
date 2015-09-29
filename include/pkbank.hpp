@@ -47,16 +47,33 @@
 typedef u8 ek6_t;
 typedef u8 pk6_t;
 
-typedef uint8_t pkm_t[PKM_SIZE];
-typedef pkm_t box_t[BOX_PKMCOUNT];
-typedef box_t pc_t[PC_BOXCOUNT];
-typedef box_t bank_t[BANK_BOXCOUNT];
+struct pkm_t
+{
+	ek6_t* ek6 = NULL; // Pointer to MainBuffer
+	pk6_t* pk6 = NULL; // Pointer to OwnBuffer
 
-// struct pkbdata_t
-// {
-// 	pc_t pc;
-// 	bank_t bank;
-// };
+	uint16_t species;
+	uint16_t TID;
+	uint16_t SID;
+	uint32_t PID;
+
+	// T O D O !!
+};
+
+struct box_t
+{
+	pkm_t slot[BOX_PKMCOUNT];
+};
+
+struct pc_t
+{
+	box_t box[PC_BOXCOUNT];
+};
+
+struct bank_t
+{
+	box_t box[BANK_BOXCOUNT];
+};
 
 struct savedata_t
 {
@@ -80,6 +97,8 @@ namespace Game
 		ORAS = 0x2,
 	} gametype_e;
 };
+
+typedef Game::gametype_e gametype_e;
 
 namespace CursorType
 {
@@ -109,7 +128,7 @@ struct CursorBox_t
 	s16 bRow = 0;
 	s16 bCol = 0;
 
-	bool isInBank = false;
+	bool inBank = false;
 	CursorType_e cursorType = CursorType::SingleSelect;
 };
 
@@ -121,68 +140,60 @@ class PKBank
 		PKBank();
 		~PKBank();
 
-		/// Propertie: `save`
-		bool saveLoaded();
-		/// Propertie: `bank`
-		bool bankLoaded();
 
-		/// Load data
-		bool load(Result fs, Handle *sdHandle, Handle *saveHandle, FS_archive *sdArchive, FS_archive *saveArchive);
-		bool loadSave(Handle *fsHandle, FS_archive *fsArchive);
-		bool loadBank(Handle *fsHandle, FS_archive *fsArchive);
-		void loadPokemon(ek6_t* ek6, pkm_t pkm);
-		void loadPokemonSave(uint16_t box, uint16_t slot, pkm_t pkm);
-		void loadPokemonSave(uint32_t offsetSlot, pkm_t pkm);
-		void loadPokemonBank(uint16_t box, uint16_t slot, pkm_t pkm);
-		void loadPokemonBank(uint32_t offsetSlot, pkm_t pkm);
+		Result readLoad(Result fs, Handle* sdHandle, Handle* saveHandle, FS_archive* sdArchive, FS_archive* saveArchive);
+		Result writeSave(Result fs, Handle* sdHandle, Handle* saveHandle, FS_archive* sdArchive, FS_archive* saveArchive);
+		
+		Result read(Result fs, Handle* sdHandle, Handle* saveHandle, FS_archive* sdArchive, FS_archive* saveArchive);
+		Result write(Result fs, Handle* sdHandle, Handle* saveHandle, FS_archive* sdArchive, FS_archive* saveArchive);
+		Result load();
+		Result save();
 
-		/// Save data
-		bool save(Result fs, Handle *sdHandle, Handle *saveHandle, FS_archive *sdArchive, FS_archive *saveArchive);
-		bool saveSave(Handle *fsHandle, FS_archive *fsArchive);
-		bool saveBank(Handle *fsHandle, FS_archive *fsArchive);
+		static void printByte(u8* bytes, u32 key = 0x0, uint32_t max = 0x0);
+		static void printPkm(pkm_t* pkm, u32 key = 0x0, uint32_t max = 0x0);
+		static gametype_e getGame(uint32_t bytesRead);
 
-		/// Backup data
-		bool backupSave(Handle *fsHandle, FS_archive *fsArchive);
+		void getPkm(uint16_t slotId, pkm_t** pkm, bool inBank = false);
+		void getPkm(uint16_t boxId, uint16_t slotId, pkm_t** pkm, bool inBank = false);
+		void getPkm(uint16_t boxId, uint16_t rowId, uint16_t colId, pkm_t** pkm, bool inBank = false);
 
-
-		void getPokemon(CursorBox_t* cursor);
-		void getPokemonPC(CursorBox_t* cursorBox);
-		void getPokemonPC(uint16_t box, uint16_t slot, pkm_t* pkm);
-		void getPokemonBK(CursorBox_t* cursorBox);
-		void getPokemonBK(uint16_t box, uint16_t slot, pkm_t* pkm);
 
 		savedata_t* savedata;
 		bankdata_t* bankdata;
 
-		Game::gametype_e gametype;
-
-		static Game::gametype_e getGame(uint32_t bytesRead);
-
-		static void transferPokemon(pkm_t src, pkm_t dest);
-		static void copyPokemon(pkm_t src, pkm_t dest);
-		static void deletePokemon(pkm_t pkm);
-		static void printPkm(pkm_t pkm, u32 key = 0, u32 max = PKM_SIZE);
-		static void printPk6(pk6_t* pk6, u32 key = 0, u32 max = PK6_SIZE);
+		gametype_e gametype;
 
 	private:
 
-		void convertPkmPk6(pkm_t pkm, pk6_t* pk6);
-		void convertPk6Pkm(pk6_t* pk6, pkm_t pkm);
-		void convertPk6Ek6(pk6_t* pk6, ek6_t* ek6);
-		void convertEk6Pk6(ek6_t* ek6, pk6_t* pk6);
+		Result readSave(Handle *fsHandle, FS_archive *fsArchive);
+		Result readBank(Handle *fsHandle, FS_archive *fsArchive);
+		Result writeSave(Handle *fsHandle, FS_archive *fsArchive);
+		Result writeBank(Handle *fsHandle, FS_archive *fsArchive);
+		Result backupSave(Handle *fsHandle, FS_archive *fsArchive);
 
-		void encryptPokemon(ek6_t* ek6, pk6_t* pk6);
-		void decryptPokemon(pk6_t* pk6, ek6_t* ek6);
-		void shufflePokemon(pk6_t* pk6, uint8_t sv);
+		Result loadSave();
+		Result loadBank();
+		void loadPkmPC(uint16_t boxId, uint16_t slotId);
+		void loadPkmBK(uint16_t boxId, uint16_t slotId);
+		void loadEk6PC(pkm_t* pkm, uint32_t offsetSlot);
+		void loadEk6BK(pkm_t* pkm, uint32_t offsetSlot);
+		void loadPk6Ek6(pkm_t* pkm);
+		void loadPkmPk6(pkm_t* pkm);
+
+		Result saveSave();
+		Result saveBank();
+		void savePkmPC(uint16_t boxId, uint16_t slotId);
+		void savePkmBK(uint16_t boxId, uint16_t slotId);
+		void saveEk6PC(pkm_t* pkm);
+		void saveEk6BK(pkm_t* pkm);
+		void savePk6Ek6(pkm_t* pkm);
+		void savePkmPk6(pkm_t* pkm);
+
 
 		uint32_t LCRNG(uint32_t seed);
-
-		/// Write buffers
-		bool writeBuffers();
-		bool writeSaveBuffer();
-		bool writeBankBuffer();
-		void editSaveBuffer(uint32_t pos, uint8_t* ptr, uint32_t size);
-		void editBankBuffer(uint32_t pos, uint8_t* ptr, uint32_t size);
+		void shufflePk6(pk6_t* pk6, uint8_t sv);
+		void decryptEk6(pkm_t* pkm);
+		void encryptPk6(pkm_t* pkm);
 
 		savebuffer_t savebuffer;
 		bankbuffer_t bankbuffer;
