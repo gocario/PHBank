@@ -22,7 +22,7 @@ void waitKey(u32 keyWait)
 	}
 }
 
-int main(int argc, char **argv)
+int main(int argc, char* argv[])
 {
 	PrintConsole top, bot;
 
@@ -51,7 +51,7 @@ int main(int argc, char **argv)
 	printf(" > Press Start to exit\n");
 
 
-	// PKBank *pkBank = new PKBank();
+	// PKBank* pkBank = new PKBank();
 	// mainLoop(pkBank, &top, &bot);
 	// cdelete(pkBank);
 	// gfxExit();
@@ -77,7 +77,7 @@ int main(int argc, char **argv)
 	// return 0;
 
 
-	PKBank *pkBank = NULL;
+	PKBank* pkBank = NULL;
 
 	pkBank = new PKBank();
 	pkBank->load(fs, &sdHandle, &saveHandle, &sdArchive, &saveArchive);

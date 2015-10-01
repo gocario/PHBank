@@ -21,7 +21,7 @@ Result _movePokemonInput(State_t* state);
 // --------------------------------------------------
 
 
-// --------------------------------------------------
+// ==================================================
 void _computeActualSlot(CursorBox_t* cursorBox, uint16_t* pbox, uint16_t* prow, uint16_t* pcol, uint16_t* pins)
 // --------------------------------------------------
 {
@@ -45,7 +45,7 @@ void _computeActualSlot(CursorBox_t* cursorBox, uint16_t* pbox, uint16_t* prow, 
 }
 
 
-// --------------------------------------------------
+// ==================================================
 void _selectViewPkm(State_t* state)
 // --------------------------------------------------
 {
@@ -63,7 +63,7 @@ void _selectViewPkm(State_t* state)
 }
 
 
-// --------------------------------------------------
+// ==================================================
 void _movePkm(State_t* state)
 // --------------------------------------------------
 {
@@ -83,7 +83,7 @@ void _movePkm(State_t* state)
 }
 
 
-// --------------------------------------------------
+// ==================================================
 void _init(State_t* state, bool inBank)
 // --------------------------------------------------
 {
@@ -94,7 +94,7 @@ void _init(State_t* state, bool inBank)
 }
 
 
-// --------------------------------------------------
+// ==================================================
 void _printBox(State_t* state, bool BK, uint32_t rowOffset, uint32_t colOffset)
 // --------------------------------------------------
 {
@@ -132,7 +132,7 @@ void _printBox(State_t* state, bool BK, uint32_t rowOffset, uint32_t colOffset)
 }
 
 
-// --------------------------------------------------
+// ==================================================
 void _printCommands(State_t* state)
 // --------------------------------------------------
 {
@@ -158,7 +158,7 @@ void _printCommands(State_t* state)
 }
 
 
-// --------------------------------------------------
+// ==================================================
 void _printBotscreen(State_t* state)
 // --------------------------------------------------
 {
@@ -202,7 +202,7 @@ void _printBotscreen(State_t* state)
 }
 
 
-// --------------------------------------------------
+// ==================================================
 Result _moveCursorInput(State_t* state)
 // --------------------------------------------------
 {
@@ -289,17 +289,18 @@ Result _moveCursorInput(State_t* state)
 	if (kDown & (KEY_X | KEY_ZL | KEY_ZR))
 	{
 		if (state->cursorBox.inBank)
-			switchState(state, stateNavigatePCBox);
+			_init(state, false);
 		else
-			switchState(state, stateNavigateBKBox);
-		return 1;
+			_init(state, true);
+
+		// return 1;
 	}
 
 	return ret;
 }
 
 
-// --------------------------------------------------
+// ==================================================
 Result _movePokemonInput(State_t* state)
 // --------------------------------------------------
 {
@@ -343,7 +344,7 @@ void stateNavigateBoxInput(State_t* state);
 // --------------------------------------------------
 
 
-// --------------------------------------------------
+// ==================================================
 void stateNavigateBoxInit(State_t* state)
 // --------------------------------------------------
 {
@@ -351,7 +352,7 @@ void stateNavigateBoxInit(State_t* state)
 }
 
 
-// --------------------------------------------------
+// ==================================================
 void stateNavigateBoxDisplay(State_t* state)
 // --------------------------------------------------
 {
@@ -359,7 +360,7 @@ void stateNavigateBoxDisplay(State_t* state)
 }
 
 
-// --------------------------------------------------
+// ==================================================
 void stateNavigateBoxInput(State_t* state)
 // --------------------------------------------------
 {
@@ -375,8 +376,8 @@ UIState_t stateNavigateBox = {&stateNavigateBoxInit, &stateNavigateBoxDisplay, &
  |                     StateNavigatePCBox                     |
 \*------------------------------------------------------------*/
 
-
-// --------------------------------------------------
+/*
+// ==================================================
 void stateNavigatePCBoxInit(State_t* state)
 // --------------------------------------------------
 {
@@ -384,7 +385,7 @@ void stateNavigatePCBoxInit(State_t* state)
 }
 
 
-// --------------------------------------------------
+// ==================================================
 void stateNavigatePCBoxDisplay(State_t* state)
 // --------------------------------------------------
 {
@@ -392,7 +393,7 @@ void stateNavigatePCBoxDisplay(State_t* state)
 }
 
 
-// --------------------------------------------------
+// ==================================================
 void stateNavigatePCBoxInput(State_t* state)
 // --------------------------------------------------
 {
@@ -402,14 +403,14 @@ void stateNavigatePCBoxInput(State_t* state)
 
 
 UIState_t stateNavigatePCBox = {&stateNavigatePCBoxInit, &stateNavigatePCBoxDisplay, &stateNavigatePCBoxInput};
-
+*/
 
 /*------------------------------------------------------------*\
  |                     StateNavigateBKBox                     |
 \*------------------------------------------------------------*/
 
-
-// --------------------------------------------------
+/*
+// ==================================================
 void stateNavigateBKBoxInit(State_t* state)
 // --------------------------------------------------
 {
@@ -417,7 +418,7 @@ void stateNavigateBKBoxInit(State_t* state)
 }
 
 
-// --------------------------------------------------
+// ==================================================
 void stateNavigateBKBoxDisplay(State_t* state)
 // --------------------------------------------------
 {
@@ -425,7 +426,7 @@ void stateNavigateBKBoxDisplay(State_t* state)
 }
 
 
-// --------------------------------------------------
+// ==================================================
 void stateNavigateBKBoxInput(State_t* state)
 // --------------------------------------------------
 {
@@ -435,3 +436,4 @@ void stateNavigateBKBoxInput(State_t* state)
 
 
 UIState_t stateNavigateBKBox = {&stateNavigateBKBoxInit, &stateNavigateBKBoxDisplay, &stateNavigateBKBoxInput};
+*/

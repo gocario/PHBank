@@ -16,16 +16,16 @@ typedef struct State_t State_t;
 
 typedef struct UIState_t
 {
-	void (*initf)(State_t *state);
-	void (*dispf)(State_t *state);
-	void (*inputf)(State_t *state);
+	void (*initf)(State_t* state);
+	void (*dispf)(State_t* state);
+	void (*inputf)(State_t* state);
 } UIState_t;
 
 typedef struct State_t
 {
 	UIState_t uiState;
 	CursorBox_t cursorBox;
-	PKBank *pkBank;
+	PKBank* pkBank;
 
 	PrintConsole *console[2];
 	Result ret;
@@ -35,12 +35,12 @@ typedef struct State_t
 
 
 extern UIState_t stateNavigateBox;
-extern UIState_t stateNavigatePCBox;
-extern UIState_t stateNavigateBKBox;
+// extern UIState_t stateNavigatePCBox;
+// extern UIState_t stateNavigateBKBox;
 
 
-void switchState(State_t *state, struct UIState_t newState);
+void switchState(State_t* state, struct UIState_t newState);
 
-Result mainLoop(PKBank *bank, PrintConsole *top, PrintConsole *bot);
+Result mainLoop(PKBank* bank, PrintConsole* top, PrintConsole* bot);
 
 #endif // UI_HPP
