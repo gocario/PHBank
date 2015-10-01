@@ -119,14 +119,16 @@ struct CursorBox_t
 	pkm_t* sPkm = NULL;
 
 	u16 slot = 0;
-	s16 box = 0;
-	s16 row = 0;
-	s16 col = 0;
 
-	u16 bSlot = 0;
-	s16 bBox = 0;
-	s16 bRow = 0;
-	s16 bCol = 0;
+	u16 pcSlot = 0;
+	s16 pcBox = 0;
+	s16 pcRow = 0;
+	s16 pcCol = 0;
+
+	u16 bkSlot = 0;
+	s16 bkBox = 0;
+	s16 bkRow = 0;
+	s16 bkCol = 0;
 
 	bool inBank = false;
 	CursorType_e cursorType = CursorType::SingleSelect;
@@ -141,13 +143,13 @@ class PKBank
 		~PKBank();
 
 
-		Result readLoad(Result fs, Handle* sdHandle, Handle* saveHandle, FS_archive* sdArchive, FS_archive* saveArchive);
-		Result writeSave(Result fs, Handle* sdHandle, Handle* saveHandle, FS_archive* sdArchive, FS_archive* saveArchive);
+		Result load(Result fs, Handle* sdHandle, Handle* saveHandle, FS_archive* sdArchive, FS_archive* saveArchive);
+		Result save(Result fs, Handle* sdHandle, Handle* saveHandle, FS_archive* sdArchive, FS_archive* saveArchive);
 		
-		Result read(Result fs, Handle* sdHandle, Handle* saveHandle, FS_archive* sdArchive, FS_archive* saveArchive);
-		Result write(Result fs, Handle* sdHandle, Handle* saveHandle, FS_archive* sdArchive, FS_archive* saveArchive);
-		Result load();
-		Result save();
+		Result loadFile(Result fs, Handle* sdHandle, Handle* saveHandle, FS_archive* sdArchive, FS_archive* saveArchive);
+		Result saveFile(Result fs, Handle* sdHandle, Handle* saveHandle, FS_archive* sdArchive, FS_archive* saveArchive);
+		Result loadData();
+		Result saveData();
 
 		static void printByte(u8* bytes, u32 key = 0x0, uint32_t max = 0x0);
 		static void printPkm(pkm_t* pkm, u32 key = 0x0, uint32_t max = 0x0);
@@ -156,23 +158,26 @@ class PKBank
 		void getPkm(uint16_t slotId, pkm_t** pkm, bool inBank = false);
 		void getPkm(uint16_t boxId, uint16_t slotId, pkm_t** pkm, bool inBank = false);
 		void getPkm(uint16_t boxId, uint16_t rowId, uint16_t colId, pkm_t** pkm, bool inBank = false);
+		void movePkm(pkm_t* src, pkm_t* dest);
 
 
 		savedata_t* savedata;
 		bankdata_t* bankdata;
 
-		gametype_e gametype;
-
 	private:
 
-		Result readSave(Handle *fsHandle, FS_archive *fsArchive);
-		Result readBank(Handle *fsHandle, FS_archive *fsArchive);
-		Result writeSave(Handle *fsHandle, FS_archive *fsArchive);
-		Result writeBank(Handle *fsHandle, FS_archive *fsArchive);
-		Result backupSave(Handle *fsHandle, FS_archive *fsArchive);
+		gametype_e gametype;
+		savebuffer_t savebuffer;
+		bankbuffer_t bankbuffer;
 
-		Result loadSave();
-		Result loadBank();
+		Result loadSaveFile(Handle *fsHandle, FS_archive *fsArchive);
+		Result loadBankFile(Handle *fsHandle, FS_archive *fsArchive);
+		Result saveSaveFile(Handle *fsHandle, FS_archive *fsArchive);
+		Result saveBankFile(Handle *fsHandle, FS_archive *fsArchive);
+		Result backupSaveFile(Handle *fsHandle, FS_archive *fsArchive);
+
+		Result loadSaveData();
+		Result loadBankData();
 		void loadPkmPC(uint16_t boxId, uint16_t slotId);
 		void loadPkmBK(uint16_t boxId, uint16_t slotId);
 		void loadEk6PC(pkm_t* pkm, uint32_t offsetSlot);
@@ -180,23 +185,28 @@ class PKBank
 		void loadPk6Ek6(pkm_t* pkm);
 		void loadPkmPk6(pkm_t* pkm);
 
-		Result saveSave();
-		Result saveBank();
+		Result saveSaveData();
+		Result saveBankData();
 		void savePkmPC(uint16_t boxId, uint16_t slotId);
 		void savePkmBK(uint16_t boxId, uint16_t slotId);
 		void saveEk6PC(pkm_t* pkm);
 		void saveEk6BK(pkm_t* pkm);
 		void savePk6Ek6(pkm_t* pkm);
 		void savePkmPk6(pkm_t* pkm);
+		void editSaveBuffer(uint32_t pos, uint8_t* ptr, uint32_t size);
+		void editBankBuffer(uint32_t pos, uint8_t* ptr, uint32_t size);
 
-
+		// Encryption
 		uint32_t LCRNG(uint32_t seed);
 		void shufflePk6(pk6_t* pk6, uint8_t sv);
 		void decryptEk6(pkm_t* pkm);
 		void encryptPk6(pkm_t* pkm);
 
-		savebuffer_t savebuffer;
-		bankbuffer_t bankbuffer;
+		// Save Checksum
+		uint32_t CHKOffset(uint32_t i);
+		uint32_t CHKLength(uint32_t i);
+		uint16_t ccitt16(pk6_t* pk6, uint32_t len);
+		void rewriteSaveCHK();
 };
 
 #endif // PBANK_HPP

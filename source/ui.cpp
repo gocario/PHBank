@@ -1,13 +1,13 @@
 #include "ui.hpp"
 
-void switchState(State_t* state, struct UIState_t newState)
+void switchState(State_t *state, struct UIState_t newState)
 {
 	state->uiState = newState;
 	state->uiState.initf(state);
 }
 
 
-Result mainLoop(PKBank* pkBank, PrintConsole* top, PrintConsole* bot)
+Result mainLoop(PKBank *pkBank, PrintConsole *top, PrintConsole *bot)
 {
 	State_t state;
 
@@ -19,11 +19,11 @@ Result mainLoop(PKBank* pkBank, PrintConsole* top, PrintConsole* bot)
 	// state.cursorBox.cursorType = CursorType::SelectSingle;
 	state.console[0] = top;
 	state.console[1] = bot;
-	state.ret = 1;
+	state.ret = STATE_CONTINUE;
 
 	switchState(&state, stateNavigatePCBox);
 
-	while (state.ret > 0 && aptMainLoop())
+	while (state.ret == STATE_CONTINUE && aptMainLoop())
 	{
 		hidScanInput();
 		state.kDown = hidKeysDown();
@@ -36,5 +36,5 @@ Result mainLoop(PKBank* pkBank, PrintConsole* top, PrintConsole* bot)
 		gspWaitForVBlank();
 	}
 
-	return (state.ret == 0 ? 0 : 1);
+	return state.ret;
 }

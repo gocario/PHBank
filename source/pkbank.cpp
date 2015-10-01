@@ -1,5 +1,8 @@
 #include "pkbank.hpp"
 
+#include <time.h>
+
+
 /*----------------------------------------------------------*\
  |                 Constructor / Destructor                 |
 \*----------------------------------------------------------*/
@@ -58,30 +61,33 @@ PKBank::~PKBank()
 \*----------------------------------------------------------*/
 
 
-Result PKBank::readLoad(Result fs, Handle *sdHandle, Handle *saveHandle, FS_archive *sdArchive, FS_archive *saveArchive)
+// --------------------------------------------------
+Result PKBank::load(Result fs, Handle *sdHandle, Handle *saveHandle, FS_archive *sdArchive, FS_archive *saveArchive)
+// --------------------------------------------------
 {
 	Result ret = 0;
 
 	printf("> Reading...\n");
-	ret = read(fs, sdHandle, saveHandle, sdArchive, saveArchive);
+	ret = loadFile(fs, sdHandle, saveHandle, sdArchive, saveArchive);
 	if (ret) return ret;
 
 	printf("> Loading...\n");
-	ret = load();
+	ret = loadData();
 	if (ret) return ret;
 
 	return ret;
 }
 
-
-Result PKBank::writeSave(Result fs, Handle *sdHandle, Handle *saveHandle, FS_archive *sdArchive, FS_archive *saveArchive)
+// --------------------------------------------------
+Result PKBank::save(Result fs, Handle *sdHandle, Handle *saveHandle, FS_archive *sdArchive, FS_archive *saveArchive)
+// --------------------------------------------------
 {
 	Result ret = 0;
 
-	ret = write(fs, sdHandle, saveHandle, sdArchive, saveArchive);
+	ret = saveData();
 	if (ret) return ret;
 
-	ret = save();
+	ret = saveFile(fs, sdHandle, saveHandle, sdArchive, saveArchive);
 	if (ret) return ret;
 
 	return ret;
@@ -95,36 +101,37 @@ Result PKBank::writeSave(Result fs, Handle *sdHandle, Handle *saveHandle, FS_arc
 
 // --------------------------------------------------
 /// Read data from cartridge
-Result PKBank::read(Result fs, Handle *sdHandle, Handle *saveHandle, FS_archive *sdArchive, FS_archive *saveArchive)
+Result PKBank::loadFile(Result fs, Handle *sdHandle, Handle *saveHandle, FS_archive *sdArchive, FS_archive *saveArchive)
 // --------------------------------------------------
 {
 	Result ret = 0;
 
 	char path[] = "/pkbank";
-	createDirectory(path, sdHandle, sdArchive);
+	ret = FS_createDirectory(path, sdHandle, sdArchive);
+	// if (ret) return ret;
 
 	if (fs)
 	{
 		printf(">Loading Save from SD\n");
-		ret = readSave(sdHandle, sdArchive);
+		ret = loadSaveFile(sdHandle, sdArchive);
 		if (ret) return ret;
 	}
 	else
 	{
 		printf(">Loading Save from Card\n");
-		ret = readSave(saveHandle, saveArchive);
+		ret = loadSaveFile(saveHandle, saveArchive);
 		if (ret) return ret;
 	}
 
 	printf(">Loading Bank from SD\n");
-	ret = readBank(sdHandle, sdArchive);
+	ret = loadBankFile(sdHandle, sdArchive);
 	if (ret) return ret;
 
 	hidScanInput();
 	if (hidKeysHeld() & KEY_L)
 	{
 		printf(">Backing up Save to SD\n");
-		ret = backupSave(sdHandle, sdArchive);
+		ret = backupSaveFile(sdHandle, sdArchive);
 		if (ret) return ret;
 	}
 	else
@@ -137,36 +144,37 @@ Result PKBank::read(Result fs, Handle *sdHandle, Handle *saveHandle, FS_archive 
 
 // --------------------------------------------------
 /// Write data from cartridge
-Result PKBank::write(Result fs, Handle *sdHandle, Handle *saveHandle, FS_archive *sdArchive, FS_archive *saveArchive)
+Result PKBank::saveFile(Result fs, Handle *sdHandle, Handle *saveHandle, FS_archive *sdArchive, FS_archive *saveArchive)
 // --------------------------------------------------
 {
 	Result ret = 0;
 
 	char path[] = "/pkbank";
-	createDirectory(path, sdHandle, sdArchive);
+	ret = FS_createDirectory(path, sdHandle, sdArchive);
+	// if (ret) return ret;
 
 	if (fs)
 	{
-		printf(">Writing Save from SD\n");
-		ret = writeSave(sdHandle, sdArchive);
+		printf(">Saving Save to SD\n");
+		ret = saveSaveFile(sdHandle, sdArchive);
 		if (ret) return ret;
 	}
 	else
 	{
-		printf(">Writing Save from Card\n");
-		ret = writeSave(saveHandle, saveArchive);
+		printf(">Saving Save to Card\n");
+		ret = saveSaveFile(saveHandle, saveArchive);
 		if (ret) return ret;
 	}
 
-	printf(">Writing Bank from SD\n");
-	ret = writeBank(sdHandle, sdArchive);
+	printf(">Saving Bank to SD\n");
+	ret = saveBankFile(sdHandle, sdArchive);
 	if (ret) return ret;
 
 	hidScanInput();
 	if (hidKeysHeld() & KEY_L)
 	{
 		printf(">Backing up Save to SD\n");
-		ret = backupSave(sdHandle, sdArchive);
+		ret = backupSaveFile(sdHandle, sdArchive);
 		if (ret) return ret;
 	}
 	else
@@ -183,15 +191,15 @@ Result PKBank::write(Result fs, Handle *sdHandle, Handle *saveHandle, FS_archive
 
 // --------------------------------------------------
 /// Load data from save and bank buffers
-Result PKBank::load()
+Result PKBank::loadData()
 // --------------------------------------------------
 {
 	Result ret = 0;
 	
-	ret = loadSave();
+	ret = loadSaveData();
 	if (ret) return ret;
 
-	ret = loadBank();
+	ret = loadBankData();
 	if (ret) return ret;
 
 	return ret;
@@ -205,15 +213,15 @@ Result PKBank::load()
 
 // --------------------------------------------------
 /// Save data to save and bank buffers
-Result PKBank::save()
+Result PKBank::saveData()
 // --------------------------------------------------
 {
 	Result ret = 0;
 	
-	ret = saveSave();
+	ret = saveSaveData();
 	if (ret) return ret;
 	
-	ret = saveBank();
+	ret = saveBankData();
 	if (ret) return ret;
 
 	return ret;
@@ -229,7 +237,7 @@ Result PKBank::save()
 void PKBank::printByte(u8* bytes, u32 key, uint32_t max)
 // --------------------------------------------------
 {
-	printf(" ");
+	printf("  ");
 	if (bytes == NULL)
 	{
 		for (uint32_t i = 0; i < max; i++)
@@ -277,7 +285,7 @@ void PKBank::printPkm(pkm_t* pkm, u32 key, uint32_t max)
 {
 	// printf("Pkm(off): 0x%08x\n", pkm);
 	// printByte(pkm->ek6, 0, 0x10);
-	printByte(pkm->pk6, key, 0x10);
+	printByte(pkm->pk6, key, PK6_SIZE);
 
 	// printByte(pkm->pk6, key, max);
 }
@@ -311,7 +319,7 @@ gametype_e PKBank::getGame(uint32_t bytesRead)
 void PKBank::getPkm(uint16_t slotId, pkm_t** pkm, bool inBank)
 // --------------------------------------------------
 {
-	// T O D O !!
+	getPkm(slotId / BOX_PKMCOUNT, slotId % BOX_PKMCOUNT, pkm, inBank);
 }
 
 
@@ -338,6 +346,25 @@ void PKBank::getPkm(uint16_t boxId, uint16_t rowId, uint16_t colId, pkm_t** pkm,
 }
 
 
+// --------------------------------------------------
+void PKBank::movePkm(pkm_t* src, pkm_t* dest)
+// --------------------------------------------------
+{
+	pkm_t tmp;
+	tmp.pk6 = dest->pk6;
+	dest->pk6 = src->pk6;
+	src->pk6 = tmp.pk6;
+
+	loadPkmPk6(src);
+	loadPkmPk6(dest);
+
+	// pkm_t tmp;
+	// tmp.ek6 = dest.ek6;
+	// dest.ek6 = src.ek6;
+	// src.ek6 = tmp.ek6;
+}
+
+
 /*------------------------------------------------------------*\
  |                      Private Section                       |
 \*------------------------------------------------------------*/
@@ -349,16 +376,17 @@ void PKBank::getPkm(uint16_t boxId, uint16_t rowId, uint16_t colId, pkm_t** pkm,
 
 
 // --------------------------------------------------
-Result PKBank::readSave(Handle *fsHandle, FS_archive *fsArchive)
+Result PKBank::loadSaveFile(Handle *fsHandle, FS_archive *fsArchive)
 // --------------------------------------------------
 {
 	Result ret = 0;
 	uint32_t bytesRead;
+	uint32_t size = (gametype == Game::XY ? SAVEDATA_XY_SIZE : SAVEDATA_ORAS_SIZE);
 	char path[] = "/main";
 
 	printf("Loading savefile... ");
 
-	ret = loadFile(path, this->savebuffer, fsArchive, fsHandle, SAVEDATA_ORAS_SIZE, &bytesRead);
+	ret = FS_loadFile(path, this->savebuffer, fsArchive, fsHandle, size, &bytesRead);
 	if (ret) return ret;
 
 	printf(" OK\n  Read %ld bytes\n", bytesRead);
@@ -370,24 +398,25 @@ Result PKBank::readSave(Handle *fsHandle, FS_archive *fsArchive)
 
 
 // --------------------------------------------------
-Result PKBank::readBank(Handle *fsHandle, FS_archive *fsArchive)
+Result PKBank::loadBankFile(Handle *fsHandle, FS_archive *fsArchive)
 // --------------------------------------------------
 {
 	Result ret = 0;
 	uint32_t bytesRead;
+	uint32_t size = BANKDATA_PKBK_SIZE;
 	char path[] = "/pkbank/bank";
 
 	printf("Loading bankfile... ");
 
-	ret = loadFile(path, this->bankbuffer, fsArchive, fsHandle, BANKDATA_PKBK_SIZE, &bytesRead);
+	ret = FS_loadFile(path, this->bankbuffer, fsArchive, fsHandle, size, &bytesRead);
 	if (ret)
 	{
 		printf(" Creating...");
-		for (uint32_t i = 0; i < BANKDATA_PKBK_SIZE; i++)
+		bytesRead = BANKDATA_PKBK_SIZE;
+		for (uint32_t i = 0; i < bytesRead; i++)
 		{
 			bankbuffer[i] = 0x00;
 		}
-		bytesRead = BANKDATA_PKBK_SIZE;
 
 		ret = 0;
 	}
@@ -399,50 +428,64 @@ Result PKBank::readBank(Handle *fsHandle, FS_archive *fsArchive)
 
 
 // --------------------------------------------------
-Result PKBank::writeSave(Handle *fsHandle, FS_archive *fsArchive)
+Result PKBank::saveSaveFile(Handle *fsHandle, FS_archive *fsArchive)
 // --------------------------------------------------
 {
 	Result ret = 0;
+	uint32_t bytesWritten;
+	uint32_t size = (gametype == Game::XY ? SAVEDATA_XY_SIZE : SAVEDATA_ORAS_SIZE);
+	char path[] = "/main";
 
-	// T O D O !!
+	ret = FS_deleteFile(path, fsHandle, fsArchive);
+
+	printf("Writing savefile... ");
+	ret = FS_saveSFile(path, this->savebuffer, size, fsArchive, fsHandle, &bytesWritten);
+	if (ret) printf(" ERROR\n");
+	else printf(" OK\n  Written %ld bytes\n", bytesWritten);
 
 	return ret;
 }
 
 
 // --------------------------------------------------
-Result PKBank::writeBank(Handle *fsHandle, FS_archive *fsArchive)
+Result PKBank::saveBankFile(Handle *fsHandle, FS_archive *fsArchive)
 // --------------------------------------------------
 {
 	Result ret = 0;
+	uint32_t bytesWritten;
+	uint32_t size = BANKDATA_PKBK_SIZE;
+	char path[] = "/pkbank/bank";
 
-	// T O D O !!
+	printf("Writing bankfile... ");
+	ret = FS_saveFile(path, this->bankbuffer, size, fsArchive, fsHandle, &bytesWritten);
+	if (ret) printf(" ERROR\n");
+	else printf(" OK\n  Written %ld bytes\n", bytesWritten);
 
 	return ret;
 }
 
 
 // --------------------------------------------------
-Result PKBank::backupSave(Handle *fsHandle, FS_archive *fsArchive)
+Result PKBank::backupSaveFile(Handle *fsHandle, FS_archive *fsArchive)
 // --------------------------------------------------
 {
 	Result ret = 0;
-
-	/*
-	if (!savebuffer) return -1;
+	uint32_t bytesWritten;
+	uint32_t size = (gametype == Game::XY ? SAVEDATA_XY_SIZE : SAVEDATA_ORAS_SIZE);
+	char path[0x20];
 
 	char pathDir[] = "/pkbank/backup/";
-	createDirectory(pathDir, fsHandle, fsArchive);
+	ret = FS_createDirectory(pathDir, fsHandle, fsArchive);
+	// if (ret) return ret;
 
-	uint32_t byteWritten;
-	char path[] = "/pkbank/backup/main";
-	deleteFile(path, fsHandle, fsArchive);
+	sprintf(path, "%smain_%i", pathDir, (int) time(NULL));
+	ret = FS_deleteFile(path, fsHandle, fsArchive);
+	// if (ret) return ret;
+
 	printf("Backing up savefile...");
-	saveFile(path, savebuffer, SAVEDATA_ORAS_SIZE, fsArchive, fsHandle, &byteWritten);
-	printf(" OK\n  Written %ld bytes\n", byteWritten);
-
-	return true;
-	*/
+	ret = FS_saveFile(path, savebuffer, size, fsArchive, fsHandle, &bytesWritten);
+	if (ret) printf(" ERROR\n");
+	else printf(" OK\n  Written %ld bytes\n", bytesWritten);
 
 	return ret;
 }
@@ -455,7 +498,7 @@ Result PKBank::backupSave(Handle *fsHandle, FS_archive *fsArchive)
 
 // --------------------------------------------------
 /// Load data from save
-Result PKBank::loadSave()
+Result PKBank::loadSaveData()
 // --------------------------------------------------
 {
 	Result ret = 0;
@@ -480,7 +523,7 @@ Result PKBank::loadSave()
 
 // --------------------------------------------------
 /// Load data from bank
-Result PKBank::loadBank()
+Result PKBank::loadBankData()
 // --------------------------------------------------
 {
 	Result ret = 0;
@@ -511,7 +554,7 @@ void PKBank::loadPkmPC(uint16_t boxId, uint16_t slotId)
 	pkm_t* pkm = &savedata->pc.box[boxId].slot[slotId];
 	// printf("Loading Pkm... [%-2u][%-2u]\n", boxId, slotId);
 	loadEk6PC(pkm, BOX_SIZE * boxId + PKM_SIZE * slotId);
-	loadPk6Ek6(pkm);
+	loadPk6Ek6(pkm); // #Pokemon stored as Pk6
 	loadPkmPk6(pkm);
 	// printPkm(pkm, KEY_A, 0xe8);
 }
@@ -527,7 +570,7 @@ void PKBank::loadPkmBK(uint16_t boxId, uint16_t slotId)
 	pkm_t* pkm = &bankdata->bank.box[boxId].slot[slotId];
 	// printf("Loading Pkm... [%-2u][%-2u]\n", boxId, slotId);
 	loadEk6BK(pkm, BOX_SIZE * boxId + PKM_SIZE * slotId);
-	loadPk6Ek6(pkm);
+	// loadPk6Ek6(pkm); // #Pokemon stored as Pk6
 	loadPkmPk6(pkm);
 	// printPkm(pkm, KEY_A, 0xe8);
 }
@@ -538,7 +581,7 @@ void PKBank::loadPkmBK(uint16_t boxId, uint16_t slotId)
 void PKBank::loadEk6PC(pkm_t* pkm, uint32_t offsetSlot)
 // --------------------------------------------------
 {
-	if (!this->savebuffer) return;
+	if (!pkm || !this->savebuffer) return;
 
 	uint32_t offsetPC = (gametype == Game::XY ? PC_XY_OFFSET : PC_ORAS_OFFSET);
 
@@ -551,11 +594,15 @@ void PKBank::loadEk6PC(pkm_t* pkm, uint32_t offsetSlot)
 void PKBank::loadEk6BK(pkm_t* pkm, uint32_t offsetSlot)
 // --------------------------------------------------
 {
-	if (!this->bankbuffer) return;
+	if (!pkm || !this->bankbuffer) return;
 
 	uint32_t offsetBK = BANK_PKBK_OFFSET;
 
-	pkm->ek6 = savebuffer + offsetBK + offsetSlot;
+	pkm->ek6 = bankbuffer + offsetBK + offsetSlot;
+
+	// #Pokemon stored as Pk6
+	pkm->pk6 = new pk6_t[PK6_SIZE];
+	memcpy(pkm->pk6, pkm->ek6, EK6_SIZE);
 }
 
 
@@ -564,7 +611,7 @@ void PKBank::loadEk6BK(pkm_t* pkm, uint32_t offsetSlot)
 void PKBank::loadPk6Ek6(pkm_t* pkm)
 // --------------------------------------------------
 {
-	if (!pkm->ek6) return;
+	if (!pkm || !pkm->ek6) return;
 
 	pkm->pk6 = new pk6_t[PK6_SIZE];
 
@@ -577,14 +624,14 @@ void PKBank::loadPk6Ek6(pkm_t* pkm)
 void PKBank::loadPkmPk6(pkm_t* pkm)
 // --------------------------------------------------
 {
-	if (!pkm->pk6) return;
+	if (!pkm || !pkm->pk6) return;
 
 	pkm->species = *(uint16_t*)(pkm->pk6 + 0x08);
 	pkm->TID = *(uint16_t*)(pkm->pk6 + 0x0c);
 	pkm->SID = *(uint16_t*)(pkm->pk6 + 0x0e);
 	pkm->PID = *(uint32_t*)(pkm->pk6 + 0x18);
 
-	// T O D O !!
+	// T O D O !! #Complete
 }
 
 
@@ -594,37 +641,50 @@ void PKBank::loadPkmPk6(pkm_t* pkm)
 
 
 // --------------------------------------------------
-/// Save data from save
-Result PKBank::saveSave()
+/// Save data to save
+Result PKBank::saveSaveData()
 // --------------------------------------------------
 {
 	Result ret = 0;
 
+	printf("Saving PC Boxes:\n");
 	for (uint16_t iB = 0; iB < PC_BOXCOUNT; iB++)
 	{
+		printf("%-2u ", iB);
+		if (iB % 0x10 == 0xf) printf("\n");
 		for (uint16_t iP = 0; iP < BOX_PKMCOUNT; iP++)
 		{
-			// savePkmPC()
+			savePkmPC(iB, iP);
 		}
 	}
+	printf("\n");
+
+
+	printf("Rewriting checksums...\n");
+	rewriteSaveCHK();
+	printf(" OK\n");
 
 	return ret;
 }
 
 // --------------------------------------------------
-/// Save data from bank
-Result PKBank::saveBank()
+/// Save data to bank
+Result PKBank::saveBankData()
 // --------------------------------------------------
 {
 	Result ret = 0;
 
+	printf("Saving BK Boxes:\n");
 	for (uint16_t iB = 0; iB < BANK_BOXCOUNT; iB++)
 	{
+		printf("%-2u ", iB);
+		if (iB % 0x10 == 0xf) printf("\n");
 		for (uint16_t iP = 0; iP < BOX_PKMCOUNT; iP++)
 		{
-			// savePkmBK()
+			savePkmBK(iB, iP);
 		}
 	}
+	printf("\n");
 
 	return ret;
 }
@@ -634,10 +694,12 @@ Result PKBank::saveBank()
 void PKBank::savePkmPC(uint16_t boxId, uint16_t slotId)
 // --------------------------------------------------
 {
+	if (!this->savebuffer || !this->savedata) return;
+
 	pkm_t* pkm = &savedata->pc.box[boxId].slot[slotId];
-	savePkmPk6(pkm);
-	savePk6Ek6(pkm);
-	saveEk6PC(pkm); // ~
+	// savePkmPk6(pkm); #if COMMIT_CHEAT_CHANGE
+	savePk6Ek6(pkm); // #Pokemon stored as Ek6
+	// saveEk6PC(pkm); // #Pokemon stored as Ek6
 }
 
 
@@ -645,10 +707,12 @@ void PKBank::savePkmPC(uint16_t boxId, uint16_t slotId)
 void PKBank::savePkmBK(uint16_t boxId, uint16_t slotId)
 // --------------------------------------------------
 {
-	pkm_t* pkm = &savedata->pc.box[boxId].slot[slotId];
-	savePkmPk6(pkm);
-	savePk6Ek6(pkm);
-	saveEk6BK(pkm); // ~
+	if (!this->bankbuffer || !this->bankdata) return;
+
+	pkm_t* pkm = &bankdata->bank.box[boxId].slot[slotId];
+	// savePkmPk6(pkm); #if COMMIT_CHEAT_CHANGE
+	// savePk6Ek6(pkm); // #Pokemon stored as Pk6
+	saveEk6BK(pkm); // #Pokemon stored as Pk6
 }
 
 
@@ -656,6 +720,7 @@ void PKBank::savePkmBK(uint16_t boxId, uint16_t slotId)
 void PKBank::saveEk6PC(pkm_t* pkm)
 // --------------------------------------------------
 {
+	if (!pkm || !this->savebuffer || !pkm->ek6) return;
 	// ~ Useless ~ !!
 }
 
@@ -664,7 +729,10 @@ void PKBank::saveEk6PC(pkm_t* pkm)
 void PKBank::saveEk6BK(pkm_t* pkm)
 // --------------------------------------------------
 {
-	// ~ Useless ~ !!
+	if (!pkm || !this->bankbuffer || !pkm->ek6) return;
+	
+	// #Pokemon stored as Pk6
+	memcpy(pkm->ek6, pkm->pk6, PK6_SIZE);
 }
 
 
@@ -672,7 +740,7 @@ void PKBank::saveEk6BK(pkm_t* pkm)
 void PKBank::savePk6Ek6(pkm_t* pkm)
 // --------------------------------------------------
 {
-	if (!pkm->pk6) return;
+	if (!pkm || !pkm->ek6 || !pkm->pk6) return;
 
 	encryptPk6(pkm);
 }
@@ -682,7 +750,44 @@ void PKBank::savePk6Ek6(pkm_t* pkm)
 void PKBank::savePkmPk6(pkm_t* pkm)
 // --------------------------------------------------
 {
-	// T O D O !!
+	if (!pkm || !pkm->pk6) return;
+
+	*(uint16_t*)(pkm->pk6 + 0x08) = pkm->species;
+	*(uint16_t*)(pkm->pk6 + 0x0c) = pkm->TID;
+	*(uint16_t*)(pkm->pk6 + 0x0e) = pkm->SID;
+	*(uint16_t*)(pkm->pk6 + 0x18) = pkm->PID;
+
+	// T O D O !! #Complete
+}
+
+
+// --------------------------------------------------
+void PKBank::editSaveBuffer(uint32_t pos, uint8_t* ptr, uint32_t size)
+// --------------------------------------------------
+{
+	if (!ptr || !savedata) return;
+
+	uint32_t maxOffset = (gametype == Game::XY ? SAVEDATA_XY_SIZE : SAVEDATA_ORAS_SIZE);
+
+	for (uint32_t i = pos; i < maxOffset && pos >= 0 && i < pos + size; i++)
+	{
+		savebuffer[i] = ptr[i-pos];
+	}
+}
+
+
+// --------------------------------------------------
+void PKBank::editBankBuffer(uint32_t pos, uint8_t* ptr, uint32_t size)
+// --------------------------------------------------
+{
+	if (!ptr || !bankdata) return;
+
+	uint32_t maxOffset = BANKDATA_PKBK_SIZE;
+
+	for (uint32_t i = pos; i < maxOffset && pos >= 0 && i < pos + size; i++)
+	{
+		bankbuffer[i] = ptr[i-pos];
+	}
 }
 
 
@@ -807,520 +912,146 @@ void PKBank::encryptPk6(pkm_t* pkm)
 }
 
 
+	/*--------------------------------------------------*\
+	 |                   Save Checksum                  |
+	\*--------------------------------------------------*/
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
 // --------------------------------------------------
-void PKBank::loadPokemonBank(uint16_t box, uint16_t slot, pkm_t pkm)
+uint32_t PKBank::CHKOffset(uint32_t i)
 // --------------------------------------------------
 {
-	if (!bankbuffer) return;
+	if (!gametype) return 0;
 
-	loadPokemonBank(PKM_SIZE * (box * BOX_PKMCOUNT + slot), pkm);
-}
-
-
-// --------------------------------------------------
-void PKBank::loadPokemonBank(uint32_t offsetSlot, pkm_t pkm)
-// --------------------------------------------------
-{
-	if (!bankbuffer) return;
-
-	ek6_t* ek6 = new ek6_t[EK6_SIZE];
-
-	uint32_t offsetBank = BANK_PKBK_OFFSET;
-	
-	for (uint32_t i = 0; i < PKM_SIZE; i++)
-		ek6[i] = savebuffer[offsetBank + offsetSlot + i];
-
-	loadPokemon(ek6, pkm);
-
-	adelete(ek6);
-}
-
-
-
-bool PKBank::save(Result fs, Handle *sdHandle, Handle *saveHandle, FS_archive *sdArchive, FS_archive *saveArchive)
-{
-	bool ret;
-
-	char path[] = "/pkbank/";
-	createDirectory(path, sdHandle, sdArchive);
-
-	if (fs)
+	if (gametype == Game::XY)
 	{
-		printf(">Saving Save to SD\n");
-		ret = this->saveSave(sdHandle, sdArchive);
+		uint32_t _xy[] = { 0x05400, 0x05800, 0x06400, 0x06600, 0x06800, 0x06A00, 0x06C00, 0x06E00, 0x07000, 0x07200, 0x07400, 0x09600, 0x09800, 0x09E00, 0x0A400, 0x0F400, 0x14400, 0x19400, 0x19600, 0x19E00, 0x1A400, 0x1AC00, 0x1B400, 0x1B600, 0x1B800, 0x1BE00, 0x1C000, 0x1C400, 0x1CC00, 0x1CE00, 0x1D000, 0x1D200, 0x1D400, 0x1D600, 0x1DE00, 0x1E400, 0x1E800, 0x20400, 0x20600, 0x20800, 0x20C00, 0x21000, 0x22C00, 0x23000, 0x23800, 0x23C00, 0x24600, 0x24A00, 0x25200, 0x26000, 0x26200, 0x26400, 0x27200, 0x27A00, 0x5C600, };
+
+		return _xy[i] - 0x5400;
+	}
+	else if (gametype == Game::ORAS)
+	{
+		uint32_t _oras[] = { 0x05400, 0x05800, 0x06400, 0x06600, 0x06800, 0x06A00, 0x06C00, 0x06E00, 0x07000, 0x07200, 0x07400, 0x09600, 0x09800, 0x09E00, 0x0A400, 0x0F400, 0x14400, 0x19400, 0x19600, 0x19E00, 0x1A400, 0x1B600, 0x1BE00, 0x1C000, 0x1C200, 0x1C800, 0x1CA00, 0x1CE00, 0x1D600, 0x1D800, 0x1DA00, 0x1DC00, 0x1DE00, 0x1E000, 0x1E800, 0x1EE00, 0x1F200, 0x20E00, 0x21000, 0x21400, 0x21800, 0x22000, 0x23C00, 0x24000, 0x24800, 0x24C00, 0x25600, 0x25A00, 0x26200, 0x27000, 0x27200, 0x27400, 0x28200, 0x28A00, 0x28E00, 0x30A00, 0x38400, 0x6D000, };
+	
+		return _oras[i] - 0x5400;
 	}
 	else
 	{
-		printf(">Saving Save to Card\n");
-		ret = this->saveSave(saveHandle, saveArchive);
+		return 0;
 	}
-
-	printf(">Saving Bank to SD\n");
-	ret &= this->saveBank(sdHandle, sdArchive);
-
-	return ret;
-}
-
-bool PKBank::saveSave(Handle *fsHandle, FS_archive *fsArchive)
-{
-	if (!writeSaveBuffer()) return false;
-
-	uint32_t byteWritten;
-	char path[] = "/main";
-	deleteFile(path, fsHandle, fsArchive);
-	printf("Saving savefile...");
-	saveFile(path, savebuffer, SAVEDATA_ORAS_SIZE, fsArchive, fsHandle, &byteWritten);
-	printf(" OK\n  Written %ld bytes\n", byteWritten);
-
-	return true;
-}
-
-bool PKBank::saveBank(Handle *fsHandle, FS_archive *fsArchive)
-{
-	if (!writeBankBuffer()) return false;
-
-	uint32_t byteWritten;
-	char path[] = "/pkbank/bank.pkbk";
-	deleteFile(path, fsHandle, fsArchive);
-	printf("Saving bankfile...");
-	saveFile(path, bankbuffer, BANKDATA_PKBK_SIZE, fsArchive, fsHandle, &byteWritten);
-	printf(" OK\n  Written %ld bytes\n", byteWritten);
-
-	return true;
-}
-
-
-
-bool PKBank::backupSave(Handle *fsHandle, FS_archive *fsArchive)
-{
-	if (!savebuffer) return false;
-
-	char pathDir[] = "/pkbank/backup/";
-	createDirectory(pathDir, fsHandle, fsArchive);
-
-	uint32_t byteWritten;
-	char path[] = "/pkbank/backup/main";
-	deleteFile(path, fsHandle, fsArchive);
-	printf("Backing up savefile...");
-	saveFile(path, savebuffer, SAVEDATA_ORAS_SIZE, fsArchive, fsHandle, &byteWritten);
-	printf(" OK\n  Written %ld bytes\n", byteWritten);
-
-	return true;
 }
 
 
 // --------------------------------------------------
-void PKBank::getPokemon(CursorBox_t* cursor)
+uint32_t PKBank::CHKLength(uint32_t i)
 // --------------------------------------------------
 {
-	if (cursor->isInBank)
+	if (!gametype) return 0;
+
+	if (gametype == Game::XY)
 	{
-		getPokemonBK(cursor);
+		uint32_t _xy[] = { 0x000002C8, 0x00000B88, 0x0000002C, 0x00000038, 0x00000150, 0x00000004, 0x00000008, 0x000001C0, 0x000000BE, 0x00000024, 0x00002100, 0x00000140, 0x00000440, 0x00000574, 0x00004E28, 0x00004E28, 0x00004E28, 0x00000170, 0x0000061C, 0x00000504, 0x000006A0, 0x00000644, 0x00000104, 0x00000004, 0x00000420, 0x00000064, 0x000003F0, 0x0000070C, 0x00000180, 0x00000004, 0x0000000C, 0x00000048, 0x00000054, 0x00000644, 0x000005C8, 0x000002F8, 0x00001B40, 0x000001F4, 0x000001F0, 0x00000216, 0x00000390, 0x00001A90, 0x00000308, 0x00000618, 0x0000025C, 0x00000834, 0x00000318, 0x000007D0, 0x00000C48, 0x00000078, 0x00000200, 0x00000C84, 0x00000628, 0x00034AD0, 0x0000E058, };
+	
+		return _xy[i];
+	}
+	else if (gametype == Game::ORAS)
+	{
+		uint32_t _oras[] = { 0x000002C8, 0x00000B90, 0x0000002C, 0x00000038, 0x00000150, 0x00000004, 0x00000008, 0x000001C0, 0x000000BE, 0x00000024, 0x00002100, 0x00000130, 0x00000440, 0x00000574, 0x00004E28, 0x00004E28, 0x00004E28, 0x00000170, 0x0000061C, 0x00000504, 0x000011CC, 0x00000644, 0x00000104, 0x00000004, 0x00000420, 0x00000064, 0x000003F0, 0x0000070C, 0x00000180, 0x00000004, 0x0000000C, 0x00000048, 0x00000054, 0x00000644, 0x000005C8, 0x000002F8, 0x00001B40, 0x000001F4, 0x000003E0, 0x00000216, 0x00000640, 0x00001A90, 0x00000400, 0x00000618, 0x0000025C, 0x00000834, 0x00000318, 0x000007D0, 0x00000C48, 0x00000078, 0x00000200, 0x00000C84, 0x00000628, 0x00000400, 0x00007AD0, 0x000078B0, 0x00034AD0, 0x0000E058, };
+	
+		return _oras[i];
 	}
 	else
 	{
-		getPokemonPC(cursor);
+		return 0;
 	}
 }
 
+
 // --------------------------------------------------
-void PKBank::getPokemonPC(CursorBox_t* cursor)
+uint16_t PKBank::ccitt16(uint8_t* data, uint32_t len)
 // --------------------------------------------------
 {
-	getPokemonPC(cursor->box * BOX_PKMCOUNT, PKM_SIZE * (cursor->row * BOX_COL_PKMCOUNT + cursor->col), cursor->sPkm);
-}
+	uint16_t crc = 0xFFFF;
 
-// --------------------------------------------------
-void PKBank::getPokemonPC(uint16_t box, uint16_t slot, pkm_t* ppkm)
-// --------------------------------------------------
-{
-	ppkm = &(savedata->pc[box][slot]);
-}
-
-// --------------------------------------------------
-void PKBank::getPokemonBK(CursorBox_t* cursor)
-// --------------------------------------------------
-{
-	getPokemonBK(cursor->bBox * BOX_PKMCOUNT, PKM_SIZE * (cursor->bRow * BOX_COL_PKMCOUNT + cursor->bCol), cursor->sPkm);
-}
-
-// --------------------------------------------------
-void PKBank::getPokemonBK(uint16_t box, uint16_t slot, pkm_t* ppkm)
-// --------------------------------------------------
-{
-	ppkm = &(bankdata->bank[box][slot]);
-}
-
-
-// --------------------------------------------------
-Game::gametype_e PKBank::getGame(uint32_t bytesRead)
-// --------------------------------------------------
-{
-	Game::gametype_e gametype = Game::None;
-
-	if (bytesRead == SAVEDATA_XY_SIZE)
+	for (uint32_t i = 0; i < len; i++)
 	{
-		printf("Found X/Y save\n");
-		gametype = Game::XY;
-	}
-	else if (bytesRead == SAVEDATA_ORAS_SIZE)
-	{
-		printf("Found OR/AS save\n");
-		gametype = Game::ORAS;
-	}
-	else
-	{
-		printf("Found no suitable save\n");
-	}
+		crc ^= ((uint16_t)(data[i] << 8));
 
-	return gametype;
-}
-
-
-void PKBank::transferPokemon(pkm_t src, pkm_t dest)
-{
-
-}
-
-// --------------------------------------------------
-void PKBank::copyPokemon(pkm_t src, pkm_t dest)
-// --------------------------------------------------
-{
-	for (uint32_t i = 0; i < PKM_SIZE; i++)
-		dest[i] = src[i];
-}
-
-// --------------------------------------------------
-void PKBank::deletePokemon(pkm_t pkm)
-// --------------------------------------------------
-{
-	for (uint32_t i = 0; i < PKM_SIZE; i++)
-		pkm[i] = 0x00;
-}
-
-// --------------------------------------------------
-void PKBank::printPkm(pkm_t pkm, u32 key, u32 max)
-// --------------------------------------------------
-{
-	printf(" ");
-	for (u32 i = 0; i < max; i++)
-	{
-		if (i % 0x10 == 0 && i > 0)
-			printf("\n ");
-		if (i % 0x02 == 0)
-			printf(" ");
-		printf("%02x", pkm[i]);
-	}
-	printf("\n");
-
-	if (key != 0)
-	{
-		while (aptMainLoop())
+		for (uint32_t j = 0; j < 0x8; j++)
 		{
-			hidScanInput();
-
-			if (hidKeysDown() & key) break;
-
-			gfxFlushBuffers();
-			gspWaitForVBlank();
-		}
-	}
-}
-
-// --------------------------------------------------
-void PKBank::printPk6(pk6_t* pk6, u32 key, u32 max)
-// --------------------------------------------------
-{
-	printf(" ");
-	for (u32 i = 0; i < max; i++)
-	{
-		if (i % 0x10 == 0 && i > 0)
-			printf("\n ");
-		if (i % 0x02 == 0)
-			printf(" ");
-		printf("%02x", pk6[i]);
-	}
-	printf("\n");
-
-
-	if (key != 0)
-	{
-		while (aptMainLoop())
-		{
-			hidScanInput();
-
-			if (hidKeysDown() & key) break;
-
-			gfxFlushBuffers();
-			gspWaitForVBlank();
-		}
-	}
-}
-
-
-// --------------------------------------------------
-void PKBank::convertPkmPk6(pkm_t pkm, pk6_t* pk6)
-// --------------------------------------------------
-{
-	for (u32 i = 0; i < PKM_SIZE; i++)
-		pk6[i] = pkm[i];
-}
-
-// --------------------------------------------------
-void PKBank::convertPk6Pkm(pk6_t* pk6, pkm_t pkm)
-// --------------------------------------------------
-{
-	for (u32 i = 0; i < PK6_SIZE; i++)
-		pkm[i] = pk6[i];
-}
-
-// --------------------------------------------------
-void PKBank::convertPk6Ek6(pk6_t* pk6, ek6_t* ek6)
-// --------------------------------------------------
-{
-	for (u32 i = 0; i < PK6_SIZE; i++)
-		ek6[i] = pk6[i];
-}
-
-// --------------------------------------------------
-void PKBank::convertEk6Pk6(ek6_t* ek6, pk6_t* pk6)
-// --------------------------------------------------
-{
-	for (u32 i = 0; i < EK6_SIZE; i++)
-		pk6[i] = ek6[i];
-}
-
-
-// --------------------------------------------------
-void PKBank::decryptPokemon(ek6_t* ek6, pk6_t* pk6)
-// --------------------------------------------------
-{
-	// memcpy(pk6, ek6, EK6_SIZE);
-	for (uint32_t i = 0; i < EK6_SIZE; i++)
-		pk6[i] = ek6[i];
-
-	// printf("\n");
-	// printPk6(pk6, 0, 0x10);
-
-	uint32_t pv = *(uint32_t*)(pk6 + 0x0);
-	uint8_t sv = (((pv & 0x3e000) >> 0xd) % 24);
-
-	uint32_t seed = pv;
-	uint16_t tmp;
-	// printf("\x1b[0;0H\x1b[2J");
-	// printf("Seed: 0x%08lx Sv: 0x%02x\n", seed, sv);
-	// printf("Next: 0x%08lx 0x%08lx\n", LCRNG(seed), LCRNG(LCRNG(seed)));
-	for (uint32_t i = 0x8; i < EK6_SIZE; i += 0x2)
-	{
-		// memcpy(&tmp, ek6 + i, 0x2);
-		tmp = *(uint16_t*)(pk6 + i);
-
-		seed = LCRNG(seed);
-		tmp ^= (seed >> 16);
-		// printf("%08lx ", seed);
-
-		// memcpy(pk6 + i, &tmp, 0x2);
-		// pk6[i] = *((uint8_t*)&(tmp));
-		// pk6[i+1] = *((uint8_t*)&(tmp)+1);
-		*(uint16_t*)(pk6+i) = tmp;
-		// printf("0x%-4x -> 0x%-2x 0x%-2x\n", tmp, *pk6[i], *pk6[i+1]);
-	}
-
-	// printf("Shuffling...\n");
-	shufflePokemon(pk6, sv);
-	// printf("Shuffling... OK\n");
-
-	// printPk6(pk6, 0, 0x10);
-}
-
-// --------------------------------------------------
-void PKBank::encryptPokemon(pk6_t* pk6, ek6_t* ek6)
-// --------------------------------------------------
-{
-	// memcpy(ek6, pk6, PK6_SIZE);
-	for (uint32_t i = 0; i < PK6_SIZE; i++)
-		ek6[i] = pk6[i];
-
-	// printf("\n");
-	// printPk6(ek6, 0, 0x10);
-
-	uint32_t pv = *(uint32_t*)(ek6 + 0x0);
-	uint8_t sv = (((pv & 0x3e000) >> 0xd) % 24);
-
-	// printf("Shuffling...\n");
-	for (uint32_t i = 0; i < 11; i++)
-		shufflePokemon(ek6, sv);
-	// printf("Shuffling... OK\n");
-
-	uint32_t seed = pv;
-	uint16_t tmp;
-	// printf("\x1b[0;0H\x1b[2J");
-	// printf("Seed: 0x%08lx Sv: 0x%02x\n", seed, sv);
-	// printf("Next: 0x%08lx 0x%08lx\n", LCRNG(seed), LCRNG(LCRNG(seed)));
-	for (uint32_t i = 0x8; i < PK6_SIZE; i += 0x2)
-	{
-		// memcpy(&tmp, pk6 + i, 0x2);
-		tmp = *(uint16_t*)(ek6 + i);
-
-		seed = LCRNG(seed);
-		tmp ^= (seed >> 16);
-		// printf("%08lx ", seed);
-
-		// memcpy(ek6 + i, &tmp, 2);
-		// ek6[i] = *((uint8_t*)&(tmp));
-		// ek6[i+1] = *((uint8_t*)&(tmp)+1);
-		*(uint16_t*)(ek6+i) = tmp;
-		// printf("0x%-4x -> 0x%-2x 0x%-2x\n", tmp, ek6[i], ek6[i+1]);
-	}
-
-	// printPk6(ek6, 0, 0x10);
-}
-
-// --------------------------------------------------
-void PKBank::shufflePokemon(pk6_t* pk6, uint8_t sv)
-// --------------------------------------------------
-{
-	uint8_t aloc[] = { 0, 0, 0, 0, 0, 0, 1, 1, 2, 3, 2, 3, 1, 1, 2, 3, 2, 3, 1, 1, 2, 3, 2, 3 };
-	uint8_t bloc[] = { 1, 1, 2, 3, 2, 3, 0, 0, 0, 0, 0, 0, 2, 3, 1, 1, 3, 2, 2, 3, 1, 1, 3, 2 };
-	uint8_t cloc[] = { 2, 3, 1, 1, 3, 2, 2, 3, 1, 1, 3, 2, 0, 0, 0, 0, 0, 0, 3, 2, 3, 2, 1, 1 };
-	uint8_t dloc[] = { 3, 2, 3, 2, 1, 1, 3, 2, 3, 2, 1, 1, 3, 2, 3, 2, 1, 1, 0, 0, 0, 0, 0, 0 };
-
-	uint8_t ord[] = { aloc[sv], bloc[sv], cloc[sv], dloc[sv] };
-
-	pk6_t* cpk6 = new pk6_t[PK6_SIZE];
-	uint8_t tmp[56];
-
-	// memcpy(cpkm, pkm, 232);
-	for (uint32_t i = 0; i < PK6_SIZE; i++)
-		cpk6[i] = pk6[i];
-
-	for (uint32_t j = 0; j < 4; j++)
-	{
-		// memcpy(tmp, pkm + 8 + 56 * ord[j], 56);
-		// memcpy(pkm + 8 + 56 * j, tmp, 56);
-		for (uint32_t i = 0; i < 56; i++)
-		{
-			tmp[i] = cpk6[i + 8 + 56 * ord[j]];
-		}
-		for (uint32_t i = 0; i < 56; i++)
-		{
-			pk6[i + 8 + 56 * j] = tmp[i];
+			if ((crc & 0x8000) > 0)
+				crc = (uint16_t((crc << 1) ^ 0x1021));
+			else
+				crc <<= 1;
 		}
 	}
 
-	adelete(cpk6);
+	return crc;
 }
+
 
 // --------------------------------------------------
-uint32_t PKBank::LCRNG(uint32_t seed)
+void PKBank::rewriteSaveCHK()
 // --------------------------------------------------
 {
-	uint32_t a = 0x41c64e6d;
-	uint32_t c = 0x00006073;
-	return ((seed * a + c) & 0xffffffff);
-}
+	uint8_t blockCount = (gametype == Game::XY ? 55 : 58);
+	uint32_t csoff = (gametype == Game::XY ? 0x6A81A : 0x7B21A) - 0x5400;
+	uint8_t* tmp = new uint8_t[0x35000];
+	uint16_t cs;
 
+	if (!tmp) return;
 
-bool PKBank::writeBuffers()
-{
-	if (!this->writeSaveBuffer()) return false;
-	if (!this->writeBankBuffer()) return false;
-
-	return true;
-}
-
-bool PKBank::writeSaveBuffer()
-{
-	if (!savedata) return false;
-
-	for (uint32_t iB = 0; iB < PC_BOXCOUNT; iB++)
+	for (uint32_t i = 0; i < blockCount; i++)
 	{
-		for (uint32_t iP = 0; iP < BOX_PKMCOUNT; iP++)
-		{
-			editBankBuffer(PC_XY_OFFSET + iB * BOX_SIZE + iP * PKM_SIZE, (uint8_t*)(this->savedata->pc[iB][iP]), PKM_SIZE);
-		}
+		memcpy(tmp, savebuffer + CHKOffset(i), CHKLength(i));
+		cs = ccitt16(tmp, CHKLength(i));
+		memcpy(savebuffer + csoff + i * 8, &cs, 2);
 	}
 
-	// TODO ?
-	
-	return true;
+	adelete(tmp);
 }
 
-bool PKBank::writeBankBuffer()
-{
-	if (!bankdata) return false;
+// {
+// 	uint32_t saveFileSize = (gametype == Game::XY ? SAVEDATA_XY_SIZE : SAVEDATA_ORAS_SIZE);
+// 	uint32_t verificationOffset = saveFileSize - 0x200 + 0x10;
 
-	for (uint32_t iB = 0; iB < BANK_BOXCOUNT; iB++)
-	{
-		for (uint32_t iP = 0; iP < BOX_PKMCOUNT; iP++)
-		{
-			editBankBuffer(BANK_PKBK_OFFSET + iB * BOX_SIZE + iP * PKM_SIZE, (uint8_t*)(this->bankdata->bank[iB][iP]), PKM_SIZE);
-		}
-	}
-	
-	// TODO ?
+// 	// if ((*(uint32_t*)(savebuffer + verificationOffset)) != 0x42454546)
+// 	// 	verificationOffset -= 0x200;
 
-	return true;
-}
+// 	uint32_t count = (saveFileSize - verificationOffset - 0x8) / 8;
+// 	verificationOffset += 4;
 
-void PKBank::editSaveBuffer(uint32_t pos, uint8_t* ptr, uint32_t size)
-{
-	if (!savedata) return;
+// 	uint32_t* starts = new uint32_t[count];
+// 	uint32_t* lengths = new uint32_t[count];
+// 	uint16_t* blockIDs = new uint16_t[count];
+// 	uint16_t* checksums = new uint16_t[count];
+// 	uint32_t currentPosition = 0;
 
-	for (uint32_t i = pos; i < SAVEDATA_XY_SIZE && pos >= 0 && i < pos + size; i++)
-	{
-		savebuffer[i] = ptr[i-pos];
-	}
-}
+// 	for (uint32_t i = 0; i < count; i++)
+// 	{
+// 		starts[i] = currentPosition;
+// 		lengths[i] = *(uint32_t*)(savebuffer + verificationOffset + 0 + 8 * i);
+// 		blockIDs[i] = *(uint16_t*)(savebuffer + verificationOffset + 4 + 8 * i);
+// 		checksums[i] = *(uint16_t*)(savebuffer + verificationOffset + 6 + 8 * i);
 
-void PKBank::editBankBuffer(uint32_t pos, uint8_t* ptr, uint32_t size)
-{
-	if (!bankdata) return;
+// 		currentPosition += (lengths[i] % 0x200 == 0 ? lengths[i] : (0x200 - lengths[i] % 0x200 + lengths[i]));
 
-	for (uint32_t i = pos; i < BANKDATA_PKBK_SIZE && pos >= 0 && i < pos + size; i++)
-	{
-		bankbuffer[i] = ptr[i-pos];
-	}
-}
-*/
+// 		if ((blockIDs[i] != 0) || (i == 0)) continue;
+// 		count = i;
+// 		break;
+// 	}
+
+// 	for (uint32_t i = 0; i < count; i++)
+// 	{
+// 		uint16_t ccikit = ccitt16((uint8_t*) (savebuffer + starts[i]), lengths[i]);
+
+// 		*(uint8_t*) (savebuffer + verificationOffset + 6 + 8 * i) = ccikit;
+// 	}
+
+
+// 	adelete(starts);
+// 	adelete(lengths);
+// 	adelete(blockIDs);
+// 	adelete(checksums);
+// }
+

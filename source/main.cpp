@@ -4,6 +4,7 @@
 
 #include "main.hpp"
 #include "pkbank.hpp"
+#include "pkdata.hpp"
 #include "filesystem.hpp"
 #include "ui.hpp"
 
@@ -57,11 +58,10 @@ int main(int argc, char **argv)
 	// return 0;
 
 
-
 	Handle sdHandle, saveHandle;
 	FS_archive sdArchive, saveArchive;
 	printf("Initializing FileSystem\n");
-	Result fs = filesysInit(&sdHandle, &saveHandle, &sdArchive, &saveArchive);
+	Result fs = FS_filesysInit(&sdHandle, &saveHandle, &sdArchive, &saveArchive);
 
 	if (fs)
 		printf("Init FS Failed\n");
@@ -69,7 +69,34 @@ int main(int argc, char **argv)
 		printf("Init FS OK\n");
 
 
+	// PKData::loadData(&sdHandle, &sdArchive);
+	// printf("\n\nProgram terminated, press A\n");
+	// waitKey(KEY_A);
+	// FS_filesysExit(&sdHandle, &saveHandle, &sdArchive, &saveArchive);
+	// gfxExit();
+	// return 0;
+
+
 	PKBank *pkBank = NULL;
+
+	pkBank = new PKBank();
+	pkBank->load(fs, &sdHandle, &saveHandle, &sdArchive, &saveArchive);
+	Result ret = mainLoop(pkBank, &top, &bot);
+	if (ret == STATE_SAVE)
+	{
+		consoleSelect(&top);
+		pkBank->save(fs, &sdHandle, &saveHandle, &sdArchive, &saveArchive);
+		printf("\n\nProgram terminated, press A\n");
+		waitKey(KEY_A);
+	}
+
+	cdelete(pkBank);
+	FS_filesysExit(&sdHandle, &saveHandle, &sdArchive, &saveArchive);
+	gfxExit();
+	return 0;
+
+
+
 
 
 	u32 kDown;//, kHeld, kUp;
@@ -124,7 +151,7 @@ int main(int argc, char **argv)
 			if (pkBank)
 			{
 				printf("Loading PkBank...\n");
-				if (pkBank->readLoad(fs, &sdHandle, &saveHandle, &sdArchive, &saveArchive))
+				if (pkBank->load(fs, &sdHandle, &saveHandle, &sdArchive, &saveArchive))
 					printf("Loading PkBank... Error\n");
 				else
 					printf("Loading PkBank... OK\n");
@@ -136,7 +163,7 @@ int main(int argc, char **argv)
 			if (pkBank)
 			{
 				printf("Saving PkBank...\n");
-				if (pkBank->writeSave(fs, &sdHandle, &saveHandle, &sdArchive, &saveArchive))
+				if (pkBank->save(fs, &sdHandle, &saveHandle, &sdArchive, &saveArchive))
 					printf("Saving PkBank... Error\n");
 				else
 					printf("Saving PkBank... OK\n");
@@ -153,7 +180,7 @@ int main(int argc, char **argv)
 	
 	cdelete(pkBank);
 
-	filesysExit(&sdHandle, &saveHandle, &sdArchive, &saveArchive);
+	FS_filesysExit(&sdHandle, &saveHandle, &sdArchive, &saveArchive);
 	gfxExit();
 	return 0;
 }

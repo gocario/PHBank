@@ -33,7 +33,7 @@ SOURCES		:=	source source/state
 DATA		:=	data
 INCLUDES	:=	include
 
-NO_SMDH 		:= NO_SMDH
+# NO_SMDH 		:= NO_SMDH
 APP_TITLE       := PKBank
 APP_DESCRIPTION := Pokémon Bank for ORAS
 APP_AUTHOR      := Gocario
@@ -137,6 +137,9 @@ clean:
 	@echo clean ...
 	@rm -fr $(BUILD) $(TARGET).3dsx $(OUTPUT).smdh $(TARGET).elf
 
+run:
+	@echo run ...
+	H:\devkitPro\devkitCITRA\citra-qt.exe $(TARGET).elf
 
 #---------------------------------------------------------------------------------
 else

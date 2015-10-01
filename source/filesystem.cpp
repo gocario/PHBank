@@ -21,7 +21,7 @@ Result _srvGetServiceHandle(Handle* out, const char* name)
 	return cmdbuf[1];
 }
 
-Result loadFile(char* path, void* dst, FS_archive* fsArchive, Handle* fsHandle, u64 maxSize, u32* bytesRead)
+Result FS_loadFile(char* path, void* dst, FS_archive* fsArchive, Handle* fsHandle, u64 maxSize, u32* bytesRead)
 {
 	if (!path || !dst || !fsArchive) return -1;
 
@@ -45,7 +45,7 @@ Result loadFile(char* path, void* dst, FS_archive* fsArchive, Handle* fsHandle, 
 	return ret;
 }
 
-Result saveFile(char* path, void* src, u64 size, FS_archive* fsArchive, Handle* fsHandle, u32* bytesWritten)
+Result FS_saveFile(char* path, void* src, u64 size, FS_archive* fsArchive, Handle* fsHandle, u32* bytesWritten)
 {
 	if (!path || !src || !fsArchive) return -1;
 
@@ -56,12 +56,24 @@ Result saveFile(char* path, void* src, u64 size, FS_archive* fsArchive, Handle* 
 	if (ret) return ret;
 
 	ret = FSFILE_Write(fileHandle, bytesWritten, 0x0, src, size, FS_WRITE_NOFLUSH);
+	if (ret) return ret;
 
 	FSFILE_Close(fileHandle);
 	return ret;
 }
 
-Result deleteFile(char* path, Handle* fsHandle, FS_archive* fsArchive)
+Result FS_saveSFile(char* path, void* src, u64 size, FS_archive* fsArchive, Handle* fsHandle, u32* bytesWritten)
+{
+	Result ret;
+
+	ret = FS_saveFile(path, src, size, fsArchive, fsHandle, bytesWritten);
+	if (ret) return ret;
+
+	ret = FSUSER_ControlArchive(*fsHandle, *fsArchive);
+	return ret;
+}
+
+Result FS_deleteFile(char* path, Handle* fsHandle, FS_archive* fsArchive)
 {
 	if (!path || !fsHandle || !fsArchive) return -1;
 
@@ -73,7 +85,7 @@ Result deleteFile(char* path, Handle* fsHandle, FS_archive* fsArchive)
 }
 
 
-Result createDirectory(char* path, Handle* fsHandle, FS_archive* fsArchive)
+Result FS_createDirectory(char* path, Handle* fsHandle, FS_archive* fsArchive)
 {
 	if (!path || !fsHandle || !fsArchive) return -1;
 
@@ -85,7 +97,30 @@ Result createDirectory(char* path, Handle* fsHandle, FS_archive* fsArchive)
 }
 
 
-Result filesysInit(Handle* sdHandle, Handle* saveHandle, FS_archive* sdArchive, FS_archive* saveArchive)
+Result FSUSER_ControlArchive(Handle handle, FS_archive archive)
+{
+	u32* cmdbuf = getThreadCommandBuffer();
+
+	u32 b1 = 0, b2 = 0;
+
+	cmdbuf[0] = 0x080d0144;
+	cmdbuf[1] = archive.handleLow;
+	cmdbuf[2] = archive.handleHigh;
+	cmdbuf[3] = 0x0;
+	cmdbuf[4] = 0x1; //buffer1 size
+	cmdbuf[5] = 0x1; //buffer1 size
+	cmdbuf[6] = 0x1a;
+	cmdbuf[7] = (u32)&(b1);
+	cmdbuf[8] = 0x1c;
+	cmdbuf[9] = (u32)&(b2);
+
+	Result ret = 0;
+	if ((ret=svcSendSyncRequest(handle))) return ret;
+
+	return cmdbuf[1];
+}
+
+Result FS_filesysInit(Handle* sdHandle, Handle* saveHandle, FS_archive* sdArchive, FS_archive* saveArchive)
 {
 	Result ret;
 	printf("  Getting save handle\n");
@@ -111,7 +146,7 @@ Result filesysInit(Handle* sdHandle, Handle* saveHandle, FS_archive* sdArchive, 
 	return ret;
 }
 
-Result filesysExit(Handle* sdHandle, Handle* saveHandle, FS_archive* sdArchive, FS_archive* saveArchive)
+Result FS_filesysExit(Handle* sdHandle, Handle* saveHandle, FS_archive* sdArchive, FS_archive* saveArchive)
 {
 	FSUSER_CloseArchive(saveHandle, saveArchive);
 	FSUSER_CloseArchive(sdHandle, sdArchive);
