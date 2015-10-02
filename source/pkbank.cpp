@@ -153,6 +153,18 @@ Result PKBank::saveFile(Result fs, Handle *sdHandle, Handle *saveHandle, FS_arch
 	ret = FS_createDirectory(path, sdHandle, sdArchive);
 	// if (ret) return ret;
 
+	hidScanInput();
+	if (hidKeysHeld() & KEY_L)
+	{
+		printf(">Backing up Save to SD\n");
+		ret = backupSaveFile(sdHandle, sdArchive);
+		if (ret) return ret;
+	}
+	else
+	{
+		printf(">Not backing up Save to SD\n");
+	}
+
 	if (fs)
 	{
 		printf(">Saving Save to SD\n");
@@ -170,17 +182,6 @@ Result PKBank::saveFile(Result fs, Handle *sdHandle, Handle *saveHandle, FS_arch
 	ret = saveBankFile(sdHandle, sdArchive);
 	if (ret) return ret;
 
-	hidScanInput();
-	if (hidKeysHeld() & KEY_L)
-	{
-		printf(">Backing up Save to SD\n");
-		ret = backupSaveFile(sdHandle, sdArchive);
-		if (ret) return ret;
-	}
-	else
-	{
-		printf(">Not backing up Save to SD\n");
-	}
 	return ret;
 }
 
@@ -316,6 +317,24 @@ gametype_e PKBank::getGame(uint32_t bytesRead)
 
 
 // ==================================================
+bool PKBank::isPkmEmpty(pkm_t* pkm)
+// --------------------------------------------------
+{
+	return (pkm->species == 0x0 && pkm->PID == 0x0);
+}
+
+
+// ==================================================
+bool PKBank::isSlotEmpty(uint16_t boxId, uint16_t slotId, bool inBank)
+// --------------------------------------------------
+{
+	pkm_t** pkm = NULL;
+	getPkm(boxId, slotId, pkm, inBank);
+	return isPkmEmpty(*pkm);
+}
+
+
+// ==================================================
 void PKBank::getPkm(uint16_t slotId, pkm_t** pkm, bool inBank)
 // --------------------------------------------------
 {
@@ -358,10 +377,8 @@ void PKBank::movePkm(pkm_t* src, pkm_t* dest)
 	loadPkmPk6(src);
 	loadPkmPk6(dest);
 
-	// pkm_t tmp;
-	// tmp.ek6 = dest.ek6;
-	// dest.ek6 = src.ek6;
-	// src.ek6 = tmp.ek6;
+	// loadDexPkm(src);
+	// loadDexPkm(dest);
 }
 
 
@@ -630,6 +647,12 @@ void PKBank::loadPkmPk6(pkm_t* pkm)
 	pkm->TID = *(uint16_t*)(pkm->pk6 + 0x0c);
 	pkm->SID = *(uint16_t*)(pkm->pk6 + 0x0e);
 	pkm->PID = *(uint32_t*)(pkm->pk6 + 0x18);
+	pkm->gender = ((*(uint8_t*)(pkm->pk6 + 0x1d) >> 1) & 0x3);
+	pkm->origin = *(uint8_t*)(pkm->pk6 + 0xdf);
+	pkm->lang = *(uint8_t*)(pkm->pk6 + 0xe3);
+	pkm->isShiny = isShiny(pkm->PID, pkm->TID, pkm->SID);
+
+
 
 	// T O D O !! #Complete
 }
@@ -660,7 +683,7 @@ Result PKBank::saveSaveData()
 	printf("\n");
 
 
-	printf("Rewriting checksums...\n");
+	printf("Rewriting checksums...");
 	rewriteSaveCHK();
 	printf(" OK\n");
 
@@ -788,6 +811,45 @@ void PKBank::editBankBuffer(uint32_t pos, uint8_t* ptr, uint32_t size)
 	{
 		bankbuffer[i] = ptr[i-pos];
 	}
+}
+
+
+	/*--------------------------------------------------*\
+	 |                 Pokemon Section                  |
+	\*--------------------------------------------------*/
+
+
+// ==================================================
+void PKBank::loadDexPkm(pkm_t* pkm)
+// --------------------------------------------------
+{
+
+}
+
+
+// ==================================================
+uint32_t PKBank::computePSV(uint32_t PID)
+// --------------------------------------------------
+{
+	return ((((PID >> 16) ^ (PID & 0xFFFF)) >> 4) & 0xFFFF);
+}
+
+
+// ==================================================
+uint16_t PKBank::computeTSV(uint16_t TID, uint16_t SID)
+// --------------------------------------------------
+{
+	return ((TID ^ SID) >> 4);
+}
+
+
+// ==================================================
+bool PKBank::isShiny(uint32_t PID, uint16_t TID, uint16_t SID)
+// --------------------------------------------------
+{
+	uint32_t PSV = computePSV(PID);
+	uint16_t TSV = computeTSV(TID, SID);
+	return (TSV == PSV);
 }
 
 

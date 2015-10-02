@@ -2,18 +2,22 @@
 
 #include "pkbank.hpp"
 
+#define BOX_HEADER_SELECTED -1
 
 /*------------------------------------------------------------*\
  |                        Navigate Box                        |
 \*------------------------------------------------------------*/
 
 
-// --------------------------------------------------
-void _computeActualSlot(CursorBox_t* cursorBox, uint16_t* pbox = NULL, uint16_t* prow = NULL, uint16_t* pcol = NULL, uint16_t* pins = NULL);
+// ==================================================
+CursorPosition_t* _currentCursorPosition(CursorBox_t* cursorBox);
+CursorPosition_t* _currentCursorPosition(State_t* state);
+void _computeActualSlot(CursorBox_t* cursorBox);
+void _computeActualSlot(State_t* state);
 void _selectViewPkm(State_t* state);
 void _movePkm(State_t* state);
 void _init(State_t* state, bool inBank);
-void _printBox(State_t* state, bool BK, uint32_t rowOffset = 0, uint32_t colOffset = 0);
+void _printBox(State_t* state, bool BK, int32_t rowOffset = 0, int32_t colOffset = 0);
 void _printCommands(State_t* state);
 void _printBotscreen(State_t* state);
 Result _moveCursorInput(State_t* state);
@@ -22,26 +26,38 @@ Result _movePokemonInput(State_t* state);
 
 
 // ==================================================
-void _computeActualSlot(CursorBox_t* cursorBox, uint16_t* pbox, uint16_t* prow, uint16_t* pcol, uint16_t* pins)
+CursorPosition_t* _currentCursorPosition(CursorBox_t* cursorBox)
 // --------------------------------------------------
 {
-	bool BK = cursorBox->inBank;
-	uint16_t box = (BK ? cursorBox->bkBox : cursorBox->pcBox);
-	uint16_t row = (BK ? cursorBox->bkRow : cursorBox->pcRow);
-	uint16_t col = (BK ? cursorBox->bkCol : cursorBox->pcCol);
-	uint16_t ins = row * BOX_COL_PKMCOUNT + col;
+	return &(cursorBox->inBank ? cursorBox->cPosBK : cursorBox->cPosPC);
+}
 
-	cursorBox->slot = box * BOX_PKMCOUNT + ins;
 
-	if (BK)
-		cursorBox->bkSlot = cursorBox->slot;
-	else
-		cursorBox->pcSlot = cursorBox->slot;
+// ==================================================
+CursorPosition_t* _currentCursorPosition(State_t* state)
+// --------------------------------------------------
+{
+	return _currentCursorPosition(&state->cursorBox);
+}
 
-	if (pbox) *pbox = box;
-	if (prow) *prow = row;
-	if (pcol) *pcol = col;
-	if (pins) *pins = ins;
+
+// ==================================================
+void _computeActualSlot(CursorBox_t* cursorBox)
+// --------------------------------------------------
+{
+	CursorPosition_t* cPos = _currentCursorPosition(cursorBox);
+
+	cPos->inslot = (cPos->row == BOX_HEADER_SELECTED ? -1 : cPos->row * BOX_COL_PKMCOUNT + cPos->col);
+	cPos->slot = (cPos->row == BOX_HEADER_SELECTED ? -1 : cPos->box * BOX_PKMCOUNT + cPos->inslot);
+	cursorBox->slot = cPos->slot;
+}
+
+
+// ==================================================
+void _computeActualSlot(State_t* state)
+// --------------------------------------------------
+{
+	_computeActualSlot(&state->cursorBox);
 }
 
 
@@ -49,16 +65,23 @@ void _computeActualSlot(CursorBox_t* cursorBox, uint16_t* pbox, uint16_t* prow, 
 void _selectViewPkm(State_t* state)
 // --------------------------------------------------
 {
+	CursorPosition_t* cPos;
 	bool BK = state->cursorBox.inBank;
-	uint16_t box, row, col, inslot;
 
-	_computeActualSlot(&state->cursorBox, &box, &row, &col, &inslot);
+	_computeActualSlot(&state->cursorBox);
+	cPos = _currentCursorPosition(&state->cursorBox);
 
-	state->pkBank->getPkm(box, inslot, &state->cursorBox.vPkm, BK);
+	if (cPos->row == BOX_HEADER_SELECTED)
+	{
+		state->cursorBox.vPkm = NULL;
+		return;
+	}
+
+	state->pkBank->getPkm(cPos->box, cPos->inslot, &state->cursorBox.vPkm, BK);
 	
 	consoleSelect(state->console[0]);
 	printf("Sel %s   ", (BK ? "BK" : "PC"));
-	printf("Slot:%-4u (box:%-3u idx:%-2u)  [@%8p]\n", state->cursorBox.slot, box, inslot, state->cursorBox.vPkm);
+	printf("Slot:%-4i (box:%-3u idx:%-2i)  [@%8p]\n", state->cursorBox.slot, cPos->box, cPos->inslot, state->cursorBox.vPkm);
 	consoleSelect(state->console[1]);
 }
 
@@ -67,6 +90,9 @@ void _selectViewPkm(State_t* state)
 void _movePkm(State_t* state)
 // --------------------------------------------------
 {
+	if (_currentCursorPosition(state)->row == BOX_HEADER_SELECTED)
+		return;
+
 	if (!state->cursorBox.sPkm)
 	{
 		state->cursorBox.sPkm = state->cursorBox.vPkm;
@@ -87,37 +113,37 @@ void _movePkm(State_t* state)
 void _init(State_t* state, bool inBank)
 // --------------------------------------------------
 {
-	consoleSelect(state->console[1]);
-	consoleClear();
 	state->cursorBox.inBank = inBank;
 	_selectViewPkm(state);
 }
 
 
 // ==================================================
-void _printBox(State_t* state, bool BK, uint32_t rowOffset, uint32_t colOffset)
+void _printBox(State_t* state, bool BK, int32_t rowOffset, int32_t colOffset)
 // --------------------------------------------------
 {
-	int32_t selBox = (BK ? state->cursorBox.bkBox : state->cursorBox.pcBox);
-	int32_t selRow = (BK ? state->cursorBox.bkRow : state->cursorBox.pcRow);
-	int32_t selCol = (BK ? state->cursorBox.bkCol : state->cursorBox.pcCol);
+	CursorPosition_t* cPos = &(BK ? state->cursorBox.cPosBK : state->cursorBox.cPosPC);
 	int32_t maxRow = BOX_ROW_PKMCOUNT;
 	int32_t maxCol = BOX_COL_PKMCOUNT;
 
 	if (BK == state->cursorBox.inBank)
 	{
-		printf("\x1B[%lu;%luH>", rowOffset + 1, colOffset - 1);
+		printf("\x1B[%lu;%luHvvvvvv", rowOffset - 1, colOffset + 1);
+	}
+	else
+	{
+		printf("\x1B[%lu;%luH      ", rowOffset - 1, colOffset + 1);
 	}
 
-	printf("\x1B[%lu;%luH+------+", rowOffset + 0, colOffset);
-	printf("\x1B[%lu;%luH|%c%s%3lu|", rowOffset + 1, colOffset, (selRow == -1 ? '>' : ' '), (BK ? "BK" : "PC"), selBox + 1);
+	printf("\x1B[%lu;%luH/------\\", rowOffset + 0, colOffset);
+	printf("\x1B[%lu;%luH|%c%s%3i|", rowOffset + 1, colOffset, (cPos->row == BOX_HEADER_SELECTED ? '>' : ' '), (BK ? "BK" : "PC"), cPos->box + 1);
 	printf("\x1B[%lu;%luH+------+", rowOffset + 2, colOffset);
 	for (int32_t row = 0; row < maxRow; row++)
 	{
 		printf("\x1B[%lu;%luH|", rowOffset + 3 + row, colOffset);
 		for (int32_t col = 0; col < maxCol; col++)
 		{
-			if ((row == selRow) && (col == selCol))
+			if ((row == cPos->row) && (col == cPos->col))
 			{
 				printf("x");
 			}
@@ -128,7 +154,7 @@ void _printBox(State_t* state, bool BK, uint32_t rowOffset, uint32_t colOffset)
 		}
 		printf("|");
 	}
-	printf("\x1B[%lu;%luH+------+", rowOffset + 3 + maxRow, colOffset);
+	printf("\x1B[%lu;%luH\\------/", rowOffset + 3 + maxRow, colOffset);
 }
 
 
@@ -141,6 +167,9 @@ void _printCommands(State_t* state)
 
 	if (state->cursorBox.inBank)
 	{
+		if (_currentCursorPosition(state)->row == BOX_HEADER_SELECTED)
+		printf(" Left/Right: MBox  | Up/Down: MInbox    ");
+		else
 		printf(" DPad: Move inbox  | CPad: Move inbox   ");
 		printf(" L/R: Change box   | LZ/RZ: To PC       ");
 		printf(" A: Select pkmn    | B: Cancel sel.     ");
@@ -149,6 +178,9 @@ void _printCommands(State_t* state)
 	}
 	else
 	{
+		if (_currentCursorPosition(state)->row == BOX_HEADER_SELECTED)
+		printf(" Left/Right: MBox  | Up/Down: MInbox    ");
+		else
 		printf(" DPad: Move inbox  | CPad: Move inbox   ");
 		printf(" L/R: Change box   | LZ/RZ: To Bank     ");
 		printf(" A: Select pkmn    | B: Cancel sel.     ");
@@ -164,30 +196,62 @@ void _printBotscreen(State_t* state)
 {
 	consoleSelect(state->console[1]);
 
+	CursorPosition_t* cPos = _currentCursorPosition(state);
+
 	printf("\x1B[0;0H");
 
 	printf("[%s] Select a slot:\n", (state->cursorBox.inBank ? "BK" : "PC"));
-	printf("Box: %-2i Row: %-2i Col: %-2i\n", state->cursorBox.pcBox +1, state->cursorBox.pcRow +1, state->cursorBox.pcCol +1);
+	printf("Box: %-2i Row: %-2i Col: %-2i\n", cPos->box +1, cPos->row +1, cPos->col +1);
 
 	_printBox(state, false, 4, 1);
 	_printBox(state, true, 4, 11);
 
 	if (state->cursorBox.vPkm)
 	{
-		printf("\x1B[5;21HCurrent Pokemon");
-		printf("\x1B[6;21H Species: %-3u", state->cursorBox.vPkm->species);
-		printf("\x1B[7;21H TID: %-5u", state->cursorBox.vPkm->TID);
-		printf("\x1B[8;21H SID: %-5u", state->cursorBox.vPkm->SID);
-		printf("\x1B[9;21H PID: %-10lu", state->cursorBox.vPkm->PID);
+		if (state->pkBank->isPkmEmpty(state->cursorBox.vPkm))
+		{
+			printf("\x1B[5;21HNo Pokemon     ");
+			printf("\x1B[6;21H Empty Slot   ");
+			printf("\x1B[7;21H           ");
+			printf("\x1B[8;21H           ");
+			printf("\x1B[9;21H                ");
+		}
+		else
+		{
+			printf("\x1B[5;21HCurrent Pokemon ");
+			printf("\x1B[6;21H Species: %-3u", state->cursorBox.vPkm->species);
+			printf("\x1B[7;21H TID: %-5u", state->cursorBox.vPkm->TID);
+			printf("\x1B[8;21H SID: %-5u", state->cursorBox.vPkm->SID);
+			printf("\x1B[9;21H PID: %-10lu", state->cursorBox.vPkm->PID);
+		}
+	}
+	else
+	{
+		printf("\x1B[5;21H               ");
+		printf("\x1B[6;21H             ");
+		printf("\x1B[7;21H           ");
+		printf("\x1B[8;21H           ");
+		printf("\x1B[9;21H                ");
 	}
 
 	if (state->cursorBox.sPkm)
 	{
-		printf("\x1B[12;21HSelected Pokemon");
-		printf("\x1B[13;21H Species: %-3u", state->cursorBox.sPkm->species);
-		printf("\x1B[14;21H TID: %-5u", state->cursorBox.sPkm->TID);
-		printf("\x1B[15;21H SID: %-5u", state->cursorBox.sPkm->SID);
-		printf("\x1B[16;21H PID: %-10lu", state->cursorBox.sPkm->PID);
+		if (state->pkBank->isPkmEmpty(state->cursorBox.sPkm))
+		{
+			printf("\x1B[12;21HSelected Pokemon");
+			printf("\x1B[13;21H Empty Slot  ");
+			printf("\x1B[14;21H           ");
+			printf("\x1B[15;21H           ");
+			printf("\x1B[16;21H                ");
+		}
+		else
+		{
+			printf("\x1B[12;21HSelected Pokemon");
+			printf("\x1B[13;21H Species: %-3u", state->cursorBox.sPkm->species);
+			printf("\x1B[14;21H TID: %-5u", state->cursorBox.sPkm->TID);
+			printf("\x1B[15;21H SID: %-5u", state->cursorBox.sPkm->SID);
+			printf("\x1B[16;21H PID: %-10lu", state->cursorBox.sPkm->PID);
+		}
 	}
 	else
 	{
@@ -196,6 +260,19 @@ void _printBotscreen(State_t* state)
 		printf("\x1B[14;21H           ");
 		printf("\x1B[15;21H           ");
 		printf("\x1B[16;21H                ");
+	}
+
+	if (state->cursorBox.cursorType == CursorType::SingleSelect)
+	{
+		printf("\x1B[19;21HSingle selection  ");
+	}
+	else if (state->cursorBox.cursorType == CursorType::QuickSelect)
+	{
+		printf("\x1B[19;21HQuick selection   ");
+	}
+	else if (state->cursorBox.cursorType == CursorType::MultipleSelect)
+	{
+		printf("\x1B[19;21HMultiple selection");
 	}
 
 	_printCommands(state);
@@ -208,22 +285,27 @@ Result _moveCursorInput(State_t* state)
 {
 	Result ret = 0;
 	u32 kDown = state->kDown;
+	u32 kHeld = state->kHeld;
 	
+
 	if (kDown & KEY_START)
 	{
-		state->ret = STATE_EXIT;
-		return 1;
+		if (kHeld & KEY_R)
+		{
+			state->ret = STATE_SAVE;
+			return 1;
+		}
+		else //if (kHeld & KEY_L)
+		{
+			state->ret = STATE_EXIT;
+			return 1;
+		}
 	}
 
-	if (kDown & KEY_SELECT)
-	{
-		state->ret = STATE_SAVE;
-		return 1;
-	}
 
-	s16 boxMod = 0;
-	s16 rowMod = 0;
-	s16 colMod = 0;
+	uint16_t boxMod = 0;
+	uint16_t rowMod = 0;
+	uint16_t colMod = 0;
 
 	// Box
 	if (kDown & KEY_L) boxMod--;
@@ -233,67 +315,53 @@ Result _moveCursorInput(State_t* state)
 	if (kDown & KEY_UP) rowMod--;
 	else if (kDown & KEY_DOWN) rowMod++;
 
-	// Column (Box if row == -1)
-	if (kDown & KEY_LEFT) { if (state->cursorBox.bkRow == -1) boxMod--; else colMod--; }
-	else if (kDown & KEY_RIGHT) { if (state->cursorBox.bkRow == -1) boxMod++; else colMod++; }
+	// Column (Box if row == BOX_HEADER_SELECTED)
+	if (kDown & KEY_LEFT) { if ((state->cursorBox.inBank ? state->cursorBox.cPosBK.row : state->cursorBox.cPosPC.row) == BOX_HEADER_SELECTED) boxMod--; else colMod--; }
+	else if (kDown & KEY_RIGHT) { if ((state->cursorBox.inBank ? state->cursorBox.cPosBK.row : state->cursorBox.cPosPC.row) == BOX_HEADER_SELECTED) boxMod++; else colMod++; }
 
 	if (boxMod != 0 || rowMod != 0 || colMod != 0)
 	{
-		s16 *box, *row, *col;
-
-		if (state->cursorBox.inBank)
-		{
-			box = &state->cursorBox.bkBox;
-			row = &state->cursorBox.bkRow;
-			col = &state->cursorBox.bkCol;
-		}
-		else
-		{
-			box = &state->cursorBox.pcBox;
-			row = &state->cursorBox.pcRow;
-			col = &state->cursorBox.pcCol;
-		}
+		bool BK = state->cursorBox.inBank;
+		CursorPosition_t* cPos = &(BK ? state->cursorBox.cPosBK : state->cursorBox.cPosPC);
 
 		// printf("\x1B[18;0H");
 		// printf(" Box: %-2i Row: %-2i Col: %-2i\n", *box, *row, *col);
 
-		*box += boxMod;
-		*row += rowMod;
-		*col += colMod;
+		cPos->box += boxMod;
+		cPos->row += rowMod;
+		cPos->col += colMod;
 
 		// printf(" Box: %-2i Row: %-2i Col: %-2i\n", *box, *row, *col);
 
-		if (*box < 0)
-			*box = BANK_BOXCOUNT -1;
-		if (*box > BANK_BOXCOUNT -1)
-			*box = 0;
+		if (cPos->box < 0)
+			cPos->box = (BK ? BANK_BOXCOUNT : PC_BOXCOUNT) -1;
+		if (cPos->box > (BK ? BANK_BOXCOUNT : PC_BOXCOUNT) -1)
+			cPos->box = 0;
 
-		if (*row < -1)
-			*row = BOX_ROW_PKMCOUNT -1;
-		if (*row > BOX_ROW_PKMCOUNT -1)
-			*row = -1;
+		if (cPos->row < BOX_HEADER_SELECTED)
+			cPos->row = BOX_ROW_PKMCOUNT -1;
+		if (cPos->row > BOX_ROW_PKMCOUNT -1)
+			cPos->row = BOX_HEADER_SELECTED;
 
-		if (*col < 0)
-			*col = BOX_COL_PKMCOUNT -1;
-		if (*col > BOX_COL_PKMCOUNT -1)
-			*col = 0;
+		if (cPos->col < 0)
+			cPos->col = BOX_COL_PKMCOUNT -1;
+		if (cPos->col > BOX_COL_PKMCOUNT -1)
+			cPos->col = 0;
 
 		// printf(" Box: %-2i Row: %-2i Col: %-2i\n", *box, *row, *col);
 
-		if (*row != -1)
-		{
-			_selectViewPkm(state);
-		}
+		_selectViewPkm(state);
 	}
 
 	if (kDown & (KEY_X | KEY_ZL | KEY_ZR))
 	{
+		// Swap: PC <-> BK
 		if (state->cursorBox.inBank)
 			_init(state, false);
 		else
 			_init(state, true);
 
-		// return 1;
+		// _init(state, !state->cursorBox.inBank);
 	}
 
 	return ret;
@@ -308,24 +376,76 @@ Result _movePokemonInput(State_t* state)
 	u32 kDown = state->kDown;
 	
 
-	if (kDown & KEY_A)
+	switch (state->cursorBox.cursorType)
 	{
-		_movePkm(state);
+		case CursorType::SingleSelect:
+		{
+			
+			if (kDown & KEY_Y)
+			{
+				consoleSelect(state->console[0]);
+
+				printf("\n");
+				PKBank::printPkm(state->cursorBox.vPkm, 0, PK6_SIZE);
+
+				consoleSelect(state->console[1]);
+			}
+
+			if (kDown & KEY_B)
+			{
+				state->cursorBox.sPkm = NULL;
+			}
+
+			break;
+		}
+		case CursorType::QuickSelect:
+		{
+			if (kDown & KEY_A)
+			{
+				_movePkm(state);
+			}
+
+			if (kDown & KEY_B)
+			{
+				state->cursorBox.sPkm = NULL;
+			}
+
+			break;
+		}
+		case CursorType::MultipleSelect:
+		case CursorType::None:
+		default:
+		{
+			break;
+		}
 	}
 
-	if (kDown & KEY_B)
-	{
-		state->cursorBox.sPkm = NULL;
-	}
-	
-	if (kDown & KEY_Y)
-	{
-		consoleSelect(state->console[0]);
 
-		printf("\n");
-		PKBank::printPkm(state->cursorBox.vPkm, 0, PK6_SIZE);
-
-		consoleSelect(state->console[1]);
+	if (kDown & KEY_SELECT)
+	{
+		switch (state->cursorBox.cursorType)
+		{
+			case CursorType::SingleSelect:
+			{
+				state->cursorBox.cursorType = CursorType::QuickSelect;
+				break;
+			}
+			case CursorType::QuickSelect:
+			{
+				state->cursorBox.cursorType = CursorType::MultipleSelect;
+				break;
+			}
+			case CursorType::MultipleSelect:
+			{
+				state->cursorBox.cursorType = CursorType::SingleSelect;
+				break;
+			}
+			case CursorType::None:
+			default:
+			{
+				break;
+			}
+		}
 	}
 
 	return ret;
@@ -337,7 +457,7 @@ Result _movePokemonInput(State_t* state)
 \*------------------------------------------------------------*/
 
 
-// --------------------------------------------------
+// ==================================================
 void stateNavigateBoxInit(State_t* state);
 void stateNavigateBoxDisplay(State_t* state);
 void stateNavigateBoxInput(State_t* state);
@@ -348,6 +468,9 @@ void stateNavigateBoxInput(State_t* state);
 void stateNavigateBoxInit(State_t* state)
 // --------------------------------------------------
 {
+	consoleSelect(state->console[1]);
+	consoleClear();
+
 	_init(state, state->cursorBox.inBank);
 }
 

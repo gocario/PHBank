@@ -31,7 +31,9 @@
 #define PCNAME_XY_OFFSET 0x4400
 #define PCNAME_ORAS_OFFSET 0x4400
 #define POKEDEX_XY_OFFSET 0x15000
-#define POKEDEX_ROSA_OFFSET 0x15000
+#define POKEDEX_ORAS_OFFSET 0x15000
+#define POKEDEXLANGUAGE_XY_OFFSET POKEDEX_XY_OFFSET + 0x3c8
+#define POKEDEXLANGUAGE_ORAS_OFFSET POKEDEX_ORAS_OFFSET + 0x3c8
 #define BANK_PKBK_OFFSET 0x100
 
 #define SAVEDATA_XY_SIZE 0x65600 // 0x34ad0 (PC size)
@@ -47,92 +49,130 @@
 typedef u8 ek6_t;
 typedef u8 pk6_t;
 
-struct pkm_t
+typedef struct pkm_t
 {
 	ek6_t* ek6 = NULL; // Pointer to MainBuffer
 	pk6_t* pk6 = NULL; // Pointer to OwnBuffer
 
-	uint16_t species;
-	uint16_t TID;
-	uint16_t SID;
-	uint32_t PID;
+	uint16_t species; // 0x08
+	uint16_t TID; // 0x0c
+	uint16_t SID; // 0x0e
+	uint32_t PID; // 0x18
+	uint8_t gender; // 0x1d
+	uint8_t origin; // 0xDF
+	uint8_t lang; // 0xe3
+	bool isShiny; 
 
 	// T O D O !!
-};
+} pkm_t;
 
-struct box_t
+
+typedef struct box_t
 {
 	pkm_t slot[BOX_PKMCOUNT];
-};
+} box_t;
 
-struct pc_t
+typedef struct pc_t
 {
 	box_t box[PC_BOXCOUNT];
-};
+} pc_t;
 
-struct bank_t
+typedef struct bank_t
 {
 	box_t box[BANK_BOXCOUNT];
-};
+} bank_t;
 
-struct savedata_t
+
+typedef struct pokedex_entry_t
+{
+	bool langJapanese;
+	bool langEnglish;
+	bool langFrench;
+	bool langItalian;
+	bool langGerman;
+	bool langSpanish;
+	bool langKorean;
+	bool ownedMale;
+	bool ownedFemale;
+	bool ownedShinyMale;
+	bool ownedShinyFemale;
+	bool ownedObtained;
+	bool encounteredMale;
+	bool encounteredFemale;
+	bool encounteredShinyMale;
+	bool encounteredShinyFemale;
+	uint16_t dexNavLevel;
+} pokedex_entry_t;
+
+typedef struct pokedex_t
+{
+
+} pokedex_t;
+
+
+typedef struct savedata_t
 {
 	pc_t pc;
-};
+	pokedex_t pokedex;
+} savedata_t;
 
-struct bankdata_t
+typedef struct bankdata_t
 {
 	bank_t bank;
-};
+} bankdata_t;
+
 
 typedef uint8_t savebuffer_t[SAVEDATA_ORAS_SIZE];
 typedef uint8_t bankbuffer_t[BANKDATA_PKBK_SIZE];
 
 namespace Game
 {
-	typedef enum
+	typedef enum gametype_e
 	{
 		None = 0x0,
 		XY = 0x1,
 		ORAS = 0x2,
-	} gametype_e;
+	} Gametype_e;
 };
 
 typedef Game::gametype_e gametype_e;
 
 namespace CursorType
 {
-	enum CursorType_e
+	typedef enum cursorType_e
 	{
 		None = 0x0,
 		SingleSelect = 0x1,
 		QuickSelect = 0x2,
-		MultipleSelect = 0x3,
-	};
+		MultipleSelect = 0x4,
+	} CursorType_e;
 }
 
 typedef CursorType::CursorType_e CursorType_e;
 
-struct CursorBox_t
+typedef struct cursorPosition_t
+{
+	uint16_t slot = 0;
+	uint16_t inslot = 0;
+	int16_t box = 0;
+	int16_t row = 0;
+	int16_t col = 0;
+} CursorPosition_t;
+
+typedef struct cursorBox_t
 {
 	pkm_t* vPkm = NULL;
 	pkm_t* sPkm = NULL;
 
-	u16 slot = 0;
+	uint16_t slot = 0;
 
-	u16 pcSlot = 0;
-	s16 pcBox = 0;
-	s16 pcRow = 0;
-	s16 pcCol = 0;
-
-	u16 bkSlot = 0;
-	s16 bkBox = 0;
-	s16 bkRow = 0;
-	s16 bkCol = 0;
+	CursorPosition_t cPosPC;
+	CursorPosition_t cPosBK;
 
 	bool inBank = false;
 	CursorType_e cursorType = CursorType::SingleSelect;
-};
+} CursorBox_t;
+
 
 /* ---------- Functions ---------- */
 
@@ -155,6 +195,8 @@ class PKBank
 		static void printPkm(pkm_t* pkm, u32 key = 0x0, uint32_t max = 0x0);
 		static gametype_e getGame(uint32_t bytesRead);
 
+		bool isPkmEmpty(pkm_t* pkm);
+		bool isSlotEmpty(uint16_t boxId, uint16_t slotId, bool inBank);
 		void getPkm(uint16_t slotId, pkm_t** pkm, bool inBank = false);
 		void getPkm(uint16_t boxId, uint16_t slotId, pkm_t** pkm, bool inBank = false);
 		void getPkm(uint16_t boxId, uint16_t rowId, uint16_t colId, pkm_t** pkm, bool inBank = false);
@@ -195,6 +237,12 @@ class PKBank
 		void savePkmPk6(pkm_t* pkm);
 		void editSaveBuffer(uint32_t pos, uint8_t* ptr, uint32_t size);
 		void editBankBuffer(uint32_t pos, uint8_t* ptr, uint32_t size);
+
+		// Pokemon
+		void loadDexPkm(pkm_t* pkm);
+		uint32_t computePSV(uint32_t PID);
+		uint16_t computeTSV(uint16_t TID, uint16_t SID);
+		bool isShiny(uint32_t PID, uint16_t TID, uint16_t SID);
 
 		// Encryption
 		uint32_t LCRNG(uint32_t seed);

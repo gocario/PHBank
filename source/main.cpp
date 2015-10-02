@@ -27,7 +27,7 @@ int main(int argc, char* argv[])
 	PrintConsole top, bot;
 
 	gfxInitDefault();
-	gfxSetDoubleBuffering(GFX_BOTTOM, false);
+	// gfxSetDoubleBuffering(GFX_BOTTOM, false);
 
 	//Initialize console on top screen. Using NULL as the second argument tells the console library to use the internal console structure as current one
 	consoleInit(GFX_TOP, &top);
@@ -172,7 +172,7 @@ int main(int argc, char* argv[])
 
 		// Flush and swap framebuffers
 		gfxFlushBuffers();
-		//gfxSwapBuffers();
+		gfxSwapBuffers();
 
 		//Wait for VBlank
 		gspWaitForVBlank();

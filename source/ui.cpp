@@ -16,7 +16,7 @@ Result mainLoop(PKBank* pkBank, PrintConsole* top, PrintConsole* bot)
 	// state.cursorBox.box = 0;
 	// state.cursorBox.row = 0;
 	// state.cursorBox.col = 0;
-	// state.cursorBox.cursorType = CursorType::SelectSingle;
+	state.cursorBox.cursorType = CursorType::QuickSelect;
 	state.console[0] = top;
 	state.console[1] = bot;
 	state.ret = STATE_CONTINUE;

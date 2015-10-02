@@ -1,29 +1,34 @@
 ///
 /// From smealum/3ds_hb_menu
-/// Modified
+/// Modified v2.4
 ///
 
 #include "filesystem.hpp"
 
 
+// ==================================================
 Result _srvGetServiceHandle(Handle* out, const char* name)
+// --------------------------------------------------
 {
-	Result rc = 0;
-
 	u32* cmdbuf = getThreadCommandBuffer();
 	cmdbuf[0] = 0x50100;
 	strcpy((char*) &cmdbuf[1], name);
 	cmdbuf[3] = strlen(name);
 	cmdbuf[4] = 0x0;
 
-	if ((rc = svcSendSyncRequest(*srvGetSessionHandle()))) return rc;
+	Result ret  = 0;
+
+	ret = svcSendSyncRequest(*srvGetSessionHandle());
+	if (ret) return ret;
 
 	*out = cmdbuf[3];
 	return cmdbuf[1];
 }
 
 
+// ==================================================
 Result FSUSER_ControlArchive(Handle handle, FS_archive archive)
+// --------------------------------------------------
 {
 	u32* cmdbuf = getThreadCommandBuffer();
 
@@ -40,39 +45,51 @@ Result FSUSER_ControlArchive(Handle handle, FS_archive archive)
 	cmdbuf[8] = 0x1c;
 	cmdbuf[9] = (u32)&(b2);
 
-	Result ret = 0;
-	if ((ret=svcSendSyncRequest(handle))) return ret;
+	Result ret;
+
+	ret = svcSendSyncRequest(handle);
+	if (ret) return ret;
 
 	return cmdbuf[1];
 }
 
 
+// ==================================================
 Result FS_loadFile(char* path, void* dst, FS_archive* fsArchive, Handle* fsHandle, u64 maxSize, u32* bytesRead)
+// --------------------------------------------------
 {
 	if (!path || !dst || !fsArchive) return -1;
 
-	Result ret;
+	Result ret = 0;
 	u64 size;
 	Handle fileHandle;
 
-	ret = FSUSER_OpenFile(fsHandle, &fileHandle, *fsArchive, FS_makePath(PATH_CHAR, path), FS_OPEN_READ, FS_ATTRIBUTE_NONE);
-	if (ret) return ret;
+	if (!ret)
+	{
+		ret = FSUSER_OpenFile(fsHandle, &fileHandle, *fsArchive, FS_makePath(PATH_CHAR, path), FS_OPEN_READ, FS_ATTRIBUTE_NONE);
+		if (ret) return ret;
+	}
 
-	ret = FSFILE_GetSize(fileHandle, &size);
-	if (ret) goto loadFileExit;
-	if (size > maxSize) { ret=-2; goto loadFileExit; }
+	if (!ret)
+	{
+		ret = FSFILE_GetSize(fileHandle, &size);
+		if (ret || size > maxSize) ret = -2;
+	}
 
-	ret = FSFILE_Read(fileHandle, bytesRead, 0x0, dst, size);
-	if (ret) goto loadFileExit;
-	if (*bytesRead < size) { ret=-3; goto loadFileExit; }
+	if (!ret)
+	{
+		ret = FSFILE_Read(fileHandle, bytesRead, 0, dst, size);
+		if (ret || *bytesRead < size) ret=-3;
+	}
 
-	loadFileExit:
 	FSFILE_Close(fileHandle);
 	return ret;
 }
 
 
+// ==================================================
 Result FS_saveFile(char* path, void* src, u64 size, FS_archive* fsArchive, Handle* fsHandle, u32* bytesWritten)
+// --------------------------------------------------
 {
 	if (!path || !src || !fsArchive) return -1;
 
@@ -82,7 +99,7 @@ Result FS_saveFile(char* path, void* src, u64 size, FS_archive* fsArchive, Handl
 	ret = FSUSER_OpenFile(fsHandle, &fileHandle, *fsArchive, FS_makePath(PATH_CHAR, path), FS_OPEN_WRITE | FS_OPEN_CREATE, FS_ATTRIBUTE_NONE);
 	if (ret) return ret;
 
-	ret = FSFILE_Write(fileHandle, bytesWritten, 0x0, src, size, FS_WRITE_NOFLUSH);
+	ret = FSFILE_Write(fileHandle, bytesWritten, 0, src, size, FS_WRITE_NOFLUSH);
 	if (ret) return ret;
 
 	FSFILE_Close(fileHandle);
@@ -90,7 +107,9 @@ Result FS_saveFile(char* path, void* src, u64 size, FS_archive* fsArchive, Handl
 }
 
 
+// ==================================================
 Result FS_saveSFile(char* path, void* src, u64 size, FS_archive* fsArchive, Handle* fsHandle, u32* bytesWritten)
+// --------------------------------------------------
 {
 	Result ret;
 
@@ -102,7 +121,9 @@ Result FS_saveSFile(char* path, void* src, u64 size, FS_archive* fsArchive, Hand
 }
 
 
+// ==================================================
 Result FS_deleteFile(char* path, Handle* fsHandle, FS_archive* fsArchive)
+// --------------------------------------------------
 {
 	if (!path || !fsHandle || !fsArchive) return -1;
 
@@ -114,7 +135,9 @@ Result FS_deleteFile(char* path, Handle* fsHandle, FS_archive* fsArchive)
 }
 
 
+// ==================================================
 Result FS_createDirectory(char* path, Handle* fsHandle, FS_archive* fsArchive)
+// --------------------------------------------------
 {
 	if (!path || !fsHandle || !fsArchive) return -1;
 
@@ -126,7 +149,9 @@ Result FS_createDirectory(char* path, Handle* fsHandle, FS_archive* fsArchive)
 }
 
 
+// ==================================================
 Result FS_filesysInit(Handle* sdHandle, Handle* saveHandle, FS_archive* sdArchive, FS_archive* saveArchive)
+// --------------------------------------------------
 {
 	Result ret;
 	printf("  Getting save handle\n");
@@ -153,7 +178,9 @@ Result FS_filesysInit(Handle* sdHandle, Handle* saveHandle, FS_archive* sdArchiv
 }
 
 
+// ==================================================
 Result FS_filesysExit(Handle* sdHandle, Handle* saveHandle, FS_archive* sdArchive, FS_archive* saveArchive)
+// --------------------------------------------------
 {
 	FSUSER_CloseArchive(saveHandle, saveArchive);
 	FSUSER_CloseArchive(sdHandle, sdArchive);

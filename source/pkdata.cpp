@@ -8,9 +8,9 @@ const char* PKData::lang()
 {
 	switch (_lang)
 	{
-		case (LANG_FR):
+		case LANG_FR:
 			return "fr";
-		case (LANG_EN):
+		case LANG_EN:
 		default:
 			return "en";
 	}
