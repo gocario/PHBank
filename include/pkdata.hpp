@@ -1,8 +1,6 @@
 #ifndef PKDATA_HPP
 #define PKDATA_HPP
 
-#include <3ds.h>
-
 #include "main.hpp"
 #include "filesystem.hpp"
 

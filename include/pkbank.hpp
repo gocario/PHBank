@@ -9,6 +9,7 @@
 
 #include "main.hpp"
 #include "filesystem.hpp"
+#include "pkfilter.hpp"
 
 
 /* ---------- Defines ---------- */
