@@ -18,6 +18,7 @@
 #define BOX_PKMCOUNT BOX_ROW_PKMCOUNT * BOX_COL_PKMCOUNT
 #define PC_BOXCOUNT 31 // 0x1f
 #define BANK_BOXCOUNT 100 // 0x64
+#define PKM_COUNT 721
 
 #define PKM_SIZE 0xe8
 #define BOX_SIZE PKM_SIZE * BOX_PKMCOUNT
@@ -30,10 +31,12 @@
 #define PC_ORAS_OFFSET 0x33000
 #define PCNAME_XY_OFFSET 0x4400
 #define PCNAME_ORAS_OFFSET 0x4400
+#define TRAINERCARD_XY_OFFSET 0x14000
+#define TRAINERCARD_ORAS_OFFSET 0x14000
 #define POKEDEX_XY_OFFSET 0x15000
 #define POKEDEX_ORAS_OFFSET 0x15000
-#define POKEDEXLANGUAGE_XY_OFFSET POKEDEX_XY_OFFSET + 0x3c8
-#define POKEDEXLANGUAGE_ORAS_OFFSET POKEDEX_ORAS_OFFSET + 0x3c8
+#define POKEDEXLANG_XY_OFFSET POKEDEX_XY_OFFSET + 0x3c8
+#define POKEDEXLANG_ORAS_OFFSET POKEDEX_ORAS_OFFSET + 0x400
 #define BANK_PKBK_OFFSET 0x100
 
 #define SAVEDATA_XY_SIZE 0x65600 // 0x34ad0 (PC size)
@@ -43,6 +46,9 @@
 
 #define EK6_SIZE PKM_SIZE
 #define PK6_SIZE PKM_SIZE
+
+#define PK_SPECIES_SIZE 20
+#define PK_ITEM_SIZE 20
 
 /* ---------- Types ---------- */
 
@@ -54,10 +60,14 @@ typedef struct pkm_t
 	ek6_t* ek6 = NULL; // Pointer to MainBuffer
 	pk6_t* pk6 = NULL; // Pointer to OwnBuffer
 
-	uint16_t species; // 0x08
+	u8* species;
+	u8* item;
+	uint16_t speciesID; // 0x08
+	uint16_t itemID; // 0x??
 	uint16_t TID; // 0x0c
 	uint16_t SID; // 0x0e
 	uint32_t PID; // 0x18
+	uint16_t PSV;
 	uint8_t gender; // 0x1d
 	uint8_t origin; // 0xDF
 	uint8_t lang; // 0xe3
@@ -83,30 +93,31 @@ typedef struct bank_t
 } bank_t;
 
 
-typedef struct pokedex_entry_t
+typedef struct PACKED dex_t
 {
-	bool langJapanese;
-	bool langEnglish;
-	bool langFrench;
-	bool langItalian;
-	bool langGerman;
-	bool langSpanish;
-	bool langKorean;
-	bool ownedMale;
-	bool ownedFemale;
-	bool ownedShinyMale;
-	bool ownedShinyFemale;
-	bool ownedObtained;
-	bool encounteredMale;
-	bool encounteredFemale;
-	bool encounteredShinyMale;
-	bool encounteredShinyFemale;
-	uint16_t dexNavLevel;
-} pokedex_entry_t;
+	bool owned : 1;
+	bool ownedMale : 1;
+	bool ownedFemale : 1;
+	bool ownedShinyMale : 1;
+	bool ownedShinyFemale : 1;
+	bool encounteredMale : 1;
+	bool encounteredFemale : 1;
+	bool encounteredShinyMale : 1;
+	bool encounteredShinyFemale : 1;
+	bool langJapanese : 1;
+	bool langEnglish : 1;
+	bool langFrench : 1;
+	bool langItalian : 1;
+	bool langGerman : 1;
+	bool langSpanish : 1;
+	bool langKorean : 1;
+	unsigned : 0;
+	uint16_t dexNavLevel : 16;
+} dex_t;
 
 typedef struct pokedex_t
 {
-
+	dex_t dexes[0x60 * 8]; // [PKM_COUNT]
 } pokedex_t;
 
 
@@ -114,6 +125,11 @@ typedef struct savedata_t
 {
 	pc_t pc;
 	pokedex_t pokedex;
+	uint16_t TID; // 0x0
+	uint16_t SID; // 0x2
+	uint16_t TSV;
+	uint8_t OTName[0x1a]; // 0x48
+
 } savedata_t;
 
 typedef struct bankdata_t
@@ -201,6 +217,9 @@ class PKBank
 		void getPkm(uint16_t boxId, uint16_t slotId, pkm_t** pkm, bool inBank = false);
 		void getPkm(uint16_t boxId, uint16_t rowId, uint16_t colId, pkm_t** pkm, bool inBank = false);
 		void movePkm(pkm_t* src, pkm_t* dest);
+		void moveBox(uint16_t boxID_1, bool inBank_1, uint16_t boxID_2, bool inBank_2);
+		void addDex(uint16_t speciesID);
+		void addDex(pkm_t* pkm);
 
 
 		savedata_t* savedata;
@@ -218,29 +237,38 @@ class PKBank
 		Result saveBankFile(Handle *fsHandle, FS_archive *fsArchive);
 		Result backupSaveFile(Handle *fsHandle, FS_archive *fsArchive);
 
+		// Load Data
 		Result loadSaveData();
 		Result loadBankData();
+		// Load Pokemon (pkm_t)
 		void loadPkmPC(uint16_t boxId, uint16_t slotId);
 		void loadPkmBK(uint16_t boxId, uint16_t slotId);
 		void loadEk6PC(pkm_t* pkm, uint32_t offsetSlot);
 		void loadEk6BK(pkm_t* pkm, uint32_t offsetSlot);
 		void loadPk6Ek6(pkm_t* pkm);
 		void loadPkmPk6(pkm_t* pkm);
+		// Load Pokedex (pokedex_t)
+		void loadDex();
 
+		// Save Data
 		Result saveSaveData();
 		Result saveBankData();
+		// Save Pokemon (pkm_t)
 		void savePkmPC(uint16_t boxId, uint16_t slotId);
 		void savePkmBK(uint16_t boxId, uint16_t slotId);
 		void saveEk6PC(pkm_t* pkm);
 		void saveEk6BK(pkm_t* pkm);
 		void savePk6Ek6(pkm_t* pkm);
 		void savePkmPk6(pkm_t* pkm);
+		// Save Pokedex (pokedex_t)
+		void saveDex();
+		// Edit Buffer
 		void editSaveBuffer(uint32_t pos, uint8_t* ptr, uint32_t size);
 		void editBankBuffer(uint32_t pos, uint8_t* ptr, uint32_t size);
 
 		// Pokemon
 		void loadDexPkm(pkm_t* pkm);
-		uint32_t computePSV(uint32_t PID);
+		uint16_t computePSV(uint32_t PID);
 		uint16_t computeTSV(uint16_t TID, uint16_t SID);
 		bool isShiny(uint32_t PID, uint16_t TID, uint16_t SID);
 

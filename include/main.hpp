@@ -11,4 +11,7 @@
 #define adelete(x) {delete [] x; x = NULL;}
 
 
+void waitKey(u32 keyWait);
+
+
 #endif // MAIN_HPP_INCLUDED

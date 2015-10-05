@@ -10,6 +10,11 @@
 #define LANG_EN 1
 #define LANG_FR 2
 
+#define DEX_SPECIES_COUNT 722
+#define DEX_SPECIES_LENGTH 20
+#define DEX_ITEMS_COUNT 776
+#define DEX_ITEMS_LENGTH 20
+
 
 struct sprite_t;
 typedef uint32_t species_t;
@@ -20,9 +25,9 @@ sprite_t getSpriteFromSpecies(species_t species);
 class PKData
 {
 	public:
-
-		static void loadData(Handle *sdHandle, FS_archive *sdArchive);
-		static void loadDataLine(uint8_t *src, uint8_t *dest, uint8_t len, uint32_t size);
+		static Result load(Handle *sdHandle, FS_archive *sdArchive);
+		static Result loadData(Handle *sdHandle, FS_archive *sdArchive, u32 maxSize, char* path, u8* dest, u32 lineLength, u32 lineCount);
+		static Result loadDataLine(u8* src, u8* dst, u32 lineLength, u32 lineCount);
 
 		static const char* lang();
 		static uint8_t* species(uint32_t species);
@@ -30,8 +35,8 @@ class PKData
 	private:
 
 		static uint8_t _lang;
-		static uint8_t _species[722][15]; // 11~13
-		static uint8_t _items[776][20]; // 17
+		static uint8_t _species[DEX_SPECIES_COUNT][DEX_SPECIES_LENGTH]; // 11~13
+		static uint8_t _items[DEX_ITEMS_COUNT][DEX_ITEMS_LENGTH]; // 17
 };
 
 

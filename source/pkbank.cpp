@@ -2,6 +2,7 @@
 
 #include <time.h>
 
+#include "pkdata.hpp"
 
 /*----------------------------------------------------------*\
  |                 Constructor / Destructor                 |
@@ -84,9 +85,11 @@ Result PKBank::save(Result fs, Handle *sdHandle, Handle *saveHandle, FS_archive 
 {
 	Result ret = 0;
 
+	printf("> Writing...\n");
 	ret = saveData();
 	if (ret) return ret;
 
+	printf("> Saving...\n");
 	ret = saveFile(fs, sdHandle, saveHandle, sdArchive, saveArchive);
 	if (ret) return ret;
 
@@ -320,7 +323,7 @@ gametype_e PKBank::getGame(uint32_t bytesRead)
 bool PKBank::isPkmEmpty(pkm_t* pkm)
 // --------------------------------------------------
 {
-	return (pkm->species == 0x0 && pkm->PID == 0x0);
+	return (pkm->speciesID == 0x0 && pkm->PID == 0x0);
 }
 
 
@@ -377,8 +380,151 @@ void PKBank::movePkm(pkm_t* src, pkm_t* dest)
 	loadPkmPk6(src);
 	loadPkmPk6(dest);
 
-	// loadDexPkm(src);
-	// loadDexPkm(dest);
+	if (gametype == Game::ORAS)
+	{
+		addDex(src);
+		addDex(dest);
+	}
+}
+
+
+// ==================================================
+void PKBank::moveBox(uint16_t boxID_1, bool inBank_1, uint16_t boxID_2, bool inBank_2)
+// --------------------------------------------------
+{
+	pkm_t* pkm_1 = NULL;
+	pkm_t* pkm_2 = NULL;
+
+	printf("Transfering Pokémon... [%s]%u [%s]%u\n", (inBank_1 ? "BK" : "PC"), boxID_1, (inBank_2 ? "BK" : "PC"), boxID_2);
+	for (uint32_t i = 0; i < BOX_PKMCOUNT; i++)
+	{
+		printf(" %lu", i);
+		pkm_1 = &(inBank_1 ? bankdata->bank.box[boxID_1].slot[i] : savedata->pc.box[boxID_1].slot[i]);
+		pkm_2 = &(inBank_2 ? bankdata->bank.box[boxID_2].slot[i] : savedata->pc.box[boxID_2].slot[i]);
+		movePkm(pkm_1, pkm_2);
+	}
+}
+
+
+// ==================================================
+void PKBank::addDex(uint16_t speciesID)
+// --------------------------------------------------
+{
+	// savedata->
+
+	printf("\n");
+
+	if (speciesID == 3)
+	{
+		dex_t &dex = savedata->pokedex.dexes[1];
+		dex.owned = 1;
+		dex.ownedShinyMale = 1;
+		dex.ownedShinyFemale = 1;
+
+		dex.encounteredShinyMale = 1;
+		dex.encounteredShinyFemale = 1;
+
+		dex.langJapanese = 1;
+		speciesID = 1;
+	}
+
+	if (speciesID == 2)
+	{
+		loadDex();
+		speciesID = 1;
+	}
+
+	if (speciesID == 1)
+	{
+		for (uint32_t i = 0; i < 10; i++)
+		{
+			dex_t &dex = savedata->pokedex.dexes[i];
+
+			printf("%x", dex.owned);
+			printf("%x", dex.ownedMale);
+			printf("%x", dex.ownedFemale);
+			printf("%x", dex.ownedShinyMale);
+			printf("%x", dex.ownedShinyFemale);
+			printf(" ");
+			printf("%x", dex.encounteredMale);
+			printf("%x", dex.encounteredFemale);
+			printf("%x", dex.encounteredShinyMale);
+			printf("%x", dex.encounteredShinyFemale);
+			printf(" ");
+			printf("%x", dex.langJapanese);
+			printf("%x", dex.langEnglish);
+			printf("%x", dex.langFrench);
+			printf("%x", dex.langItalian);
+			printf("%x", dex.langGerman);
+			printf("%x", dex.langSpanish);
+			printf("%x", dex.langKorean);
+			printf("\n");
+		}
+	}
+
+	printf("\n");
+
+}
+
+
+// ==================================================
+void PKBank::addDex(pkm_t* pkm)
+// --------------------------------------------------
+{
+	uint32_t speciesID = pkm->speciesID;
+	dex_t &dex = savedata->pokedex.dexes[speciesID-1];
+	bool male = (pkm->gender == 1);
+	bool shiny = this->isShiny(pkm->PID, pkm->TID, pkm->SID);
+	uint8_t lang = pkm->lang;
+
+	if (shiny)
+	{
+		if (male)
+			dex.ownedShinyMale = true;
+		else
+			dex.ownedShinyFemale = true;
+	}
+	else
+	{
+		if (male)
+			dex.ownedMale = true;
+		else
+			dex.ownedFemale = true;
+	}
+	
+	if (!dex.owned)
+	{
+		if (shiny)
+		{
+			if (male)
+				dex.encounteredShinyMale = true;
+			else
+				dex.encounteredShinyFemale = true;
+		}
+		else
+		{
+			if (male)
+				dex.encounteredMale = true;
+			else
+				dex.encounteredFemale = true;
+		}
+		dex.owned = true;
+	}
+
+	if (lang == 0)
+		dex.langJapanese = true;
+	else if (lang == 1)
+		dex.langEnglish = true;
+	else if (lang == 2)
+		dex.langFrench = true;
+	else if (lang == 3)
+		dex.langItalian = true;
+	else if (lang == 4)
+		dex.langGerman = true;
+	else if (lang == 5)
+		dex.langSpanish = true;
+	else if (lang == 6)
+		dex.langKorean = true;
 }
 
 
@@ -533,7 +679,34 @@ Result PKBank::loadSaveData()
 			loadPkmPC(iB, iP);
 		}
 	}
-	printf("\n");
+	printf(" OK!\n");
+
+	if (gametype == Game::ORAS)
+	{
+		printf("Loading Dexes:");
+		loadDex();
+		printf(" OK!\n");
+	}
+	else
+	{
+		printf("Not Saving Dexes: X/Y");
+	}
+
+
+	printf("Loading Trainer Card:");
+	uint32_t trainerCardOffset = (gametype == Game::XY ? TRAINERCARD_XY_OFFSET : TRAINERCARD_ORAS_OFFSET);
+
+	#pragma GCC diagnostic ignored "-Wstrict-aliasing"
+	// printf("[@%p]\n", savebuffer);
+	savedata->TID = *(uint16_t*)(savebuffer + trainerCardOffset + 0x0);
+	savedata->SID = *(uint16_t*)(savebuffer + trainerCardOffset + 0x2);
+	savedata->TSV = computeTSV(savedata->TID, savedata->SID);
+
+	for (uint32_t i = 0; i < 0x1a; i += 2)
+		savedata->OTName[i / 2] = *(uint8_t*) (savebuffer + trainerCardOffset + 0x48 + i);
+
+	printf(" OK!\n");
+	#pragma GCC diagnostic pop
 
 	return ret;
 }
@@ -558,7 +731,7 @@ Result PKBank::loadBankData()
 			loadPkmBK(iB, iP);
 		}
 	}
-	printf("\n");
+	printf(" OK!\n");
 
 	return ret;
 }
@@ -643,10 +816,12 @@ void PKBank::loadPkmPk6(pkm_t* pkm)
 {
 	if (!pkm || !pkm->pk6) return;
 
-	pkm->species = *(uint16_t*)(pkm->pk6 + 0x08);
+	pkm->speciesID = *(uint16_t*)(pkm->pk6 + 0x08);
+	pkm->species = PKData::species(pkm->speciesID);
 	pkm->TID = *(uint16_t*)(pkm->pk6 + 0x0c);
 	pkm->SID = *(uint16_t*)(pkm->pk6 + 0x0e);
 	pkm->PID = *(uint32_t*)(pkm->pk6 + 0x18);
+	pkm->PSV = computePSV(pkm->PID);
 	pkm->gender = ((*(uint8_t*)(pkm->pk6 + 0x1d) >> 1) & 0x3);
 	pkm->origin = *(uint8_t*)(pkm->pk6 + 0xdf);
 	pkm->lang = *(uint8_t*)(pkm->pk6 + 0xe3);
@@ -655,6 +830,72 @@ void PKBank::loadPkmPk6(pkm_t* pkm)
 
 
 	// T O D O !! #Complete
+}
+
+
+// ==================================================
+/// Load data from savebuffer to pokedex
+void PKBank::loadDex()
+// --------------------------------------------------
+{
+	uint32_t offset, bitSize, b;
+	uint32_t offsetDex = (gametype == Game::XY ? POKEDEX_XY_OFFSET : POKEDEX_ORAS_OFFSET);
+	uint32_t offsetDexlg = (gametype == Game::XY ? POKEDEXLANG_XY_OFFSET : POKEDEXLANG_ORAS_OFFSET);
+
+
+	offset = offsetDex + 0x8;
+	bitSize = 0x60 * 9 * 8;
+	bool* dexBool = new bool[bitSize];
+	for (b = 0; b < bitSize; b++)
+		dexBool[b] = ((savebuffer[offset + (b / 8)] >> (b % 8)) & 0x1) == 1;
+		// dexBool[i] = (((*(u8*)(savebuffer + offset + (i / 8))) >> (i % 8)) & 0x1) == 1;
+	
+	b = 0;
+	for (; b < 0x60 * 8 * 1; b++)
+		savedata->pokedex.dexes[b - 0x60 * 8 * 0].owned = dexBool[b];
+	for (; b < 0x60 * 8 * 2; b++)
+		savedata->pokedex.dexes[b - 0x60 * 8 * 1].ownedMale = dexBool[b];
+	for (; b < 0x60 * 8 * 3; b++)
+		savedata->pokedex.dexes[b - 0x60 * 8 * 2].ownedFemale = dexBool[b];
+	for (; b < 0x60 * 8 * 4; b++)
+		savedata->pokedex.dexes[b - 0x60 * 8 * 3].ownedShinyMale = dexBool[b];
+	for (; b < 0x60 * 8 * 5; b++)
+		savedata->pokedex.dexes[b - 0x60 * 8 * 4].ownedShinyFemale = dexBool[b];
+	for (; b < 0x60 * 8 * 6; b++)
+		savedata->pokedex.dexes[b - 0x60 * 8 * 5].encounteredMale = dexBool[b];
+	for (; b < 0x60 * 8 * 7; b++)
+		savedata->pokedex.dexes[b - 0x60 * 8 * 6].encounteredFemale = dexBool[b];
+	for (; b < 0x60 * 8 * 8; b++)
+		savedata->pokedex.dexes[b - 0x60 * 8 * 7].encounteredShinyMale = dexBool[b];
+	for (; b < 0x60 * 8 * 9; b++)
+		savedata->pokedex.dexes[b - 0x60 * 8 * 8].encounteredShinyFemale = dexBool[b];
+
+
+	offset = offsetDexlg;
+	bitSize = 0x27C * 8;
+	bool* dexlgBool = new bool[bitSize];
+	for (b = 0; b < bitSize; b++)
+		dexlgBool[b] = ((savebuffer[offset + (b / 8)] >> (b % 8)) & 0x1) == 1;
+		// dexlgBool[i] = (((*(u8*)(savebuffer + offset + (i / 8))) >> (i % 8)) & 0x1) == 1;
+
+	for (b = 0; b < 0x27C; b += 7)
+		savedata->pokedex.dexes[(b - 0) / 7].langJapanese = dexlgBool[b];
+	for (b = 1; b < 0x27C; b += 7)
+		savedata->pokedex.dexes[(b - 1) / 7].langEnglish = dexlgBool[b];
+	for (b = 2; b < 0x27C; b += 7)
+		savedata->pokedex.dexes[(b - 2) / 7].langFrench = dexlgBool[b];
+	for (b = 3; b < 0x27C; b += 7)
+		savedata->pokedex.dexes[(b - 3) / 7].langItalian = dexlgBool[b];
+	for (b = 4; b < 0x27C; b += 7)
+		savedata->pokedex.dexes[(b - 4) / 7].langGerman = dexlgBool[b];
+	for (b = 5; b < 0x27C; b += 7)
+		savedata->pokedex.dexes[(b - 5) / 7].langSpanish = dexlgBool[b];
+	for (b = 6; b < 0x27C; b += 7)
+		savedata->pokedex.dexes[(b - 6) / 7].langKorean = dexlgBool[b];
+
+
+	delete[] dexBool;
+	delete[] dexlgBool;
 }
 
 
@@ -683,12 +924,25 @@ Result PKBank::saveSaveData()
 	printf("\n");
 
 
-	printf("Rewriting checksums...");
+	if (gametype == Game::ORAS)
+	{
+		printf("Saving Dexes:");
+		saveDex();
+		printf(" OK!\n");
+	}
+	else
+	{
+		printf("Not Saving Dexes: X/Y");
+	}
+
+
+	printf("Rewriting checksums:");
 	rewriteSaveCHK();
-	printf(" OK\n");
+	printf(" OK!\n");
 
 	return ret;
 }
+
 
 // ==================================================
 /// Save data to bank
@@ -775,12 +1029,92 @@ void PKBank::savePkmPk6(pkm_t* pkm)
 {
 	if (!pkm || !pkm->pk6) return;
 
-	*(uint16_t*)(pkm->pk6 + 0x08) = pkm->species;
-	*(uint16_t*)(pkm->pk6 + 0x0c) = pkm->TID;
-	*(uint16_t*)(pkm->pk6 + 0x0e) = pkm->SID;
-	*(uint16_t*)(pkm->pk6 + 0x18) = pkm->PID;
+	// *(uint16_t*)(pkm->pk6 + 0x08) = pkm->species;
+	// *(uint16_t*)(pkm->pk6 + 0x0c) = pkm->TID;
+	// *(uint16_t*)(pkm->pk6 + 0x0e) = pkm->SID;
+	// *(uint16_t*)(pkm->pk6 + 0x18) = pkm->PID;
 
 	// T O D O !! #Complete
+}
+
+
+// ==================================================
+/// Save data from pokedex to savebuffer
+void PKBank::saveDex()
+// --------------------------------------------------
+{
+	uint32_t offset, bitSize, b;
+	uint32_t offsetDex = (gametype == Game::XY ? POKEDEX_XY_OFFSET : POKEDEX_ORAS_OFFSET);
+	uint32_t offsetDexlg = (gametype == Game::XY ? POKEDEXLANG_XY_OFFSET : POKEDEXLANG_ORAS_OFFSET);
+
+
+	offset = offsetDex + 0x8;
+	bitSize = 0x60 * 9 * 8;
+	bool* dexBool = new bool[bitSize];
+
+	b = 0;
+	for (; b < 0x60 * 8 * 1; b++)
+		dexBool[b] = savedata->pokedex.dexes[b - 0x60 * 8 * 0].owned;
+	for (; b < 0x60 * 8 * 2; b++)
+		dexBool[b] = savedata->pokedex.dexes[b - 0x60 * 8 * 1].ownedMale;
+	for (; b < 0x60 * 8 * 3; b++)
+		dexBool[b] = savedata->pokedex.dexes[b - 0x60 * 8 * 2].ownedFemale;
+	for (; b < 0x60 * 8 * 4; b++)
+		dexBool[b] = savedata->pokedex.dexes[b - 0x60 * 8 * 3].ownedShinyMale;
+	for (; b < 0x60 * 8 * 5; b++)
+		dexBool[b] = savedata->pokedex.dexes[b - 0x60 * 8 * 4].ownedShinyFemale;
+	for (; b < 0x60 * 8 * 6; b++)
+		dexBool[b] = savedata->pokedex.dexes[b - 0x60 * 8 * 5].encounteredMale;
+	for (; b < 0x60 * 8 * 7; b++)
+		dexBool[b] = savedata->pokedex.dexes[b - 0x60 * 8 * 6].encounteredFemale;
+	for (; b < 0x60 * 8 * 8; b++)
+		dexBool[b] = savedata->pokedex.dexes[b - 0x60 * 8 * 7].encounteredShinyMale;
+	for (; b < 0x60 * 8 * 9; b++)
+		dexBool[b] = savedata->pokedex.dexes[b - 0x60 * 8 * 8].encounteredShinyFemale;
+
+	uint8_t* dexByte = new uint8_t[bitSize / 8];
+	for (b = 0; b < bitSize; b += 8)
+		dexByte[b / 8] = 0;
+	for (b = 0; b < bitSize; b++)
+		dexByte[b / 8] |= ((dexBool[b] ? 1 : 0) << (b % 8));
+
+	for (b = 0; b < bitSize / 8; b++)
+		savebuffer[offset + b] = dexByte[b];
+
+
+	offset = offsetDexlg;
+	bitSize = 0x27C * 8;
+	bool* dexlgBool = new bool[bitSize];
+
+	for (b = 0; b < 0x27C; b += 7)
+		dexlgBool[b] = savedata->pokedex.dexes[(b - 0) / 7].langJapanese;
+	for (b = 1; b < 0x27C; b += 7)
+		dexlgBool[b] = savedata->pokedex.dexes[(b - 1) / 7].langEnglish;
+	for (b = 2; b < 0x27C; b += 7)
+		dexlgBool[b] = savedata->pokedex.dexes[(b - 2) / 7].langFrench;
+	for (b = 3; b < 0x27C; b += 7)
+		dexlgBool[b] = savedata->pokedex.dexes[(b - 3) / 7].langItalian;
+	for (b = 4; b < 0x27C; b += 7)
+		dexlgBool[b] = savedata->pokedex.dexes[(b - 4) / 7].langGerman;
+	for (b = 5; b < 0x27C; b += 7)
+		dexlgBool[b] = savedata->pokedex.dexes[(b - 5) / 7].langSpanish;
+	for (b = 6; b < 0x27C; b += 7)
+		dexlgBool[b] = savedata->pokedex.dexes[(b - 6) / 7].langKorean;
+
+	uint8_t* dexlgByte = new uint8_t[bitSize / 8];
+	for (b = 0; b < bitSize; b += 8)
+		dexlgByte[b / 8] = 0;
+	for (b = 0; b < bitSize; b++)
+		dexlgByte[b / 8] |= ((dexlgBool[b] ? 1 : 0) << (b % 8));
+
+	for (b = 0; b < bitSize / 8; b++)
+		savebuffer[offset + b] = dexlgByte[b];
+
+
+	delete[] dexBool;
+	delete[] dexlgBool;
+	delete[] dexByte;
+	delete[] dexlgByte;
 }
 
 
@@ -828,7 +1162,7 @@ void PKBank::loadDexPkm(pkm_t* pkm)
 
 
 // ==================================================
-uint32_t PKBank::computePSV(uint32_t PID)
+uint16_t PKBank::computePSV(uint32_t PID)
 // --------------------------------------------------
 {
 	return ((((PID >> 16) ^ (PID & 0xFFFF)) >> 4) & 0xFFFF);
@@ -847,9 +1181,9 @@ uint16_t PKBank::computeTSV(uint16_t TID, uint16_t SID)
 bool PKBank::isShiny(uint32_t PID, uint16_t TID, uint16_t SID)
 // --------------------------------------------------
 {
-	uint32_t PSV = computePSV(PID);
+	uint16_t PSV = computePSV(PID);
 	uint16_t TSV = computeTSV(TID, SID);
-	return (TSV == PSV);
+	return (PSV == TSV);
 }
 
 

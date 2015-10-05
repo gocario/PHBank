@@ -1,5 +1,7 @@
 #include "ui.hpp"
 
+#include <wchar.h>
+
 #include "pkbank.hpp"
 
 #define BOX_HEADER_SELECTED -1
@@ -16,6 +18,7 @@ void _computeActualSlot(CursorBox_t* cursorBox);
 void _computeActualSlot(State_t* state);
 void _selectViewPkm(State_t* state);
 void _movePkm(State_t* state);
+void _moveBox(State_t* state);
 void _init(State_t* state, bool inBank);
 void _printBox(State_t* state, bool BK, int32_t rowOffset = 0, int32_t colOffset = 0);
 void _printCommands(State_t* state);
@@ -108,6 +111,15 @@ void _movePkm(State_t* state)
 	}
 }
 
+// ==================================================
+void _moveBox(State_t* state)
+// --------------------------------------------------
+{
+	consoleSelect(state->console[0]);
+	state->pkBank->moveBox(state->cursorBox.cPosPC.box, false, state->cursorBox.cPosBK.box, true);
+	consoleSelect(state->console[1]);
+}
+
 
 // ==================================================
 void _init(State_t* state, bool inBank)
@@ -165,16 +177,33 @@ void _printCommands(State_t* state)
 	printf("\x1B[24;0H");
 	printf("----------------------------------------");
 
-	if (state->cursorBox.inBank)
+	if (state->cursorBox.cursorType == CursorType::MultipleSelect)
 	{
 		if (_currentCursorPosition(state)->row == BOX_HEADER_SELECTED)
-		printf(" Left/Right: MBox  | Up/Down: MInbox    ");
+		printf(" Left/Right: M-Box | Up/Down: M-Inbox   ");
 		else
 		printf(" DPad: Move inbox  | CPad: Move inbox   ");
-		printf(" L/R: Change box   | LZ/RZ: To PC       ");
-		printf(" A: Select pkmn    | B: Cancel sel.     ");
-		printf(" X: To PC          | Y: Hexvalue (Pk6)  ");
-		printf(" Start: Exit       | Select: Save&exit  ");
+		if (state->cursorBox.inBank)
+		printf(" L/R: Change box   | X/LZ/RZ: To PC     ");
+		else
+		printf(" L/R: Change box   | X/LZ/RZ: To Bank   ");
+		printf("                   |                    ");
+		printf("                   | Select: Chg Cursor ");
+		printf(" Start: Exit       | R+Start: Save&exit ");
+	}
+	else if (state->cursorBox.inBank)
+	{
+		if (_currentCursorPosition(state)->row == BOX_HEADER_SELECTED)
+		printf(" Left/Right: M-Box | Up/Down: M-Inbox   ");
+		else
+		printf(" DPad: Move inbox  | CPad: Move inbox   ");
+		printf(" L/R: Change box   | X/LZ/RZ: To PC     ");
+		if (state->cursorBox.cursorType == CursorType::SingleSelect)
+		printf(" A: Select pkmn    | Y: Hexvalue (Pk6)  ");
+		else
+		printf(" A: Select pkmn    | Y: Swap CurrentBox ");
+		printf(" B: Cancel sel.    |                    ");
+		printf(" Start: Exit       | R+Start: Save&exit ");
 	}
 	else
 	{
@@ -182,10 +211,13 @@ void _printCommands(State_t* state)
 		printf(" Left/Right: MBox  | Up/Down: MInbox    ");
 		else
 		printf(" DPad: Move inbox  | CPad: Move inbox   ");
-		printf(" L/R: Change box   | LZ/RZ: To Bank     ");
-		printf(" A: Select pkmn    | B: Cancel sel.     ");
-		printf(" X: To Bank        | Y: Hexvalue (Pk6)  ");
-		printf(" Start: Exit       | Select: Save&exit  ");
+		printf(" L/R: Change box   | X/LZ/RZ: To Bank   ");
+		if (state->cursorBox.cursorType == CursorType::SingleSelect)
+		printf(" A: Select pkmn    | Y: Hexvalue (Pk6)  ");
+		else
+		printf(" A: Select pkmn    | Y: Swap CurrentBox ");
+		printf(" B: Cancel sel.    |                    ");
+		printf(" Start: Exit       | R+Start: Save&exit ");
 	}
 }
 
@@ -206,32 +238,42 @@ void _printBotscreen(State_t* state)
 	_printBox(state, false, 4, 1);
 	_printBox(state, true, 4, 11);
 
+
+	printf("\x1B[15;1H%s", state->pkBank->savedata->OTName);
+	printf("\x1B[16;1H TID: %-5u", state->pkBank->savedata->TID);
+	printf("\x1B[17;1H SID: %-5u", state->pkBank->savedata->SID);
+	printf("\x1B[18;1H TSV: %-5u", state->pkBank->savedata->TSV);
+
 	if (state->cursorBox.vPkm)
 	{
 		if (state->pkBank->isPkmEmpty(state->cursorBox.vPkm))
 		{
 			printf("\x1B[5;21HNo Pokemon     ");
-			printf("\x1B[6;21H Empty Slot   ");
+			printf("\x1B[6;21H Empty Slot       ");
 			printf("\x1B[7;21H           ");
 			printf("\x1B[8;21H           ");
 			printf("\x1B[9;21H                ");
+			printf("\x1B[10;21H                ");
 		}
 		else
 		{
 			printf("\x1B[5;21HCurrent Pokemon ");
-			printf("\x1B[6;21H Species: %-3u", state->cursorBox.vPkm->species);
+			printf("\x1B[6;21H                  ");
+			printf("\x1B[6;21H %s", state->cursorBox.vPkm->species);
 			printf("\x1B[7;21H TID: %-5u", state->cursorBox.vPkm->TID);
 			printf("\x1B[8;21H SID: %-5u", state->cursorBox.vPkm->SID);
 			printf("\x1B[9;21H PID: %-10lu", state->cursorBox.vPkm->PID);
+			printf("\x1B[10;21H PSV: %-5u", state->cursorBox.vPkm->PSV);
 		}
 	}
 	else
 	{
 		printf("\x1B[5;21H               ");
-		printf("\x1B[6;21H             ");
+		printf("\x1B[6;21H                  ");
 		printf("\x1B[7;21H           ");
 		printf("\x1B[8;21H           ");
 		printf("\x1B[9;21H                ");
+		printf("\x1B[10;21H                ");
 	}
 
 	if (state->cursorBox.sPkm)
@@ -239,27 +281,31 @@ void _printBotscreen(State_t* state)
 		if (state->pkBank->isPkmEmpty(state->cursorBox.sPkm))
 		{
 			printf("\x1B[12;21HSelected Pokemon");
-			printf("\x1B[13;21H Empty Slot  ");
+			printf("\x1B[13;21H Empty Slot       ");
 			printf("\x1B[14;21H           ");
 			printf("\x1B[15;21H           ");
 			printf("\x1B[16;21H                ");
+			printf("\x1B[17;21H                ");
 		}
 		else
 		{
 			printf("\x1B[12;21HSelected Pokemon");
-			printf("\x1B[13;21H Species: %-3u", state->cursorBox.sPkm->species);
+			printf("\x1B[13;21H                  ");
+			printf("\x1B[13;21H %s", state->cursorBox.sPkm->species);
 			printf("\x1B[14;21H TID: %-5u", state->cursorBox.sPkm->TID);
 			printf("\x1B[15;21H SID: %-5u", state->cursorBox.sPkm->SID);
 			printf("\x1B[16;21H PID: %-10lu", state->cursorBox.sPkm->PID);
+			printf("\x1B[17;21H PSV: %-5u", state->cursorBox.sPkm->PSV);
 		}
 	}
 	else
 	{
 		printf("\x1B[12;21HNo Selection    ");
-		printf("\x1B[13;21H             ");
+		printf("\x1B[13;21H                  ");
 		printf("\x1B[14;21H           ");
 		printf("\x1B[15;21H           ");
 		printf("\x1B[16;21H                ");
+		printf("\x1B[17;21H                ");
 	}
 
 	if (state->cursorBox.cursorType == CursorType::SingleSelect)
@@ -303,9 +349,9 @@ Result _moveCursorInput(State_t* state)
 	}
 
 
-	uint16_t boxMod = 0;
-	uint16_t rowMod = 0;
-	uint16_t colMod = 0;
+	int16_t boxMod = 0;
+	int16_t rowMod = 0;
+	int16_t colMod = 0;
 
 	// Box
 	if (kDown & KEY_L) boxMod--;
@@ -374,13 +420,13 @@ Result _movePokemonInput(State_t* state)
 {
 	Result ret = 0;
 	u32 kDown = state->kDown;
+	// u32 kHeld = state->kHeld;
 	
 
 	switch (state->cursorBox.cursorType)
 	{
 		case CursorType::SingleSelect:
 		{
-			
 			if (kDown & KEY_Y)
 			{
 				consoleSelect(state->console[0]);
@@ -389,6 +435,11 @@ Result _movePokemonInput(State_t* state)
 				PKBank::printPkm(state->cursorBox.vPkm, 0, PK6_SIZE);
 
 				consoleSelect(state->console[1]);
+			}
+
+			if (kDown & KEY_A)
+			{
+				_movePkm(state);
 			}
 
 			if (kDown & KEY_B)
@@ -408,6 +459,11 @@ Result _movePokemonInput(State_t* state)
 			if (kDown & KEY_B)
 			{
 				state->cursorBox.sPkm = NULL;
+			}
+
+			if (kDown & KEY_Y)
+			{
+				_moveBox(state);
 			}
 
 			break;
