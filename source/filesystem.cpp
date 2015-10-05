@@ -154,6 +154,15 @@ Result FS_filesysInit(Handle* sdHandle, Handle* saveHandle, FS_archive* sdArchiv
 // --------------------------------------------------
 {
 	Result ret;
+	printf("  Getting SD Card handle\n");
+	ret = srvGetServiceHandle(sdHandle, "fs:USER");
+	if (ret) return ret;
+
+	printf("  Opening SD Card archive\n");
+	*sdArchive = (FS_archive){0x9, (FS_path){PATH_EMPTY, 1, (u8*)""}, 0, 0};
+	ret = FSUSER_OpenArchive(sdHandle, sdArchive);
+	if (ret) return ret;
+
 	printf("  Getting save handle\n");
 	ret = _srvGetServiceHandle(saveHandle, "fs:USER");
 	if (ret) return ret;
@@ -165,15 +174,6 @@ Result FS_filesysInit(Handle* sdHandle, Handle* saveHandle, FS_archive* sdArchiv
 	printf("  Opening save archive\n");
 	*saveArchive = (FS_archive){0x4, (FS_path){PATH_EMPTY, 0, NULL}, 0, 0};
 	ret = FSUSER_OpenArchive(saveHandle, saveArchive);
-	if (ret) return ret;
-
-	printf("  Getting SD Card handle\n");
-	ret = srvGetServiceHandle(sdHandle, "fs:USER");
-	if (ret) return ret;
-
-	printf("  Opening SD Card archive\n");
-	*sdArchive = (FS_archive){0x9, (FS_path){PATH_EMPTY, 1, (u8*)""}, 0, 0};
-	ret = FSUSER_OpenArchive(sdHandle, sdArchive);
 	return ret;
 }
 
