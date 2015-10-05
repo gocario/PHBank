@@ -49,7 +49,7 @@ Result PKData::loadData(Handle *sdHandle, FS_archive *sdArchive, u32 maxSize, ch
 
 	Result ret;
 	ret = FS_loadFile(path, buffer, sdArchive, sdHandle, maxSize, &bytesRead);
-	if (ret) { printf(" ERROR...\n"); return ret; }
+	if (ret) { printf(" ERROR loading \"%s\"...\n", path); return ret; }
 	printf(" OK!\n");
 
 	PKData::loadDataLine(buffer, dest, lineLength, lineCount);
