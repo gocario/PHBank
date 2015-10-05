@@ -50,7 +50,7 @@ bool PKFilter::filterAbilityID(uint16_t abilityID)
 // --------------------------------------------------
 {
 	return true;
-	
+
 	// uint16_t abilityCount = 64;
 	// uint16_t abilityFilterList[abilityID] = {
 	// 	0xbd, 0xbe, 0xbf
@@ -74,6 +74,8 @@ bool PKFilter::filterSchoolGirlPikachu(uint16_t speciesID, uint16_t formID)
 {
 	bool isFiltered = true;
 
+	isFiltered = (speciesID == 25 && formID > 0);
+	
 	return isFiltered;
 }
 
