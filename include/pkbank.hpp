@@ -207,6 +207,8 @@ class PKBank
 		void getPkm(uint16_t boxId, uint16_t rowId, uint16_t colId, pkm_t** pkm, bool inBank = false);
 		void movePkm(pkm_t* src, pkm_t* dest);
 		void movePkm(pkm_t* src, pkm_t* dst, bool srcBanked, bool dstBanked);
+		void pastePkm(pkm_t* src, pkm_t* dest);
+		void pastePkm(pkm_t* src, pkm_t* dst, bool srcBanked, bool dstBanked);
 		void moveBox(uint16_t boxID_1, bool inBank_1, uint16_t boxID_2, bool inBank_2);
 		void addDex(uint16_t speciesID);
 		void addDex(pkm_t* pkm);

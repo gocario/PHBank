@@ -57,6 +57,7 @@ class BoxViewer : public Viewer
 		void selectViewPokemon();
 		void selectMovePokemon();
 		void cancelMovePokemon();
+		void pasteMovePokemon();
 };
 
 
