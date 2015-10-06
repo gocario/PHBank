@@ -6,12 +6,18 @@
 
 class PHBank
 {
+	public:
+		explicit PHBank();
+		~PHBank();
 
+		static PHBank* pHBank();
+		static PKBank* pKBank();
+
+		static void destroy();
 
 	private:
-		static PHBank _instance;
+		static PHBank _pHBank;
+		static PKBank _pKBank;
 };
-
-
 
 #endif // PHBANK_HPP

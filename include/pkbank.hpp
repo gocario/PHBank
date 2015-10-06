@@ -196,9 +196,8 @@ typedef struct cursorBox_t
 class PKBank
 {
 	public:
-		PKBank();
+		explicit PKBank();
 		~PKBank();
-
 
 		Result load(Result fs, Handle* sdHandle, Handle* saveHandle, FS_archive* sdArchive, FS_archive* saveArchive);
 		Result save(Result fs, Handle* sdHandle, Handle* saveHandle, FS_archive* sdArchive, FS_archive* saveArchive);

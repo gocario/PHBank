@@ -6,8 +6,7 @@
 #include <math.h>
 
 #include "main.hpp"
-#include "pkbank.hpp"
-#include "pkdata.hpp"
+#include "phbank.hpp"
 #include "filesystem.hpp"
 #include "ui.hpp"
 
@@ -46,22 +45,19 @@ int main(int argc, char* argv[])
 
 
 
-	PKBank* pkBank = NULL;
-
-	pkBank = new PKBank();
 	PKData::load(&sdHandle, &sdArchive);
-	pkBank->load(fs, &sdHandle, &saveHandle, &sdArchive, &saveArchive);
-	Result ret = mainLoop(pkBank, &top, &bot);
+	PHBank::pKBank()->load(fs, &sdHandle, &saveHandle, &sdArchive, &saveArchive);
+	Result ret = mainLoop(PHBank::pKBank(), &top, &bot);
 	if (ret == STATE_SAVE)
 	{
 		consoleSelect(&top);
-		pkBank->save(fs, &sdHandle, &saveHandle, &sdArchive, &saveArchive);
+		PHBank::pKBank()->save(fs, &sdHandle, &saveHandle, &sdArchive, &saveArchive);
 		printf("\n\nProgram terminated, press A\n");
 		waitKey(KEY_A);
 	}
 
-	cdelete(pkBank);
+	PHBank::destroy();
 	FS_filesysExit(&sdHandle, &saveHandle, &sdArchive, &saveArchive);
-	gfxExit();
+	sf2d_fini();
 	return 0;
 }
