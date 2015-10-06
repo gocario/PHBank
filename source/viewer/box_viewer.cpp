@@ -288,13 +288,44 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 		
 	if (kDown & KEY_START)
 	{
-		if (kHeld & KEY_R)
-			lStateView = StateView::Saving;
-		else
-			lStateView = StateView::Exiting;
+      // Messages disappear with time?
+      // I'm probably missing something about how the screen refreshes...
+      printf("\x1B[12;12H------------");
+  		printf("\x1B[13;12H EXITING    ");
+	  	printf("\x1B[14;12H------------");
+		  printf("\x1B[15;12H SAVE?      ");
+			printf("\x1B[16;12H R=YES      ");    
+  		printf("\x1B[17;12H B=NO       ");    
+	  	printf("\x1B[18;12H L=CANCEL   ");    
 
-		return this->exit();
+      // Logic is here, might not be most eloquent way.
+      // Tested and works
+      bool breaker=false;
+      while(!breaker){
+
+        hidScanInput();
+    		u32 down = hidKeysDown();
+        if(down & KEY_R){
+          breaker=true;
+  			  lStateView = StateView::Saving;
+        }
+        else if(down & KEY_B){
+          breaker=true;          
+	  	  	lStateView = StateView::Exiting;
+        } 
+        // If L-cancel is added, return statement
+        // must change.
+        if(down & KEY_L){
+          breaker=true;
+          return SUCCESS_STEP;
+        }
+      }
+
+      return this->exit();
+
 	}
+
+
 
 	{
 		bool boolMod = false;
