@@ -414,6 +414,32 @@ void PKBank::movePkm(pkm_t* src, pkm_t* dst, bool srcBanked, bool dstBanked)
 
 
 // ==================================================
+void PKBank::pastePkm(pkm_t* src, pkm_t* dst)
+// --------------------------------------------------
+{
+	dst->pk6 = src->pk6;
+
+	loadPkmPk6(dst);
+}
+
+
+// ==================================================
+void PKBank::pastePkm(pkm_t* src, pkm_t* dst, bool srcBanked, bool dstBanked)
+// --------------------------------------------------
+{
+	pastePkm(src, dst);
+
+	if (gametype == Game::ORAS)
+	{
+		if (!srcBanked)
+			addDex(dst);
+		if (!dstBanked)
+			addDex(src);
+	}
+}
+
+
+// ==================================================
 void PKBank::moveBox(uint16_t boxID_1, bool inBank_1, uint16_t boxID_2, bool inBank_2)
 // --------------------------------------------------
 {

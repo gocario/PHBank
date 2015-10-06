@@ -354,11 +354,6 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 		switchCursorType();
 	}
 
-	if (kDown & KEY_X)
-	{
-		printf("\x1b[2J");
-	}
-
 	if (cursorType == CursorType::SingleSelect)
 	{
 		if (kDown & KEY_A)
@@ -379,6 +374,11 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 				PHBank::pKBank()->printPkm(vPkm, 0, PK6_SIZE);
 			}
 		}
+
+		if (kDown & KEY_X)
+		{
+			pasteMovePokemon();
+		}
 	}
 	else if (cursorType == CursorType::QuickSelect)
 	{
@@ -398,6 +398,11 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 			{
 				PHBank::pKBank()->moveBox(cursorBox.boxPC, false, cursorBox.boxBK, true);
 			}
+		}
+
+		if (kDown & KEY_X)
+		{
+			pasteMovePokemon();
 		}
 	}
 	else if (cursorType == CursorType::MultipleSelect)
@@ -542,4 +547,19 @@ void BoxViewer::cancelMovePokemon()
 // --------------------------------------------------
 {
 	sPkm = NULL;
+}
+
+
+// --------------------------------------------------
+void BoxViewer::pasteMovePokemon()
+// --------------------------------------------------
+{
+	computeSlot(&cursorBox);
+
+	if (sPkm && vPkm && PHBank::pKBank()->isPkmEmpty(vPkm))
+	{
+		PHBank::pKBank()->pastePkm(sPkm, vPkm, false, cursorBox.inBank);
+	}
+
+	// printf("Pasted Pokemon: [@%p]\n", sPkm);
 }
