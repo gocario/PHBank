@@ -67,7 +67,7 @@ Result PKData::loadData(Handle *sdHandle, FS_archive *sdArchive, u32 maxSize, ch
 	// printf("|\n");
 
 
-	adelete(buffer);
+	delete[] buffer;
 	return ret;
 }
 

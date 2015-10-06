@@ -332,21 +332,36 @@ bool PKBank::isSlotEmpty(uint16_t boxId, uint16_t slotId, bool inBank)
 // --------------------------------------------------
 {
 	pkm_t** pkm = NULL;
-	getPkm(boxId, slotId, pkm, inBank);
+	getPokemon(boxId, slotId, pkm, inBank);
 	return isPkmEmpty(*pkm);
 }
 
 
 // ==================================================
-void PKBank::getPkm(uint16_t slotId, pkm_t** pkm, bool inBank)
+void PKBank::getBox(uint16_t boxID, box_t** box, bool inBank)
 // --------------------------------------------------
 {
-	getPkm(slotId / BOX_PKMCOUNT, slotId % BOX_PKMCOUNT, pkm, inBank);
+	if (inBank)
+	{
+		*box = &bankdata->bank.box[boxID];
+	}
+	else
+	{
+		*box = &savedata->pc.box[boxID];
+	}
 }
 
 
 // ==================================================
-void PKBank::getPkm(uint16_t boxId, uint16_t slotId, pkm_t** pkm, bool inBank)
+void PKBank::getPokemon(uint16_t slotId, pkm_t** pkm, bool inBank)
+// --------------------------------------------------
+{
+	getPokemon(slotId / BOX_PKMCOUNT, slotId % BOX_PKMCOUNT, pkm, inBank);
+}
+
+
+// ==================================================
+void PKBank::getPokemon(uint16_t boxId, uint16_t slotId, pkm_t** pkm, bool inBank)
 // --------------------------------------------------
 {
 	if (inBank)
@@ -361,10 +376,10 @@ void PKBank::getPkm(uint16_t boxId, uint16_t slotId, pkm_t** pkm, bool inBank)
 
 
 // ==================================================
-void PKBank::getPkm(uint16_t boxId, uint16_t rowId, uint16_t colId, pkm_t** pkm, bool inBank)
+void PKBank::getPokemon(uint16_t boxId, uint16_t rowId, uint16_t colId, pkm_t** pkm, bool inBank)
 // --------------------------------------------------
 {
-	getPkm(boxId, rowId * BOX_COL_PKMCOUNT + colId, pkm, inBank);
+	getPokemon(boxId, rowId * BOX_COL_PKMCOUNT + colId, pkm, inBank);
 }
 
 

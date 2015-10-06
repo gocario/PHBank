@@ -214,9 +214,10 @@ class PKBank
 
 		bool isPkmEmpty(pkm_t* pkm);
 		bool isSlotEmpty(uint16_t boxId, uint16_t slotId, bool inBank);
-		void getPkm(uint16_t slotId, pkm_t** pkm, bool inBank = false);
-		void getPkm(uint16_t boxId, uint16_t slotId, pkm_t** pkm, bool inBank = false);
-		void getPkm(uint16_t boxId, uint16_t rowId, uint16_t colId, pkm_t** pkm, bool inBank = false);
+		void getBox(uint16_t boxID, box_t** box, bool inBank = false);
+		void getPokemon(uint16_t slotId, pkm_t** pkm, bool inBank = false);
+		void getPokemon(uint16_t boxId, uint16_t slotId, pkm_t** pkm, bool inBank = false);
+		void getPokemon(uint16_t boxId, uint16_t rowId, uint16_t colId, pkm_t** pkm, bool inBank = false);
 		void movePkm(pkm_t* src, pkm_t* dest);
 		void moveBox(uint16_t boxID_1, bool inBank_1, uint16_t boxID_2, bool inBank_2);
 		void addDex(uint16_t speciesID);

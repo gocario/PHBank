@@ -80,7 +80,7 @@ void _selectViewPkm(State_t* state)
 		return;
 	}
 
-	state->pkBank->getPkm(cPos->box, cPos->inslot, &state->cursorBox.vPkm, BK);
+	state->pkBank->getPokemon(cPos->box, cPos->inslot, &state->cursorBox.vPkm, BK);
 	
 	consoleSelect(state->console[0]);
 	printf("Sel %s   ", (BK ? "BK" : "PC"));
