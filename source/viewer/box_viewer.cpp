@@ -321,7 +321,7 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 			if (touchWithin(touch->px, touch->py, boxShift + 10, 20, 16, 24)) boxMod--;
 			else if (touchWithin(touch->px, touch->py, boxShift + 196, 20, 16, 24)) boxMod++;
 			boxShift = (cursorBox.inBank ? PC_BOX_SHIFT_UNUSED : BK_BOX_SHIFT_UNUSED);
-			if (touchWithin(touch->px, touch->py, boxShift, 20, BACKGROUND_WIDTH, BACKGROUND_HEIGHT)) cursorBox.inBank = !cursorBox.inBank;
+			if (touchWithin(touch->px, touch->py, boxShift, 20, BACKGROUND_WIDTH, BACKGROUND_HEIGHT)) { cursorBox.inBank = !cursorBox.inBank; boolMod = true; }
 		}
 
 		if (boxMod || rowMod || colMod || boolMod)
@@ -426,12 +426,15 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 
 		if (touchWithin(px, py, boxShift, 20, BACKGROUND_WIDTH, BACKGROUND_HEIGHT))
 		{
-			// printf("  {%3u, %3u}", px % 35, py % 35);
-			// printf("  {%3u, %3u}", (px - boxShift) % 35, (py - 20) % 35);
+			int16_t oldRow = cursorBox.row;
+			int16_t oldCol = cursorBox.col;
+
 			cursorBox.row = ((py - 50) / 35);
 			cursorBox.col = ((px - boxShift) / 35);
 
-			computeSlot(&cursorBox);
+			if (cursorBox.row == oldRow && cursorBox.col == oldCol)
+				selectMovePokemon();
+			selectViewPokemon();
 		}
 
 		// printf("\n");
