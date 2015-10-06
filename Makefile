@@ -35,7 +35,7 @@ INCLUDES	:=	include include/viewer
 
 # NO_SMDH 		:= NO_SMDH
 APP_TITLE       := PHBank
-APP_DESCRIPTION := Pokémon Homebre Bank
+APP_DESCRIPTION := Pokémon Homebrew Bank
 APP_AUTHOR      := Gocario
 
 #---------------------------------------------------------------------------------
