@@ -128,7 +128,93 @@ Result BoxViewer::drawTopScreen()
 	if (isChildRegular()) { if (this->child->drawTopScreen() == PARENT_STEP); else return CHILD_STEP; }
 	// Viewer::drawTopScreen();
 
-	sf2d_draw_rectangle(10, 10, 60, 40, RGBA8(0x11, 0xAA, 0x11, 0xFF));
+	printf("\x1B[0;0H");
+
+	printf("[%s] Select a slot:\n", (cursorBox.inBank ? "BK" : "PC"));
+	printf("Box: %-2i Row: %-2i Col: %-2i\n", *cursorBox.box + 1, cursorBox.row + 1, cursorBox.col + 1);
+
+	printf("\x1B[15;1H%s", PHBank::pKBank()->savedata->OTName);
+	printf("\x1B[16;1H TID: %-5u", PHBank::pKBank()->savedata->TID);
+	printf("\x1B[17;1H SID: %-5u", PHBank::pKBank()->savedata->SID);
+	printf("\x1B[18;1H TSV: %-5u", PHBank::pKBank()->savedata->TSV);
+
+	if (vPkm)
+	{
+		if (PHBank::pKBank()->isPkmEmpty(vPkm))
+		{
+			printf("\x1B[5;21HNo Pokemon     ");
+			printf("\x1B[6;21H Empty Slot       ");
+			printf("\x1B[7;21H           ");
+			printf("\x1B[8;21H           ");
+			printf("\x1B[9;21H                ");
+			printf("\x1B[10;21H                ");
+		}
+		else
+		{
+			printf("\x1B[5;21HCurrent Pokemon ");
+			printf("\x1B[6;21H                  ");
+			printf("\x1B[6;21H %s", vPkm->species);
+			printf("\x1B[7;21H TID: %-5u", vPkm->TID);
+			printf("\x1B[8;21H SID: %-5u", vPkm->SID);
+			printf("\x1B[9;21H PID: %-10lu", vPkm->PID);
+			printf("\x1B[10;21H PSV: %-5u", vPkm->PSV);
+		}
+	}
+	else
+	{
+		printf("\x1B[5;21H               ");
+		printf("\x1B[6;21H                  ");
+		printf("\x1B[7;21H           ");
+		printf("\x1B[8;21H           ");
+		printf("\x1B[9;21H                ");
+		printf("\x1B[10;21H                ");
+	}
+
+	if (sPkm)
+	{
+		if (PHBank::pKBank()->isPkmEmpty(sPkm))
+		{
+			printf("\x1B[12;21HSelected Pokemon");
+			printf("\x1B[13;21H Empty Slot       ");
+			printf("\x1B[14;21H           ");
+			printf("\x1B[15;21H           ");
+			printf("\x1B[16;21H                ");
+			printf("\x1B[17;21H                ");
+		}
+		else
+		{
+			printf("\x1B[12;21HSelected Pokemon");
+			printf("\x1B[13;21H                  ");
+			printf("\x1B[13;21H %s", sPkm->species);
+			printf("\x1B[14;21H TID: %-5u", sPkm->TID);
+			printf("\x1B[15;21H SID: %-5u", sPkm->SID);
+			printf("\x1B[16;21H PID: %-10lu", sPkm->PID);
+			printf("\x1B[17;21H PSV: %-5u", sPkm->PSV);
+		}
+	}
+	else
+	{
+		printf("\x1B[12;21HNo Selection    ");
+		printf("\x1B[13;21H                  ");
+		printf("\x1B[14;21H           ");
+		printf("\x1B[15;21H           ");
+		printf("\x1B[16;21H                ");
+		printf("\x1B[17;21H                ");
+	}
+
+	if (cursorType == CursorType::SingleSelect)
+	{
+		printf("\x1B[19;21HSingle selection  ");
+	}
+	else if (cursorType == CursorType::QuickSelect)
+	{
+		printf("\x1B[19;21HQuick selection   ");
+	}
+	else if (cursorType == CursorType::MultipleSelect)
+	{
+		printf("\x1B[19;21HMultiple selection");
+	}
+
 
 	if (isChildOverlay()) { this->child->drawTopScreen(); }
 	return SUCCESS_STEP;
@@ -211,6 +297,7 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 	}
 
 	{
+		bool boolMod = false;
 		int16_t boxMod = 0;
 		int16_t rowMod = 0;
 		int16_t colMod = 0;
@@ -225,8 +312,8 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 		if (kDown & KEY_LEFT) { if (cursorBox.row == BOX_HEADER_SELECTED) boxMod--; else colMod--; }
 		else if (kDown & KEY_RIGHT) { if (cursorBox.row == BOX_HEADER_SELECTED) boxMod++; else colMod++; }
 
-		if (kDown & KEY_ZL) cursorBox.inBank = false;
-		else if (kDown & KEY_ZR) cursorBox.inBank = true;
+		if (kDown & KEY_ZL) { cursorBox.inBank = false; boolMod = true; }
+		else if (kDown & KEY_ZR) { cursorBox.inBank = true; boolMod = true; }
 
 		if (kDown & KEY_TOUCH)
 		{
@@ -237,7 +324,7 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 			if (touchWithin(touch->px, touch->py, boxShift, 20, BACKGROUND_WIDTH, BACKGROUND_HEIGHT)) cursorBox.inBank = !cursorBox.inBank;
 		}
 
-		if (boxMod || rowMod ||colMod)
+		if (boxMod || rowMod || colMod || boolMod)
 		{
 			currentBox(&cursorBox);
 			*cursorBox.box += boxMod;
@@ -267,6 +354,10 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 		switchCursorType();
 	}
 
+	if (kDown & KEY_X)
+	{
+		printf("\x1b[2J");
+	}
 
 	if (cursorType == CursorType::SingleSelect)
 	{
@@ -284,7 +375,7 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 		{
 			if (vPkm)
 			{
-				printf("\n");
+				// printf("\n");
 				PHBank::pKBank()->printPkm(vPkm, 0, PK6_SIZE);
 			}
 		}
@@ -319,7 +410,7 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 		int16_t boxShift = (cursorBox.inBank ? BK_BOX_SHIFT_USED : PC_BOX_SHIFT_USED);
 		uint16_t px = touch->px;
 		uint16_t py = touch->py;
-		printf("{%3u, %3u}", px, py);
+		// printf("{%3u, %3u}", px, py);
 		if (touchWithin(px, py, boxShift + 22, 0, 59, 16))
 		{
 			selectCursorType(CursorType::SingleSelect);
@@ -343,7 +434,7 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 			computeSlot(&cursorBox);
 		}
 
-		printf("\n");
+		// printf("\n");
 	}
 
 	return SUCCESS_STEP;
@@ -415,7 +506,7 @@ void BoxViewer::selectViewPokemon()
 		PHBank::pKBank()->getPkm(*cursorBox.box, cursorBox.inslot, &vPkm, cursorBox.inBank);
 	}
 
-	printf("View Pokemon: [@%p]\n", vPkm);
+	// printf("View Pokemon: [@%p]\n", vPkm);
 }
 
 
@@ -439,7 +530,7 @@ void BoxViewer::selectMovePokemon()
 		cancelMovePokemon();
 	}
 
-	printf("Selected Pokemon: [@%p]\n", vPkm);
+	// printf("Selected Pokemon: [@%p]\n", vPkm);
 }
 
 

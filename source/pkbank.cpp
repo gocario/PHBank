@@ -436,10 +436,7 @@ void PKBank::moveBox(uint16_t boxID_1, bool inBank_1, uint16_t boxID_2, bool inB
 void PKBank::addDex(uint16_t speciesID)
 // --------------------------------------------------
 {
-	// savedata->
-
-	printf("\n");
-
+	/*
 	if (speciesID == 3)
 	{
 		dex_t &dex = savedata->pokedex.dexes[1];
@@ -459,34 +456,34 @@ void PKBank::addDex(uint16_t speciesID)
 		loadDex();
 		speciesID = 1;
 	}
+	*/
 
-	if (speciesID == 1)
-	{
-		for (uint32_t i = 0; i < 10; i++)
-		{
-			dex_t &dex = savedata->pokedex.dexes[i];
+	// {
+	// 	for (uint32_t i = 0; i < 10; i++)
+	// 	{
+	// 		dex_t &dex = savedata->pokedex.dexes[i];
 
-			printf("%x", dex.owned);
-			printf("%x", dex.ownedMale);
-			printf("%x", dex.ownedFemale);
-			printf("%x", dex.ownedShinyMale);
-			printf("%x", dex.ownedShinyFemale);
-			printf(" ");
-			printf("%x", dex.encounteredMale);
-			printf("%x", dex.encounteredFemale);
-			printf("%x", dex.encounteredShinyMale);
-			printf("%x", dex.encounteredShinyFemale);
-			printf(" ");
-			printf("%x", dex.langJapanese);
-			printf("%x", dex.langEnglish);
-			printf("%x", dex.langFrench);
-			printf("%x", dex.langItalian);
-			printf("%x", dex.langGerman);
-			printf("%x", dex.langSpanish);
-			printf("%x", dex.langKorean);
-			printf("\n");
-		}
-	}
+			// printf("%x", dex.owned);
+			// printf("%x", dex.ownedMale);
+			// printf("%x", dex.ownedFemale);
+			// printf("%x", dex.ownedShinyMale);
+			// printf("%x", dex.ownedShinyFemale);
+			// printf(" ");
+			// printf("%x", dex.encounteredMale);
+			// printf("%x", dex.encounteredFemale);
+			// printf("%x", dex.encounteredShinyMale);
+			// printf("%x", dex.encounteredShinyFemale);
+			// printf(" ");
+			// printf("%x", dex.langJapanese);
+			// printf("%x", dex.langEnglish);
+			// printf("%x", dex.langFrench);
+			// printf("%x", dex.langItalian);
+			// printf("%x", dex.langGerman);
+			// printf("%x", dex.langSpanish);
+			// printf("%x", dex.langKorean);
+			// printf("\n");
+	// 	}
+	// }
 
 	printf("\n");
 
@@ -715,7 +712,7 @@ Result PKBank::loadSaveData()
 	}
 	else
 	{
-		printf("Not Saving Dexes: X/Y");
+		printf("Not Loading Dexes: X/Y");
 	}
 
 

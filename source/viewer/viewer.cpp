@@ -201,14 +201,6 @@ Result Viewer::startMainLoop(Viewer* viewer)
 {
 	sf2d_init();
 
-	// PrintConsole top, bot;
-	// consoleInit(GFX_TOP, NULL);
-	// consoleInit(GFX_BOTTOM, NULL);
-	// consoleSelect(&top);
-
-	// Viewer::console[0] = &top;
-	// Viewer::console[1] = &bot;
-
 	viewer->initialize();
 	
 	u32 kDown, kHeld, kUp;
@@ -224,13 +216,13 @@ Result Viewer::startMainLoop(Viewer* viewer)
 		if (kHeld & KEY_L && kHeld & KEY_R && kHeld & KEY_A && kHeld & KEY_B && kHeld & KEY_X && kHeld & KEY_Y) break;
 
 		// sf2d_start_frame(GFX_TOP, GFX_LEFT);
-		// 	viewer->drawTopScreen();
+			viewer->drawTopScreen();
 		// sf2d_end_frame();
 		sf2d_start_frame(GFX_BOTTOM, GFX_LEFT);
 			viewer->drawBotScreen();
 		sf2d_end_frame();
 		sf2d_swapbuffers();
-
+		
 		viewer->updateControls(kDown, kHeld, kUp, &touch);
 	}
 
