@@ -332,7 +332,7 @@ bool PKBank::isSlotEmpty(uint16_t boxId, uint16_t slotId, bool inBank)
 // --------------------------------------------------
 {
 	pkm_t** pkm = NULL;
-	getPokemon(boxId, slotId, pkm, inBank);
+	getPkm(boxId, slotId, pkm, inBank);
 	return isPkmEmpty(*pkm);
 }
 
@@ -353,15 +353,15 @@ void PKBank::getBox(uint16_t boxID, box_t** box, bool inBank)
 
 
 // ==================================================
-void PKBank::getPokemon(uint16_t slotId, pkm_t** pkm, bool inBank)
+void PKBank::getPkm(uint16_t slotId, pkm_t** pkm, bool inBank)
 // --------------------------------------------------
 {
-	getPokemon(slotId / BOX_PKMCOUNT, slotId % BOX_PKMCOUNT, pkm, inBank);
+	getPkm(slotId / BOX_PKMCOUNT, slotId % BOX_PKMCOUNT, pkm, inBank);
 }
 
 
 // ==================================================
-void PKBank::getPokemon(uint16_t boxId, uint16_t slotId, pkm_t** pkm, bool inBank)
+void PKBank::getPkm(uint16_t boxId, uint16_t slotId, pkm_t** pkm, bool inBank)
 // --------------------------------------------------
 {
 	if (inBank)
@@ -376,29 +376,39 @@ void PKBank::getPokemon(uint16_t boxId, uint16_t slotId, pkm_t** pkm, bool inBan
 
 
 // ==================================================
-void PKBank::getPokemon(uint16_t boxId, uint16_t rowId, uint16_t colId, pkm_t** pkm, bool inBank)
+void PKBank::getPkm(uint16_t boxId, uint16_t rowId, uint16_t colId, pkm_t** pkm, bool inBank)
 // --------------------------------------------------
 {
-	getPokemon(boxId, rowId * BOX_COL_PKMCOUNT + colId, pkm, inBank);
+	getPkm(boxId, rowId * BOX_COL_PKMCOUNT + colId, pkm, inBank);
 }
 
 
 // ==================================================
-void PKBank::movePkm(pkm_t* src, pkm_t* dest)
+void PKBank::movePkm(pkm_t* src, pkm_t* dst)
 // --------------------------------------------------
 {
 	pkm_t tmp;
-	tmp.pk6 = dest->pk6;
-	dest->pk6 = src->pk6;
+	tmp.pk6 = dst->pk6;
+	dst->pk6 = src->pk6;
 	src->pk6 = tmp.pk6;
 
 	loadPkmPk6(src);
-	loadPkmPk6(dest);
+	loadPkmPk6(dst);
+}
+
+
+// ==================================================
+void PKBank::movePkm(pkm_t* src, pkm_t* dst, bool srcBanked, bool dstBanked)
+// --------------------------------------------------
+{
+	movePkm(src, dst);
 
 	if (gametype == Game::ORAS)
 	{
-		addDex(src);
-		addDex(dest);
+		if (!srcBanked)
+			addDex(dst);
+		if (!dstBanked)
+			addDex(src);
 	}
 }
 
@@ -416,8 +426,9 @@ void PKBank::moveBox(uint16_t boxID_1, bool inBank_1, uint16_t boxID_2, bool inB
 		printf(" %lu", i);
 		pkm_1 = &(inBank_1 ? bankdata->bank.box[boxID_1].slot[i] : savedata->pc.box[boxID_1].slot[i]);
 		pkm_2 = &(inBank_2 ? bankdata->bank.box[boxID_2].slot[i] : savedata->pc.box[boxID_2].slot[i]);
-		movePkm(pkm_1, pkm_2);
+		movePkm(pkm_1, pkm_2, inBank_1, inBank_2);
 	}
+	printf("\n");
 }
 
 

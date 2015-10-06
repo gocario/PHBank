@@ -8,7 +8,8 @@
 #include "main.hpp"
 #include "phbank.hpp"
 #include "filesystem.hpp"
-#include "ui.hpp"
+#include "box_viewer.hpp"
+#include "viewer.hpp"
 
 void waitKey(u32 keyWait)
 {
@@ -16,7 +17,7 @@ void waitKey(u32 keyWait)
 	{
 		hidScanInput();
 
-		if (hidKeysDown() & keyWait) break;
+		if (hidKeysDown() & keyWait || (hidKeysHeld() & KEY_L && hidKeysHeld() & KEY_R & hidKeysHeld() & KEY_A)) break;
 
 		gfxFlushBuffers();
 		gspWaitForVBlank();
@@ -28,12 +29,13 @@ int main(int argc, char* argv[])
 	sf2d_init();
 	sf2d_set_clear_color(RGBA8(0x10, 0x10, 0x10, 0xFF));
 
+	consoleInit(GFX_TOP, NULL);
 
 	//Initialize console on top screen. Using NULL as the second argument tells the console library to use the internal console structure as current one
-	PrintConsole top, bot;
-	consoleInit(GFX_TOP, &top);
-	consoleInit(GFX_BOTTOM, &bot);
-	consoleSelect(&top);
+	// PrintConsole top, bot;
+	// consoleInit(GFX_TOP, &top);
+	// consoleInit(GFX_BOTTOM, &bot);
+	// consoleSelect(&top);
 
 
 	Handle sdHandle, saveHandle;
@@ -47,10 +49,13 @@ int main(int argc, char* argv[])
 
 	PKData::load(&sdHandle, &sdArchive);
 	PHBank::pKBank()->load(fs, &sdHandle, &saveHandle, &sdArchive, &saveArchive);
-	Result ret = mainLoop(PHBank::pKBank(), &top, &bot);
-	if (ret == STATE_SAVE)
+	// Result ret = mainLoop(PHBank::pKBank(), &top, &bot);
+
+	Result ret = Viewer::startMainLoop(new BoxViewer());
+
+	if (ret == StateView::Saving)
 	{
-		consoleSelect(&top);
+		// consoleSelect(&top);
 		PHBank::pKBank()->save(fs, &sdHandle, &saveHandle, &sdArchive, &saveArchive);
 		printf("\n\nProgram terminated, press A\n");
 		waitKey(KEY_A);

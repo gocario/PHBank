@@ -29,13 +29,13 @@ include $(DEVKITARM)/3ds_rules
 #---------------------------------------------------------------------------------
 TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
-SOURCES		:=	source source/state
+SOURCES		:=	source source/viewer
 DATA		:=	data
-INCLUDES	:=	include
+INCLUDES	:=	include include/viewer
 
 # NO_SMDH 		:= NO_SMDH
-APP_TITLE       := PKBank
-APP_DESCRIPTION := Pokémon Bank for ORAS
+APP_TITLE       := PHBank
+APP_DESCRIPTION := Pokémon Homebre Bank
 APP_AUTHOR      := Gocario
 
 #---------------------------------------------------------------------------------
@@ -47,7 +47,7 @@ CFLAGS	:=	-g -Wall -O2 -mword-relocations \
 			-fomit-frame-pointer -ffast-math \
 			$(ARCH)
 
-CFLAGS	+=	$(INCLUDE) -DARM11 -D_3DS
+CFLAGS	+=	$(INCLUDE) -DARM11 -D_3DS# -std=c99
 
 CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++11
 
@@ -137,6 +137,7 @@ clean:
 	@echo clean ...
 	@rm -fr $(BUILD) $(TARGET).3dsx $(OUTPUT).smdh $(TARGET).elf
 
+#---------------------------------------------------------------------------------
 run:
 	@echo run ...
 	@make

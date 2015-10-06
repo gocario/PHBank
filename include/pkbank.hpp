@@ -154,41 +154,29 @@ namespace Game
 
 typedef Game::gametype_e gametype_e;
 
-namespace CursorType
-{
-	typedef enum cursorType_e
-	{
-		None = 0x0,
-		SingleSelect = 0x1,
-		QuickSelect = 0x2,
-		MultipleSelect = 0x4,
-	} CursorType_e;
-}
 
-typedef CursorType::CursorType_e CursorType_e;
+// typedef struct cursorPosition_t
+// {
+// 	uint16_t slot = 0;
+// 	uint16_t inslot = 0;
+// 	int16_t box = 0;
+// 	int16_t row = 0;
+// 	int16_t col = 0;
+// } CursorPosition_t;
 
-typedef struct cursorPosition_t
-{
-	uint16_t slot = 0;
-	uint16_t inslot = 0;
-	int16_t box = 0;
-	int16_t row = 0;
-	int16_t col = 0;
-} CursorPosition_t;
+// typedef struct cursorBox_t
+// {
+// 	pkm_t* vPkm = NULL;
+// 	pkm_t* sPkm = NULL;
 
-typedef struct cursorBox_t
-{
-	pkm_t* vPkm = NULL;
-	pkm_t* sPkm = NULL;
+// 	uint16_t slot = 0;
 
-	uint16_t slot = 0;
+// 	CursorPosition_t cPosPC;
+// 	CursorPosition_t cPosBK;
 
-	CursorPosition_t cPosPC;
-	CursorPosition_t cPosBK;
-
-	bool inBank = false;
-	CursorType_e cursorType = CursorType::SingleSelect;
-} CursorBox_t;
+// 	bool inBank = false;
+// 	CursorType_e cursorType = CursorType::SingleSelect;
+// } CursorBox_t;
 
 
 /* ---------- Functions ---------- */
@@ -214,10 +202,11 @@ class PKBank
 		bool isPkmEmpty(pkm_t* pkm);
 		bool isSlotEmpty(uint16_t boxId, uint16_t slotId, bool inBank);
 		void getBox(uint16_t boxID, box_t** box, bool inBank = false);
-		void getPokemon(uint16_t slotId, pkm_t** pkm, bool inBank = false);
-		void getPokemon(uint16_t boxId, uint16_t slotId, pkm_t** pkm, bool inBank = false);
-		void getPokemon(uint16_t boxId, uint16_t rowId, uint16_t colId, pkm_t** pkm, bool inBank = false);
+		void getPkm(uint16_t slotId, pkm_t** pkm, bool inBank = false);
+		void getPkm(uint16_t boxId, uint16_t slotId, pkm_t** pkm, bool inBank = false);
+		void getPkm(uint16_t boxId, uint16_t rowId, uint16_t colId, pkm_t** pkm, bool inBank = false);
 		void movePkm(pkm_t* src, pkm_t* dest);
+		void movePkm(pkm_t* src, pkm_t* dst, bool srcBanked, bool dstBanked);
 		void moveBox(uint16_t boxID_1, bool inBank_1, uint16_t boxID_2, bool inBank_2);
 		void addDex(uint16_t speciesID);
 		void addDex(pkm_t* pkm);
