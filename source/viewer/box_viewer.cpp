@@ -42,6 +42,33 @@ void computeSlot(CursorBox_t* cursorBox)
 	cursorBox->slot   = (cursorBox->row == BOX_HEADER_SELECTED ? SLOT_NO_SELECTION : *cursorBox->box * BOX_PKMCOUNT + cursorBox->inslot);
 }
 
+// --------------------------------------------------
+void extractBoxSlot(CursorBox_t* cursorBox, BoxSlot_t* boxSlot)
+// --------------------------------------------------
+{
+	boxSlot->inBank = cursorBox->inBank;
+	boxSlot->slot = cursorBox->slot;
+	boxSlot->inslot = cursorBox->inslot;
+	boxSlot->box = *(cursorBox->box);
+	boxSlot->row = cursorBox->row;
+	boxSlot->col = cursorBox->col;
+}
+
+// --------------------------------------------------
+void injectBoxSlot(CursorBox_t* cursorBox, BoxSlot_t* boxSlot)
+// --------------------------------------------------
+{
+	cursorBox->inBank = boxSlot->inBank;
+	cursorBox->slot = boxSlot->slot;
+	cursorBox->inslot = boxSlot->inslot;
+	if (boxSlot->inBank)
+		cursorBox->boxBK = boxSlot->box;
+	else
+		cursorBox->boxPC = boxSlot->box;
+	cursorBox->row = boxSlot->row;
+	cursorBox->col = boxSlot->col;
+}
+
 
 /*----------------------------------------------------------*\
  |                       Viewer Class                       |
@@ -311,10 +338,17 @@ Result BoxViewer::drawBotScreen()
 		sf2d_draw_texture_part(tiles, boxShift + BACKGROUND_WIDTH - 24, 20,  16, 64, 16, 24);
 
 
-		if (sPkm && isPkmDragged)
+		if (sPkm)
 		{
-			// Draw dragged Pokémon
-			sf2d_draw_texture_part(icons, touch.px - 16, touch.py - 16, ((sPkm->speciesID-1) % 25) * 40, ((sPkm->speciesID-1) / 25) * 30, 40, 30);
+			if (isPkmDragged)
+			{
+				// Draw dragged Pokémon
+				sf2d_draw_texture_part(icons, touch.px - 16, touch.py - 16, ((sPkm->speciesID-1) % 25) * 40, ((sPkm->speciesID-1) / 25) * 30, 40, 30);
+			}
+			else
+			{
+				sf2d_draw_texture_part(icons, boxShift + 17 + (cursorBox.inslot % 6) * 35, 20 + 13 + (cursorBox.inslot / 6) * 35, ((sPkm->speciesID-1) % 25) * 40, ((sPkm->speciesID-1) / 25) * 30, 40, 30);
+			}
 		}
 		else
 		{
@@ -392,17 +426,22 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 			int16_t boxShift = (cursorBox.inBank ? BK_BOX_SHIFT_USED : PC_BOX_SHIFT_USED);
 			if (touchWithin(touch->px, touch->py, boxShift + 10, 20, 16, 24)) boxMod--;
 			else if (touchWithin(touch->px, touch->py, boxShift + 196, 20, 16, 24)) boxMod++;
+			boxShift = (cursorBox.inBank ? PC_BOX_SHIFT_UNUSED : BK_BOX_SHIFT_UNUSED);
+			if (touchWithin(touch->px, touch->py, boxShift, 20, BACKGROUND_WIDTH, BACKGROUND_HEIGHT)) { cursorBox.inBank = !cursorBox.inBank; boolMod = true; }
 		}
 		if (kHeld & KEY_TOUCH)
 		{
-			int16_t boxShift = (cursorBox.inBank ? PC_BOX_SHIFT_UNUSED : BK_BOX_SHIFT_UNUSED);
-			if (touchWithin(touch->px, touch->py, boxShift, 20, BACKGROUND_WIDTH, BACKGROUND_HEIGHT)) { cursorBox.inBank = !cursorBox.inBank; boolMod = true; }
-			boxShift = (cursorBox.inBank ? BK_BOX_SHIFT_USED : PC_BOX_SHIFT_USED);
-			if (isPkmDragged && touchWithin(touch->px, touch->py, boxShift + 10, 20, 16, 24)) boxMod--;
-			else if (isPkmDragged && touchWithin(touch->px, touch->py, boxShift + 196, 20, 16, 24)) boxMod++;
+			if (isPkmDragged)
+			{
+				int16_t boxShift = (cursorBox.inBank ? BK_BOX_SHIFT_USED : PC_BOX_SHIFT_USED);
+				if (touchWithin(touch->px, touch->py, boxShift + 10, 20, 16, 24) && !touchWithin(this->touch.px, this->touch.py, boxShift + 10, 20, 16, 24)) boxMod--;
+				else if (touchWithin(touch->px, touch->py, boxShift + 196, 20, 16, 24) && !touchWithin(this->touch.px, this->touch.py, boxShift + 196, 20, 16, 24)) boxMod++;
+				boxShift = (cursorBox.inBank ? PC_BOX_SHIFT_UNUSED : BK_BOX_SHIFT_UNUSED);
+				if (touchWithin(touch->px, touch->py, boxShift, 20, BACKGROUND_WIDTH, BACKGROUND_HEIGHT)) { cursorBox.inBank = !cursorBox.inBank; boolMod = true; }
+			}
 		}
 
-		if (boxMod || rowMod || colMod || boolMod)
+		if (boxMod || rowMod || colMod)
 		{
 			currentBox(&cursorBox);
 			*cursorBox.box += boxMod;
@@ -415,12 +454,14 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 			if (cursorBox.row < BOX_HEADER_SELECTED) cursorBox.row = BOX_ROW_PKMCOUNT-1;
 			else if (cursorBox.row > BOX_ROW_PKMCOUNT-1) cursorBox.row = BOX_HEADER_SELECTED;
 
-			// if (cursorBox.col < 0) cursorBox.col = BOX_COL_PKMCOUNT-1;
-			// else if (cursorBox.col > BOX_COL_PKMCOUNT-1) cursorBox.col = 0;
-
 			if (cursorBox.col < 0) { cursorBox.col = BOX_COL_PKMCOUNT-1; cursorBox.inBank = !cursorBox.inBank; }
 			else if (cursorBox.col > BOX_COL_PKMCOUNT-1) { cursorBox.col = 0; cursorBox.inBank = !cursorBox.inBank; }
 
+			boolMod = true;
+		}
+
+		if (boolMod)
+		{
 			selectViewBox();
 			selectViewPokemon();
 		}
@@ -428,7 +469,6 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 
 	if (kDown & KEY_SELECT)
 	{
-		// Swap cursor mode (quick/single/multi selection)
 		switchCursorType();
 	}
 
@@ -453,8 +493,11 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 		{
 			if (vPkm)
 			{
-				// printf("\n");
+				consoleClear();
 				PHBank::pKBank()->printPkm(vPkm, 0, PK6_SIZE);
+				printf("Press Y one more time to continue");
+				waitKey(KEY_Y);
+				consoleClear();
 			}
 		}
 	}
@@ -483,6 +526,7 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 
 	}
 	
+
 	{
 		if (kDown & KEY_TOUCH)
 		{
@@ -503,7 +547,7 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 				selectCursorType(CursorType::MultipleSelect);
 			}
 
-			if (touchWithin(px, py, boxShift, 50, BACKGROUND_WIDTH, BACKGROUND_HEIGHT))
+			else if (touchWithin(px, py, boxShift, 50, BACKGROUND_WIDTH, BACKGROUND_HEIGHT))
 			{
 				// printf("{%3u, %3u}", ((py - 50) / 35), ((px - boxShift) / 35));
 
@@ -516,7 +560,6 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 					
 					selectViewPokemon();
 					selectMovePokemon();
-					selectViewPokemon();
 				}
 				else
 				{
@@ -526,9 +569,9 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 					cursorBox.row = ((py - 50) / 35);
 					cursorBox.col = ((px - boxShift) / 35);
 
+					selectViewPokemon();
 					if (oldRow == cursorBox.row && oldCol == cursorBox.col)
 						selectMovePokemon();
-					selectViewPokemon();
 				}
 			}
 		}
@@ -556,11 +599,14 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 
 					selectViewPokemon();
 					selectMovePokemon();
-					selectViewPokemon();
+					// selectViewPokemon(); TODO
 				}
 				else
 				{
-					sPkm = NULL;
+					cancelMovePokemon();
+					injectBoxSlot(&cursorBox, &sSlot);
+					selectViewBox();
+					selectViewPokemon();
 				}
 
 				isPkmDragged = false;
@@ -646,17 +692,21 @@ void BoxViewer::selectMovePokemon()
 // --------------------------------------------------
 {
 	computeSlot(&cursorBox);
+	// selectViewPokemon();
 
 	if (!sPkm)
 	{
-		sPkm = vPkm;
-		sInBank = cursorBox.inBank;
+		// if (!PHBank::pKBank()->isPkmEmpty(vPkm))
+		// {
+			sPkm = vPkm;
+		// 	extractBoxSlot(&cursorBox, &sSlot);
+		// }
 	}
 	else if (vPkm)
 	{
 		if (sPkm != vPkm)
 		{
-			PHBank::pKBank()->movePkm(sPkm, vPkm, sInBank, cursorBox.inBank);
+			PHBank::pKBank()->movePkm(sPkm, vPkm, sSlot.inBank, cursorBox.inBank);
 		}
 
 		cancelMovePokemon();

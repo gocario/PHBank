@@ -17,10 +17,50 @@
 #define BANK_SIZE BOX_SIZE * BANK_BOXCOUNT
 
 
-typedef struct CursorBox_t { bool inBank = false; int16_t slot = 0; int16_t inslot = 0; int16_t boxPC = 0; int16_t boxBK = 0; int16_t* box = NULL; int16_t row = 0; int16_t col = 0; } CursorBox_t;
-namespace CursorType { typedef enum cursorType_e { SingleSelect = 0, QuickSelect = 1, MultipleSelect = 2, } CursorType_e; } typedef CursorType::CursorType_e CursorType_e;
+typedef struct BoxSlot_t {
+	bool inBank = false;
+	int16_t slot = 0;
+	int16_t inslot = 0;
+	int16_t box = 0;
+	int16_t row = 0;
+	int16_t col = 0;
+} BoxSlot_t;
+
+typedef struct CursorBox_t {
+	bool inBank = false;
+	int16_t slot = 0;
+	int16_t inslot = 0;
+	int16_t boxPC = 0;
+	int16_t boxBK = 0;
+	int16_t* box = NULL;
+	int16_t row = 0;
+	int16_t col = 0;
+} CursorBox_t;
+
+namespace CursorType
+{
+	typedef enum CursorType_e {
+		SingleSelect = 0,
+		QuickSelect = 1,
+		MultipleSelect = 2,
+	} CursorType_e;
+}
+typedef CursorType::CursorType_e CursorType_e;
+
+namespace CursorState
+{
+	typedef enum CursorState_e {
+		SelectingTarget = 0,
+		TargetFound = 1,
+		DraggingTarget = 2,
+	} CursorState_e;
+}
+typedef CursorState::CursorState_e CursorState_e;
+
 
 void computeSlot(CursorBox_t* cursorBox);
+void extractBoxSlot(CursorBox_t* cursorBox, BoxSlot_t* boxSlot);
+void injectBoxSlot(CursorBox_t* cursorBox, BoxSlot_t* boxSlot);
 
 
 class BoxViewer : public Viewer
@@ -44,7 +84,7 @@ class BoxViewer : public Viewer
 		CursorType_e cursorType = CursorType::SingleSelect;
 		touchPosition touch;
 		bool isPkmDragged = false;
-		bool sInBank;
+		BoxSlot_t sSlot;
 		pkm_t* sPkm = NULL;
 		pkm_t* vPkm = NULL;
 		box_t* vPCBox = NULL;
