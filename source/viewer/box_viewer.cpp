@@ -159,7 +159,7 @@ Result BoxViewer::drawTopScreen()
 				printf("\x1B[7;21H T/S ID: %-5u|%-5u", vPkm->TID, vPkm->SID);
 				printf("\x1B[8;21H PID: %-4lx -- PSV: %-5u     ", vPkm->PID, vPkm->PSV);
 				printf("\x1B[9;21H                             ");
-				printf("\x1B[10;21H Mv[%03u][%03u][%03u][%03u]      ", vPkm->movesID[0], vPkm->movesID[1], vPkm->movesID[2], vPkm->movesID[3]);
+				printf("\x1B[9;21H Mv: [%03u][%03u][%03u][%03u]    ", vPkm->movesID[0], vPkm->movesID[1], vPkm->movesID[2], vPkm->movesID[3]);
 			}
 		}
 		else
@@ -193,7 +193,7 @@ Result BoxViewer::drawTopScreen()
 				printf("\x1B[14;21H T/S ID: %-5u|%-5u", sPkm->TID, sPkm->SID);
 				printf("\x1B[15;21H PID: %-4lx -- PSV: %-5u     ", sPkm->PID, sPkm->PSV);
 				printf("\x1B[16;21H                             ");
-				printf("\x1B[17;21H Mv[%03u][%03u][%03u][%03u]      ", sPkm->movesID[0], sPkm->movesID[1], sPkm->movesID[2], sPkm->movesID[3]);
+				printf("\x1B[16;21H Mv: [%03u][%03u][%03u][%03u]    ", sPkm->movesID[0], sPkm->movesID[1], sPkm->movesID[2], sPkm->movesID[3]);
 			}
 		}
 		else
@@ -334,9 +334,19 @@ Result BoxViewer::drawBotScreen()
 		// Draw Background
 		sf2d_draw_texture(background, boxShift, 20);
 		
+
 		// Draw Pokémon icons
-		for (uint32_t i = 0; i < 30; i++)
-			sf2d_draw_texture_part(icons, boxShift + (i % 6) * 35, (i / 6) * 35 + 50, (((*vBox)->slot[i].speciesID-1) % 25) * 40, (((*vBox)->slot[i].speciesID-1) / 25) * 30, 40, 30);
+		if (isPkmDragged)
+		{
+			for (uint32_t i = 0; i < 30; i++)
+				if (sPkm != &((*vBox)->slot[i]))
+					sf2d_draw_texture_part(icons, boxShift + (i % BOX_COL_PKMCOUNT) * 35, (i / BOX_COL_PKMCOUNT) * 35 + 50, (((*vBox)->slot[i].speciesID-1) % 25) * 40, (((*vBox)->slot[i].speciesID-1) / 25) * 30, 40, 30);
+		}
+		else
+		{
+			for (uint32_t i = 0; i < 30; i++)
+				sf2d_draw_texture_part(icons, boxShift + (i % BOX_COL_PKMCOUNT) * 35, (i / BOX_COL_PKMCOUNT) * 35 + 50, (((*vBox)->slot[i].speciesID-1) % 25) * 40, (((*vBox)->slot[i].speciesID-1) / 25) * 30, 40, 30);
+		}
 	}
 
 
@@ -640,12 +650,13 @@ void BoxViewer::selectMovePokemon()
 	if (!sPkm)
 	{
 		sPkm = vPkm;
+		sInBank = cursorBox.inBank;
 	}
 	else if (vPkm)
 	{
 		if (sPkm != vPkm)
 		{
-			PHBank::pKBank()->movePkm(sPkm, vPkm, false, cursorBox.inBank);
+			PHBank::pKBank()->movePkm(sPkm, vPkm, sInBank, cursorBox.inBank);
 		}
 
 		cancelMovePokemon();
