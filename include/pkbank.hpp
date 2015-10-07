@@ -154,6 +154,14 @@ namespace Game
 
 typedef Game::gametype_e gametype_e;
 
+typedef struct fs_t
+{
+	Result fs = 0;
+	Handle* sdHandle = NULL;
+	Handle* saveHandle = NULL;
+	FS_archive* sdArchive = NULL;
+	FS_archive* saveArchive = NULL;
+} fs_t;
 
 // typedef struct cursorPosition_t
 // {
@@ -192,6 +200,7 @@ class PKBank
 		
 		Result loadFile(Result fs, Handle* sdHandle, Handle* saveHandle, FS_archive* sdArchive, FS_archive* saveArchive);
 		Result saveFile(Result fs, Handle* sdHandle, Handle* saveHandle, FS_archive* sdArchive, FS_archive* saveArchive);
+		Result backupFile();
 		Result loadData();
 		Result saveData();
 
@@ -212,6 +221,7 @@ class PKBank
 		void addDex(pkm_t* pkm);
 
 
+		fs_t fsData;
 		savedata_t* savedata;
 		bankdata_t* bankdata;
 

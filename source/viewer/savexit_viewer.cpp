@@ -1,5 +1,6 @@
 #include "savexit_viewer.hpp"
 
+#include "phbank.hpp"
 
 /*----------------------------------------------------------*\
  |                       Viewer Class                       |
@@ -67,9 +68,10 @@ Result SavexitViewer::drawTopScreen()
 	printf("\x1B[13;8H |   A - Save and exit          | ");
 	printf("\x1B[14;8H |   B - Exit without saving    | ");
 	printf("\x1B[15;8H |   X - Return to PHBank       | ");
-	printf("\x1B[16;8H |                              | ");
-	printf("\x1B[17;8H \\------------------------------/ ");
-	printf("\x1B[18;8H                                  ");
+	printf("\x1B[16;8H |   Y - Backup the save        | ");
+	printf("\x1B[17;8H |                              | ");
+	printf("\x1B[18;8H \\------------------------------/ ");
+	printf("\x1B[19;8H                                  ");
 
 	if (hasOverlayChild()) { child->drawTopScreen(); }
 	return SUCCESS_STEP;
@@ -112,8 +114,18 @@ Result SavexitViewer::updateControls(const u32& kDown, const u32& kHeld, const u
 		return close();
 	}
 
-	if (kDown & (KEY_X | KEY_Y))
+	if (kDown & KEY_X)
 	{
+		parent->setLStateView(StateView::Continuing);
+		consoleClear();
+		return close();
+	}
+
+	if (kDown & KEY_Y)
+	{
+		consoleClear();
+		PHBank::pKBank()->backupFile();
+		
 		parent->setLStateView(StateView::Continuing);
 		consoleClear();
 		return close();

@@ -67,6 +67,12 @@ Result PKBank::load(Result fs, Handle *sdHandle, Handle *saveHandle, FS_archive 
 // --------------------------------------------------
 {
 	Result ret = 0;
+	
+	fsData.fs = fs;
+	fsData.sdHandle = sdHandle;
+	fsData.saveHandle = saveHandle;
+	fsData.sdArchive = sdArchive;
+	fsData.saveArchive = saveArchive;
 
 	printf("> Reading...\n");
 	ret = loadFile(fs, sdHandle, saveHandle, sdArchive, saveArchive);
@@ -84,6 +90,12 @@ Result PKBank::save(Result fs, Handle *sdHandle, Handle *saveHandle, FS_archive 
 // --------------------------------------------------
 {
 	Result ret = 0;
+
+	fsData.fs = fs;
+	fsData.sdHandle = sdHandle;
+	fsData.saveHandle = saveHandle;
+	fsData.sdArchive = sdArchive;
+	fsData.saveArchive = saveArchive;
 
 	printf("> Writing...\n");
 	ret = saveData();
@@ -156,17 +168,17 @@ Result PKBank::saveFile(Result fs, Handle *sdHandle, Handle *saveHandle, FS_arch
 	ret = FS_createDirectory(path, sdHandle, sdArchive);
 	// if (ret) return ret;
 
-	hidScanInput();
-	if (hidKeysHeld() & KEY_L)
-	{
-		printf(">Backing up Save to SD\n");
-		ret = backupSaveFile(sdHandle, sdArchive);
-		// if (ret) return ret;
-	}
-	else
-	{
-		printf(">Not backing up Save to SD\n");
-	}
+	// hidScanInput();
+	// if (hidKeysHeld() & KEY_L)
+	// {
+	// 	printf(">Backing up Save to SD\n");
+	// 	ret = backupSaveFile(sdHandle, sdArchive);
+	// 	// if (ret) return ret;
+	// }
+	// else
+	// {
+	// 	printf(">Not backing up Save to SD\n");
+	// }
 
 	if (fs)
 	{
@@ -183,6 +195,25 @@ Result PKBank::saveFile(Result fs, Handle *sdHandle, Handle *saveHandle, FS_arch
 
 	printf(">Saving Bank to SD\n");
 	ret = saveBankFile(sdHandle, sdArchive);
+	// if (ret) return ret;
+
+	return ret;
+}
+
+
+// ==================================================
+/// Copy the save to the backup folder
+Result PKBank::backupFile()
+// --------------------------------------------------
+{
+	Result ret = 0;
+
+	char path[] = "/pkbank";
+	ret = FS_createDirectory(path, fsData.sdHandle, fsData.sdArchive);
+	// if (ret) return ret;
+
+	printf(">Backing up Save to SD\n");
+	ret = backupSaveFile(fsData.sdHandle, fsData.sdArchive);
 	// if (ret) return ret;
 
 	return ret;
@@ -273,7 +304,6 @@ void PKBank::printByte(u8* bytes, u32 key, uint32_t max)
 			hidScanInput();
 
 			if (hidKeysDown() & key) break;
-			if (hidKeysHeld() & (KEY_L | KEY_R | KEY_A)) break;
 
 			gfxFlushBuffers();
 			// gfxSwapBuffers();
