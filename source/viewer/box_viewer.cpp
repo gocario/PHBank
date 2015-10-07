@@ -284,8 +284,18 @@ Result BoxViewer::drawBotScreen()
 		sf2d_draw_texture(background, boxShift, 20);
 		
 		// Draw Pokémon icons
-		for (uint32_t i = 0; i < 30; i++)
-			sf2d_draw_texture_part(icons, boxShift + (i % BOX_COL_PKMCOUNT) * 35, (i / BOX_COL_PKMCOUNT) * 35 + 50, (((*vBox)->slot[i].speciesID-1) % 25) * 40, (((*vBox)->slot[i].speciesID-1) / 25) * 30, 40, 30);
+		if (isPkmDragged)
+		{
+			for (uint32_t i = 0; i < 30; i++)
+				if (sPkm != &((*vBox)->slot[i]))
+					sf2d_draw_texture_part(icons, boxShift + (i % BOX_COL_PKMCOUNT) * 35, (i / BOX_COL_PKMCOUNT) * 35 + 50, (((*vBox)->slot[i].speciesID-1) % 25) * 40, (((*vBox)->slot[i].speciesID-1) / 25) * 30, 40, 30);
+		}
+		else
+		{
+			for (uint32_t i = 0; i < 30; i++)
+				sf2d_draw_texture_part(icons, boxShift + (i % BOX_COL_PKMCOUNT) * 35, (i / BOX_COL_PKMCOUNT) * 35 + 50, (((*vBox)->slot[i].speciesID-1) % 25) * 40, (((*vBox)->slot[i].speciesID-1) / 25) * 30, 40, 30);
+		}
+		
 
 		// Draw CursorType buttons
 		sf2d_draw_texture_part(tiles, boxShift + 21 +   0, 0,   0, 0, 64, 32);
@@ -296,11 +306,20 @@ Result BoxViewer::drawBotScreen()
 		sf2d_draw_texture_part(tiles, boxShift + 10 +  0, 20,   0, 64, 16, 24);
 		sf2d_draw_texture_part(tiles, boxShift + BACKGROUND_WIDTH - 24, 20,  16, 64, 16, 24);
 
-		// Draw Cursor
-		if (cursorBox.inslot == SLOT_NO_SELECTION)
-			sf2d_draw_texture_part(tiles, boxShift + 105, 18, 32 * cursorType, 32, 32, 32);
+
+		if (sPkm && isPkmDragged)
+		{
+			// Draw dragged Pokémon
+			sf2d_draw_texture_part(icons, touch.px - 16, touch.py - 16, ((sPkm->speciesID-1) % 25) * 40, ((sPkm->speciesID-1) / 25) * 30, 40, 30);
+		}
 		else
-			sf2d_draw_texture_part(tiles, boxShift + 17 + (cursorBox.inslot % 6) * 35, 20 + 13 + (cursorBox.inslot / 6) * 35, 32 * cursorType, 32, 32, 32);
+		{
+			// Draw Cursor
+			if (cursorBox.inslot == SLOT_NO_SELECTION)
+				sf2d_draw_texture_part(tiles, boxShift + 105, 18, 32 * cursorType, 32, 32, 32);
+			else
+				sf2d_draw_texture_part(tiles, boxShift + 17 + (cursorBox.inslot % 6) * 35, 20 + 13 + (cursorBox.inslot / 6) * 35, 32 * cursorType, 32, 32, 32);
+		}
 	}
 
 	/*\* The other Box *\*/
@@ -359,8 +378,14 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 			int16_t boxShift = (cursorBox.inBank ? BK_BOX_SHIFT_USED : PC_BOX_SHIFT_USED);
 			if (touchWithin(touch->px, touch->py, boxShift + 10, 20, 16, 24)) boxMod--;
 			else if (touchWithin(touch->px, touch->py, boxShift + 196, 20, 16, 24)) boxMod++;
-			boxShift = (cursorBox.inBank ? PC_BOX_SHIFT_UNUSED : BK_BOX_SHIFT_UNUSED);
+		}
+		if (kHeld & KEY_TOUCH)
+		{
+			int16_t boxShift = (cursorBox.inBank ? PC_BOX_SHIFT_UNUSED : BK_BOX_SHIFT_UNUSED);
 			if (touchWithin(touch->px, touch->py, boxShift, 20, BACKGROUND_WIDTH, BACKGROUND_HEIGHT)) { cursorBox.inBank = !cursorBox.inBank; boolMod = true; }
+			boxShift = (cursorBox.inBank ? BK_BOX_SHIFT_USED : PC_BOX_SHIFT_USED);
+			if (isPkmDragged && touchWithin(touch->px, touch->py, boxShift + 10, 20, 16, 24)) boxMod--;
+			else if (isPkmDragged && touchWithin(touch->px, touch->py, boxShift + 196, 20, 16, 24)) boxMod++;
 		}
 
 		if (boxMod || rowMod || colMod || boolMod)
@@ -395,17 +420,17 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 
 	if (kDown & KEY_X)
 	{
-		printf("\x1b[2J");
+		consoleClear();
 	}
 
 	if (cursorType == CursorType::SingleSelect)
 	{
-		if (kDown & KEY_A)
+		if (kDown & KEY_A && !isPkmDragged)
 		{
 			selectMovePokemon();
 		}
 
-		if (kDown & KEY_B)
+		if (kDown & KEY_B && !isPkmDragged)
 		{
 			cancelMovePokemon();
 		}
@@ -421,17 +446,17 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 	}
 	else if (cursorType == CursorType::QuickSelect)
 	{
-		if (kDown & KEY_A)
+		if (kDown & KEY_A && !isPkmDragged)
 		{
 			selectMovePokemon();
 		}
 
-		if (kDown & KEY_B)
+		if (kDown & KEY_B && !isPkmDragged)
 		{
 			cancelMovePokemon();
 		}
 
-		if (kDown & KEY_Y)
+		if (kDown & KEY_Y && !isPkmDragged)
 		{
 			if (vPCBox && vBKBox)
 			{
@@ -444,39 +469,87 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 
 	}
 	
-	if (kDown & KEY_TOUCH)
 	{
-		int16_t boxShift = (cursorBox.inBank ? BK_BOX_SHIFT_USED : PC_BOX_SHIFT_USED);
-		uint16_t px = touch->px;
-		uint16_t py = touch->py;
-		// printf("{%3u, %3u}", px, py);
-		if (touchWithin(px, py, boxShift + 22, 0, 59, 16))
+		if (kDown & KEY_TOUCH)
 		{
-			selectCursorType(CursorType::SingleSelect);
+			int16_t boxShift = (cursorBox.inBank ? BK_BOX_SHIFT_USED : PC_BOX_SHIFT_USED);
+			uint16_t px = touch->px;
+			uint16_t py = touch->py;
+			// printf("\x1B[21;0Hdown{%3u, %3u} ", touch->px, touch->py);
+			if (touchWithin(px, py, boxShift + 22, 0, 59, 16))
+			{
+				selectCursorType(CursorType::SingleSelect);
+			}
+			else if (touchWithin(px, py, boxShift + 86, 0, 59, 16))
+			{
+				selectCursorType(CursorType::QuickSelect);
+			}
+			else if (touchWithin(px, py, boxShift + 150, 0, 59, 16))
+			{
+				selectCursorType(CursorType::MultipleSelect);
+			}
+
+			if (touchWithin(px, py, boxShift, 50, BACKGROUND_WIDTH, BACKGROUND_HEIGHT))
+			{
+				// printf("{%3u, %3u}", ((py - 50) / 35), ((px - boxShift) / 35));
+
+				if (!sPkm && !isPkmDragged)
+				{
+					isPkmDragged = true;
+
+					cursorBox.row = ((py - 50) / 35);
+					cursorBox.col = ((px - boxShift) / 35);
+					
+					selectViewPokemon();
+					selectMovePokemon();
+					selectViewPokemon();
+				}
+				else
+				{
+					int16_t oldRow = cursorBox.row;
+					int16_t oldCol = cursorBox.col;
+
+					cursorBox.row = ((py - 50) / 35);
+					cursorBox.col = ((px - boxShift) / 35);
+
+					selectViewPokemon();
+				}
+			}
 		}
-		else if (touchWithin(px, py, boxShift + 86, 0, 59, 16))
+		else if (kHeld & KEY_TOUCH)
 		{
-			selectCursorType(CursorType::QuickSelect);
+			this->touch.px = touch->px;
+			this->touch.py = touch->py;
 		}
-		else if (touchWithin(px, py, boxShift + 150, 0, 59, 16))
+		else if (kUp & KEY_TOUCH)
 		{
-			selectCursorType(CursorType::MultipleSelect);
+			touch = &(this->touch);
+			// printf("\x1B[22;0Hup{%3u, %3u} ", touch->px, touch->py);
+
+			int16_t boxShift = (cursorBox.inBank ? BK_BOX_SHIFT_USED : PC_BOX_SHIFT_USED);
+			uint16_t px = touch->px;
+			uint16_t py = touch->py;
+
+			if (sPkm && isPkmDragged)
+			{
+				if (touchWithin(px, py, boxShift, 50, BACKGROUND_WIDTH, BACKGROUND_HEIGHT))
+				{
+					// printf("{%3u, %3u}", ((py - 50) / 35), ((px - boxShift) / 35));
+					cursorBox.row = ((py - 50) / 35);
+					cursorBox.col = ((px - boxShift) / 35);
+
+					selectViewPokemon();
+					selectMovePokemon();
+					selectViewPokemon();
+
+					isPkmDragged = false;
+				}
+				else
+				{
+					sPkm = NULL;
+				}
+			}
 		}
-
-		if (touchWithin(px, py, boxShift, 20, BACKGROUND_WIDTH, BACKGROUND_HEIGHT))
-		{
-			int16_t oldRow = cursorBox.row;
-			int16_t oldCol = cursorBox.col;
-
-			cursorBox.row = ((py - 50) / 35);
-			cursorBox.col = ((px - boxShift) / 35);
-
-			if (cursorBox.row == oldRow && cursorBox.col == oldCol)
-				selectMovePokemon();
-			selectViewPokemon();
-		}
-
-		// printf("\n");
 	}
 
 	return SUCCESS_STEP;
@@ -558,7 +631,7 @@ void BoxViewer::selectMovePokemon()
 {
 	computeSlot(&cursorBox);
 
-	if (!sPkm)
+	if ((!sPkm))
 	{
 		sPkm = vPkm;
 	}
