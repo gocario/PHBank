@@ -47,7 +47,7 @@ int main(int argc, char* argv[])
 	PKData::load(&sdHandle, &sdArchive);
 	if (!PHBank::pKBank()->load(fs, &sdHandle, &saveHandle, &sdArchive, &saveArchive))
 	{
-		clearConsole();
+		consoleClear();
 		Result ret = Viewer::startMainLoop(new BoxViewer());
 
 		if (ret == StateView::Saving)
