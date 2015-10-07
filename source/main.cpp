@@ -44,18 +44,25 @@ int main(int argc, char* argv[])
 
 
 	PKData::load(&sdHandle, &sdArchive);
-	PHBank::pKBank()->load(fs, &sdHandle, &saveHandle, &sdArchive, &saveArchive);
-	
-	consoleSetWindow(&top, 0, 0, 50, 30);
-	printf("\x1b[2J");
-	Result ret = Viewer::startMainLoop(new BoxViewer());
-
-	if (ret == StateView::Saving)
+	if (!PHBank::pKBank()->load(fs, &sdHandle, &saveHandle, &sdArchive, &saveArchive))
 	{
-		PHBank::pKBank()->save(fs, &sdHandle, &saveHandle, &sdArchive, &saveArchive);
-		printf("\n\nProgram terminated, press A\n");
-		waitKey(KEY_A);
+		consoleSetWindow(&top, 0, 0, 50, 30);
+		printf("\x1b[2J");
+		Result ret = Viewer::startMainLoop(new BoxViewer());
+
+		if (ret == StateView::Saving)
+		{
+			PHBank::pKBank()->save(fs, &sdHandle, &saveHandle, &sdArchive, &saveArchive);
+			
+		}
 	}
+	else
+	{
+		printf("Error, bad target?\n");
+	}
+	
+	printf("\n\nProgram terminated, press A\n");
+	waitKey(KEY_A);
 
 	PHBank::destroy();
 	FS_filesysExit(&sdHandle, &saveHandle, &sdArchive, &saveArchive);
