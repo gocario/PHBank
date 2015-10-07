@@ -1,5 +1,6 @@
 #include "box_viewer.hpp"
 
+#include "savexit_viewer.hpp"
 #include "box_background.h"
 #include "box_icons.h"
 #include "box_tiles.h"
@@ -125,7 +126,7 @@ Result BoxViewer::initialize()
 Result BoxViewer::drawTopScreen()
 // --------------------------------------------------
 {
-	if (isChildRegular()) { if (this->child->drawTopScreen() == PARENT_STEP); else return CHILD_STEP; }
+	if (hasRegularChild()) { if (this->child->drawTopScreen() == PARENT_STEP); else return CHILD_STEP; }
 	// Viewer::drawTopScreen();
 
 	printf("\x1B[0;0H");
@@ -216,7 +217,7 @@ Result BoxViewer::drawTopScreen()
 	}
 
 
-	if (isChildOverlay()) { this->child->drawTopScreen(); }
+	if (hasOverlayChild()) { this->child->drawTopScreen(); }
 	return SUCCESS_STEP;
 }
 
@@ -225,7 +226,7 @@ Result BoxViewer::drawTopScreen()
 Result BoxViewer::drawBotScreen()
 // --------------------------------------------------
 {
-	if (isChildRegular()) { if (this->child->drawBotScreen() == PARENT_STEP); else return CHILD_STEP; }
+	if (hasRegularChild()) { if (this->child->drawBotScreen() == PARENT_STEP); else return CHILD_STEP; }
 	// Viewer::drawBotScreen();
 	
 	int16_t boxShift;
@@ -274,7 +275,7 @@ Result BoxViewer::drawBotScreen()
 	}
 
 
-	if (isChildOverlay()) { this->child->drawBotScreen(); }
+	if (hasOverlayChild()) { this->child->drawBotScreen(); }
 	return SUCCESS_STEP;
 }
 
@@ -283,17 +284,13 @@ Result BoxViewer::drawBotScreen()
 Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& kUp, const touchPosition* touch)
 // --------------------------------------------------
 {
-	if (isChildRegular()) { if (this->child->updateControls(kDown, kHeld, kUp, touch) == PARENT_STEP); else return CHILD_STEP; }
-	else if (isChildOverlay()) { if (this->child->updateControls(kDown, kHeld, kUp, touch) == PARENT_STEP); else return CHILD_STEP; }
+	if (hasRegularChild() || hasOverlayChild()) { if (this->child->updateControls(kDown, kHeld, kUp, touch) == PARENT_STEP); else return CHILD_STEP; }
 		
 	if (kDown & KEY_START)
 	{
-		if (kHeld & KEY_R)
-			lStateView = StateView::Saving;
-		else
-			lStateView = StateView::Exiting;
-
-		return this->exit();
+		new SavexitViewer(StateView::Overlay, this);
+		child->initialize();
+		return CHILD_STEP;
 	}
 
 	{

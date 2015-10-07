@@ -4,9 +4,6 @@
 #include "phbank.hpp"
 #include "viewer.hpp"
 
-#include <sf2d.h>
-#include <3ds.h>
-
 #define BOX_ROW_PKMCOUNT 5
 #define BOX_COL_PKMCOUNT 6
 #define BOX_PKMCOUNT BOX_ROW_PKMCOUNT * BOX_COL_PKMCOUNT
@@ -19,8 +16,7 @@
 #define PC_SIZE BOX_SIZE * PC_BOXCOUNT
 #define BANK_SIZE BOX_SIZE * BANK_BOXCOUNT
 
-// struct pkm_t { uint16_t speciesID; };
-// struct box_t { pkm_t slot[30]; };
+
 typedef struct CursorBox_t { bool inBank = false; int16_t slot = 0; int16_t inslot = 0; int16_t boxPC = 0; int16_t boxBK = 0; int16_t* box = NULL; int16_t row = 0; int16_t col = 0; } CursorBox_t;
 namespace CursorType { typedef enum cursorType_e { SingleSelect = 0, QuickSelect = 1, MultipleSelect = 2, } CursorType_e; } typedef CursorType::CursorType_e CursorType_e;
 

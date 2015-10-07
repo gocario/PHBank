@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
 	PKData::load(&sdHandle, &sdArchive);
 	PHBank::pKBank()->load(fs, &sdHandle, &saveHandle, &sdArchive, &saveArchive);
 	
-	consoleSetWindow(&top, 0, 0, 40, 30);
+	consoleSetWindow(&top, 0, 0, 50, 30);
 	printf("\x1b[2J");
 	Result ret = Viewer::startMainLoop(new BoxViewer());
 

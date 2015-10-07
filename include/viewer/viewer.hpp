@@ -36,44 +36,66 @@ typedef StateView::LStateView_e LStateView_e;
 class Viewer
 {
 	public:
+	/*-- Viewer Destructor --*/
 		virtual ~Viewer();
+		/*-----------------------*/
+
+		/*-- Viewer Methods --*/
 		virtual Result initialize();
 		virtual Result drawTopScreen();
 		virtual Result drawBotScreen();
 		virtual Result updateControls(const u32& kDown = 0, const u32& kHeld = 0, const u32& kUp = 0, const touchPosition* touch = NULL);
-		virtual Result exit();
+		/*--------------------*/
 
-		virtual Result state();
-
-		static PrintConsole* console[2];
-		static Result startMainLoop(Viewer* viewer);
-
-		bool touchWithin(u16 px, u16 py, s16 x, s16 y, s16 w, s16 h);
-
-		/*-- State View --*/
+		/*-- Viewer Hierarchy --*/
 		bool hasParent();
 		bool hasChild();
 		bool isChild();
 		bool isParent();
-		
+		bool hasRegularChild();
+		bool hasOverlayChild();
+		/*----------------------*/
+
+		/*-- Viewer State --*/
 		bool isRegular();
 		bool isOverlay();
-		bool isRunning();
+		virtual void setStateView(StateView_e state);
+		/*------------------*/
 
-		bool isChildRegular();
-		bool isChildOverlay();
-		/*----------------*/
+		/*-- Viewer L.State --*/
+		virtual Result close();
+		virtual Result state();
+		virtual bool isRunning();
+		virtual void setLStateView(LStateView_e state);
+		/*--------------------*/
+
+		/*-- Utils --*/
+		bool touchWithin(u16 px, u16 py, s16 x, s16 y, s16 w, s16 h);
+		/*-----------*/
+
+		/*-- Viewer Starter --*/
+		static PrintConsole console[2];
+		static Result startMainLoop(Viewer* viewer);
+		/*--------------------*/
 		
 	protected:
+		/*-- Viewer Constructors --*/
 		Viewer(Viewer* parent = NULL);
 		Viewer(StateView_e state, Viewer* parent = NULL);
+		/*-------------------------*/
+
+		/*-- Viewer Hierarchy --*/
 		Viewer* parent = NULL;
 		Viewer* child = NULL;
+		/*----------------------*/
 
-		/*-- State View --*/
+		/*-- Viewer State --*/
 		StateView_e stateView = StateView::Regular;
+		/*------------------*/
+
+		/*-- Viewer L.State --*/
 		LStateView_e lStateView = StateView::Running;
-		/*----------------*/
+		/*--------------------*/
 
 	private:
 };

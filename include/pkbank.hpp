@@ -221,9 +221,9 @@ class PKBank
 		savebuffer_t savebuffer;
 		bankbuffer_t bankbuffer;
 
-		Result loadSaveFile(Handle *fsHandle, FS_archive *fsArchive);
+		Result loadSaveFile(Result fs, Handle *fsHandle, FS_archive *fsArchive);
 		Result loadBankFile(Handle *fsHandle, FS_archive *fsArchive);
-		Result saveSaveFile(Handle *fsHandle, FS_archive *fsArchive);
+		Result saveSaveFile(Result fs, Handle *fsHandle, FS_archive *fsArchive);
 		Result saveBankFile(Handle *fsHandle, FS_archive *fsArchive);
 		Result backupSaveFile(Handle *fsHandle, FS_archive *fsArchive);
 

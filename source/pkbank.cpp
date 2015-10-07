@@ -116,13 +116,13 @@ Result PKBank::loadFile(Result fs, Handle *sdHandle, Handle *saveHandle, FS_arch
 	if (fs)
 	{
 		printf(">Loading Save from SD\n");
-		ret = loadSaveFile(sdHandle, sdArchive);
+		ret = loadSaveFile(fs, sdHandle, sdArchive);
 		if (ret) return ret;
 	}
 	else
 	{
 		printf(">Loading Save from Card\n");
-		ret = loadSaveFile(saveHandle, saveArchive);
+		ret = loadSaveFile(fs, saveHandle, saveArchive);
 		if (ret) return ret;
 	}
 
@@ -161,7 +161,7 @@ Result PKBank::saveFile(Result fs, Handle *sdHandle, Handle *saveHandle, FS_arch
 	{
 		printf(">Backing up Save to SD\n");
 		ret = backupSaveFile(sdHandle, sdArchive);
-		if (ret) return ret;
+		// if (ret) return ret;
 	}
 	else
 	{
@@ -171,19 +171,19 @@ Result PKBank::saveFile(Result fs, Handle *sdHandle, Handle *saveHandle, FS_arch
 	if (fs)
 	{
 		printf(">Saving Save to SD\n");
-		ret = saveSaveFile(sdHandle, sdArchive);
-		if (ret) return ret;
+		ret = saveSaveFile(fs, sdHandle, sdArchive);
+		// if (ret) return ret;
 	}
 	else
 	{
 		printf(">Saving Save to Card\n");
-		ret = saveSaveFile(saveHandle, saveArchive);
-		if (ret) return ret;
+		ret = saveSaveFile(fs, saveHandle, saveArchive);
+		// if (ret) return ret;
 	}
 
 	printf(">Saving Bank to SD\n");
 	ret = saveBankFile(sdHandle, sdArchive);
-	if (ret) return ret;
+	// if (ret) return ret;
 
 	return ret;
 }
@@ -562,7 +562,7 @@ void PKBank::addDex(pkm_t* pkm)
 
 
 // ==================================================
-Result PKBank::loadSaveFile(Handle *fsHandle, FS_archive *fsArchive)
+Result PKBank::loadSaveFile(Result fs, Handle *fsHandle, FS_archive *fsArchive)
 // --------------------------------------------------
 {
 	Result ret = 0;
@@ -614,7 +614,7 @@ Result PKBank::loadBankFile(Handle *fsHandle, FS_archive *fsArchive)
 
 
 // ==================================================
-Result PKBank::saveSaveFile(Handle *fsHandle, FS_archive *fsArchive)
+Result PKBank::saveSaveFile(Result fs, Handle *fsHandle, FS_archive *fsArchive)
 // --------------------------------------------------
 {
 	Result ret = 0;
@@ -625,7 +625,11 @@ Result PKBank::saveSaveFile(Handle *fsHandle, FS_archive *fsArchive)
 	ret = FS_deleteFile(path, fsHandle, fsArchive);
 
 	printf("Writing savefile... ");
-	ret = FS_saveSFile(path, this->savebuffer, size, fsArchive, fsHandle, &bytesWritten);
+// #ifdef SAVEFROMSDROOT
+// 	 	ret = FS_saveFile(path, this->savebuffer, size, fsArchive, fsHandle, &bytesWritten);
+// #else
+		ret = FS_saveSFile(path, this->savebuffer, size, fsArchive, fsHandle, &bytesWritten);
+// #endif
 	if (ret) printf(" ERROR\n");
 	else printf(" OK\n  Written %ld bytes\n", bytesWritten);
 
