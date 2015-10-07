@@ -74,7 +74,7 @@ bool PKFilter::filterSchoolGirlPikachu(uint16_t speciesID, uint16_t formID)
 {
 	bool isFiltered = true;
 
-	isFiltered = (speciesID == 25 && formID > 0);
+	isFiltered = !(speciesID == 25 && formID > 0);
 	
 	return isFiltered;
 }

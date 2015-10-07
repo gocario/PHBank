@@ -431,6 +431,11 @@ void PKBank::movePkm(pkm_t* src, pkm_t* dst)
 void PKBank::movePkm(pkm_t* src, pkm_t* dst, bool srcBanked, bool dstBanked)
 // --------------------------------------------------
 {
+	if (srcBanked)
+		if (!filterPkm(dst)) { printf("No! (dst)"); return; }
+	if (dstBanked)
+		if (!filterPkm(src)) { printf("No! (src)"); return; }
+
 	movePkm(src, dst);
 
 	if (gametype == Game::ORAS)
@@ -463,10 +468,27 @@ void PKBank::moveBox(uint16_t boxID_1, bool inBank_1, uint16_t boxID_2, bool inB
 
 
 // ==================================================
+bool PKBank::filterPkm(pkm_t* pkm)
+// --------------------------------------------------
+{
+	bool isFiltered = true;
+	isFiltered &= PKFilter::filterItemID(pkm->itemID);
+	for (uint8_t i = 0; i < 4; i++)
+		isFiltered &= PKFilter::filterMoveID(pkm->movesID[i]);
+	isFiltered &= PKFilter::filterAbilityID(pkm->abilityID);
+	isFiltered &= PKFilter::filterSchoolGirlPikachu(pkm->speciesID, pkm->formID);
+	return isFiltered;
+}
+
+
+// ==================================================
 void PKBank::addDex(uint16_t speciesID)
 // --------------------------------------------------
 {
 	/*
+
+	DEBUG - TESTING
+
 	if (speciesID == 3)
 	{
 		dex_t &dex = savedata->pokedex.dexes[1];
@@ -877,13 +899,19 @@ void PKBank::loadPkmPk6(pkm_t* pkm)
 	pkm->species = PKData::species(pkm->speciesID);
 	pkm->TID = *(uint16_t*)(pkm->pk6 + 0x0c);
 	pkm->SID = *(uint16_t*)(pkm->pk6 + 0x0e);
+	pkm->abilityID = *(uint8_t*)(pkm->pk6 + 0x14);
+	pkm->abilityNUmberID = *(uint8_t*)(pkm->pk6 + 0x15);
 	pkm->PID = *(uint32_t*)(pkm->pk6 + 0x18);
 	pkm->PSV = computePSV(pkm->PID);
+	pkm->movesID[0] = *(uint16_t*)(pkm->pk6 + 0x5a);
+	pkm->movesID[1] = *(uint16_t*)(pkm->pk6 + 0x5c);
+	pkm->movesID[2] = *(uint16_t*)(pkm->pk6 + 0x5e);
+	pkm->movesID[3] = *(uint16_t*)(pkm->pk6 + 0x60);
 	pkm->gender = ((*(uint8_t*)(pkm->pk6 + 0x1d) >> 1) & 0x3);
+	pkm->formID = ((*(uint8_t*)(pkm->pk6 + 0x1d) >> 3));
 	pkm->origin = *(uint8_t*)(pkm->pk6 + 0xdf);
 	pkm->lang = *(uint8_t*)(pkm->pk6 + 0xe3);
 	pkm->isShiny = isShiny(pkm->PID, pkm->TID, pkm->SID);
-
 
 
 	// T O D O !! #Complete

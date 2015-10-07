@@ -64,13 +64,17 @@ typedef struct pkm_t
 	u8* species;
 	u8* item;
 	uint16_t speciesID; // 0x08
-	uint16_t itemID; // 0x??
+	uint16_t itemID; // 0x0a
 	uint16_t TID; // 0x0c
 	uint16_t SID; // 0x0e
+	uint8_t abilityID; // 0x14
+	uint8_t abilityNUmberID; // 0x15
 	uint32_t PID; // 0x18
 	uint16_t PSV;
-	uint8_t gender; // 0x1d
-	uint8_t origin; // 0xDF
+	uint16_t movesID[4]; // 0x5a - 0x60
+	uint8_t gender; // 0x1d >> 1
+	uint8_t formID; // 0x1d >> 3
+	uint8_t origin; // 0xdf
 	uint8_t lang; // 0xe3
 	bool isShiny; 
 
@@ -217,6 +221,7 @@ class PKBank
 		void movePkm(pkm_t* src, pkm_t* dest);
 		void movePkm(pkm_t* src, pkm_t* dst, bool srcBanked, bool dstBanked);
 		void moveBox(uint16_t boxID_1, bool inBank_1, uint16_t boxID_2, bool inBank_2);
+		bool filterPkm(pkm_t* pkm);
 		void addDex(uint16_t speciesID);
 		void addDex(pkm_t* pkm);
 

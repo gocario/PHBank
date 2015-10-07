@@ -45,6 +45,7 @@ int main(int argc, char* argv[])
 
 
 	PKData::load(&sdHandle, &sdArchive);
+	
 	if (!PHBank::pKBank()->load(fs, &sdHandle, &saveHandle, &sdArchive, &saveArchive))
 	{
 		consoleClear();

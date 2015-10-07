@@ -132,75 +132,79 @@ Result BoxViewer::drawTopScreen()
 	printf("\x1B[0;0H");
 
 	printf("[%s] Select a slot:\n", (cursorBox.inBank ? "BK" : "PC"));
-	printf("Box: %-2i Row: %-2i Col: %-2i\n", *cursorBox.box + 1, cursorBox.row + 1, cursorBox.col + 1);
+	printf("Box: %-2i Row: %-2i Col: %-2i  \n", *cursorBox.box + 1, cursorBox.row + 1, cursorBox.col + 1);
 
 	printf("\x1B[15;1H%s", PHBank::pKBank()->savedata->OTName);
 	printf("\x1B[16;1H TID: %-5u", PHBank::pKBank()->savedata->TID);
 	printf("\x1B[17;1H SID: %-5u", PHBank::pKBank()->savedata->SID);
 	printf("\x1B[18;1H TSV: %-5u", PHBank::pKBank()->savedata->TSV);
 
-	if (vPkm)
 	{
-		if (PHBank::pKBank()->isPkmEmpty(vPkm))
+		if (vPkm)
 		{
-			printf("\x1B[5;21HNo Pokemon     ");
-			printf("\x1B[6;21H Empty Slot       ");
-			printf("\x1B[7;21H           ");
-			printf("\x1B[8;21H           ");
-			printf("\x1B[9;21H                ");
-			printf("\x1B[10;21H                ");
+			if (PHBank::pKBank()->isPkmEmpty(vPkm))
+			{
+				printf("\x1B[5;21HNo Pokemon                   ");
+				printf("\x1B[6;21H                             ");
+				printf("\x1B[7;21H Empty Slot                  ");
+				printf("\x1B[8;21H                             ");
+				printf("\x1B[9;21H                             ");
+				printf("\x1B[10;21H                             ");
+			}
+			else
+			{
+				printf("\x1B[5;21HCurrent Pokemon              ");
+				printf("\x1B[6;21H                             ");
+				printf("\x1B[6;21H %s%s", vPkm->species, (vPkm->isShiny ? " *" : " "));
+				printf("\x1B[7;21H T/S ID: %-5u|%-5u", vPkm->TID, vPkm->SID);
+				printf("\x1B[8;21H PID: %-4lx -- PSV: %-5u     ", vPkm->PID, vPkm->PSV);
+				printf("\x1B[9;21H                             ");
+				printf("\x1B[10;21H Mv[%03u][%03u][%03u][%03u]      ", vPkm->movesID[0], vPkm->movesID[1], vPkm->movesID[2], vPkm->movesID[3]);
+			}
 		}
 		else
 		{
-			printf("\x1B[5;21HCurrent Pokemon ");
-			printf("\x1B[6;21H                  ");
-			printf("\x1B[6;21H %s", vPkm->species);
-			printf("\x1B[7;21H TID: %-5u", vPkm->TID);
-			printf("\x1B[8;21H SID: %-5u", vPkm->SID);
-			printf("\x1B[9;21H PID: %-4lx", vPkm->PID);
-			printf("\x1B[10;21H PSV: %-5u", vPkm->PSV);
+			printf("\x1B[5;21H                              ");
+			printf("\x1B[6;21H                              ");
+			printf("\x1B[7;21H                              ");
+			printf("\x1B[8;21H                              ");
+			printf("\x1B[9;21H                              ");
+			printf("\x1B[10;21H                             ");
 		}
-	}
-	else
-	{
-		printf("\x1B[5;21H               ");
-		printf("\x1B[6;21H                  ");
-		printf("\x1B[7;21H           ");
-		printf("\x1B[8;21H           ");
-		printf("\x1B[9;21H                ");
-		printf("\x1B[10;21H                ");
 	}
 
-	if (sPkm)
 	{
-		if (PHBank::pKBank()->isPkmEmpty(sPkm))
+		if (sPkm)
 		{
-			printf("\x1B[12;21HSelected Pokemon");
-			printf("\x1B[13;21H Empty Slot       ");
-			printf("\x1B[14;21H           ");
-			printf("\x1B[15;21H           ");
-			printf("\x1B[16;21H                ");
-			printf("\x1B[17;21H                ");
+			if (PHBank::pKBank()->isPkmEmpty(sPkm))
+			{
+				printf("\x1B[12;21HSelected Pokemon             ");
+				printf("\x1B[13;21H                             ");
+				printf("\x1B[14;21H Empty Slot                  ");
+				printf("\x1B[15;21H                             ");
+				printf("\x1B[16;21H                             ");
+				printf("\x1B[17;21H                             ");
+			}
+			else
+			{
+				printf("\x1B[12;21HSelected Pokemon             ");
+				printf("\x1B[13;21H                             ");
+				printf("\x1B[13;21H %s%s", sPkm->species, (sPkm->isShiny ? " *" : " "));
+				printf("\x1B[14;21H T/S ID: %-5u|%-5u", sPkm->TID, sPkm->SID);
+				printf("\x1B[15;21H PID: %-4lx -- PSV: %-5u     ", sPkm->PID, sPkm->PSV);
+				printf("\x1B[16;21H                             ");
+				printf("\x1B[17;21H Mv[%03u][%03u][%03u][%03u]      ", sPkm->movesID[0], sPkm->movesID[1], sPkm->movesID[2], sPkm->movesID[3]);
+			}
 		}
 		else
 		{
-			printf("\x1B[12;21HSelected Pokemon");
-			printf("\x1B[13;21H                  ");
-			printf("\x1B[13;21H %s", sPkm->species);
-			printf("\x1B[14;21H TID: %-5u", sPkm->TID);
-			printf("\x1B[15;21H SID: %-5u", sPkm->SID);
-			printf("\x1B[16;21H PID: %-4lx", sPkm->PID);
-			printf("\x1B[17;21H PSV: %-5u", sPkm->PSV);
+			printf("\x1B[12;21HNo Selection                 ");
+			printf("\x1B[13;21H                             ");
+			printf("\x1B[14;21H                             ");
+			printf("\x1B[15;21H                             ");
+			printf("\x1B[16;21H                             ");
+			printf("\x1B[17;21H                             ");
 		}
-	}
-	else
-	{
-		printf("\x1B[12;21HNo Selection    ");
-		printf("\x1B[13;21H                  ");
-		printf("\x1B[14;21H           ");
-		printf("\x1B[15;21H           ");
-		printf("\x1B[16;21H                ");
-		printf("\x1B[17;21H                ");
 	}
 
 	if (cursorType == CursorType::SingleSelect)
@@ -506,12 +510,14 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 				}
 				else
 				{
-					int16_t oldRow = cursorBox.row;
-					int16_t oldCol = cursorBox.col;
+					uint16_t oldRow = cursorBox.row;
+					uint16_t oldCol = cursorBox.col;
 
 					cursorBox.row = ((py - 50) / 35);
 					cursorBox.col = ((px - boxShift) / 35);
 
+					if (oldRow == cursorBox.row && oldCol == cursorBox.col)
+						selectMovePokemon();
 					selectViewPokemon();
 				}
 			}
@@ -631,7 +637,7 @@ void BoxViewer::selectMovePokemon()
 {
 	computeSlot(&cursorBox);
 
-	if ((!sPkm))
+	if (!sPkm)
 	{
 		sPkm = vPkm;
 	}
