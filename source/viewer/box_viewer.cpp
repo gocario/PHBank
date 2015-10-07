@@ -217,6 +217,48 @@ Result BoxViewer::drawTopScreen()
 	}
 
 
+	printf("\x1B[23;0H");
+	printf("--------------------------------------------------");
+
+	if (cursorType == CursorType::MultipleSelect)
+	{
+		if (cursorBox.row == BOX_HEADER_SELECTED) {
+		printf(" Left/Right: M-Box      | Up/Down: M-Inbox        ");
+		} else {
+		if (cursorBox.inBank) {
+		printf(" DPad/Cpad: Move inbox  | LZ/RZ: Swap view to Bank");
+		} else {
+		printf(" DPad/Cpad: Move inbox  | LZ/RZ: Swap view to PC  ");
+		}
+		}
+		printf(" >>         Not currently  implemented         << ");
+		printf(" L/R: Change box        |                         ");
+		printf(" X: Clear screen        |                         ");
+		printf(" Select: Chg Cursor     |> Try the touchscreen :) ");
+		printf(" Start: Open the Exit/Backup menu                 ");
+	}
+	else
+	{
+		if (cursorBox.row == BOX_HEADER_SELECTED) {
+		printf(" Left/Right: M-Box      | Up/Down: M-Inbox        ");
+		} else {
+		if (cursorBox.inBank) {
+		printf(" DPad/Cpad: Move inbox  | LZ/RZ: Swap view to Bank");
+		} else {
+		printf(" DPad/Cpad: Move inbox  | LZ/RZ: Swap view to PC  ");
+		}
+		}
+		printf(" A: Select Pokemon      | B: Cancel Selection     ");
+		if (cursorType == CursorType::SingleSelect) {
+		printf(" L/R: Change box        | Y: Display Pk6 Hex value");
+		} else /*if (cursorType == CursorType::QuickSelect)*/ {
+		printf(" L/R: Change box        | Y: Swap current boxes   ");
+		}
+		printf(" X: Clear screen        |                         ");
+		printf(" Select: Chg Cursor     |> Try the touchscreen :) ");
+		printf(" Start: Open the Exit/Backup menu                 ");
+	}
+
 	if (hasOverlayChild()) { this->child->drawTopScreen(); }
 	return SUCCESS_STEP;
 }
