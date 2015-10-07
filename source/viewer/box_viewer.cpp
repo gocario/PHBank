@@ -157,7 +157,7 @@ Result BoxViewer::drawTopScreen()
 			printf("\x1B[6;21H %s", vPkm->species);
 			printf("\x1B[7;21H TID: %-5u", vPkm->TID);
 			printf("\x1B[8;21H SID: %-5u", vPkm->SID);
-			printf("\x1B[9;21H PID: %-10lu", vPkm->PID);
+			printf("\x1B[9;21H PID: %-4x", vPkm->PID);
 			printf("\x1B[10;21H PSV: %-5u", vPkm->PSV);
 		}
 	}
@@ -189,7 +189,7 @@ Result BoxViewer::drawTopScreen()
 			printf("\x1B[13;21H %s", sPkm->species);
 			printf("\x1B[14;21H TID: %-5u", sPkm->TID);
 			printf("\x1B[15;21H SID: %-5u", sPkm->SID);
-			printf("\x1B[16;21H PID: %-10lu", sPkm->PID);
+			printf("\x1B[16;21H PID: %-4x", sPkm->PID);
 			printf("\x1B[17;21H PSV: %-5u", sPkm->PSV);
 		}
 	}
