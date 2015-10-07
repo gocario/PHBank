@@ -557,13 +557,13 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 					selectViewPokemon();
 					selectMovePokemon();
 					selectViewPokemon();
-
-					isPkmDragged = false;
 				}
 				else
 				{
 					sPkm = NULL;
 				}
+
+				isPkmDragged = false;
 			}
 		}
 	}

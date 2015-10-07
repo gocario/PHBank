@@ -471,12 +471,17 @@ void PKBank::moveBox(uint16_t boxID_1, bool inBank_1, uint16_t boxID_2, bool inB
 bool PKBank::filterPkm(pkm_t* pkm)
 // --------------------------------------------------
 {
+	// consoleClear();
+	// printf("\x1B[0;0HFiltering Pokémon\n");
 	bool isFiltered = true;
 	isFiltered &= PKFilter::filterItemID(pkm->itemID);
 	for (uint8_t i = 0; i < 4; i++)
 		isFiltered &= PKFilter::filterMoveID(pkm->movesID[i]);
 	isFiltered &= PKFilter::filterAbilityID(pkm->abilityID);
 	isFiltered &= PKFilter::filterSchoolGirlPikachu(pkm->speciesID, pkm->formID);
+
+	// printf("Filtering: %s\n", (isFiltered ? "allowed" : "forbidden"));
+	// waitKey(KEY_A);
 	return isFiltered;
 }
 

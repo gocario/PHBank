@@ -1,5 +1,6 @@
 #include "pkfilter.hpp"
 
+#include <stdio.h>
 
 // --------------------------------------------------
 bool PKFilter::filterItemID(uint16_t itemID)
@@ -20,6 +21,7 @@ bool PKFilter::filterItemID(uint16_t itemID)
 			isFiltered = false;
 	}
 
+	// printf(/*\x1B[1;0H*/" Item[%x] %s\n", itemID, (isFiltered ? "allowed" : "forbidden"));
 	return isFiltered;
 }
 
@@ -28,7 +30,7 @@ bool PKFilter::filterItemID(uint16_t itemID)
 bool PKFilter::filterMoveID(uint16_t moveID)
 // --------------------------------------------------
 {
-	uint16_t moveCount = 64;
+	uint16_t moveCount = 4;
 	uint16_t moveFilterList[moveCount] = {
 		0x26a, 0x26b, 0x26c, 0x26d
 	};
@@ -41,6 +43,8 @@ bool PKFilter::filterMoveID(uint16_t moveID)
 		if (moveFilterList[i] == moveID)
 			isFiltered = false;
 	}
+
+	// printf(/*\x1B[1;0H*/" Move[%x] %s\n", moveID, (isFiltered ? "allowed" : "forbidden"));
 	return isFiltered;
 }
 
@@ -49,6 +53,7 @@ bool PKFilter::filterMoveID(uint16_t moveID)
 bool PKFilter::filterAbilityID(uint16_t abilityID)
 // --------------------------------------------------
 {
+	// printf(/*\x1B[1;0H*/" Ability[%x] %s\n", abilityID, (true ? "allowed" : "forbidden"));
 	return true;
 
 	// uint16_t abilityCount = 64;
@@ -76,6 +81,7 @@ bool PKFilter::filterSchoolGirlPikachu(uint16_t speciesID, uint16_t formID)
 
 	isFiltered = !(speciesID == 25 && formID > 0);
 	
+	// printf(/*\x1B[1;0H*/" School girl %s\n", (isFiltered ? "allowed" : "forbidden"));
 	return isFiltered;
 }
 
