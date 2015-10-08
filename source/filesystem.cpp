@@ -159,7 +159,7 @@ Result FS_filesysInit(Handle* sdHandle, Handle* saveHandle, FS_archive* sdArchiv
 	if (ret) return ret;
 
 	printf("  Opening SD Card archive\n");
-	*sdArchive = (FS_archive){0x9, (FS_path){PATH_EMPTY, 1, (u8*)""}, 0, 0};
+	*sdArchive = (FS_archive){ARCH_SDMC, (FS_path){PATH_EMPTY, 1, (u8*)""}, 0, 0};
 	ret = FSUSER_OpenArchive(sdHandle, sdArchive);
 	if (ret) return ret;
 
@@ -172,7 +172,7 @@ Result FS_filesysInit(Handle* sdHandle, Handle* saveHandle, FS_archive* sdArchiv
 	if (ret) return ret;
 
 	printf("  Opening save archive\n");
-	*saveArchive = (FS_archive){0x4, (FS_path){PATH_EMPTY, 0, NULL}, 0, 0};
+	*saveArchive = (FS_archive){ARCH_SAVEDATA, (FS_path){PATH_EMPTY, 0, NULL}, 0, 0};
 	ret = FSUSER_OpenArchive(saveHandle, saveArchive);
 	return ret;
 }

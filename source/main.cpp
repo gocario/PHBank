@@ -9,6 +9,7 @@
 #include "phbank.hpp"
 #include "filesystem.hpp"
 #include "box_viewer.hpp"
+#include "ultra_box_viewer.hpp"
 #include "viewer.hpp"
 
 void waitKey(u32 keyWait)
@@ -45,11 +46,11 @@ int main(int argc, char* argv[])
 
 
 	PKData::load(&sdHandle, &sdArchive);
-	
+	Viewer* viewer = new BoxViewer();
 	if (!PHBank::pKBank()->load(fs, &sdHandle, &saveHandle, &sdArchive, &saveArchive))
 	{
 		consoleClear();
-		Result ret = Viewer::startMainLoop(new BoxViewer());
+		Result ret = Viewer::startMainLoop(/*new UltraBoxViewer(*/viewer/*)*/);
 
 		if (ret == StateView::Saving)
 		{
@@ -65,6 +66,7 @@ int main(int argc, char* argv[])
 	// printf("\n\nProgram terminated, press A\n");
 	// waitKey(KEY_A);
 
+	delete viewer;
 	PHBank::destroy();
 	FS_filesysExit(&sdHandle, &saveHandle, &sdArchive, &saveArchive);
 	sf2d_fini();

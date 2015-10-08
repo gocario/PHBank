@@ -1,5 +1,6 @@
 #include "box_viewer.hpp"
 
+#include "ultra_box_viewer.hpp"
 #include "savexit_viewer.hpp"
 #include "box_background.h"
 #include "box_icons.h"
@@ -394,7 +395,7 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 // --------------------------------------------------
 {
 	if (hasRegularChild() || hasOverlayChild()) { if (this->child->updateControls(kDown, kHeld, kUp, touch) == PARENT_STEP); else return CHILD_STEP; }
-		
+	
 	if (kDown & KEY_START)
 	{
 		new SavexitViewer(StateView::Overlay, this);
@@ -429,7 +430,7 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 			boxShift = (cursorBox.inBank ? PC_BOX_SHIFT_UNUSED : BK_BOX_SHIFT_UNUSED);
 			if (touchWithin(touch->px, touch->py, boxShift, 20, BACKGROUND_WIDTH, BACKGROUND_HEIGHT)) { cursorBox.inBank = !cursorBox.inBank; boolMod = true; }
 		}
-		if (kHeld & KEY_TOUCH)
+		else if (kHeld & KEY_TOUCH)
 		{
 			if (isPkmDragged)
 			{
@@ -523,7 +524,14 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 	}
 	else if (cursorType == CursorType::MultipleSelect)
 	{
-
+		if (kDown & KEY_Y)
+		{
+			// computeSlot(&cursorBox);
+			new UltraBoxViewer(StateView::Regular, this);
+			((UltraBoxViewer*) child)->selectViewBox(*cursorBox.box, cursorBox.inBank);
+			child->initialize();
+			return CHILD_STEP;
+		}
 	}
 	
 
@@ -599,13 +607,12 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 
 					selectViewPokemon();
 					selectMovePokemon();
-					// selectViewPokemon(); TODO
 				}
 				else
 				{
 					cancelMovePokemon();
-					injectBoxSlot(&cursorBox, &sSlot);
-					selectViewBox();
+					// injectBoxSlot(&cursorBox, &sSlot); // Maybe not... ?
+					// selectViewBox(); // ... ?
 					selectViewPokemon();
 				}
 
@@ -615,6 +622,25 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 	}
 
 	return SUCCESS_STEP;
+}
+
+
+// --------------------------------------------------
+void BoxViewer::selectViewBox(uint16_t boxID, bool inBank)
+// --------------------------------------------------
+{
+	bool BK = cursorBox.inBank;
+	cursorBox.inBank = inBank;
+
+	if (inBank)
+		cursorBox.boxBK = boxID;
+	else
+		cursorBox.boxPC = boxID;
+
+	selectViewBox();
+
+	cursorBox.inBank = BK;
+	selectViewBox();
 }
 
 

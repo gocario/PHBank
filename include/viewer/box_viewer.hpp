@@ -75,6 +75,7 @@ class BoxViewer : public Viewer
 		Result drawBotScreen() override;
 		Result updateControls(const u32& kDown = 0, const u32& kHeld = 0, const u32& kUp = 0, const touchPosition* touch = NULL) override;
 
+		void selectViewBox(uint16_t boxID, bool inBank = false);
 	private:
 		sf2d_texture* background = NULL;
 		sf2d_texture* icons = NULL;
