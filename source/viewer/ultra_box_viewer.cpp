@@ -5,7 +5,7 @@
 #define SCREEN_WIDTH 320
 #define SCREEN_HEIGHT 240
 
-#define ROWCOUNT 6
+#define ROWCOUNT 5
 #define COLCOUNT 8
 
 
@@ -179,10 +179,10 @@ Result UltraBoxViewer::updateControls(const u32& kDown, const u32& kHeld, const 
 			cursorUBox.row += rowMod;
 			cursorUBox.col += colMod;
 
-			if (cursorUBox.row < 0) cursorUBox.row = rowCount-1;
-			else if (cursorUBox.row > rowCount-1) cursorUBox.row = 0;
+			if (cursorUBox.row < 0) { if (cursorUBox.col > colCount-1) cursorUBox.row = rowCount-2; else cursorUBox.row = rowCount-1; }
+			else if (cursorUBox.row > rowCount-1) { cursorUBox.row = 0; }
+			else if (cursorUBox.row > rowCount-2) { if (cursorUBox.col > colCount-1) if (colMod) cursorUBox.row = rowCount-1; else cursorUBox.row = 0; else cursorUBox.row = rowCount-1; }
 
-			// TODO: If row is on a forbidden col
 
 			if (cursorUBox.col < 0) cursorUBox.col = currentColCount(cursorUBox.row)-1;
 			else if (cursorUBox.col > currentColCount(cursorUBox.row)-1) cursorUBox.col = 0;
@@ -196,43 +196,17 @@ Result UltraBoxViewer::updateControls(const u32& kDown, const u32& kHeld, const 
 			{
 				if (cursorUBox.row < rowCount -2)
 				{
-					printf("Aim: center\n");
 					offsetTop = (cursorUBox.row -2)  * 40;	
 				}
 				if (cursorUBox.row > rowCount - 3)
 				{
-					printf("Aim: bottom\n");
-
 					offsetTop = (rowCount - 5) * 40;
 				}
-
 				if (cursorUBox.row < 2)
 				{
-					printf("Aim: top\n");
 					offsetTop = 0;
 				}
 			}
-			// if ((cursorUBox.row) * 40 < 40)
-			// {
-			// 	offsetTop = 0;
-			// }
-			// else
-			// {
-			// 	offsetTop = (cursorUBox.row-1) * 40;
-			// }
-
-			// if (cursorUBox.row == 0)
-			// {
-			// 	offsetTop = 0;
-			// }
-			// else if (cursorUBox.row == 1)
-			// {
-			// 	offsetTop = (cursorUBox.row-1) * 40;
-			// }
-			// else if (cursorUBox.row == rowCount)
-			// {
-			// 	offsetTop = (cursorUBox.row-1) * 40;
-			// }
 
 			boolMod = true;
 		}
@@ -297,8 +271,8 @@ Result UltraBoxViewer::updateControls(const u32& kDown, const u32& kHeld, const 
 
 				if (offsetTop < 0)
 					offsetTop = 0;
-				else if (offsetTop + SCREEN_HEIGHT > (40 * rowCount))
-					offsetTop = (40 * rowCount) - SCREEN_HEIGHT;
+				else if (offsetTop + 40 * 5 > 40 * (rowCount+1) - marginBottom)
+					offsetTop = 40 * (rowCount+1) - (40 * 5) - marginBottom;
 			}
 		}
 		else if (kUp & KEY_TOUCH)

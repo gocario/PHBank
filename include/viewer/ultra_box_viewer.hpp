@@ -40,6 +40,7 @@ class UltraBoxViewer : public Viewer
 		uint16_t rowCount;
 		uint16_t colCount;
 
+		int16_t marginBottom = 40;
 		int16_t offsetTop = 0;
 		int16_t offsetLeft = 0;
 		int16_t originalOffsetTop = 0;
