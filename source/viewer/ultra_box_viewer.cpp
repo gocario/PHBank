@@ -62,18 +62,19 @@ Result UltraBoxViewer::initialize()
 {
 	if (hasChild()) { if (child->initialize() == PARENT_STEP) ; else return CHILD_STEP; }
 	// Viewer::initialize(); // Not useful here!
-	
+
 	consoleClear();
 	printf("Initialize();\n");
 	computeSlot(&cursorUBox);
 	selectViewBox();
 
-	boxCount = (cursorUBox.inBank ? BANK_BOXCOUNT : PC_BOXCOUNT);
+	boxCount = (!cursorUBox.inBank ? BANK_BOXCOUNT : PC_BOXCOUNT); // DEBUG
+	// boxCount = (CursorUBox_tx.inBank ? BANK_BOXCOUNT : PC_BOXCOUNT);
 	rowCount = (boxCount / COLCOUNT) + 1;
 	colCount = (boxCount % COLCOUNT);
 
 	printf("\x1B[8;0H[%i | %i | %i]", boxCount, rowCount, colCount);
-	
+
 	return SUCCESS_STEP;
 }
 
@@ -138,6 +139,8 @@ Result UltraBoxViewer::drawBotScreen()
 		// printf("\n");
 	}
 
+	sf2d_draw_rectangle(0, 5 * 40, 320, 40, RGBA8(0xFF, 0xFF, 0xFF, 0xFF));
+
 	if (hasOverlayChild()) { child->drawBotScreen(); }
 	return SUCCESS_STEP;
 }
@@ -149,12 +152,15 @@ Result UltraBoxViewer::updateControls(const u32& kDown, const u32& kHeld, const 
 {
 	if (hasRegularChild() || hasOverlayChild()) { if (child->updateControls(kDown, kHeld, kUp, touch) == PARENT_STEP); else return CHILD_STEP; }
 	// Viewer::updateControls(kDown, kHeld, kUp);
-	
+
 	if (kDown & KEY_B)
 	{
-		this->setLStateView(StateView::Exiting);
-		consoleClear();
-		return close();
+		return closeViewer(false);
+	}
+
+	if (kDown & KEY_A)
+	{
+		return closeViewer(true);
 	}
 
 
@@ -163,8 +169,8 @@ Result UltraBoxViewer::updateControls(const u32& kDown, const u32& kHeld, const 
 		int16_t rowMod = 0;
 		int16_t colMod = 0;
 
-		if (kDown & KEY_UP) rowMod--;
-		else if (kDown & KEY_DOWN) rowMod++;
+		if (kDown & KEY_UP) { rowMod--; offsetTop -= 40; }
+		else if (kDown & KEY_DOWN) { rowMod++; offsetTop += 40; }
 
 		if (kDown & KEY_LEFT) colMod--;
 		else if (kDown & KEY_RIGHT) colMod++;
@@ -177,8 +183,57 @@ Result UltraBoxViewer::updateControls(const u32& kDown, const u32& kHeld, const 
 			if (cursorUBox.row < 0) cursorUBox.row = rowCount-1;
 			else if (cursorUBox.row > rowCount-1) cursorUBox.row = 0;
 
-			if (cursorUBox.col < 0) cursorUBox.col = COLCOUNT-1;
-			else if (cursorUBox.col > COLCOUNT-1) cursorUBox.col = 0;
+			// TODO: If row is on a forbidden col
+
+			if (cursorUBox.col < 0) cursorUBox.col = currentColCount(cursorUBox.row)-1;
+			else if (cursorUBox.col > currentColCount(cursorUBox.row)-1) cursorUBox.col = 0;
+
+
+			if (rowCount < 6)
+			{
+				offsetTop = 0;
+			}
+			else
+			{
+				if (cursorUBox.row < rowCount -2)
+				{
+					printf("Aim: center\n");
+					offsetTop = (cursorUBox.row -2)  * 40;	
+				}
+				if (cursorUBox.row > rowCount - 3)
+				{
+					printf("Aim: bottom\n");
+
+					offsetTop = (rowCount - 5) * 40;
+				}
+
+				if (cursorUBox.row < 2)
+				{
+					printf("Aim: top\n");
+					offsetTop = 0;
+				}
+			}
+			// if ((cursorUBox.row) * 40 < 40)
+			// {
+			// 	offsetTop = 0;
+			// }
+			// else
+			// {
+			// 	offsetTop = (cursorUBox.row-1) * 40;
+			// }
+
+			// if (cursorUBox.row == 0)
+			// {
+			// 	offsetTop = 0;
+			// }
+			// else if (cursorUBox.row == 1)
+			// {
+			// 	offsetTop = (cursorUBox.row-1) * 40;
+			// }
+			// else if (cursorUBox.row == rowCount)
+			// {
+			// 	offsetTop = (cursorUBox.row-1) * 40;
+			// }
 
 			boolMod = true;
 		}
@@ -213,12 +268,7 @@ Result UltraBoxViewer::updateControls(const u32& kDown, const u32& kHeld, const 
 
 				if (cursorUBox.row == oldRow && cursorUBox.col == oldCol)
 				{
-					printf("\x1B[11;20HEgales         \n");
-					selectMoveBox();
-					this->setLStateView(StateView::Exiting);
-					// parent->setLStateView(StateView::Exiting);
-					consoleClear();
-					return close();
+					return closeViewer(true);
 				}
 				else if (cursorUBox.row < 0 || cursorUBox.row > (rowCount-1) || cursorUBox.col < 0 || cursorUBox.col > (currentColCount(cursorUBox.row)-1))
 				{
@@ -315,7 +365,22 @@ bool UltraBoxViewer::selectMoveBox()
 }
 
 
+// --------------------------------------------------
 int16_t UltraBoxViewer::currentColCount(int16_t row)
+// --------------------------------------------------
 {
 	return (row == rowCount - 1 ? colCount : COLCOUNT);
+}
+
+
+// --------------------------------------------------
+Result UltraBoxViewer::closeViewer(bool save)
+// --------------------------------------------------
+{
+	if (save)
+		selectMoveBox();
+	this->setLStateView(StateView::Exiting);
+	// parent->setLStateView(StateView::Exiting);
+	consoleClear();
+	return close();
 }

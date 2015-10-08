@@ -463,6 +463,7 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 
 		if (boolMod)
 		{
+			currentBox(&cursorBox);
 			selectViewBox();
 			selectViewPokemon();
 		}

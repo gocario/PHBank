@@ -48,6 +48,7 @@ class UltraBoxViewer : public Viewer
 		bool selectViewBox();
 		bool selectMoveBox();
 		int16_t currentColCount(int16_t row);
+		Result closeViewer(bool save = false);
 };
 
 
