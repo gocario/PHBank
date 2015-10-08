@@ -68,8 +68,7 @@ Result UltraBoxViewer::initialize()
 	computeSlot(&cursorUBox);
 	selectViewBox();
 
-	boxCount = (!cursorUBox.inBank ? BANK_BOXCOUNT : PC_BOXCOUNT); // DEBUG
-	// boxCount = (CursorUBox_tx.inBank ? BANK_BOXCOUNT : PC_BOXCOUNT);
+	boxCount = (cursorUBox.inBank ? BANK_BOXCOUNT : PC_BOXCOUNT);
 	rowCount = (boxCount / COLCOUNT) + 1;
 	colCount = (boxCount % COLCOUNT);
 
