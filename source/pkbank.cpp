@@ -1,6 +1,7 @@
 #include "pkbank.hpp"
 
 #include <time.h>
+#include <stdlib.h>
 
 #include "pkdata.hpp"
 
@@ -682,11 +683,8 @@ Result PKBank::saveSaveFile(Result fs, Handle *fsHandle, FS_archive *fsArchive)
 	ret = FS_deleteFile(path, fsHandle, fsArchive);
 
 	printf("Writing savefile... ");
-// #ifdef SAVEFROMSDROOT
-// 	 	ret = FS_saveFile(path, this->savebuffer, size, fsArchive, fsHandle, &bytesWritten);
-// #else
-		ret = FS_saveSFile(path, this->savebuffer, size, fsArchive, fsHandle, &bytesWritten);
-// #endif
+	ret = FS_saveSFile(path, this->savebuffer, size, fsArchive, fsHandle, &bytesWritten);
+
 	if (ret) printf(" ERROR\n");
 	else printf(" OK\n  Written %ld bytes\n", bytesWritten);
 
@@ -786,8 +784,10 @@ Result PKBank::loadSaveData()
 	savedata->SID = *(uint16_t*)(savebuffer + trainerCardOffset + 0x2);
 	savedata->TSV = computeTSV(savedata->TID, savedata->SID);
 
-	for (uint32_t i = 0; i < 0x1a; i += 2)
-		savedata->OTName[i / 2] = *(uint8_t*) (savebuffer + trainerCardOffset + 0x48 + i);
+	savedata->OTGender = *(uint8_t*) (savebuffer + trainerCardOffset + 0x05);
+	for (uint32_t i = 0; i < 0x18; i ++)
+		savedata->OTName[i] = *(uint8_t*) (savebuffer + trainerCardOffset + 0x48 + i);
+
 
 	printf(" OK!\n");
 	#pragma GCC diagnostic pop
@@ -904,6 +904,8 @@ void PKBank::loadPkmPk6(pkm_t* pkm)
 	pkm->species = PKData::species(pkm->speciesID);
 	pkm->TID = *(uint16_t*)(pkm->pk6 + 0x0c);
 	pkm->SID = *(uint16_t*)(pkm->pk6 + 0x0e);
+	pkm->gender = ((*(uint8_t*)(pkm->pk6 + 0x1d) >> 1) & 0x3);
+	pkm->formID = ((*(uint8_t*)(pkm->pk6 + 0x1d) >> 3));
 	pkm->abilityID = *(uint8_t*)(pkm->pk6 + 0x14);
 	pkm->abilityNUmberID = *(uint8_t*)(pkm->pk6 + 0x15);
 	pkm->PID = *(uint32_t*)(pkm->pk6 + 0x18);
@@ -912,12 +914,27 @@ void PKBank::loadPkmPk6(pkm_t* pkm)
 	pkm->movesID[1] = *(uint16_t*)(pkm->pk6 + 0x5c);
 	pkm->movesID[2] = *(uint16_t*)(pkm->pk6 + 0x5e);
 	pkm->movesID[3] = *(uint16_t*)(pkm->pk6 + 0x60);
-	pkm->gender = ((*(uint8_t*)(pkm->pk6 + 0x1d) >> 1) & 0x3);
-	pkm->formID = ((*(uint8_t*)(pkm->pk6 + 0x1d) >> 3));
+	for (uint32_t i = 0; i < 0x18; i++)
+		pkm->HTName[i] = *(uint8_t*)(pkm->pk6 + 0x78 + i);
+	pkm->HTGender = *(uint8_t*)(pkm->pk6 + 0x92);
+	pkm->currentHandler = *(uint8_t*)(pkm->pk6 + 0x93);
+	for (uint32_t i = 0; i < 0x4; i++) {
+		pkm->GEORegion[i] = *(uint8_t*)(pkm->pk6 + 0x94 + i);
+		pkm->GEOCountry[i] = *(uint8_t*)(pkm->pk6 + 0x95 + i);
+	}
+	pkm->HTFriendship = *(uint8_t*)(pkm->pk6 + 0xa2);
+	pkm->HTAffection = *(uint8_t*)(pkm->pk6 + 0xa3);
+	pkm->HTIntensity = *(uint8_t*)(pkm->pk6 + 0xa4);
+	pkm->HTMemory = *(uint8_t*)(pkm->pk6 + 0xa5);
+	pkm->HTFeeling = *(uint8_t*)(pkm->pk6 + 0xa6);
+	pkm->HTTextVar = *(uint16_t*)(pkm->pk6 + 0xa8);
+	pkm->fullness = *(uint8_t*)(pkm->pk6 + 0xae);
+	pkm->enjoyment = *(uint8_t*)(pkm->pk6 + 0xaf);
+	for (uint32_t i = 0; i < 0x18; i++)
+		pkm->OTName[i] = *(uint8_t*)(pkm->pk6 + 0xb0 + i);
 	pkm->origin = *(uint8_t*)(pkm->pk6 + 0xdf);
 	pkm->lang = *(uint8_t*)(pkm->pk6 + 0xe3);
 	pkm->isShiny = isShiny(pkm->PID, pkm->TID, pkm->SID);
-
 
 	// T O D O !! #Complete
 }
@@ -1064,7 +1081,7 @@ void PKBank::savePkmPC(uint16_t boxId, uint16_t slotId)
 	if (!this->savebuffer || !this->savedata) return;
 
 	pkm_t* pkm = &savedata->pc.box[boxId].slot[slotId];
-	// savePkmPk6(pkm); #if COMMIT_CHEAT_CHANGE
+	savePkmPk6(pkm); // #if COMMIT_CHEAT_CHANGE or convert #Wololo
 	savePk6Ek6(pkm); // #Pokemon stored as Ek6
 	// saveEk6PC(pkm); // #Pokemon stored as Ek6
 }
@@ -1077,7 +1094,7 @@ void PKBank::savePkmBK(uint16_t boxId, uint16_t slotId)
 	if (!this->bankbuffer || !this->bankdata) return;
 
 	pkm_t* pkm = &bankdata->bank.box[boxId].slot[slotId];
-	// savePkmPk6(pkm); #if COMMIT_CHEAT_CHANGE
+	// savePkmPk6(pkm); // #if COMMIT_CHEAT_CHANGE
 	// savePk6Ek6(pkm); // #Pokemon stored as Pk6
 	saveEk6BK(pkm); // #Pokemon stored as Pk6
 }
@@ -1119,12 +1136,28 @@ void PKBank::savePkmPk6(pkm_t* pkm)
 {
 	if (!pkm || !pkm->pk6) return;
 
-	// *(uint16_t*)(pkm->pk6 + 0x08) = pkm->species;
-	// *(uint16_t*)(pkm->pk6 + 0x0c) = pkm->TID;
-	// *(uint16_t*)(pkm->pk6 + 0x0e) = pkm->SID;
-	// *(uint16_t*)(pkm->pk6 + 0x18) = pkm->PID;
 
-	// T O D O !! #Complete
+	if (pkm->modified)
+	{
+		for (uint32_t i = 0; i < 0x18; i++)
+			*(uint8_t*)(pkm->pk6 + 0x78 + i) = pkm->HTName[i];
+		*(uint8_t*)(pkm->pk6 + 0x92) = pkm->HTGender;
+		*(uint8_t*)(pkm->pk6 + 0x93) = pkm->currentHandler;
+		for (uint32_t i = 0; i < 0x4; i++) {
+			*(uint8_t*)(pkm->pk6 + 0x94 + i) = pkm->GEORegion[i];
+			*(uint8_t*)(pkm->pk6 + 0x95 + i) = pkm->GEOCountry[i];
+		}
+		*(uint8_t*)(pkm->pk6 + 0xa2) = pkm->HTFriendship;
+		*(uint8_t*)(pkm->pk6 + 0xa3) = pkm->HTAffection;
+		*(uint8_t*)(pkm->pk6 + 0xa4) = pkm->HTIntensity;
+		*(uint8_t*)(pkm->pk6 + 0xa5) = pkm->HTMemory;
+		*(uint8_t*)(pkm->pk6 + 0xa6) = pkm->HTFeeling;
+		*(uint16_t*)(pkm->pk6 + 0xa8) = pkm->HTTextVar;
+		*(uint8_t*)(pkm->pk6 + 0xae) = pkm->fullness;
+		*(uint8_t*)(pkm->pk6 + 0xaf) = pkm->enjoyment;
+
+		// T O D O !! #Complete
+	}
 }
 
 
@@ -1244,9 +1277,40 @@ void PKBank::editBankBuffer(uint32_t pos, uint8_t* ptr, uint32_t size)
 
 
 // ==================================================
-void PKBank::loadDexPkm(pkm_t* pkm)
+void PKBank::convertPkmTrainer(pkm_t* pkm)
 // --------------------------------------------------
 {
+	srand(time(NULL));
+	if (pkm->TID != savedata->TID && pkm->SID != savedata->TID)
+	{
+		for (uint32_t i = 0; i < 0x18; i ++)
+			pkm->HTName[i] = savedata->OTName[i];
+		pkm->HTGender = savedata->OTGender;
+		pkm->currentHandler = 0x01;
+		pkm->GEORegion[4] = pkm->GEORegion[3];
+		pkm->GEOCountry[4] = pkm->GEOCountry[3];
+		pkm->GEORegion[3] = pkm->GEORegion[2];
+		pkm->GEOCountry[3] = pkm->GEOCountry[2];
+		pkm->GEORegion[2] = pkm->GEORegion[1];
+		pkm->GEOCountry[2] = pkm->GEOCountry[1];
+		pkm->GEORegion[1] = pkm->GEORegion[0];
+		pkm->GEOCountry[1] = pkm->GEOCountry[0];
+		pkm->GEORegion[0] = savedata->GEORegion;
+		pkm->GEOCountry[0] = savedata->GEOCountry;
+		pkm->HTFriendship = 70; // pkm->OTFriendship; // TODO http://bulbapedia.bulbagarden.net/wiki/List_of_Pok%C3%A9mon_by_base_friendship
+		pkm->HTAffection = 0x00;
+		pkm->HTIntensity = 0x01;
+		pkm->HTMemory = 0x04;
+		pkm->HTFeeling = rand() % 0xa;
+		pkm->HTTextVar = 0x0000;
+
+		pkm->modified = true;
+	}
+	else if (pkm->currentHandler == 0x01)
+	{
+		pkm->currentHandler = 0x00;
+		pkm->modified = true;
+	}
 
 }
 
