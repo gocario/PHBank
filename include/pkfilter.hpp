@@ -12,6 +12,7 @@ class PKFilter
 		static bool filterAbilityID(uint16_t abilityID);
 		static bool filterSchoolGirlPikachu(uint16_t speciesID, uint16_t formID);
 
+		static uint8_t getBaseFriendship(uint16_t speciesID);
 };
 
 

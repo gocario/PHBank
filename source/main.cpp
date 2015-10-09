@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include <math.h>
+#include <stdlib.h>
 
 #include "main.hpp"
 #include "phbank.hpp"
@@ -44,13 +44,14 @@ int main(int argc, char* argv[])
 	else printf("Init FS OK\n");
 
 
+	srand(time(NULL));
 
 	PKData::load(&sdHandle, &sdArchive);
 	Viewer* viewer = new BoxViewer();
 	if (!PHBank::pKBank()->load(fs, &sdHandle, &saveHandle, &sdArchive, &saveArchive))
 	{
 		consoleClear();
-		Result ret = Viewer::startMainLoop(/*new UltraBoxViewer(*/viewer/*)*/);
+		Result ret = Viewer::startMainLoop(/*new UltraBoxViewer(viewer)*/viewer);
 
 		if (ret == StateView::Saving)
 		{

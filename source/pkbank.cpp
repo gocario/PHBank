@@ -437,14 +437,19 @@ void PKBank::movePkm(pkm_t* src, pkm_t* dst, bool srcBanked, bool dstBanked)
 	if (dstBanked && !isPkmEmpty(src) && !filterPkm(src))
 		{ printf("No! (src)"); return; }
 
+	if (srcBanked && !dstBanked)
+		convertPkmTrainer(src);
+	if (!srcBanked && dstBanked)
+		convertPkmTrainer(dst);
+
 	movePkm(src, dst);
 
 	if (gametype == Game::ORAS)
 	{
-		if (!srcBanked)
-			addDex(dst);
-		if (!dstBanked)
+		if (srcBanked && !dstBanked)
 			addDex(src);
+		if (!srcBanked && dstBanked)
+			addDex(dst);
 	}
 }
 
@@ -1280,36 +1285,40 @@ void PKBank::editBankBuffer(uint32_t pos, uint8_t* ptr, uint32_t size)
 void PKBank::convertPkmTrainer(pkm_t* pkm)
 // --------------------------------------------------
 {
-	srand(time(NULL));
-	if (pkm->TID != savedata->TID && pkm->SID != savedata->TID)
+	// If the Pokémon isn't already modified.
+	// Modified it.
+	if (!pkm->modified)
 	{
-		for (uint32_t i = 0; i < 0x18; i ++)
-			pkm->HTName[i] = savedata->OTName[i];
-		pkm->HTGender = savedata->OTGender;
-		pkm->currentHandler = 0x01;
-		pkm->GEORegion[4] = pkm->GEORegion[3];
-		pkm->GEOCountry[4] = pkm->GEOCountry[3];
-		pkm->GEORegion[3] = pkm->GEORegion[2];
-		pkm->GEOCountry[3] = pkm->GEOCountry[2];
-		pkm->GEORegion[2] = pkm->GEORegion[1];
-		pkm->GEOCountry[2] = pkm->GEOCountry[1];
-		pkm->GEORegion[1] = pkm->GEORegion[0];
-		pkm->GEOCountry[1] = pkm->GEOCountry[0];
-		pkm->GEORegion[0] = savedata->GEORegion;
-		pkm->GEOCountry[0] = savedata->GEOCountry;
-		pkm->HTFriendship = 70; // pkm->OTFriendship; // TODO http://bulbapedia.bulbagarden.net/wiki/List_of_Pok%C3%A9mon_by_base_friendship
-		pkm->HTAffection = 0x00;
-		pkm->HTIntensity = 0x01;
-		pkm->HTMemory = 0x04;
-		pkm->HTFeeling = rand() % 0xa;
-		pkm->HTTextVar = 0x0000;
+		if (pkm->TID != savedata->TID && pkm->SID != savedata->TID)
+		{
+			for (uint32_t i = 0; i < 0x18; i ++)
+				pkm->HTName[i] = savedata->OTName[i];
+			pkm->HTGender = savedata->OTGender;
+			pkm->currentHandler = 0x01;
+			pkm->GEORegion[4] = pkm->GEORegion[3];
+			pkm->GEOCountry[4] = pkm->GEOCountry[3];
+			pkm->GEORegion[3] = pkm->GEORegion[2];
+			pkm->GEOCountry[3] = pkm->GEOCountry[2];
+			pkm->GEORegion[2] = pkm->GEORegion[1];
+			pkm->GEOCountry[2] = pkm->GEOCountry[1];
+			pkm->GEORegion[1] = pkm->GEORegion[0];
+			pkm->GEOCountry[1] = pkm->GEOCountry[0];
+			pkm->GEORegion[0] = savedata->GEORegion;
+			pkm->GEOCountry[0] = savedata->GEOCountry;
+			pkm->HTFriendship = PKFilter::getBaseFriendship(pkm->species); // pkm->OTFriendship; // TODO http://bulbapedia.bulbagarden.net/wiki/List_of_Pok%C3%A9mon_by_base_friendship
+			pkm->HTAffection = 0x00;
+			pkm->HTIntensity = 0x01;
+			pkm->HTMemory = 0x04;
+			pkm->HTFeeling = rand() % 0xa;
+			pkm->HTTextVar = 0x0000;
 
-		pkm->modified = true;
-	}
-	else if (pkm->currentHandler == 0x01)
-	{
-		pkm->currentHandler = 0x00;
-		pkm->modified = true;
+			pkm->modified = true;
+		}
+		else if (pkm->currentHandler == 0x01)
+		{
+			pkm->currentHandler = 0x00;
+			pkm->modified = true;
+		}
 	}
 
 }
