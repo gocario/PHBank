@@ -64,7 +64,7 @@ typedef struct pkm_t
 	
 	u8* species;
 	u8* item;
-	uint16_t checksum;
+	uint16_t checksum; // 0x06
 	uint16_t speciesID; // 0x08
 	uint16_t itemID; // 0x0a
 	uint16_t TID; // 0x0c
@@ -73,11 +73,19 @@ typedef struct pkm_t
 	uint8_t abilityNUmberID; // 0x15
 	uint32_t PID; // 0x18
 	uint16_t PSV;
+	uint8_t gender; // 0x1d >> 1
+	uint8_t formID; // 0x1d >> 3
 	uint8_t nickname[0x18]; // 0x40
 	uint16_t movesID[4]; // 0x5a - 0x60
 	uint16_t relearnMovesID[4]; // 0x6a - 0x70
-	uint8_t gender; // 0x1d >> 1
-	uint8_t formID; // 0x1d >> 3
+	uint8_t ivHP; // 0x73 >> 00 & 0x1F
+	uint8_t ivATK; // 0x73 >> 05 & 0x1F
+	uint8_t ivDEF; // 0x73 >> 10 & 0x1F
+	uint8_t ivSPE; // 0x73 >> 15 & 0x1F
+	uint8_t ivSPA; // 0x73 >> 20 & 0x1F
+	uint8_t ivSPD; // 0x73 >> 25 & 0x1F
+	bool isEgg; // 0x73 >> 30 & 1
+	bool isNicknamed; // 0x73 >> 31 & 1
 	uint8_t HTName[0x18]; // 0x78
 	uint8_t HTGender; // 0x92
 	uint8_t currentHandler; // 0x93

@@ -909,8 +909,8 @@ void PKBank::loadPkmPk6(pkm_t* pkm)
 	pkm->species = PKData::species(pkm->speciesID);
 	pkm->TID = *(uint16_t*)(pkm->pk6 + 0x0c);
 	pkm->SID = *(uint16_t*)(pkm->pk6 + 0x0e);
-	pkm->gender = ((*(uint8_t*)(pkm->pk6 + 0x1d) >> 1) & 0x3);
-	pkm->formID = ((*(uint8_t*)(pkm->pk6 + 0x1d) >> 3));
+	pkm->gender = (((*(uint8_t*)(pkm->pk6 + 0x1d)) >> 1) & 0x3);
+	pkm->formID = (((*(uint8_t*)(pkm->pk6 + 0x1d)) >> 3));
 	pkm->abilityID = *(uint8_t*)(pkm->pk6 + 0x14);
 	pkm->abilityNUmberID = *(uint8_t*)(pkm->pk6 + 0x15);
 	pkm->PID = *(uint32_t*)(pkm->pk6 + 0x18);
@@ -919,6 +919,16 @@ void PKBank::loadPkmPk6(pkm_t* pkm)
 	pkm->movesID[1] = *(uint16_t*)(pkm->pk6 + 0x5c);
 	pkm->movesID[2] = *(uint16_t*)(pkm->pk6 + 0x5e);
 	pkm->movesID[3] = *(uint16_t*)(pkm->pk6 + 0x60);
+	uint32_t IV32 = *(uint32_t*)(pkm->pk6 + 0x74);
+	pkm->ivHP = (IV32 >> 00) & 0x1F;
+	pkm->ivATK = (IV32 >> 05) & 0x1F;
+	pkm->ivDEF = (IV32 >> 10) & 0x1F;
+	pkm->ivSPE = (IV32 >> 15) & 0x1F;
+	pkm->ivSPA = (IV32 >> 20) & 0x1F;
+	pkm->ivSPD = (IV32 >> 25) & 0x1F;
+	pkm->isEgg = ((IV32 >> 30) & 1) == 1;
+	pkm->isNicknamed = ((IV32 >> 31) & 1) == 1;
+
 	for (uint32_t i = 0; i < 0x18; i++)
 		pkm->HTName[i] = *(uint8_t*)(pkm->pk6 + 0x78 + i);
 	pkm->HTGender = *(uint8_t*)(pkm->pk6 + 0x92);
@@ -1305,7 +1315,7 @@ void PKBank::convertPkmTrainer(pkm_t* pkm)
 			pkm->GEOCountry[1] = pkm->GEOCountry[0];
 			pkm->GEORegion[0] = savedata->GEORegion;
 			pkm->GEOCountry[0] = savedata->GEOCountry;
-			pkm->HTFriendship = PKFilter::getBaseFriendship(pkm->species); // pkm->OTFriendship; // TODO http://bulbapedia.bulbagarden.net/wiki/List_of_Pok%C3%A9mon_by_base_friendship
+			pkm->HTFriendship = PKFilter::getBaseFriendship(pkm->speciesID); // pkm->OTFriendship; // TODO http://bulbapedia.bulbagarden.net/wiki/List_of_Pok%C3%A9mon_by_base_friendship
 			pkm->HTAffection = 0x00;
 			pkm->HTIntensity = 0x01;
 			pkm->HTMemory = 0x04;
