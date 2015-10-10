@@ -351,7 +351,7 @@ Result BoxViewer::drawBotScreen()
 			}
 			else // isPkmHeld
 			{
-				sf2d_draw_texture_part(icons, boxShift + 17 + (cursorBox.inslot % 6) * 35, 20 + 13 + (cursorBox.inslot / 6) * 35, ((sPkm->speciesID-1) % 25) * 40, ((sPkm->speciesID-1) / 25) * 30, 40, 30);
+				sf2d_draw_texture_part(icons, boxShift + 12 + (cursorBox.inslot % 6) * 35, 20 + 13 + (cursorBox.inslot / 6) * 35, ((sPkm->speciesID-1) % 25) * 40, ((sPkm->speciesID-1) / 25) * 30, 40, 30);
 			}
 		}
 		else
@@ -726,11 +726,11 @@ void BoxViewer::selectMovePokemon()
 
 	if (!sPkm)
 	{
-		// if (!PHBank::pKBank()->isPkmEmpty(vPkm))
-		// {
+		if (!PHBank::pKBank()->isPkmEmpty(vPkm))
+		{
 			sPkm = vPkm;
 		// 	extractBoxSlot(&cursorBox, &sSlot);
-		// }
+		}
 		if (!isPkmDragged) isPkmHeld = true;
 	}
 	else if (vPkm)
