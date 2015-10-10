@@ -19,6 +19,7 @@ u8 Pokemon::TSV(pkm_t* pkm) { return TID(pkm) ^ SID(pkm) >> 4; }
 bool Pokemon::isShiny(pkm_t* pkm) { return TSV(pkm) == PSV(pkm); }
 bool Pokemon::isInfected(pkm_t* pkm) { return PKRS_strain(pkm) > 0; }
 bool Pokemon::isCured(pkm_t* pkm) { return PKRS_days(pkm) == 0 && PKRS_strain(pkm) > 0; }
+bool Pokemon::isGen6(pkm_t* pkm) { return version(pkm) >= 24; }
 
 
  /** GETTERS **/

@@ -15,6 +15,7 @@ class Pokemon
 		static bool isShiny(pkm_t* pkm);
 		static bool isInfected(pkm_t* pkm);
 		static bool isCured(pkm_t* pkm);
+		static bool isGen6(pkm_t* pkm);
 		
 
 	public:
