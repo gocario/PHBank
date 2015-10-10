@@ -438,10 +438,10 @@ void PKBank::movePkm(pkm_t* src, pkm_t* dst, bool srcBanked, bool dstBanked)
 	if (dstBanked && !isPkmEmpty(src) && !filterPkm(src))
 		{ printf("No! (src)"); return; }
 
-	if (srcBanked && !dstBanked)
-		convertPkmTrainer(src);
-	if (!srcBanked && dstBanked)
-		convertPkmTrainer(dst);
+	// if (srcBanked && !dstBanked)
+	// 	convertPkmTrainer(src);
+	// if (!srcBanked && dstBanked)
+	// 	convertPkmTrainer(dst);
 
 	movePkm(src, dst);
 
