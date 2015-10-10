@@ -355,7 +355,7 @@ gametype_e PKBank::getGame(uint32_t bytesRead)
 bool PKBank::isPkmEmpty(pkm_t* pkm)
 // --------------------------------------------------
 {
-	return (pkm->speciesID == 0x0 && pkm->PID == 0x0);
+	return (Pokemon::speciesID(pkm) == 0x0 && Pokemon::PID(pkm) == 0x0);
 }
 
 
@@ -481,11 +481,13 @@ bool PKBank::filterPkm(pkm_t* pkm)
 	// consoleClear();
 	// printf("\x1B[0;0HFiltering Pokémon\n");
 	bool isFiltered = true;
-	isFiltered &= PKFilter::filterItemID(pkm->itemID);
-	for (uint8_t i = 0; i < 4; i++)
-		isFiltered &= PKFilter::filterMoveID(pkm->movesID[i]);
-	isFiltered &= PKFilter::filterAbilityID(pkm->abilityID);
-	isFiltered &= PKFilter::filterSchoolGirlPikachu(pkm->speciesID, pkm->formID);
+	isFiltered &= PKFilter::filterItemID(Pokemon::itemID(pkm));
+	isFiltered &= PKFilter::filterMoveID(Pokemon::move1(pkm));
+	isFiltered &= PKFilter::filterMoveID(Pokemon::move2(pkm));
+	isFiltered &= PKFilter::filterMoveID(Pokemon::move3(pkm));
+	isFiltered &= PKFilter::filterMoveID(Pokemon::move4(pkm));
+	isFiltered &= PKFilter::filterAbilityID(Pokemon::ability(pkm));
+	isFiltered &= PKFilter::filterSchoolGirlPikachu(Pokemon::speciesID(pkm), Pokemon::form(pkm));
 
 	// printf("Filtering: %s\n", (isFiltered ? "allowed" : "forbidden"));
 	// waitKey(KEY_A);
@@ -558,11 +560,11 @@ void PKBank::addDex(uint16_t speciesID)
 void PKBank::addDex(pkm_t* pkm)
 // --------------------------------------------------
 {
-	uint32_t speciesID = pkm->speciesID;
+	uint32_t speciesID = Pokemon::speciesID(pkm);
 	dex_t &dex = savedata->pokedex.dexes[speciesID-1];
-	bool male = (pkm->gender == 1);
-	bool shiny = this->isShiny(pkm->PID, pkm->TID, pkm->SID);
-	uint8_t lang = pkm->lang;
+	bool male = (Pokemon::gender(pkm) == 1);
+	bool shiny = Pokemon::isShiny(pkm);
+	uint8_t lang = Pokemon::language(pkm);
 
 	if (shiny)
 	{
@@ -906,53 +908,13 @@ void PKBank::loadPkmPk6(pkm_t* pkm)
 {
 	if (!pkm || !pkm->pk6) return;
 
-	pkm->speciesID = *(uint16_t*)(pkm->pk6 + 0x08);
+	pkm->isShiny = Pokemon::isShiny(pkm);
+	pkm->speciesID = Pokemon::speciesID(pkm);
+	pkm->itemID = Pokemon::itemID(pkm);
+
 	pkm->species = PKData::species(pkm->speciesID);
-	pkm->TID = *(uint16_t*)(pkm->pk6 + 0x0c);
-	pkm->SID = *(uint16_t*)(pkm->pk6 + 0x0e);
-	pkm->gender = (((*(uint8_t*)(pkm->pk6 + 0x1d)) >> 1) & 0x3);
-	pkm->formID = (((*(uint8_t*)(pkm->pk6 + 0x1d)) >> 3));
-	pkm->abilityID = *(uint8_t*)(pkm->pk6 + 0x14);
-	pkm->abilityNumberID = *(uint8_t*)(pkm->pk6 + 0x15);
-	pkm->PID = *(uint32_t*)(pkm->pk6 + 0x18);
-	pkm->PSV = computePSV(pkm->PID);
-	pkm->movesID[0] = *(uint16_t*)(pkm->pk6 + 0x5a);
-	pkm->movesID[1] = *(uint16_t*)(pkm->pk6 + 0x5c);
-	pkm->movesID[2] = *(uint16_t*)(pkm->pk6 + 0x5e);
-	pkm->movesID[3] = *(uint16_t*)(pkm->pk6 + 0x60);
-	uint32_t IV32 = *(uint32_t*)(pkm->pk6 + 0x74);
-	pkm->ivHP = (IV32 >> 00) & 0x1F;
-	pkm->ivATK = (IV32 >> 05) & 0x1F;
-	pkm->ivDEF = (IV32 >> 10) & 0x1F;
-	pkm->ivSPE = (IV32 >> 15) & 0x1F;
-	pkm->ivSPA = (IV32 >> 20) & 0x1F;
-	pkm->ivSPD = (IV32 >> 25) & 0x1F;
-	pkm->isEgg = ((IV32 >> 30) & 1) == 1;
-	pkm->isNicknamed = ((IV32 >> 31) & 1) == 1;
-
-	for (uint32_t i = 0; i < 0x18; i++)
-		pkm->HTName[i] = *(uint8_t*)(pkm->pk6 + 0x78 + i);
-	pkm->HTGender = *(uint8_t*)(pkm->pk6 + 0x92);
-	pkm->currentHandler = *(uint8_t*)(pkm->pk6 + 0x93);
-	for (uint32_t i = 0; i < 0x4; i++) {
-		pkm->GEORegion[i] = *(uint8_t*)(pkm->pk6 + 0x94 + i);
-		pkm->GEOCountry[i] = *(uint8_t*)(pkm->pk6 + 0x95 + i);
-	}
-	pkm->HTFriendship = *(uint8_t*)(pkm->pk6 + 0xa2);
-	pkm->HTAffection = *(uint8_t*)(pkm->pk6 + 0xa3);
-	pkm->HTIntensity = *(uint8_t*)(pkm->pk6 + 0xa4);
-	pkm->HTMemory = *(uint8_t*)(pkm->pk6 + 0xa5);
-	pkm->HTFeeling = *(uint8_t*)(pkm->pk6 + 0xa6);
-	pkm->HTTextVar = *(uint16_t*)(pkm->pk6 + 0xa8);
-	pkm->fullness = *(uint8_t*)(pkm->pk6 + 0xae);
-	pkm->enjoyment = *(uint8_t*)(pkm->pk6 + 0xaf);
-	for (uint32_t i = 0; i < 0x18; i++)
-		pkm->OTName[i] = *(uint8_t*)(pkm->pk6 + 0xb0 + i);
-	pkm->origin = *(uint8_t*)(pkm->pk6 + 0xdf);
-	pkm->lang = *(uint8_t*)(pkm->pk6 + 0xe3);
-	pkm->isShiny = isShiny(pkm->PID, pkm->TID, pkm->SID);
-
-	// T O D O !! #Complete
+	pkm->item = PKData::items(pkm->itemID);
+	// We use the Pokémon class now!
 }
 
 
@@ -1155,47 +1117,7 @@ void PKBank::savePkmPk6(pkm_t* pkm)
 
 	if (pkm->modified)
 	{
-		// for (uint32_t i = 0; i < 0x18; i++)
-		// 	*(uint8_t*)(pkm->pk6 + 0x78 + i) = pkm->HTName[i];
-		// *(uint8_t*)(pkm->pk6 + 0x92) = pkm->HTGender;
-		// *(uint8_t*)(pkm->pk6 + 0x93) = pkm->currentHandler;
-		// for (uint32_t i = 0; i < 0x4; i++) {
-		// 	*(uint8_t*)(pkm->pk6 + 0x94 + i) = pkm->GEORegion[i];
-		// 	*(uint8_t*)(pkm->pk6 + 0x95 + i) = pkm->GEOCountry[i];
-		// }
-		// *(uint8_t*)(pkm->pk6 + 0xa2) = pkm->HTFriendship;
-		// *(uint8_t*)(pkm->pk6 + 0xa3) = pkm->HTAffection;
-		// *(uint8_t*)(pkm->pk6 + 0xa4) = pkm->HTIntensity;
-		// *(uint8_t*)(pkm->pk6 + 0xa5) = pkm->HTMemory;
-		// *(uint8_t*)(pkm->pk6 + 0xa6) = pkm->HTFeeling;
-		// *(uint16_t*)(pkm->pk6 + 0xa8) = pkm->HTTextVar;
-		// *(uint8_t*)(pkm->pk6 + 0xae) = pkm->fullness;
-		// *(uint8_t*)(pkm->pk6 + 0xaf) = pkm->enjoyment;
-
-		Pokemon::HT_name(pkm, pkm->HTName);
-		Pokemon::HT_gender(pkm, pkm->HTGender);
-		Pokemon::currentHandler(pkm, pkm->currentHandler);
-		Pokemon::geo1Region(pkm, pkm->GEORegion[0]);
-		Pokemon::geo2Region(pkm, pkm->GEORegion[1]);
-		Pokemon::geo3Region(pkm, pkm->GEORegion[2]);
-		Pokemon::geo4Region(pkm, pkm->GEORegion[3]);
-		Pokemon::geo5Region(pkm, pkm->GEORegion[4]);
-		Pokemon::geo1Country(pkm, pkm->GEOCountry[0]);
-		Pokemon::geo2Country(pkm, pkm->GEOCountry[1]);
-		Pokemon::geo3Country(pkm, pkm->GEOCountry[2]);
-		Pokemon::geo4Country(pkm, pkm->GEOCountry[3]);
-		Pokemon::geo5Country(pkm, pkm->GEOCountry[4]);
-		Pokemon::HT_friendship(pkm, pkm->HTFriendship);
-		Pokemon::HT_affection(pkm, pkm->HTAffection);
-		Pokemon::HT_intensity(pkm, pkm->HTIntensity);
-		Pokemon::HT_memory(pkm, pkm->HTMemory);
-		Pokemon::HT_feeling(pkm, pkm->HTFeeling);
-		Pokemon::HT_textVar(pkm, pkm->HTTextVar);
-		Pokemon::fullness(pkm, pkm->fullness);
-		Pokemon::enjoyment(pkm, pkm->enjoyment);
-
 		Pokemon::computeChecksum(pkm);
-		// T O D O !! #Complete
 	}
 }
 
@@ -1333,13 +1255,12 @@ void PKBank::convertPkmTrainer(pkm_t* pkm)
 		else
 		{
 			// If it's going back to OT
-			if (pkm->TID == savedata->TID && pkm->SID == savedata->SID && strcmp((char*)pkm->HTName, (char*)savedata->OTName) == 0 && Pokemon::OT_gender(pkm) == savedata->OTGender)
+			if (Pokemon::TID(pkm) == savedata->TID && Pokemon::SID(pkm) == savedata->SID && strcmp((char*)Pokemon::HT_name(pkm), (char*)savedata->OTName) == 0 && Pokemon::OT_gender(pkm) == savedata->OTGender)
 			{
 				// If it's coming back from a non-OT
-				if (pkm->currentHandler == 0x01)
+				if (Pokemon::currentHandler(pkm) == 0x01)
 				{
-					pkm->currentHandler = 0x00;
-					// Pokemon::currentHandler(pkm, 0x00);
+					Pokemon::currentHandler(pkm, 0x00);
 					pkm->modified = true;
 				}
 			}
@@ -1347,16 +1268,16 @@ void PKBank::convertPkmTrainer(pkm_t* pkm)
 			else
 			{
 				// If it is from OT
-				if (pkm->currentHandler == 0x00)
+				if (Pokemon::currentHandler(pkm) == 0x00)
 				{
-					pkm->currentHandler = 0x01;
+					Pokemon::currentHandler(pkm, 0x01);
 					convertPkmHT(pkm);
 				}
 				// If it is from a non-OT
 				else
 				{
 					// If it is not the "same non-OT"
-					if (strcmp((char*)pkm->HTName, (char*)savedata->OTName) != 0)
+					if (strcmp((char*)Pokemon::HT_name(pkm), (char*)savedata->OTName) != 0)
 					{
 						convertPkmHT(pkm);
 					}
@@ -1371,47 +1292,25 @@ void PKBank::convertPkmTrainer(pkm_t* pkm)
 void PKBank::convertPkmHT(pkm_t* pkm)
 // --------------------------------------------------
 {
-	memcpy(pkm->HTName, savedata->OTName, 0x18);
-	pkm->HTGender = savedata->OTGender;
-	pkm->currentHandler = 0x01;
-	pkm->GEORegion[4] = pkm->GEORegion[3];
-	pkm->GEOCountry[4] = pkm->GEOCountry[3];
-	pkm->GEORegion[3] = pkm->GEORegion[2];
-	pkm->GEOCountry[3] = pkm->GEOCountry[2];
-	pkm->GEORegion[2] = pkm->GEORegion[1];
-	pkm->GEOCountry[2] = pkm->GEOCountry[1];
-	pkm->GEORegion[1] = pkm->GEORegion[0];
-	pkm->GEOCountry[1] = pkm->GEOCountry[0];
-	pkm->GEORegion[0] = savedata->GEORegion;
-	pkm->GEOCountry[0] = savedata->GEOCountry;
-	pkm->HTFriendship = PKFilter::getBaseFriendship(pkm->speciesID); // pkm->OTFriendship; // TODO http://bulbapedia.bulbagarden.net/wiki/List_of_Pok%C3%A9mon_by_base_friendship
-	pkm->HTAffection = 0x00;
-	pkm->HTIntensity = 0x01;
-	pkm->HTMemory = 0x04;
-	pkm->HTFeeling = rand() % 0xa;
-	pkm->HTTextVar = 0x0000;
-	// pkm->fullness?
-	// pkm->enjoyment?
-
-	// Pokemon::HT_name(pkm, savedata->OTName);
-	// Pokemon::HT_gender(pkm, savedata->OTGender);
-	// Pokemon::currentHandler(pkm, 0x01);
-	// Pokemon::geo5Region(pkm, Pokemon::geo4Region(pkm));
-	// Pokemon::geo4Region(pkm, Pokemon::geo3Region(pkm));
-	// Pokemon::geo3Region(pkm, Pokemon::geo2Region(pkm));
-	// Pokemon::geo2Region(pkm, Pokemon::geo1Region(pkm));
-	// Pokemon::geo1Region(pkm, savedata->GEORegion);
-	// Pokemon::geo5Country(pkm, Pokemon::geo4Country(pkm));
-	// Pokemon::geo4Country(pkm, Pokemon::geo3Country(pkm));
-	// Pokemon::geo3Country(pkm, Pokemon::geo2Country(pkm));
-	// Pokemon::geo2Country(pkm, Pokemon::geo1Country(pkm));
-	// Pokemon::geo1Country(pkm, savedata->GEOCountry);
-	// Pokemon::HT_friendship(pkm, PKFilter::getBaseFriendship(pkm->speciesID));
-	// Pokemon::HT_affection(pkm, 0x00);
-	// Pokemon::HT_intensity(pkm, 0x01);
-	// Pokemon::HT_memory(pkm, 0x04);
-	// Pokemon::HT_feeling(pkm, rand() % 0xa);
-	// Pokemon::HT_textVar(pkm, 0x0000);
+	Pokemon::HT_name(pkm, savedata->OTName);
+	Pokemon::HT_gender(pkm, savedata->OTGender);
+	Pokemon::currentHandler(pkm, 0x01);
+	Pokemon::geo5Region(pkm, Pokemon::geo4Region(pkm));
+	Pokemon::geo4Region(pkm, Pokemon::geo3Region(pkm));
+	Pokemon::geo3Region(pkm, Pokemon::geo2Region(pkm));
+	Pokemon::geo2Region(pkm, Pokemon::geo1Region(pkm));
+	Pokemon::geo1Region(pkm, savedata->GEORegion);
+	Pokemon::geo5Country(pkm, Pokemon::geo4Country(pkm));
+	Pokemon::geo4Country(pkm, Pokemon::geo3Country(pkm));
+	Pokemon::geo3Country(pkm, Pokemon::geo2Country(pkm));
+	Pokemon::geo2Country(pkm, Pokemon::geo1Country(pkm));
+	Pokemon::geo1Country(pkm, savedata->GEOCountry);
+	Pokemon::HT_friendship(pkm, PKFilter::getBaseFriendship(Pokemon::speciesID(pkm)));
+	Pokemon::HT_affection(pkm, 0x00);
+	Pokemon::HT_intensity(pkm, 0x01);
+	Pokemon::HT_memory(pkm, 0x04);
+	Pokemon::HT_feeling(pkm, rand() % 0xa);
+	Pokemon::HT_textVar(pkm, 0x0000);
 	// Pokemon::fullness(pkm, pkm->fullness);
 	// Pokemon::enjoyment(pkm, pkm->enjoyment);
 

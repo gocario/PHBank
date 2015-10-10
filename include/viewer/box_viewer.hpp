@@ -85,6 +85,7 @@ class BoxViewer : public Viewer
 		CursorType_e cursorType = CursorType::SingleSelect;
 		touchPosition touch;
 		bool isPkmDragged = false;
+		bool isPkmHeld = false;
 		BoxSlot_t sSlot;
 		pkm_t* sPkm = NULL;
 		pkm_t* vPkm = NULL;

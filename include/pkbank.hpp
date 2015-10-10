@@ -64,53 +64,9 @@ typedef struct pkm_t
 	
 	u8* species;
 	u8* item;
-	uint16_t checksum; // 0x06
-	uint16_t speciesID; // 0x08
-	uint16_t itemID; // 0x0a
-	uint16_t TID; // 0x0c
-	uint16_t SID; // 0x0e
-	uint8_t abilityID; // 0x14
-	uint8_t abilityNumberID; // 0x15
-	uint32_t PID; // 0x18
-	uint16_t PSV;
-	uint8_t gender; // 0x1d >> 1
-	uint8_t formID; // 0x1d >> 3
-	uint8_t nickname[0x18]; // 0x40
-	uint16_t movesID[4]; // 0x5a - 0x60
-	uint16_t relearnMovesID[4]; // 0x6a - 0x70
-	uint8_t ivHP; // 0x73 >> 00 & 0x1F
-	uint8_t ivATK; // 0x73 >> 05 & 0x1F
-	uint8_t ivDEF; // 0x73 >> 10 & 0x1F
-	uint8_t ivSPE; // 0x73 >> 15 & 0x1F
-	uint8_t ivSPA; // 0x73 >> 20 & 0x1F
-	uint8_t ivSPD; // 0x73 >> 25 & 0x1F
-	bool isEgg; // 0x73 >> 30 & 1
-	bool isNicknamed; // 0x73 >> 31 & 1
-	uint8_t HTName[0x18]; // 0x78
-	uint8_t HTGender; // 0x92
-	uint8_t currentHandler; // 0x93
-	uint8_t GEORegion[5]; // 0x94 - 0x9c
-	uint8_t GEOCountry[5]; // 0x95 - 0x9d
-	uint8_t HTFriendship; // 0xa2
-	uint8_t HTAffection; // 0xa3
-	uint8_t HTIntensity; // 0xa4
-	uint8_t HTMemory; // 0xa5
-	uint8_t HTFeeling; // 0xa6
-	uint16_t HTTextVar; // 0xa8
-	uint8_t fullness;
-	uint8_t enjoyment;
-	uint8_t OTName[0x18]; // 0xb0
-	// uint8_t OTFriendship; // 0xca
-	// uint8_t OTAffection; // 0xcb
-	// uint8_t OTIntensity; // 0xcc
-	// uint8_t OTMemory; // 0xcd
-	// uint16_t OTTextVar; // 0xde
-	// uint8_t OTFeeling; // 0xd0
-	// uint8_t OTGender; // 0xdd
-	uint8_t origin; // 0xdf
-	uint8_t lang; // 0xe3
 	bool isShiny;
-
+	u16 speciesID;
+	u16 itemID;
 	// T O D O !!
 } pkm_t;
 

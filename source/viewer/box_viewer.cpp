@@ -6,6 +6,7 @@
 #include "box_icons.h"
 #include "box_tiles.h"
 
+#include "pokemon.hpp"
 
 #define BOX_HEADER_SELECTED -1
 #define SLOT_NO_SELECTION -1
@@ -162,7 +163,9 @@ Result BoxViewer::drawTopScreen()
 	printf("[%s] Select a slot:\n", (cursorBox.inBank ? "BK" : "PC"));
 	printf("Box: %-2i Row: %-2i Col: %-2i  \n", *cursorBox.box + 1, cursorBox.row + 1, cursorBox.col + 1);
 
-	printf("\x1B[15;1H%s", PHBank::pKBank()->savedata->OTName);
+	for (uint16_t i = 0; i < 0x18; i++)
+		if (PHBank::pKBank()->savedata->OTName[i] != '\0')
+			printf("\x1B[15;%iH%c", i, PHBank::pKBank()->savedata->OTName[i]);
 	printf("\x1B[16;1H TID: %-5u", PHBank::pKBank()->savedata->TID);
 	printf("\x1B[17;1H SID: %-5u", PHBank::pKBank()->savedata->SID);
 	printf("\x1B[18;1H TSV: %-5u", PHBank::pKBank()->savedata->TSV);
@@ -184,10 +187,10 @@ Result BoxViewer::drawTopScreen()
 				printf("\x1B[5;21HCurrent Pokemon              ");
 				printf("\x1B[6;21H                             ");
 				printf("\x1B[6;21H %s%s", vPkm->species, (vPkm->isShiny ? " *" : " "));
-				printf("\x1B[7;21H T/S ID: %-5u|%-5u", vPkm->TID, vPkm->SID);
-				printf("\x1B[8;21H PID: %-4lx -- PSV: %-5u     ", vPkm->PID, vPkm->PSV);
+				printf("\x1B[7;21H T/S ID: %-5u|%-5u", Pokemon::TID(vPkm), Pokemon::SID(vPkm));
+				printf("\x1B[8;21H PID: %-4lx -- PSV: %-5u     ", Pokemon::PID(vPkm), Pokemon::PSV(vPkm));
 				printf("\x1B[9;21H                             ");
-				printf("\x1B[9;21H Mv: [%03u][%03u][%03u][%03u]    ", vPkm->movesID[0], vPkm->movesID[1], vPkm->movesID[2], vPkm->movesID[3]);
+				printf("\x1B[9;21H Mv: [%03u][%03u][%03u][%03u]    ", Pokemon::move1(vPkm), Pokemon::move2(vPkm), Pokemon::move3(vPkm), Pokemon::move4(vPkm));
 			}
 		}
 		else
@@ -218,10 +221,10 @@ Result BoxViewer::drawTopScreen()
 				printf("\x1B[12;21HSelected Pokemon             ");
 				printf("\x1B[13;21H                             ");
 				printf("\x1B[13;21H %s%s", sPkm->species, (sPkm->isShiny ? " *" : " "));
-				printf("\x1B[14;21H T/S ID: %-5u|%-5u", sPkm->TID, sPkm->SID);
-				printf("\x1B[15;21H PID: %-4lx -- PSV: %-5u     ", sPkm->PID, sPkm->PSV);
+				printf("\x1B[14;21H T/S ID: %-5u|%-5u",Pokemon::TID(sPkm), Pokemon::SID(sPkm));
+				printf("\x1B[15;21H PID: %-4lx -- PSV: %-5u     ", Pokemon::PID(sPkm), Pokemon::PSV(sPkm));
 				printf("\x1B[16;21H                             ");
-				printf("\x1B[16;21H Mv: [%03u][%03u][%03u][%03u]    ", sPkm->movesID[0], sPkm->movesID[1], sPkm->movesID[2], sPkm->movesID[3]);
+				printf("\x1B[16;21H Mv: [%03u][%03u][%03u][%03u]    ", Pokemon::move1(sPkm), Pokemon::move2(sPkm), Pokemon::move3(sPkm), Pokemon::move4(sPkm));
 			}
 		}
 		else
@@ -316,7 +319,7 @@ Result BoxViewer::drawBotScreen()
 		sf2d_draw_texture(background, boxShift, 20);
 		
 		// Draw Pokémon icons
-		if (isPkmDragged)
+		if (isPkmDragged || isPkmHeld)
 		{
 			for (uint32_t i = 0; i < 30; i++)
 				if (sPkm != &((*vBox)->slot[i]))
@@ -346,7 +349,7 @@ Result BoxViewer::drawBotScreen()
 				// Draw dragged Pokémon
 				sf2d_draw_texture_part(icons, touch.px - 16, touch.py - 16, ((sPkm->speciesID-1) % 25) * 40, ((sPkm->speciesID-1) / 25) * 30, 40, 30);
 			}
-			else
+			else // isPkmHeld
 			{
 				sf2d_draw_texture_part(icons, boxShift + 17 + (cursorBox.inslot % 6) * 35, 20 + 13 + (cursorBox.inslot / 6) * 35, ((sPkm->speciesID-1) % 25) * 40, ((sPkm->speciesID-1) / 25) * 30, 40, 30);
 			}
@@ -371,7 +374,7 @@ Result BoxViewer::drawBotScreen()
 		
 
 		// Draw Pokémon icons
-		if (isPkmDragged)
+		if (isPkmDragged || isPkmHeld)
 		{
 			for (uint32_t i = 0; i < 30; i++)
 				if (sPkm != &((*vBox)->slot[i]))
@@ -728,6 +731,7 @@ void BoxViewer::selectMovePokemon()
 			sPkm = vPkm;
 		// 	extractBoxSlot(&cursorBox, &sSlot);
 		// }
+		if (!isPkmDragged) isPkmHeld = true;
 	}
 	else if (vPkm)
 	{
@@ -748,4 +752,6 @@ void BoxViewer::cancelMovePokemon()
 // --------------------------------------------------
 {
 	sPkm = NULL;
+	isPkmDragged = false;
+	isPkmHeld = false;
 }
