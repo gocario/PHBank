@@ -70,7 +70,7 @@ typedef struct pkm_t
 	uint16_t TID; // 0x0c
 	uint16_t SID; // 0x0e
 	uint8_t abilityID; // 0x14
-	uint8_t abilityNUmberID; // 0x15
+	uint8_t abilityNumberID; // 0x15
 	uint32_t PID; // 0x18
 	uint16_t PSV;
 	uint8_t gender; // 0x1d >> 1
@@ -309,6 +309,7 @@ class PKBank
 
 		// Pokemon
 		void convertPkmTrainer(pkm_t* pkm);
+		void convertPkmHT(pkm_t* pkm);
 		uint16_t computePSV(uint32_t PID);
 		uint16_t computeTSV(uint16_t TID, uint16_t SID);
 		bool isShiny(uint32_t PID, uint16_t TID, uint16_t SID);
