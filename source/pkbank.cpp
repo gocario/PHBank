@@ -423,6 +423,9 @@ void PKBank::movePkm(pkm_t* src, pkm_t* dst)
 	tmp.pk6 = dst->pk6;
 	dst->pk6 = src->pk6;
 	src->pk6 = tmp.pk6;
+	tmp.modified = dst->modified;
+	dst->modified = src->modified;
+	src->modified = tmp.modified;
 
 	loadPkmPk6(src);
 	loadPkmPk6(dst);
@@ -438,12 +441,12 @@ void PKBank::movePkm(pkm_t* src, pkm_t* dst, bool srcBanked, bool dstBanked)
 	if (dstBanked && !isPkmEmpty(src) && !filterPkm(src))
 		{ printf("No! (src)"); return; }
 
-	// if (srcBanked && !dstBanked)
-	// 	convertPkmTrainer(src);
-	// if (!srcBanked && dstBanked)
-	// 	convertPkmTrainer(dst);
-
 	movePkm(src, dst);
+
+	if (srcBanked && !dstBanked && !isPkmEmpty(src))
+		convertPkmTrainer(src);
+	if (!srcBanked && dstBanked && !isPkmEmpty(dst))
+		convertPkmTrainer(dst);
 
 	if (gametype == Game::ORAS)
 	{
