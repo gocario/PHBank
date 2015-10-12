@@ -187,7 +187,7 @@ Result BoxViewer::drawTopScreen()
 		sftd_draw_text_pkm(x, (y += 15), "Defense      ???  %2u  %3u", Pokemon::IV_DEF(vPkm), Pokemon::EV_DEF(vPkm));
 		sftd_draw_text_pkm(x, (y += 15), "Sp.Attack    ???  %2u  %3u", Pokemon::IV_SPA(vPkm), Pokemon::EV_SPA(vPkm));
 		sftd_draw_text_pkm(x, (y += 15), "Sp.Defense   ???  %2u  %3u", Pokemon::IV_SPD(vPkm), Pokemon::EV_SPD(vPkm));
-		sftd_draw_text_pkm(x, (y += 15), "Speed        ???  %2u  %3u", Pokemon::IV_SPE(vPkm), Pokemon::EV_SPA(vPkm));
+		sftd_draw_text_pkm(x, (y += 15), "Speed        ???  %2u  %3u", Pokemon::IV_SPE(vPkm), Pokemon::EV_SPE(vPkm));
 		sftd_draw_text_pkm(x, (y += 15), "Nature   %s", PKData::natures(Pokemon::nature(vPkm)));
 		sftd_draw_text_pkm(x, (y += 15), "Ability  %s", PKData::abilities(Pokemon::ability(vPkm)));
 		sftd_draw_text_pkm(x, (y += 15), "Item     %s", PKData::items(Pokemon::itemID(vPkm)));
