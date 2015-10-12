@@ -61,17 +61,29 @@ Result SavexitViewer::drawTopScreen()
 	if (hasRegularChild()) { if (child->drawTopScreen() == PARENT_STEP); else return CHILD_STEP; }
 	// Viewer::drawTopScreen(); // Not useful here!
 
-	printf("\x1B[9;8H                                   ");
-	printf("\x1B[10;8H /------------------------------\\ ");
-	printf("\x1B[11;8H |                              | ");
-	printf("\x1B[12;8H | You are about to exit PHBank | ");
-	printf("\x1B[13;8H |   A - Save and exit          | ");
-	printf("\x1B[14;8H |   B - Exit without saving    | ");
-	printf("\x1B[15;8H |   X - Return to PHBank       | ");
-	printf("\x1B[16;8H |   Y - Backup the save        | ");
-	printf("\x1B[17;8H |                              | ");
-	printf("\x1B[18;8H \\------------------------------/ ");
-	printf("\x1B[19;8H                                  ");
+	sf2d_draw_rectangle(79, 66, 240, 135, RGBA8(0xFA, 0xE6, 0xFA, 0xF0));
+
+	uint32_t x, y;
+
+	x = 88;
+	y = 67;
+	sftd_draw_text_pkm(x, (y+=15), "You are about to exit PHBank");
+	sftd_draw_text_pkm(x, (y+=15), "  A - Save and exit");
+	sftd_draw_text_pkm(x, (y+=15), "  B - Exit without saving");
+	sftd_draw_text_pkm(x, (y+=15), "  X - Return to PHBank");
+	sftd_draw_text_pkm(x, (y+=15), "  Y - Backup the save");
+
+	// printf("\x1B[9;8H                                   ");
+	// printf("\x1B[10;8H /------------------------------\\ ");
+	// printf("\x1B[11;8H |                              | ");
+	// printf("\x1B[12;8H | You are about to exit PHBank | ");
+	// printf("\x1B[13;8H |   A - Save and exit          | ");
+	// printf("\x1B[14;8H |   B - Exit without saving    | ");
+	// printf("\x1B[15;8H |   X - Return to PHBank       | ");
+	// printf("\x1B[16;8H |   Y - Backup the save        | ");
+	// printf("\x1B[17;8H |                              | ");
+	// printf("\x1B[18;8H \\------------------------------/ ");
+	// printf("\x1B[19;8H                                  ");
 
 	if (hasOverlayChild()) { child->drawTopScreen(); }
 	return SUCCESS_STEP;
@@ -102,32 +114,36 @@ Result SavexitViewer::updateControls(const u32& kDown, const u32& kHeld, const u
 	
 	if (kDown & KEY_A)
 	{
+		printf("A pressed\n");
 		parent->setLStateView(StateView::Saving);
-		consoleClear();
+		// consoleClear();
 		return close();
 	}
 
 	if (kDown & KEY_B)
 	{
+		printf("B pressed\n");
 		parent->setLStateView(StateView::Exiting);
-		consoleClear();
+		// consoleClear();
 		return close();
 	}
 
 	if (kDown & KEY_X)
 	{
+		printf("X pressed\n");
 		parent->setLStateView(StateView::Continuing);
-		consoleClear();
+		// consoleClear();
 		return close();
 	}
 
 	if (kDown & KEY_Y)
 	{
+		printf("Y pressed\n");
 		consoleClear();
 		PHBank::pKBank()->backupFile();
 		
 		parent->setLStateView(StateView::Continuing);
-		consoleClear();
+		// consoleClear();
 		return close();
 	}
 

@@ -2,10 +2,12 @@
 
 #include "ultra_box_viewer.hpp"
 #include "savexit_viewer.hpp"
+#include "pkm_resume_background.h"
 #include "box_background.h"
 #include "box_icons.h"
 #include "box_tiles.h"
 
+#include "pokemon.hpp"
 
 #define BOX_HEADER_SELECTED -1
 #define SLOT_NO_SELECTION -1
@@ -95,7 +97,8 @@ BoxViewer::BoxViewer(StateView_e state, Viewer* parent) : Viewer(state, parent) 
 BoxViewer::~BoxViewer()
 // --------------------------------------------------
 {
-	if (background) sf2d_free_texture(background);
+	if (backgroundBox) sf2d_free_texture(backgroundBox);
+	if (backgroundResume) sf2d_free_texture(backgroundResume);
 	if (icons) sf2d_free_texture(icons);
 	if (tiles) sf2d_free_texture(tiles);
 
@@ -137,12 +140,14 @@ Result BoxViewer::initialize()
 	selectViewPokemon();
 
 
-	if (!background)
-		 background = sf2d_create_texture_mem_RGBA8(boxBackground23o_img.pixel_data, boxBackground23o_img.width, boxBackground23o_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
+	if (!backgroundBox)
+		backgroundBox = sf2d_create_texture_mem_RGBA8(boxBackground23o_img.pixel_data, boxBackground23o_img.width, boxBackground23o_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
+	if (!backgroundResume)
+		backgroundResume = sf2d_create_texture_mem_RGBA8(resumeBackground_img.pixel_data, resumeBackground_img.width, resumeBackground_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
 	if (!icons)
-		 icons = sf2d_create_texture_mem_RGBA8(boxIcons_img.pixel_data, boxIcons_img.width, boxIcons_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
+		icons = sf2d_create_texture_mem_RGBA8(boxIcons_img.pixel_data, boxIcons_img.width, boxIcons_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
 	if (!tiles)
-		 tiles = sf2d_create_texture_mem_RGBA8(boxTiles_img.pixel_data, boxTiles_img.width, boxTiles_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
+		tiles = sf2d_create_texture_mem_RGBA8(boxTiles_img.pixel_data, boxTiles_img.width, boxTiles_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
 
 	sf2d_set_clear_color(RGBA8(0x40, 0x40, 0x40, 0xFF));
 
@@ -157,138 +162,39 @@ Result BoxViewer::drawTopScreen()
 	if (hasRegularChild()) { if (this->child->drawTopScreen() == PARENT_STEP); else return CHILD_STEP; }
 	// Viewer::drawTopScreen();
 
-	printf("\x1B[0;0H");
+	sf2d_draw_texture(backgroundResume, 0, 0);
 
-	printf("[%s] Select a slot:\n", (cursorBox.inBank ? "BK" : "PC"));
-	printf("Box: %-2i Row: %-2i Col: %-2i  \n", *cursorBox.box + 1, cursorBox.row + 1, cursorBox.col + 1);
-
-	printf("\x1B[15;1H%s", PHBank::pKBank()->savedata->OTName);
-	printf("\x1B[16;1H TID: %-5u", PHBank::pKBank()->savedata->TID);
-	printf("\x1B[17;1H SID: %-5u", PHBank::pKBank()->savedata->SID);
-	printf("\x1B[18;1H TSV: %-5u", PHBank::pKBank()->savedata->TSV);
-
+	if (vPkm && !Pokemon::isEgg(vPkm))
 	{
-		if (vPkm)
-		{
-			if (PHBank::pKBank()->isPkmEmpty(vPkm))
-			{
-				printf("\x1B[5;21HNo Pokemon                   ");
-				printf("\x1B[6;21H                             ");
-				printf("\x1B[7;21H Empty Slot                  ");
-				printf("\x1B[8;21H                             ");
-				printf("\x1B[9;21H                             ");
-				printf("\x1B[10;21H                             ");
-			}
-			else
-			{
-				printf("\x1B[5;21HCurrent Pokemon              ");
-				printf("\x1B[6;21H                             ");
-				printf("\x1B[6;21H %s%s", vPkm->species, (vPkm->isShiny ? " *" : " "));
-				printf("\x1B[7;21H T/S ID: %-5u|%-5u", vPkm->TID, vPkm->SID);
-				printf("\x1B[8;21H PID: %-4lx -- PSV: %-5u     ", vPkm->PID, vPkm->PSV);
-				printf("\x1B[9;21H                             ");
-				printf("\x1B[9;21H Mv: [%03u][%03u][%03u][%03u]    ", vPkm->movesID[0], vPkm->movesID[1], vPkm->movesID[2], vPkm->movesID[3]);
-			}
-		}
-		else
-		{
-			printf("\x1B[5;21H                              ");
-			printf("\x1B[6;21H                              ");
-			printf("\x1B[7;21H                              ");
-			printf("\x1B[8;21H                              ");
-			printf("\x1B[9;21H                              ");
-			printf("\x1B[10;21H                             ");
-		}
-	}
+		uint32_t x, y;
 
-	{
-		if (sPkm)
-		{
-			if (PHBank::pKBank()->isPkmEmpty(sPkm))
-			{
-				printf("\x1B[12;21HSelected Pokemon             ");
-				printf("\x1B[13;21H                             ");
-				printf("\x1B[14;21H Empty Slot                  ");
-				printf("\x1B[15;21H                             ");
-				printf("\x1B[16;21H                             ");
-				printf("\x1B[17;21H                             ");
-			}
-			else
-			{
-				printf("\x1B[12;21HSelected Pokemon             ");
-				printf("\x1B[13;21H                             ");
-				printf("\x1B[13;21H %s%s", sPkm->species, (sPkm->isShiny ? " *" : " "));
-				printf("\x1B[14;21H T/S ID: %-5u|%-5u", sPkm->TID, sPkm->SID);
-				printf("\x1B[15;21H PID: %-4lx -- PSV: %-5u     ", sPkm->PID, sPkm->PSV);
-				printf("\x1B[16;21H                             ");
-				printf("\x1B[16;21H Mv: [%03u][%03u][%03u][%03u]    ", sPkm->movesID[0], sPkm->movesID[1], sPkm->movesID[2], sPkm->movesID[3]);
-			}
-		}
-		else
-		{
-			printf("\x1B[12;21HNo Selection                 ");
-			printf("\x1B[13;21H                             ");
-			printf("\x1B[14;21H                             ");
-			printf("\x1B[15;21H                             ");
-			printf("\x1B[16;21H                             ");
-			printf("\x1B[17;21H                             ");
-		}
-	}
+		x = 32;
+		y = 16;
+		sftd_draw_text_pkm(x, y, "%s     Lv.??", (Pokemon::isNicknamed(vPkm) ? Pokemon::nickname(vPkm) : PKData::species(Pokemon::speciesID(vPkm))));
 
-	if (cursorType == CursorType::SingleSelect)
-	{
-		printf("\x1B[19;21HSingle selection  ");
-	}
-	else if (cursorType == CursorType::QuickSelect)
-	{
-		printf("\x1B[19;21HQuick selection   ");
-	}
-	else if (cursorType == CursorType::MultipleSelect)
-	{
-		printf("\x1B[19;21HMultiple selection");
-	}
+		x = 11;
+		y = 42;
+		sftd_draw_text_pkm(x, (y += 15), "Dex No.  %3u  %s", Pokemon::speciesID(vPkm), PKData::species(Pokemon::speciesID(vPkm)));
+		sftd_draw_text_pkm(x, (y += 15), "OT       %s", "Vlad-kun");
+		sftd_draw_text_pkm(x, (y += 15), "Stat        Value IV  Evs");
+		sftd_draw_text_pkm(x, (y += 15), "HP           ???  %2u  %3u", Pokemon::IV_HP(vPkm), Pokemon::EV_HP(vPkm));
+		sftd_draw_text_pkm(x, (y += 15), "Attack       ???  %2u  %3u", Pokemon::IV_ATK(vPkm), Pokemon::EV_ATK(vPkm));
+		sftd_draw_text_pkm(x, (y += 15), "Defense      ???  %2u  %3u", Pokemon::IV_DEF(vPkm), Pokemon::EV_DEF(vPkm));
+		sftd_draw_text_pkm(x, (y += 15), "Sp.Attack    ???  %2u  %3u", Pokemon::IV_SPA(vPkm), Pokemon::EV_SPA(vPkm));
+		sftd_draw_text_pkm(x, (y += 15), "Sp.Defense   ???  %2u  %3u", Pokemon::IV_SPD(vPkm), Pokemon::EV_SPD(vPkm));
+		sftd_draw_text_pkm(x, (y += 15), "Speed        ???  %2u  %3u", Pokemon::IV_SPE(vPkm), Pokemon::EV_SPA(vPkm));
+		sftd_draw_text_pkm(x, (y += 15), "Nature   %s", PKData::natures(Pokemon::nature(vPkm)));
+		sftd_draw_text_pkm(x, (y += 15), "Ability  %s", PKData::abilities(Pokemon::ability(vPkm)));
+		sftd_draw_text_pkm(x, (y += 15), "Item     %s", PKData::items(Pokemon::itemID(vPkm)));
 
-
-	printf("\x1B[23;0H");
-	printf("--------------------------------------------------");
-
-	if (cursorType == CursorType::MultipleSelect)
-	{
-		if (cursorBox.row == BOX_HEADER_SELECTED) {
-		printf(" Left/Right: M-Box      | Up/Down: M-Inbox        ");
-		} else {
-		if (cursorBox.inBank) {
-		printf(" DPad/Cpad: Move inbox  | LZ/RZ: Swap view to Bank");
-		} else {
-		printf(" DPad/Cpad: Move inbox  | LZ/RZ: Swap view to PC  ");
-		}
-		}
-		printf(" >>         Not currently  implemented         << ");
-		printf(" L/R: Change box        |                         ");
-		printf(" X: Clear screen        |                         ");
-		printf(" Select: Chg Cursor     |> Try the touchscreen :) ");
-		printf(" Start: Open the Exit/Backup menu                 ");
-	}
-	else
-	{
-		if (cursorBox.row == BOX_HEADER_SELECTED) {
-		printf(" Left/Right: M-Box      | Up/Down: M-Inbox        ");
-		} else {
-		if (cursorBox.inBank) {
-		printf(" DPad/Cpad: Move inbox  | LZ/RZ: Swap view to Bank");
-		} else {
-		printf(" DPad/Cpad: Move inbox  | LZ/RZ: Swap view to PC  ");
-		}
-		}
-		printf(" A: Select Pokemon      | B: Cancel Selection     ");
-		if (cursorType == CursorType::SingleSelect) {
-		printf(" L/R: Change box        | Y: Display Pk6 Hex value");
-		} else /*if (cursorType == CursorType::QuickSelect)*/ {
-		printf(" L/R: Change box        | Y: Swap current boxes   ");
-		}
-		printf(" X: Clear screen        |                         ");
-		printf(" Select: Chg Cursor     |> Try the touchscreen :) ");
-		printf(" Start: Open the Exit/Backup menu                 ");
+		x = 246;
+		y = 147;
+		// sftd_draw_text_pkm(x, (y += 15), "  %s %s %s", (false ? "#" : "-"), (true ? "/" : "-"), (true ? "+" : "-"));
+		sftd_draw_text_pkm(x, (y += 15), "Moves");
+		sftd_draw_text_pkm(x, (y += 15), " %s", PKData::moves(Pokemon::move1(vPkm))); // "Fire Blast"); // PKData::move(Pokemon::move1(pkm)));
+		sftd_draw_text_pkm(x, (y += 15), " %s", PKData::moves(Pokemon::move2(vPkm))); // "Extrasensory");
+		sftd_draw_text_pkm(x, (y += 15), " %s", PKData::moves(Pokemon::move3(vPkm))); // "Stone Edge");
+		sftd_draw_text_pkm(x, (y += 15), " %s", PKData::moves(Pokemon::move4(vPkm))); // "Bulldoze");
 	}
 
 	if (hasOverlayChild()) { this->child->drawTopScreen(); }
@@ -313,10 +219,10 @@ Result BoxViewer::drawBotScreen()
 		vBox = &(cursorBox.inBank ? vBKBox : vPCBox);
 
 		// Draw Background
-		sf2d_draw_texture(background, boxShift, 20);
+		sf2d_draw_texture(backgroundBox, boxShift, 20);
 		
 		// Draw Pokémon icons
-		if (isPkmDragged)
+		if (isPkmDragged || isPkmHeld)
 		{
 			for (uint32_t i = 0; i < 30; i++)
 				if (sPkm != &((*vBox)->slot[i]))
@@ -346,9 +252,9 @@ Result BoxViewer::drawBotScreen()
 				// Draw dragged Pokémon
 				sf2d_draw_texture_part(icons, touch.px - 16, touch.py - 16, ((sPkm->speciesID-1) % 25) * 40, ((sPkm->speciesID-1) / 25) * 30, 40, 30);
 			}
-			else
+			else // isPkmHeld
 			{
-				sf2d_draw_texture_part(icons, boxShift + 17 + (cursorBox.inslot % 6) * 35, 20 + 13 + (cursorBox.inslot / 6) * 35, ((sPkm->speciesID-1) % 25) * 40, ((sPkm->speciesID-1) / 25) * 30, 40, 30);
+				sf2d_draw_texture_part(icons, boxShift + 12 + (cursorBox.inslot % 6) * 35, 20 + 13 + (cursorBox.inslot / 6) * 35, ((sPkm->speciesID-1) % 25) * 40, ((sPkm->speciesID-1) / 25) * 30, 40, 30);
 			}
 		}
 		else
@@ -367,11 +273,11 @@ Result BoxViewer::drawBotScreen()
 		vBox = &(cursorBox.inBank ? vPCBox : vBKBox);
 
 		// Draw Background
-		sf2d_draw_texture(background, boxShift, 20);
+		sf2d_draw_texture(backgroundBox, boxShift, 20);
 		
 
 		// Draw Pokémon icons
-		if (isPkmDragged)
+		if (isPkmDragged || isPkmHeld)
 		{
 			for (uint32_t i = 0; i < 30; i++)
 				if (sPkm != &((*vBox)->slot[i]))
@@ -401,6 +307,8 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 		new SavexitViewer(StateView::Overlay, this);
 		child->initialize();
 		return CHILD_STEP;
+		// lStateView = StateView::Exiting;
+		// return close(); // DEBUG
 	}
 
 	{
@@ -723,11 +631,12 @@ void BoxViewer::selectMovePokemon()
 
 	if (!sPkm)
 	{
-		// if (!PHBank::pKBank()->isPkmEmpty(vPkm))
-		// {
+		if (!PHBank::pKBank()->isPkmEmpty(vPkm))
+		{
 			sPkm = vPkm;
 		// 	extractBoxSlot(&cursorBox, &sSlot);
-		// }
+		}
+		if (!isPkmDragged) isPkmHeld = true;
 	}
 	else if (vPkm)
 	{
@@ -748,4 +657,6 @@ void BoxViewer::cancelMovePokemon()
 // --------------------------------------------------
 {
 	sPkm = NULL;
+	isPkmDragged = false;
+	isPkmHeld = false;
 }
