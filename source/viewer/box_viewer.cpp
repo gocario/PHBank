@@ -164,19 +164,24 @@ Result BoxViewer::drawTopScreen()
 
 	sf2d_draw_texture(backgroundResume, 0, 0);
 
-	if (vPkm && !Pokemon::isEgg(vPkm))
+	if (vPkm && !PHBank::pKBank()->isPkmEmpty(vPkm))
 	{
 		uint32_t x, y;
 
 		x = 32;
 		y = 16;
-		sftd_draw_text_pkm(x, y, "%s     Lv.??", (Pokemon::isNicknamed(vPkm) ? Pokemon::nickname(vPkm) : PKData::species(Pokemon::speciesID(vPkm))));
+		// sftd_draw_text_pkm(x, y, "%s", (Pokemon::isNicknamed(vPkm) ? Pokemon::nickname(vPkm) : PKData::species(Pokemon::speciesID(vPkm))));
+		if (Pokemon::isEgg(vPkm))
+			sftd_draw_text_pkm(x, y, "%s", "IT'S AN EGG!!!");
+		else
+			sftd_draw_text_pkm(x, y, "%s", (Pokemon::isNicknamed(vPkm) ? Pokemon::nickname(vPkm) : PKData::species(Pokemon::speciesID(vPkm))));
+		sftd_draw_text_pkm(x + 200, y, "Lv.??");
 
 		x = 11;
 		y = 42;
 		sftd_draw_text_pkm(x, (y += 15), "Dex No.  %3u  %s", Pokemon::speciesID(vPkm), PKData::species(Pokemon::speciesID(vPkm)));
 		sftd_draw_text_pkm(x, (y += 15), "OT       %s", "Vlad-kun");
-		sftd_draw_text_pkm(x, (y += 15), "Stat        Value IV  Evs");
+		sftd_draw_text_pkm(x, (y += 15), "Stat        Value IV  EVs");
 		sftd_draw_text_pkm(x, (y += 15), "HP           ???  %2u  %3u", Pokemon::IV_HP(vPkm), Pokemon::EV_HP(vPkm));
 		sftd_draw_text_pkm(x, (y += 15), "Attack       ???  %2u  %3u", Pokemon::IV_ATK(vPkm), Pokemon::EV_ATK(vPkm));
 		sftd_draw_text_pkm(x, (y += 15), "Defense      ???  %2u  %3u", Pokemon::IV_DEF(vPkm), Pokemon::EV_DEF(vPkm));
@@ -225,13 +230,33 @@ Result BoxViewer::drawBotScreen()
 		if (isPkmDragged || isPkmHeld)
 		{
 			for (uint32_t i = 0; i < 30; i++)
+			{
 				if (sPkm != &((*vBox)->slot[i]))
-					sf2d_draw_texture_part(icons, boxShift + (i % BOX_COL_PKMCOUNT) * 35, (i / BOX_COL_PKMCOUNT) * 35 + 50, (((*vBox)->slot[i].speciesID-1) % 25) * 40, (((*vBox)->slot[i].speciesID-1) / 25) * 30, 40, 30);
+				{
+					if (Pokemon::isEgg(&((*vBox)->slot[i])))
+					{
+						sf2d_draw_texture_part(icons, boxShift + (i % BOX_COL_PKMCOUNT) * 35, (i / BOX_COL_PKMCOUNT) * 35 + 50, ((PKM_COUNT) % 25) * 40, ((PKM_COUNT) / 25) * 30, 40, 30);
+					}
+					else
+					{
+						sf2d_draw_texture_part(icons, boxShift + (i % BOX_COL_PKMCOUNT) * 35, (i / BOX_COL_PKMCOUNT) * 35 + 50, (((*vBox)->slot[i].speciesID-1) % 25) * 40, (((*vBox)->slot[i].speciesID-1) / 25) * 30, 40, 30);
+					}
+				}
+			}
 		}
 		else
 		{
 			for (uint32_t i = 0; i < 30; i++)
-				sf2d_draw_texture_part(icons, boxShift + (i % BOX_COL_PKMCOUNT) * 35, (i / BOX_COL_PKMCOUNT) * 35 + 50, (((*vBox)->slot[i].speciesID-1) % 25) * 40, (((*vBox)->slot[i].speciesID-1) / 25) * 30, 40, 30);
+			{
+				if (Pokemon::isEgg(&((*vBox)->slot[i])))
+				{
+					sf2d_draw_texture_part(icons, boxShift + (i % BOX_COL_PKMCOUNT) * 35, (i / BOX_COL_PKMCOUNT) * 35 + 50, ((PKM_COUNT) % 25) * 40, ((PKM_COUNT) / 25) * 30, 40, 30);
+				}
+				else
+				{
+					sf2d_draw_texture_part(icons, boxShift + (i % BOX_COL_PKMCOUNT) * 35, (i / BOX_COL_PKMCOUNT) * 35 + 50, (((*vBox)->slot[i].speciesID-1) % 25) * 40, (((*vBox)->slot[i].speciesID-1) / 25) * 30, 40, 30);
+				}
+			}
 		}
 		
 
@@ -261,9 +286,13 @@ Result BoxViewer::drawBotScreen()
 		{
 			// Draw Cursor
 			if (cursorBox.inslot == SLOT_NO_SELECTION)
+			{
 				sf2d_draw_texture_part(tiles, boxShift + 105, 18, 32 * cursorType, 32, 32, 32);
+			}
 			else
+			{
 				sf2d_draw_texture_part(tiles, boxShift + 17 + (cursorBox.inslot % 6) * 35, 20 + 13 + (cursorBox.inslot / 6) * 35, 32 * cursorType, 32, 32, 32);
+			}
 		}
 	}
 
@@ -280,13 +309,33 @@ Result BoxViewer::drawBotScreen()
 		if (isPkmDragged || isPkmHeld)
 		{
 			for (uint32_t i = 0; i < 30; i++)
+			{
 				if (sPkm != &((*vBox)->slot[i]))
-					sf2d_draw_texture_part(icons, boxShift + (i % BOX_COL_PKMCOUNT) * 35, (i / BOX_COL_PKMCOUNT) * 35 + 50, (((*vBox)->slot[i].speciesID-1) % 25) * 40, (((*vBox)->slot[i].speciesID-1) / 25) * 30, 40, 30);
+				{
+					if (Pokemon::isEgg(&((*vBox)->slot[i])))
+					{
+						sf2d_draw_texture_part(icons, boxShift + (i % BOX_COL_PKMCOUNT) * 35, (i / BOX_COL_PKMCOUNT) * 35 + 50, ((PKM_COUNT) % 25) * 40, ((PKM_COUNT) / 25) * 30, 40, 30);
+					}
+					else
+					{
+						sf2d_draw_texture_part(icons, boxShift + (i % BOX_COL_PKMCOUNT) * 35, (i / BOX_COL_PKMCOUNT) * 35 + 50, (((*vBox)->slot[i].speciesID-1) % 25) * 40, (((*vBox)->slot[i].speciesID-1) / 25) * 30, 40, 30);
+					}
+				}
+			}
 		}
 		else
 		{
 			for (uint32_t i = 0; i < 30; i++)
-				sf2d_draw_texture_part(icons, boxShift + (i % BOX_COL_PKMCOUNT) * 35, (i / BOX_COL_PKMCOUNT) * 35 + 50, (((*vBox)->slot[i].speciesID-1) % 25) * 40, (((*vBox)->slot[i].speciesID-1) / 25) * 30, 40, 30);
+			{
+				if (Pokemon::isEgg(&((*vBox)->slot[i])))
+				{
+					sf2d_draw_texture_part(icons, boxShift + (i % BOX_COL_PKMCOUNT) * 35, (i / BOX_COL_PKMCOUNT) * 35 + 50, ((PKM_COUNT) % 25) * 40, ((PKM_COUNT) / 25) * 30, 40, 30);
+				}
+				else
+				{
+					sf2d_draw_texture_part(icons, boxShift + (i % BOX_COL_PKMCOUNT) * 35, (i / BOX_COL_PKMCOUNT) * 35 + 50, (((*vBox)->slot[i].speciesID-1) % 25) * 40, (((*vBox)->slot[i].speciesID-1) / 25) * 30, 40, 30);
+				}
+			}
 		}
 	}
 
@@ -382,11 +431,6 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 		switchCursorType();
 	}
 
-	if (kDown & KEY_X)
-	{
-		consoleClear();
-	}
-
 	if (cursorType == CursorType::SingleSelect)
 	{
 		if (kDown & KEY_A && !isPkmDragged)
@@ -397,18 +441,6 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 		if (kDown & KEY_B && !isPkmDragged)
 		{
 			cancelMovePokemon();
-		}
-
-		if (kDown & KEY_Y)
-		{
-			if (vPkm)
-			{
-				consoleClear();
-				PHBank::pKBank()->printPkm(vPkm, 0, PK6_SIZE);
-				printf("Press Y one more time to continue");
-				waitKey(KEY_Y);
-				consoleClear();
-			}
 		}
 	}
 	else if (cursorType == CursorType::QuickSelect)

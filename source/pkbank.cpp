@@ -355,7 +355,7 @@ gametype_e PKBank::getGame(uint32_t bytesRead)
 bool PKBank::isPkmEmpty(pkm_t* pkm)
 // --------------------------------------------------
 {
-	return (Pokemon::speciesID(pkm) == 0x0 && Pokemon::PID(pkm) == 0x0);
+	return (Pokemon::speciesID(pkm) == 0x0);
 }
 
 

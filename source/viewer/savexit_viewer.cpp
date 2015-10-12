@@ -61,7 +61,7 @@ Result SavexitViewer::drawTopScreen()
 	if (hasRegularChild()) { if (child->drawTopScreen() == PARENT_STEP); else return CHILD_STEP; }
 	// Viewer::drawTopScreen(); // Not useful here!
 
-	sf2d_draw_rectangle(79, 66, 240, 135, RGBA8(0xFA, 0xE6, 0xFA, 0xF0));
+	sf2d_draw_rectangle(79, 66, 240, 135, RGBA8(0x48, 0xA2, 0x3E, 0xE8));
 
 	uint32_t x, y;
 
