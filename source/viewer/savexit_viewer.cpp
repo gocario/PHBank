@@ -69,8 +69,8 @@ Result SavexitViewer::drawTopScreen()
 	y = 67;
 	sftd_draw_text_pkm(x, (y+=15), "You are about to exit PHBank");
 	sftd_draw_text_pkm(x, (y+=15), "  A - Save and exit");
-	sftd_draw_text_pkm(x, (y+=15), "  Y - Exit without saving");
-	sftd_draw_text_pkm(x, (y+=15), "  X - Backup the save");
+	sftd_draw_text_pkm(x, (y+=15), "  X - Exit without saving");
+	sftd_draw_text_pkm(x, (y+=15), "  Y - Backup the save");
 	sftd_draw_text_pkm(x, (y+=15), "  B - Return to PHBank");
 
 	if (hasOverlayChild()) { child->drawTopScreen(); }
