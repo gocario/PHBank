@@ -180,7 +180,7 @@ Result BoxViewer::drawTopScreen()
 		x = 11;
 		y = 42;
 		sftd_draw_text_pkm(x, (y += 15), "Dex No.  %3u  %s", Pokemon::speciesID(vPkm), PKData::species(Pokemon::speciesID(vPkm)));
-		sftd_draw_text_pkm(x, (y += 15), "OT       %s", "Vlad-kun");
+		sftd_draw_text_pkm(x, (y += 15), "OT       %s", "Team Rocket!!");
 		sftd_draw_text_pkm(x, (y += 15), "Stat        Value IV  EVs");
 		sftd_draw_text_pkm(x, (y += 15), "HP           ???  %2u  %3u", Pokemon::IV_HP(vPkm), Pokemon::EV_HP(vPkm));
 		sftd_draw_text_pkm(x, (y += 15), "Attack       ???  %2u  %3u", Pokemon::IV_ATK(vPkm), Pokemon::EV_ATK(vPkm));
@@ -225,6 +225,10 @@ Result BoxViewer::drawBotScreen()
 
 		// Draw Background
 		sf2d_draw_texture(backgroundBox, boxShift, 20);
+		char boxTitle[0x18];
+		snprintf(boxTitle, 0x18, "Box %i", (cursorBox.inBank ? cursorBox.boxBK : cursorBox.boxPC) + 1);
+		int boxTitleWidth = sftd_get_text_width(PHBank::font(), 8, boxTitle);
+		sftd_draw_text_pkm(boxShift + (BACKGROUND_WIDTH - boxTitleWidth) / 2, 28, boxTitle);
 		
 		// Draw Pokémon icons
 		if (isPkmDragged || isPkmHeld)
@@ -287,7 +291,7 @@ Result BoxViewer::drawBotScreen()
 			// Draw Cursor
 			if (cursorBox.inslot == SLOT_NO_SELECTION)
 			{
-				sf2d_draw_texture_part(tiles, boxShift + 105, 18, 32 * cursorType, 32, 32, 32);
+				sf2d_draw_texture_part(tiles, boxShift + 105, 8, 32 * cursorType, 32, 32, 32);
 			}
 			else
 			{
@@ -304,6 +308,11 @@ Result BoxViewer::drawBotScreen()
 		// Draw Background
 		sf2d_draw_texture(backgroundBox, boxShift, 20);
 		
+
+		// Draw SwapBox buttons
+		sf2d_draw_texture_part(tiles, boxShift + 10 +  0, 20,   0, 64, 16, 24);
+		sf2d_draw_texture_part(tiles, boxShift + BACKGROUND_WIDTH - 24, 20,  16, 64, 16, 24);
+
 
 		// Draw Pokémon icons
 		if (isPkmDragged || isPkmHeld)

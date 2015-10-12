@@ -69,21 +69,9 @@ Result SavexitViewer::drawTopScreen()
 	y = 67;
 	sftd_draw_text_pkm(x, (y+=15), "You are about to exit PHBank");
 	sftd_draw_text_pkm(x, (y+=15), "  A - Save and exit");
-	sftd_draw_text_pkm(x, (y+=15), "  B - Exit without saving");
-	sftd_draw_text_pkm(x, (y+=15), "  X - Return to PHBank");
-	sftd_draw_text_pkm(x, (y+=15), "  Y - Backup the save");
-
-	// printf("\x1B[9;8H                                   ");
-	// printf("\x1B[10;8H /------------------------------\\ ");
-	// printf("\x1B[11;8H |                              | ");
-	// printf("\x1B[12;8H | You are about to exit PHBank | ");
-	// printf("\x1B[13;8H |   A - Save and exit          | ");
-	// printf("\x1B[14;8H |   B - Exit without saving    | ");
-	// printf("\x1B[15;8H |   X - Return to PHBank       | ");
-	// printf("\x1B[16;8H |   Y - Backup the save        | ");
-	// printf("\x1B[17;8H |                              | ");
-	// printf("\x1B[18;8H \\------------------------------/ ");
-	// printf("\x1B[19;8H                                  ");
+	sftd_draw_text_pkm(x, (y+=15), "  Y - Exit without saving");
+	sftd_draw_text_pkm(x, (y+=15), "  X - Backup the save");
+	sftd_draw_text_pkm(x, (y+=15), "  B - Return to PHBank");
 
 	if (hasOverlayChild()) { child->drawTopScreen(); }
 	return SUCCESS_STEP;
@@ -114,31 +102,27 @@ Result SavexitViewer::updateControls(const u32& kDown, const u32& kHeld, const u
 	
 	if (kDown & KEY_A)
 	{
-		printf("A pressed\n");
 		parent->setLStateView(StateView::Saving);
 		// consoleClear();
 		return close();
 	}
 
-	if (kDown & KEY_B)
+	if (kDown & (KEY_B || KEY_START))
 	{
-		printf("B pressed\n");
-		parent->setLStateView(StateView::Exiting);
+		parent->setLStateView(StateView::Continuing);
 		// consoleClear();
 		return close();
 	}
 
 	if (kDown & KEY_X)
 	{
-		printf("X pressed\n");
-		parent->setLStateView(StateView::Continuing);
+		parent->setLStateView(StateView::Exiting);
 		// consoleClear();
 		return close();
 	}
 
 	if (kDown & KEY_Y)
 	{
-		printf("Y pressed\n");
 		consoleClear();
 		PHBank::pKBank()->backupFile();
 		
