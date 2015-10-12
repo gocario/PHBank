@@ -1,0 +1,30 @@
+// #include <3ds.h>
+// #include <sf2d.h>
+// #include <stdio.h>
+// #include <stdlib.h>
+// #include <string.h>
+
+// #include "main.hpp"
+// // #include "viewer.hpp"
+// #include "box_viewer.hpp"
+
+// void waitKey(u32 keyWait)
+// {
+// 	while (aptMainLoop())
+// 	{
+// 		hidScanInput();
+
+// 		if (hidKeysDown() & keyWait) break;
+
+// 		sf2d_swapbuffers();
+// 	}
+// }
+
+// int main(int argc, char **argv)
+// {
+// 	Viewer* viewer = new BoxViewer();
+// 	new BoxViewer(StateView::Overlay, viewer);
+// 	Viewer::startMainLoop(viewer);
+// 	delete viewer;
+// 	return 0;
+// }

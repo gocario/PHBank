@@ -77,7 +77,8 @@ class BoxViewer : public Viewer
 
 		void selectViewBox(uint16_t boxID, bool inBank = false);
 	private:
-		sf2d_texture* background = NULL;
+		sf2d_texture* backgroundBox = NULL;
+		sf2d_texture* backgroundResume = NULL;
 		sf2d_texture* icons = NULL;
 		sf2d_texture* tiles = NULL;
 

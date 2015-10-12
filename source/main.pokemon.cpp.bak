@@ -1,0 +1,21 @@
+#include "pokemon.hpp"
+
+void waitKey(u32 keyWait)
+{
+	while (aptMainLoop())
+	{
+		hidScanInput();
+
+		if (hidKeysDown() & keyWait || (hidKeysHeld() & KEY_L && hidKeysHeld() & KEY_R & hidKeysHeld() & KEY_A)) break;
+
+		gfxFlushBuffers();
+		gspWaitForVBlank();
+	}
+}
+
+int main(int argc, char* argv[])
+{
+
+
+	return 0;
+}

@@ -16,6 +16,15 @@ class Pokemon
 		static bool isInfected(pkm_t* pkm);
 		static bool isCured(pkm_t* pkm);
 		static bool isGen6(pkm_t* pkm);
+
+		static u8 level(pkm_t* pkm);
+		static u16 HP(pkm_t* pkm);
+		static u16 ATK(pkm_t* pkm);
+		static u16 DEF(pkm_t* pkm);
+		static u16 SPA(pkm_t* pkm);
+		static u16 SPD(pkm_t* pkm);
+		static u16 SPE(pkm_t* pkm);
+		static u8 hiddenPower(pkm_t* pkm);
 		
 
 	public:
@@ -37,7 +46,7 @@ class Pokemon
 		static bool fatefulEncounter(pkm_t* pkm);
 		static u8 gender(pkm_t* pkm);
 		static u8 form(pkm_t* pkm);
-		static u8 evHP(pkm_t* pkm);
+		static u8 EV_HP(pkm_t* pkm);
 		static u8 EV_ATK(pkm_t* pkm);
 		static u8 EV_DEF(pkm_t* pkm);
 		static u8 EV_SPE(pkm_t* pkm);
@@ -289,7 +298,7 @@ class Pokemon
 		static void fatefulEncounter(pkm_t* pkm, bool v);
 		static void gender(pkm_t* pkm, u8 v);
 		static void form(pkm_t* pkm, u8 v);
-		static void evHP(pkm_t* pkm, u8 v);
+		static void EV_HP(pkm_t* pkm, u8 v);
 		static void EV_ATK(pkm_t* pkm, u8 v);
 		static void EV_DEF(pkm_t* pkm, u8 v);
 		static void EV_SPE(pkm_t* pkm, u8 v);

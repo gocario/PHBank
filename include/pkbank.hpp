@@ -5,7 +5,6 @@
 
 #include <stdint.h>
 #include <stdio.h>
-#include <3ds.h>
 
 #include "main.hpp"
 #include "filesystem.hpp"
@@ -60,7 +59,9 @@ typedef struct pkm_t
 {
 	ek6_t* ek6 = NULL; // Pointer to MainBuffer
 	pk6_t* pk6 = NULL; // Pointer to OwnBuffer
-	bool modified = false;
+	bool moved : 1;
+	bool modified : 1;
+	unsigned : 0;
 	
 	u8* species;
 	u8* item;
@@ -68,6 +69,8 @@ typedef struct pkm_t
 	u16 speciesID;
 	u16 itemID;
 	// T O D O !!
+
+	pkm_t() : moved {false}, modified {false} {}
 } pkm_t;
 
 

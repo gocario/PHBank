@@ -181,8 +181,9 @@ bool Viewer::isRunning()
 Result Viewer::close()
 // --------------------------------------------------
 {
+	Result ret = this->state();
 	if (this->isChild()) delete this;
-	return this->state();
+	return ret;
 }
 
 
@@ -255,9 +256,9 @@ Result Viewer::startMainLoop(Viewer* viewer)
 
 		if (kHeld & KEY_L && kHeld & KEY_R && kHeld & KEY_A && kHeld & KEY_B && kHeld & KEY_X && kHeld & KEY_Y) break;
 
-		// sf2d_start_frame(GFX_TOP, GFX_LEFT);
+		sf2d_start_frame(GFX_TOP, GFX_LEFT);
 			viewer->drawTopScreen();
-		// sf2d_end_frame();
+		sf2d_end_frame();
 		sf2d_start_frame(GFX_BOTTOM, GFX_LEFT);
 			viewer->drawBotScreen();
 		sf2d_end_frame();
@@ -265,7 +266,7 @@ Result Viewer::startMainLoop(Viewer* viewer)
 		
 		viewer->updateControls(kDown, kHeld, kUp, &touch);
 	}
-
+	
 	sf2d_fini();
 	return viewer->state();
 }

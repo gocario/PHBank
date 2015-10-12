@@ -3,8 +3,6 @@
 
 #include "main.hpp"
 
-#include <sf2d.h>
-#include <3ds.h>
 #include <stdio.h>
 
 

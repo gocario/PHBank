@@ -423,12 +423,14 @@ void PKBank::movePkm(pkm_t* src, pkm_t* dst)
 	tmp.pk6 = dst->pk6;
 	dst->pk6 = src->pk6;
 	src->pk6 = tmp.pk6;
-	tmp.modified = dst->modified;
-	dst->modified = src->modified;
-	src->modified = tmp.modified;
 
 	loadPkmPk6(src);
 	loadPkmPk6(dst);
+	
+	if (!isPkmEmpty(src))
+		src->moved = true;
+	if (!isPkmEmpty(dst))
+		dst->moved = true;
 }
 
 
@@ -442,11 +444,6 @@ void PKBank::movePkm(pkm_t* src, pkm_t* dst, bool srcBanked, bool dstBanked)
 		{ printf("No! (src)"); return; }
 
 	movePkm(src, dst);
-
-	if (srcBanked && !dstBanked && !isPkmEmpty(src))
-		convertPkmTrainer(src);
-	if (!srcBanked && dstBanked && !isPkmEmpty(dst))
-		convertPkmTrainer(dst);
 
 	if (gametype == Game::ORAS)
 	{
@@ -1062,7 +1059,7 @@ void PKBank::savePkmPC(uint16_t boxId, uint16_t slotId)
 	if (!this->savebuffer || !this->savedata) return;
 
 	pkm_t* pkm = &savedata->pc.box[boxId].slot[slotId];
-	savePkmPk6(pkm); // #if COMMIT_CHEAT_CHANGE or convert #Wololo
+	savePkmPk6(pkm); // #Wololo
 	savePk6Ek6(pkm); // #Pokemon stored as Ek6
 	// saveEk6PC(pkm); // #Pokemon stored as Ek6
 }
@@ -1117,9 +1114,9 @@ void PKBank::savePkmPk6(pkm_t* pkm)
 {
 	if (!pkm || !pkm->pk6) return;
 
-
-	if (pkm->modified)
+	if (pkm->moved)
 	{
+		convertPkmTrainer(pkm);
 		Pokemon::computeChecksum(pkm);
 	}
 }
@@ -1246,7 +1243,7 @@ void PKBank::convertPkmTrainer(pkm_t* pkm)
 {
 	// If the Pokémon isn't already modified.
 	// Modified it.
-	if (!pkm->modified)
+	if (!pkm->moved)
 	{
 		if (Pokemon::isEgg(pkm))
 		{

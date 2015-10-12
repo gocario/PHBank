@@ -21,6 +21,45 @@ bool Pokemon::isInfected(pkm_t* pkm) { return PKRS_strain(pkm) > 0; }
 bool Pokemon::isCured(pkm_t* pkm) { return PKRS_days(pkm) == 0 && PKRS_strain(pkm) > 0; }
 bool Pokemon::isGen6(pkm_t* pkm) { return version(pkm) >= 24; }
 
+u8 Pokemon::level(pkm_t* pkm)
+{
+	// TODO: Implement!
+	return 0;
+}
+u16 Pokemon::HP(pkm_t* pkm)
+{
+	// TODO: Implement!
+	return 0;
+}
+u16 Pokemon::ATK(pkm_t* pkm)
+{
+	// TODO: Implement!
+	return 0;
+}
+u16 Pokemon::DEF(pkm_t* pkm)
+{
+	// TODO: Implement!
+	return 0;
+}
+u16 Pokemon::SPA(pkm_t* pkm)
+{
+	// TODO: Implement!
+	return 0;
+}
+u16 Pokemon::SPD(pkm_t* pkm)
+{
+	// TODO: Implement!
+	return 0;
+}
+u16 Pokemon::SPE(pkm_t* pkm)
+{
+	// TODO: Implement!
+	return 0;
+}
+u8 Pokemon::hiddenPower(pkm_t* pkm)
+{
+	return (15 * ((IV_HP(pkm) & 1) + 2 * (IV_ATK(pkm) & 1) + 4 * (IV_DEF(pkm)) + 8 * (IV_SPE(pkm) & 1) + 16 * (IV_SPA(pkm) & 1) + 32 * (IV_SPD(pkm) & 1))) / 63;
+}
 
  /** GETTERS **/
 
@@ -42,7 +81,7 @@ u8 Pokemon::nature(pkm_t* pkm) { return *(u8*)(pkm->pk6 + 0x1c); }
 bool Pokemon::fatefulEncounter(pkm_t* pkm) { return ((*(u8*)(pkm->pk6 + 0x1d)) & 1) == 1; }
 u8 Pokemon::gender(pkm_t* pkm) { return ((*(u8*)(pkm->pk6 + 0x1d)) >> 1) & 0x3; }
 u8 Pokemon::form(pkm_t* pkm) { return (*(u8*)(pkm->pk6 + 0x1d)) >> 3; }
-u8 Pokemon::evHP(pkm_t* pkm) { return *(u8*)(pkm->pk6 + 0x1e); }
+u8 Pokemon::EV_HP(pkm_t* pkm) { return *(u8*)(pkm->pk6 + 0x1e); }
 u8 Pokemon::EV_ATK(pkm_t* pkm) { return *(u8*)(pkm->pk6 + 0x1f); }
 u8 Pokemon::EV_DEF(pkm_t* pkm) { return *(u8*)(pkm->pk6 + 0x20); }
 u8 Pokemon::EV_SPE(pkm_t* pkm) { return *(u8*)(pkm->pk6 + 0x21); }
@@ -296,7 +335,7 @@ void Pokemon::nature(pkm_t* pkm, u8 v) { *(u8*)(pkm->pk6 + 0x1c) = v; }
 void Pokemon::fatefulEncounter(pkm_t* pkm, bool v) { *(u8*)(pkm->pk6 + 0x1d) = (Pokemon::fatefulEncounter(pkm) & ~0x01) | (v ? 1 : 0); }
 void Pokemon::gender(pkm_t* pkm, u8 v) { *(u8*)(pkm->pk6 + 0x1d) = (Pokemon::gender(pkm) & ~0x06) | ((v ? 1 : 0) << 1); }
 void Pokemon::form(pkm_t* pkm, u8 v) { *(u8*)(pkm->pk6 + 0x1d) = (Pokemon::form(pkm) & ~0x07) | ((v ? 1 : 0) << 3); }
-void Pokemon::evHP(pkm_t* pkm, u8 v) { *(u8*)(pkm->pk6 + 0x1e) = v; }
+void Pokemon::EV_HP(pkm_t* pkm, u8 v) { *(u8*)(pkm->pk6 + 0x1e) = v; }
 void Pokemon::EV_ATK(pkm_t* pkm, u8 v) { *(u8*)(pkm->pk6 + 0x1f) = v; }
 void Pokemon::EV_DEF(pkm_t* pkm, u8 v) { *(u8*)(pkm->pk6 + 0x20) = v; }
 void Pokemon::EV_SPE(pkm_t* pkm, u8 v) { *(u8*)(pkm->pk6 + 0x21) = v; }
