@@ -107,7 +107,7 @@ Result SavexitViewer::updateControls(const u32& kDown, const u32& kHeld, const u
 		return close();
 	}
 
-	if (kDown & (KEY_B || KEY_START))
+	if (kDown & (KEY_B | KEY_START))
 	{
 		parent->setLStateView(StateView::Continuing);
 		// consoleClear();
