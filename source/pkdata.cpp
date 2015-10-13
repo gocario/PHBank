@@ -2,12 +2,13 @@
 
 
 // --------------------------------------------------
-uint8_t PKData::_lang = LANG_EN;
-uint8_t PKData::_abilities[DEX_ABILITIES_COUNT][DEX_ABILITIES_LENGTH];
-uint8_t PKData::_items[DEX_ITEMS_COUNT][DEX_ITEMS_LENGTH];
-uint8_t PKData::_natures[DEX_NATURES_COUNT][DEX_NATURES_LENGTH];
-uint8_t PKData::_moves[DEX_MOVES_COUNT][DEX_MOVES_LENGTH];
-uint8_t PKData::_species[DEX_SPECIES_COUNT][DEX_SPECIES_LENGTH];
+u8 PKData::_lang = LANG_EN;
+u8 PKData::_personal[PERSONAL_COUNT][PERSONAL_LENGTH];
+u8 PKData::_abilities[DEX_ABILITIES_COUNT][DEX_ABILITIES_LENGTH];
+u8 PKData::_items[DEX_ITEMS_COUNT][DEX_ITEMS_LENGTH];
+u8 PKData::_natures[DEX_NATURES_COUNT][DEX_NATURES_LENGTH];
+u8 PKData::_moves[DEX_MOVES_COUNT][DEX_MOVES_LENGTH];
+u8 PKData::_species[DEX_SPECIES_COUNT][DEX_SPECIES_LENGTH];
 // --------------------------------------------------
 
 
@@ -28,7 +29,31 @@ const char* PKData::lang()
 
 
 // --------------------------------------------------
-uint8_t* PKData::abilities(uint32_t ability)
+u8* PKData::personal(u32 species, u32 form)
+// --------------------------------------------------
+{
+	if (species < PERSONAL_COUNT)
+	{
+		if (form > PKData::_personal[species][0xC])
+			form = PKData::_personal[species][0xC];
+		return PKData::_personal[species];
+	}
+	else
+		return NULL;
+	
+}
+
+
+// --------------------------------------------------
+u8* PKData::personal(u32 species)
+// --------------------------------------------------
+{
+	return PKData::personal(species, 0);
+}
+
+
+// --------------------------------------------------
+u8* PKData::abilities(u32 ability)
 // --------------------------------------------------
 {
 	if (ability < DEX_ABILITIES_COUNT)
@@ -40,7 +65,7 @@ uint8_t* PKData::abilities(uint32_t ability)
 }
 
 // --------------------------------------------------
-uint8_t* PKData::items(uint32_t item)
+u8* PKData::items(u32 item)
 // --------------------------------------------------
 {
 	if (item < DEX_ITEMS_COUNT)
@@ -51,7 +76,7 @@ uint8_t* PKData::items(uint32_t item)
 }
 
 // --------------------------------------------------
-uint8_t* PKData::moves(uint32_t move)
+u8* PKData::moves(u32 move)
 // --------------------------------------------------
 {
 	if (move < DEX_MOVES_COUNT)
@@ -62,7 +87,7 @@ uint8_t* PKData::moves(uint32_t move)
 }
 
 // --------------------------------------------------
-uint8_t* PKData::natures(uint32_t nature)
+u8* PKData::natures(u32 nature)
 // --------------------------------------------------
 {
 	if (nature < DEX_NATURES_COUNT)
@@ -73,7 +98,7 @@ uint8_t* PKData::natures(uint32_t nature)
 }
 
 // --------------------------------------------------
-uint8_t* PKData::species(uint32_t species)
+u8* PKData::species(u32 species)
 // --------------------------------------------------
 {
 	if (species < DEX_SPECIES_COUNT)
@@ -83,6 +108,22 @@ uint8_t* PKData::species(uint32_t species)
 		return NULL;
 }
 
+
+const char hpTypes[16][9] = {
+	"Fighting", "Flying", "Poison", "Ground",
+	"Rock", "Bug", "Ghost", "Steel", "Fire", "Water",
+	"Grass", "Electric", "Psychic", "Ice", "Dragon", "Dark"
+};
+
+// --------------------------------------------------
+const char* HPTypes(u8 hiddenPower)
+// --------------------------------------------------
+{
+	if (hiddenPower < 16)
+		return hpTypes[hiddenPower];
+	else
+		return NULL;
+}
 
 
 // --------------------------------------------------
@@ -100,6 +141,16 @@ Result PKData::load(Handle *sdHandle, FS_archive *sdArchive)
 	ret = PKData::loadData(sdHandle, sdArchive, DEX_MOVES_COUNT * DEX_MOVES_LENGTH, (char*)("/pkbank/data/en/moves_en.txt"), (u8*)&(PKData::_moves), DEX_MOVES_LENGTH, DEX_MOVES_COUNT);
 	ret = PKData::loadData(sdHandle, sdArchive, DEX_NATURES_COUNT * DEX_NATURES_LENGTH, (char*)("/pkbank/data/en/natures_en.txt"), (u8*)&(PKData::_natures), DEX_NATURES_LENGTH, DEX_NATURES_COUNT);
 	ret = PKData::loadData(sdHandle, sdArchive, DEX_SPECIES_COUNT * DEX_SPECIES_LENGTH, (char*)("/pkbank/data/en/species_en.txt"), (u8*)&(PKData::_species), DEX_SPECIES_LENGTH, DEX_SPECIES_COUNT);
+
+
+	u8 buffer[12000];
+	u32 bytesRead;
+	char path[] = "/pkbank/data/personal";
+	ret = FS_loadFile(path, buffer, sdArchive, sdHandle, 12000, &bytesRead);
+	if (ret) { printf(" ERROR loading \"%s\"...\n", path); return ret; }
+	memcpy(_personal, buffer, bytesRead);
+	printf(" OK!\n");
+
 	return ret;
 }
 
@@ -108,28 +159,15 @@ Result PKData::load(Handle *sdHandle, FS_archive *sdArchive)
 Result PKData::loadData(Handle *sdHandle, FS_archive *sdArchive, u32 maxSize, char* path, u8* dest, u32 lineLength, u32 lineCount)
 // --------------------------------------------------
 {
-	uint32_t bytesRead;
+	u32 bytesRead;
 	u8* buffer = new u8[maxSize];
 
 	Result ret;
 	ret = FS_loadFile(path, buffer, sdArchive, sdHandle, maxSize, &bytesRead);
-	if (ret) { printf(" ERROR loading \"%s\"...\n", path); return ret; }
+	if (ret) { printf(" ERROR loading \"%s\"...\n", path); delete[] buffer; return ret; }
 	printf(" OK!\n");
 
-	PKData::loadDataLine(buffer, dest, lineLength, lineCount);
-	if (ret) return ret;
-
-
-	// for (u32 c = 0; c < 0x100; c++)
-	// {
-	// 	u8 chr = *(u8*)(((u8*)&(PKData::_species)) + c);
-	// 	if (chr > 0x10)
-	// 		printf("%c", chr);
-	// 	else
-	// 		printf("#");
-	// }
-	// printf("|\n");
-
+	ret = PKData::loadDataLine(buffer, dest, lineLength, lineCount);
 
 	delete[] buffer;
 	return ret;

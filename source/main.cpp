@@ -59,11 +59,21 @@ int main(int argc, char* argv[])
 	if (fs) printf("Init FS Failed\n");
 	else printf("Init FS OK\n");
 
-	PHBank::load();
-
 	srand(time(NULL));
 
-	PKData::load(&sdHandle, &sdArchive);
+	if (PHBank::load())
+	{
+		printf("\n\nProblem with PHBank, check logs and press A\n");
+		waitKey(KEY_A);
+	}
+
+	if (PKData::load(&sdHandle, &sdArchive))
+	{
+		printf("\n\nProblem with PKData, check logs and press A\n");
+		waitKey(KEY_A);
+	}
+
+
 	Viewer* viewer = new BoxViewer();
 	if (!PHBank::pKBank()->load(fs, &sdHandle, &saveHandle, &sdArchive, &saveArchive))
 	{

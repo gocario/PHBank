@@ -438,20 +438,24 @@ void PKBank::movePkm(pkm_t* src, pkm_t* dst)
 void PKBank::movePkm(pkm_t* src, pkm_t* dst, bool srcBanked, bool dstBanked)
 // --------------------------------------------------
 {
-	if (srcBanked && !isPkmEmpty(dst) && !filterPkm(dst))
-		{ printf("No! (dst)"); return; }
-	if (dstBanked && !isPkmEmpty(src) && !filterPkm(src))
-		{ printf("No! (src)"); return; }
-
-	movePkm(src, dst);
-
-	if (gametype == Game::ORAS)
+	if (gametype == Game::XY)
 	{
+		// Filters for new data
+		if (!srcBanked && !isPkmEmpty(dst) && !filterPkm(dst))
+			{ printf("No! (dst)"); return; }
+		if (!dstBanked && !isPkmEmpty(src) && !filterPkm(src))
+			{ printf("No! (src)"); return; }
+	}
+	else if (gametype == Game::ORAS)
+	{
+		// Pokédex completion
 		if (srcBanked && !dstBanked)
 			addDex(src);
 		if (!srcBanked && dstBanked)
 			addDex(dst);
 	}
+
+	movePkm(src, dst);
 }
 
 

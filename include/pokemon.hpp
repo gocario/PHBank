@@ -3,6 +3,20 @@
 
 #include "pkbank.hpp"
 
+namespace Stat
+{
+	typedef enum stat_e
+	{
+		HP,
+		ATK,
+		DEF,
+		SPE,
+		SPA,
+		SPD
+	} stat_e;
+}
+typedef Stat::stat_e stat_e;
+
 
 class Pokemon
 {
@@ -18,13 +32,14 @@ class Pokemon
 		static bool isGen6(pkm_t* pkm);
 
 		static u8 level(pkm_t* pkm);
+		static u16 stat(u16 species, u8 IV, u8 EV, u8 nature, u8 level, u8 stat, u8 form);
 		static u16 HP(pkm_t* pkm);
 		static u16 ATK(pkm_t* pkm);
 		static u16 DEF(pkm_t* pkm);
 		static u16 SPA(pkm_t* pkm);
 		static u16 SPD(pkm_t* pkm);
 		static u16 SPE(pkm_t* pkm);
-		static u8 hiddenPower(pkm_t* pkm);
+		static u8 HPType(pkm_t* pkm);
 		
 
 	public:

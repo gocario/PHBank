@@ -175,26 +175,26 @@ Result BoxViewer::drawTopScreen()
 			sftd_draw_text_pkm(x, y, "%s", "IT'S AN EGG!!!");
 		else
 			sftd_draw_text_pkm(x, y, "%s", (Pokemon::isNicknamed(vPkm) ? Pokemon::nickname(vPkm) : PKData::species(Pokemon::speciesID(vPkm))));
-		sftd_draw_text_pkm(x + 200, y, "Lv.??");
+		sftd_draw_text_pkm(x + 200, y, "Lv.%u", Pokemon::level(vPkm));
 
 		x = 11;
 		y = 42;
 		sftd_draw_text_pkm(x, (y += 15), "Dex No.  %3u  %s", Pokemon::speciesID(vPkm), PKData::species(Pokemon::speciesID(vPkm)));
 		sftd_draw_text_pkm(x, (y += 15), "OT       %s", "Team Rocket!!");
 		sftd_draw_text_pkm(x, (y += 15), "Stat        Value IV  EVs");
-		sftd_draw_text_pkm(x, (y += 15), "HP           ???  %2u  %3u", Pokemon::IV_HP(vPkm), Pokemon::EV_HP(vPkm));
-		sftd_draw_text_pkm(x, (y += 15), "Attack       ???  %2u  %3u", Pokemon::IV_ATK(vPkm), Pokemon::EV_ATK(vPkm));
-		sftd_draw_text_pkm(x, (y += 15), "Defense      ???  %2u  %3u", Pokemon::IV_DEF(vPkm), Pokemon::EV_DEF(vPkm));
-		sftd_draw_text_pkm(x, (y += 15), "Sp.Attack    ???  %2u  %3u", Pokemon::IV_SPA(vPkm), Pokemon::EV_SPA(vPkm));
-		sftd_draw_text_pkm(x, (y += 15), "Sp.Defense   ???  %2u  %3u", Pokemon::IV_SPD(vPkm), Pokemon::EV_SPD(vPkm));
-		sftd_draw_text_pkm(x, (y += 15), "Speed        ???  %2u  %3u", Pokemon::IV_SPE(vPkm), Pokemon::EV_SPE(vPkm));
+		sftd_draw_text_pkm(x, (y += 15), "HP           %3u  %2u  %3u", Pokemon::HP(vPkm), Pokemon::IV_HP(vPkm), Pokemon::EV_HP(vPkm));
+		sftd_draw_text_pkm(x, (y += 15), "Attack       %3u  %2u  %3u", Pokemon::ATK(vPkm), Pokemon::IV_ATK(vPkm), Pokemon::EV_ATK(vPkm));
+		sftd_draw_text_pkm(x, (y += 15), "Defense      %3u  %2u  %3u", Pokemon::DEF(vPkm), Pokemon::IV_DEF(vPkm), Pokemon::EV_DEF(vPkm));
+		sftd_draw_text_pkm(x, (y += 15), "Sp.Attack    %3u  %2u  %3u", Pokemon::SPA(vPkm), Pokemon::IV_SPA(vPkm), Pokemon::EV_SPA(vPkm));
+		sftd_draw_text_pkm(x, (y += 15), "Sp.Defense   %3u  %2u  %3u", Pokemon::SPD(vPkm), Pokemon::IV_SPD(vPkm), Pokemon::EV_SPD(vPkm));
+		sftd_draw_text_pkm(x, (y += 15), "Speed        %3u  %2u  %3u", Pokemon::SPE(vPkm), Pokemon::IV_SPE(vPkm), Pokemon::EV_SPE(vPkm));
 		sftd_draw_text_pkm(x, (y += 15), "Nature   %s", PKData::natures(Pokemon::nature(vPkm)));
 		sftd_draw_text_pkm(x, (y += 15), "Ability  %s", PKData::abilities(Pokemon::ability(vPkm)));
 		sftd_draw_text_pkm(x, (y += 15), "Item     %s", PKData::items(Pokemon::itemID(vPkm)));
 
 		x = 246;
 		y = 147;
-		// sftd_draw_text_pkm(x, (y += 15), "  %s %s %s", (false ? "#" : "-"), (true ? "/" : "-"), (true ? "+" : "-"));
+		sftd_draw_text_pkm(x, (y += 15), " %s Hidden Power", PKData::HPTypes(Pokemon::HPType(vPkm)));
 		sftd_draw_text_pkm(x, (y += 15), "Moves");
 		sftd_draw_text_pkm(x, (y += 15), " %s", PKData::moves(Pokemon::move1(vPkm))); // "Fire Blast"); // PKData::move(Pokemon::move1(pkm)));
 		sftd_draw_text_pkm(x, (y += 15), " %s", PKData::moves(Pokemon::move2(vPkm))); // "Extrasensory");

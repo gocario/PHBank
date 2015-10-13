@@ -25,12 +25,14 @@ sftd_font* PHBank::font()
 }
 
 
-void PHBank::load()
+Result PHBank::load()
 {
 	PHBank::_font = sftd_load_font_mem(PokemonGB_ttf, PokemonGB_ttf_size);
+
+	return 0;
 }
 
-void PHBank::destroy()
+Result PHBank::destroy()
 {
 	// delete PHBank::_pHBank;
 	// delete PHBank::_pKBank;
@@ -38,4 +40,6 @@ void PHBank::destroy()
 	if (_font)
 		sftd_free_font(PHBank::_font);
 	printf(" OK!\n");
+
+	return 0;
 }

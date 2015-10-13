@@ -14,8 +14,8 @@ class PHBank
 		static PKBank* pKBank();
 		static sftd_font* font();
 
-		static void load();
-		static void destroy();
+		static Result load();
+		static Result destroy();
 
 	private:
 		static PHBank _pHBank;
