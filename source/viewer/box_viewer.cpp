@@ -169,37 +169,64 @@ Result BoxViewer::drawTopScreen()
 		uint32_t x, y;
 
 		x = 32;
-		y = 16;
-		// sftd_draw_text_pkm(x, y, "%s", (Pokemon::isNicknamed(vPkm) ? Pokemon::nickname(vPkm) : PKData::species(Pokemon::speciesID(vPkm))));
+		y = 16 - 2;
+		// sftd_draw_text_white(x, y, "%s", (Pokemon::isNicknamed(vPkm) ? Pokemon::nickname(vPkm) : PKData::species(Pokemon::speciesID(vPkm))));
 		if (Pokemon::isEgg(vPkm))
-			sftd_draw_text_pkm(x, y, "%s", "IT'S AN EGG!!!");
+			sftd_draw_text_white(x, y, "%s", "IT'S AN EGG!!!");
 		else
-			sftd_draw_text_pkm(x, y, "%s", (Pokemon::isNicknamed(vPkm) ? Pokemon::nickname(vPkm) : PKData::species(Pokemon::speciesID(vPkm))));
-		sftd_draw_text_pkm(x + 200, y, "Lv.%u", Pokemon::level(vPkm));
+			sftd_draw_text_white(x, y, "%s", (Pokemon::isNicknamed(vPkm) ? Pokemon::nickname(vPkm) : PKData::species(Pokemon::speciesID(vPkm))));
+		sftd_draw_text_white(x + 168, y, "Lv.%u", Pokemon::level(vPkm));
 
 		x = 11;
-		y = 42;
-		sftd_draw_text_pkm(x, (y += 15), "Dex No.  %3u  %s", Pokemon::speciesID(vPkm), PKData::species(Pokemon::speciesID(vPkm)));
-		sftd_draw_text_pkm(x, (y += 15), "OT       %s", "Team Rocket!!");
-		sftd_draw_text_pkm(x, (y += 15), "Stat        Value IV  EVs");
-		sftd_draw_text_pkm(x, (y += 15), "HP           %3u  %2u  %3u", Pokemon::HP(vPkm), Pokemon::IV_HP(vPkm), Pokemon::EV_HP(vPkm));
-		sftd_draw_text_pkm(x, (y += 15), "Attack       %3u  %2u  %3u", Pokemon::ATK(vPkm), Pokemon::IV_ATK(vPkm), Pokemon::EV_ATK(vPkm));
-		sftd_draw_text_pkm(x, (y += 15), "Defense      %3u  %2u  %3u", Pokemon::DEF(vPkm), Pokemon::IV_DEF(vPkm), Pokemon::EV_DEF(vPkm));
-		sftd_draw_text_pkm(x, (y += 15), "Sp.Attack    %3u  %2u  %3u", Pokemon::SPA(vPkm), Pokemon::IV_SPA(vPkm), Pokemon::EV_SPA(vPkm));
-		sftd_draw_text_pkm(x, (y += 15), "Sp.Defense   %3u  %2u  %3u", Pokemon::SPD(vPkm), Pokemon::IV_SPD(vPkm), Pokemon::EV_SPD(vPkm));
-		sftd_draw_text_pkm(x, (y += 15), "Speed        %3u  %2u  %3u", Pokemon::SPE(vPkm), Pokemon::IV_SPE(vPkm), Pokemon::EV_SPE(vPkm));
-		sftd_draw_text_pkm(x, (y += 15), "Nature   %s", PKData::natures(Pokemon::nature(vPkm)));
-		sftd_draw_text_pkm(x, (y += 15), "Ability  %s", PKData::abilities(Pokemon::ability(vPkm)));
-		sftd_draw_text_pkm(x, (y += 15), "Item     %s", PKData::items(Pokemon::itemID(vPkm)));
+		y = 42 - 2;
+		sftd_draw_text_white(x, (y += 15), "Dex No.");
+		sftd_draw_text_white(x+50, y, "%u", Pokemon::speciesID(vPkm));
+		sftd_draw_text_white(x+80, y, "%s", PKData::species(Pokemon::speciesID(vPkm)));
+		sftd_draw_text_white(x, (y += 15), "OT");
+		sftd_draw_text_white(x+50, y, "%s", "Team Rocket!!");
+		sftd_draw_text_white(x, (y += 15), "Stat");
+		sftd_draw_text_white(x+90, y, "Value");
+		sftd_draw_text_white(x+128, y, "IVs");
+		sftd_draw_text_white(x+158, y, "EVs");
+		sftd_draw_text_white(x, (y+=15), "HP");
+		sftd_draw_text_white(x+100, y, "% 3u", Pokemon::HP(vPkm));
+		sftd_draw_text_white(x+130, y, "% 2u", Pokemon::IV_HP(vPkm));
+		sftd_draw_text_white(x+160, y, "% 3u", Pokemon::EV_HP(vPkm));
+		sftd_draw_text_white(x, (y+=15), "Attack");
+		sftd_draw_text_white(x+100, y, "% 3u", Pokemon::ATK(vPkm));
+		sftd_draw_text_white(x+130, y, "% 2u", Pokemon::IV_ATK(vPkm));
+		sftd_draw_text_white(x+160, y, "% 3u", Pokemon::EV_ATK(vPkm));
+		sftd_draw_text_white(x, (y+=15), "Defense");
+		sftd_draw_text_white(x+100, y, "% 3u", Pokemon::DEF(vPkm));
+		sftd_draw_text_white(x+130, y, "% 2u", Pokemon::IV_DEF(vPkm));
+		sftd_draw_text_white(x+160, y, "% 3u", Pokemon::EV_DEF(vPkm));
+		sftd_draw_text_white(x, (y+=15), "Sp.Attack");
+		sftd_draw_text_white(x+100, y, "% 3u", Pokemon::SPA(vPkm));
+		sftd_draw_text_white(x+130, y, "% 2u", Pokemon::IV_SPA(vPkm));
+		sftd_draw_text_white(x+160, y, "% 3u", Pokemon::EV_SPA(vPkm));
+		sftd_draw_text_white(x, (y+=15), "Sp.Defense");
+		sftd_draw_text_white(x+100, y, "% 3u", Pokemon::SPD(vPkm));
+		sftd_draw_text_white(x+130, y, "% 2u", Pokemon::IV_SPD(vPkm));
+		sftd_draw_text_white(x+160, y, "% 3u", Pokemon::EV_SPD(vPkm));
+		sftd_draw_text_white(x, (y+=15), "Speed");
+		sftd_draw_text_white(x+100, y, "% 3u", Pokemon::SPE(vPkm));
+		sftd_draw_text_white(x+130, y, "% 2u", Pokemon::IV_SPE(vPkm));
+		sftd_draw_text_white(x+160, y, "% 3u", Pokemon::EV_SPE(vPkm));
+		sftd_draw_text_white(x, (y += 15), "Nature");
+		sftd_draw_text_white(x+50, y, "%s", PKData::natures(Pokemon::nature(vPkm)));
+		sftd_draw_text_white(x, (y += 15), "Ability");
+		sftd_draw_text_white(x+50, y, "%s", PKData::abilities(Pokemon::ability(vPkm)));
+		sftd_draw_text_white(x, (y += 15), "Item");
+		sftd_draw_text_white(x+50, y, "%s", PKData::items(Pokemon::itemID(vPkm)));
 
 		x = 246;
-		y = 147;
-		sftd_draw_text_pkm(x, (y += 15), " %s Hidden Power", PKData::HPTypes(Pokemon::HPType(vPkm)));
-		sftd_draw_text_pkm(x, (y += 15), "Moves");
-		sftd_draw_text_pkm(x, (y += 15), " %s", PKData::moves(Pokemon::move1(vPkm))); // "Fire Blast"); // PKData::move(Pokemon::move1(pkm)));
-		sftd_draw_text_pkm(x, (y += 15), " %s", PKData::moves(Pokemon::move2(vPkm))); // "Extrasensory");
-		sftd_draw_text_pkm(x, (y += 15), " %s", PKData::moves(Pokemon::move3(vPkm))); // "Stone Edge");
-		sftd_draw_text_pkm(x, (y += 15), " %s", PKData::moves(Pokemon::move4(vPkm))); // "Bulldoze");
+		y = 147 - 15 - 2;
+		sftd_draw_text_white(x, (y += 15), " %s Hidden Power", PKData::HPTypes(Pokemon::HPType(vPkm)));
+		sftd_draw_text_white(x, (y += 15), "Moves");
+		sftd_draw_text_white(x, (y += 15), " %s", PKData::moves(Pokemon::move1(vPkm))); // "Fire Blast"); // PKData::move(Pokemon::move1(pkm)));
+		sftd_draw_text_white(x, (y += 15), " %s", PKData::moves(Pokemon::move2(vPkm))); // "Extrasensory");
+		sftd_draw_text_white(x, (y += 15), " %s", PKData::moves(Pokemon::move3(vPkm))); // "Stone Edge");
+		sftd_draw_text_white(x, (y += 15), " %s", PKData::moves(Pokemon::move4(vPkm))); // "Bulldoze");
 	}
 
 	if (hasOverlayChild()) { this->child->drawTopScreen(); }
@@ -228,7 +255,9 @@ Result BoxViewer::drawBotScreen()
 		char boxTitle[0x18];
 		snprintf(boxTitle, 0x18, "Box %i", (cursorBox.inBank ? cursorBox.boxBK : cursorBox.boxPC) + 1);
 		int boxTitleWidth = sftd_get_text_width(PHBank::font(), 8, boxTitle);
-		sftd_draw_text_pkm(boxShift + (BACKGROUND_WIDTH - boxTitleWidth) / 2, 28, boxTitle);
+
+		sftd_draw_text(PHBank::font(), boxShift + (BACKGROUND_WIDTH - boxTitleWidth) / 2, 25, RGBA8(0x00, 0x00, 0x00, 0xFF), 14, boxTitle);
+
 		
 		// Draw Pokémon icons
 		if (isPkmDragged || isPkmHeld)

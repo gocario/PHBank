@@ -116,7 +116,7 @@ const char hpTypes[16][9] = {
 };
 
 // --------------------------------------------------
-const char* HPTypes(u8 hiddenPower)
+const char* PKData::HPTypes(u8 hiddenPower)
 // --------------------------------------------------
 {
 	if (hiddenPower < 16)

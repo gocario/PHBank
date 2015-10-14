@@ -34,8 +34,30 @@ void sftd_draw_text_pkm(const u16 x, const u16 y, const char* text, ... )
 	va_list args;
 	va_start(args, text);
 	vsnprintf(buffer, 256, text, args);
-	sftd_draw_text(PHBank::font(), x+1, y+1, RGBA8(0x00, 0x00, 0x00, 0xAF), 8, buffer);
-	sftd_draw_text(PHBank::font(), x, y, RGBA8(0xFF, 0xFF, 0xFF, 0xFF), 8, buffer);
+	sftd_draw_text(PHBank::font(), x+1, y+1, RGBA8(0x00, 0x00, 0x00, 0xAF), 12, buffer);
+	sftd_draw_text(PHBank::font(), x, y, RGBA8(0xFF, 0xFF, 0xFF, 0xFF), 12, buffer);
+	va_end(args);
+}
+
+void sftd_draw_text_white(const u16 x, const u16 y, const char* text, ... )
+{
+	char buffer[256];
+
+	va_list args;
+	va_start(args, text);
+	vsnprintf(buffer, 256, text, args);
+	sftd_draw_text(PHBank::font(), x, y, RGBA8(0xFF, 0xFF, 0xFF, 0xFF), 12, buffer);
+	va_end(args);
+}
+
+void sftd_draw_text_black(const u16 x, const u16 y, const char* text, ... )
+{
+	char buffer[256];
+
+	va_list args;
+	va_start(args, text);
+	vsnprintf(buffer, 256, text, args);
+	sftd_draw_text(PHBank::font(), x, y, RGBA8(0x00, 0x00, 0x00, 0xFF), 12, buffer);
 	va_end(args);
 }
 

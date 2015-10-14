@@ -446,14 +446,6 @@ void PKBank::movePkm(pkm_t* src, pkm_t* dst, bool srcBanked, bool dstBanked)
 		if (!dstBanked && !isPkmEmpty(src) && !filterPkm(src))
 			{ printf("No! (src)"); return; }
 	}
-	else if (gametype == Game::ORAS)
-	{
-		// Pokédex completion
-		if (srcBanked && !dstBanked)
-			addDex(src);
-		if (!srcBanked && dstBanked)
-			addDex(dst);
-	}
 
 	movePkm(src, dst);
 }
@@ -1122,6 +1114,12 @@ void PKBank::savePkmPk6(pkm_t* pkm)
 	{
 		convertPkmTrainer(pkm);
 		Pokemon::computeChecksum(pkm);
+
+		if (gametype == Game::ORAS)
+		{
+			if (!isPkmEmpty(pkm))
+				addDex(pkm);
+		}
 	}
 }
 
