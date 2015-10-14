@@ -5,6 +5,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <wchar.h>
 
 #include "main.hpp"
 #include "filesystem.hpp"
@@ -61,11 +62,11 @@ typedef struct pkm_t
 	pk6_t* pk6 = NULL; // Pointer to OwnBuffer
 	bool moved : 1;
 	bool modified : 1;
+	bool isShiny : 1;
 	unsigned : 0;
 	
 	u8* species;
 	u8* item;
-	bool isShiny;
 	u16 speciesID;
 	u16 itemID;
 	// T O D O !!
@@ -122,13 +123,13 @@ typedef struct savedata_t
 {
 	pc_t pc;
 	pokedex_t pokedex;
-	uint16_t TID; // 0x0
-	uint16_t SID; // 0x2
-	uint16_t TSV;
-	uint8_t OTGender; // 0x05
-	uint8_t OTName[0x1a]; // 0x48
-	uint8_t GEORegion; // 0x26
-	uint8_t GEOCountry; // 0x27
+	u16 TID; // 0x0
+	u16 SID; // 0x2
+	u16 TSV;
+	u8 OTGender; // 0x05
+	u8 OTName[0x1a / 2]; // 0x48
+	u8 GEORegion; // 0x26
+	u8 GEOCountry; // 0x27
 
 } savedata_t;
 

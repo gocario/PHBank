@@ -39,7 +39,7 @@ class PKData
 		static u8* natures(u32 nature);
 		static u8* species(u32 species);
 
-		static const char* HPTypes(u8 hiddenPower);
+		static const u8* HPTypes(u8 hiddenPower);
 	private:
 
 		static u8 _lang;

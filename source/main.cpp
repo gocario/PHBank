@@ -61,6 +61,18 @@ void sftd_draw_text_black(const u16 x, const u16 y, const char* text, ... )
 	va_end(args);
 }
 
+void sftd_draw_wtext_white(const u16 x, const u16 y, const wchar_t* text, ... )
+{
+	wchar_t buffer[256];
+
+	va_list args;
+	va_start(args, text);
+	vswprintf(buffer, 256, text, args);
+	sftd_draw_wtext(PHBank::font(), x, y, RGBA8(0xFF, 0xFF, 0xFF, 0xFF), 12, buffer);
+	va_end(args);
+}
+
+
 
 int main(int argc, char* argv[])
 {

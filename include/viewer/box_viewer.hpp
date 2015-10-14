@@ -16,6 +16,23 @@
 #define PC_SIZE BOX_SIZE * PC_BOXCOUNT
 #define BANK_SIZE BOX_SIZE * BANK_BOXCOUNT
 
+typedef struct vPkm_t {
+	pkm_t* pkm = NULL;
+	bool emptySlot;
+	u8 NKName[0x1a / 2];
+	u8 OTName[0x1a / 2];
+	u8 HTName[0x1a / 2];
+	const u8* species;
+	const u8* item;
+	const u8* nature;
+	const u8* ability;
+	const u8* moves[4];
+	const u8* hiddenPower;
+	u8 level;
+	u16 stats[6];
+	u16 ivs[6];
+	u16 evs[6];
+} vPkm_t;
 
 typedef struct BoxSlot_t {
 	bool inBank = false;
@@ -89,7 +106,7 @@ class BoxViewer : public Viewer
 		bool isPkmHeld = false;
 		BoxSlot_t sSlot;
 		pkm_t* sPkm = NULL;
-		pkm_t* vPkm = NULL;
+		vPkm_t vPkm;
 		box_t* vPCBox = NULL;
 		box_t* vBKBox = NULL;
 
@@ -99,6 +116,7 @@ class BoxViewer : public Viewer
 		void selectViewPokemon();
 		void selectMovePokemon();
 		void cancelMovePokemon();
+		void populateVPkmData(vPkm_t* vPkm);
 };
 
 

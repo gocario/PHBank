@@ -235,6 +235,80 @@ u16 Pokemon::SPE(pkm_t* pkm)
 		Pokemon::form(pkm)
 	);
 }
+
+u16 Pokemon::HP(pkm_t* pkm, u8 level)
+{
+	return Pokemon::stat(
+		Pokemon::speciesID(pkm),
+		Pokemon::IV_HP(pkm),
+		Pokemon::EV_HP(pkm),
+		Pokemon::nature(pkm),
+		level,
+		Stat::HP,
+		Pokemon::form(pkm)
+	);
+}
+u16 Pokemon::ATK(pkm_t* pkm, u8 level)
+{
+	return Pokemon::stat(
+		Pokemon::speciesID(pkm),
+		Pokemon::IV_ATK(pkm),
+		Pokemon::EV_ATK(pkm),
+		Pokemon::nature(pkm),
+		level,
+		Stat::ATK,
+		Pokemon::form(pkm)
+	);
+}
+u16 Pokemon::DEF(pkm_t* pkm, u8 level)
+{
+	return Pokemon::stat(
+		Pokemon::speciesID(pkm),
+		Pokemon::IV_DEF(pkm),
+		Pokemon::EV_DEF(pkm),
+		Pokemon::nature(pkm),
+		level,
+		Stat::DEF,
+		Pokemon::form(pkm)
+	);
+}
+u16 Pokemon::SPA(pkm_t* pkm, u8 level)
+{
+	return Pokemon::stat(
+		Pokemon::speciesID(pkm),
+		Pokemon::IV_SPA(pkm),
+		Pokemon::EV_SPA(pkm),
+		Pokemon::nature(pkm),
+		Pokemon::level(pkm),
+		Stat::SPA,
+		Pokemon::form(pkm)
+	);
+}
+u16 Pokemon::SPD(pkm_t* pkm, u8 level)
+{
+	return Pokemon::stat(
+		Pokemon::speciesID(pkm),
+		Pokemon::IV_SPD(pkm),
+		Pokemon::EV_SPD(pkm),
+		Pokemon::nature(pkm),
+		level,
+		Stat::SPD,
+		Pokemon::form(pkm)
+	);
+}
+u16 Pokemon::SPE(pkm_t* pkm, u8 level)
+{
+	return Pokemon::stat(
+		Pokemon::speciesID(pkm),
+		Pokemon::IV_SPE(pkm),
+		Pokemon::EV_SPE(pkm),
+		Pokemon::nature(pkm),
+		level,
+		Stat::SPE,
+		Pokemon::form(pkm)
+	);
+}
+
 u8 Pokemon::HPType(pkm_t* pkm)
 {
 	return ((15 * ((IV_HP(pkm) & 1) + 2 * (IV_ATK(pkm) & 1) + 4 * (IV_DEF(pkm)) + 8 * (IV_SPE(pkm) & 1) + 16 * (IV_SPA(pkm) & 1) + 32 * (IV_SPD(pkm) & 1))) / 63);
@@ -379,7 +453,7 @@ u8 Pokemon::_0x3E(pkm_t* pkm) { return *(u8*)(pkm->pk6 + 0x3e); }
 u8 Pokemon::_0x3F(pkm_t* pkm) { return *(u8*)(pkm->pk6 + 0x3f); }
 
 // Region B
-u8* Pokemon::nickname(pkm_t* pkm) { return (u8*)(pkm->pk6 + 0x18); }
+u16* Pokemon::NK_name(pkm_t* pkm) { return (u16*)(pkm->pk6 + 0x18); }
 u16 Pokemon::move1(pkm_t* pkm) { return *(u16*)(pkm->pk6 + 0x5a); }
 u16 Pokemon::move2(pkm_t* pkm) { return *(u16*)(pkm->pk6 + 0x5c); }
 u16 Pokemon::move3(pkm_t* pkm) { return *(u16*)(pkm->pk6 + 0x5e); }
@@ -408,7 +482,7 @@ bool Pokemon::isEgg(pkm_t* pkm) { return ((Pokemon::IV32(pkm) >> 30) & 0x1) == 1
 bool Pokemon::isNicknamed(pkm_t* pkm) { return ((Pokemon::IV32(pkm) >> 31) & 0x1) == 1; }
 
 // Region C
-u8* Pokemon::HT_name(pkm_t* pkm) { return (u8*)(pkm->pk6 + 0x78); }
+u16* Pokemon::HT_name(pkm_t* pkm) { return (u16*)(pkm->pk6 + 0x78); }
 u8 Pokemon::HT_gender(pkm_t* pkm) { return *(u8*)(pkm->pk6 + 0x92); }
 u8 Pokemon::currentHandler(pkm_t* pkm) { return *(u8*)(pkm->pk6 + 0x93); }
 u8 Pokemon::geo1Region(pkm_t* pkm) { return *(u8*)(pkm->pk6 + 0x94); }
@@ -440,7 +514,7 @@ u8 Pokemon::fullness(pkm_t* pkm) { return *(u8*)(pkm->pk6 + 0xae); }
 u8 Pokemon::enjoyment(pkm_t* pkm) { return *(u8*)(pkm->pk6 + 0xaf); }
 
 // Region D
-u8* Pokemon::OT_name(pkm_t* pkm) { return *(u8**)(pkm->pk6 + 0xb0); }
+u16* Pokemon::OT_name(pkm_t* pkm) { return (u16*)(pkm->pk6 + 0xb0); }
 u8 Pokemon::OT_friendship(pkm_t* pkm) { return *(u8*)(pkm->pk6 + 0xca); }
 u8 Pokemon::OT_affection(pkm_t* pkm) { return *(u8*)(pkm->pk6 + 0xcb); }
 u8 Pokemon::OT_intensity(pkm_t* pkm) { return *(u8*)(pkm->pk6 + 0xcc); }
@@ -633,7 +707,7 @@ void Pokemon::_0x3E(pkm_t* pkm, u8 v) { *(u8*)(pkm->pk6 + 0x3e) = v; }
 void Pokemon::_0x3F(pkm_t* pkm, u8 v) { *(u8*)(pkm->pk6 + 0x3f) = v; }
 
 // Region B
-void Pokemon::nickname(pkm_t* pkm, u8* v) { memcpy((u8*)(pkm->pk6 + 0x40), v, 0x18); }
+void Pokemon::NK_name(pkm_t* pkm, u16* v) { memcpy((void*)(pkm->pk6 + 0x40), (void*)v, 0x18); }
 void Pokemon::move1(pkm_t* pkm, u16 v) { *(u16*)(pkm->pk6 + 0x5a) = v; }
 void Pokemon::move2(pkm_t* pkm, u16 v) { *(u16*)(pkm->pk6 + 0x5c) = v; }
 void Pokemon::move3(pkm_t* pkm, u16 v) { *(u16*)(pkm->pk6 + 0x5e) = v; }
@@ -662,7 +736,7 @@ void Pokemon::isEgg(pkm_t* pkm, bool v) { Pokemon::IV32(pkm, (Pokemon::IV32(pkm)
 void Pokemon::isNicknamed(pkm_t* pkm, bool v) { Pokemon::IV32(pkm, (Pokemon::IV32(pkm) & ~0x80000000) | (v ? 0x80000000 : v)); }
 
 // Region C
-void Pokemon::HT_name(pkm_t* pkm, u8* v) { memcpy((u8*)(pkm->pk6 + 0x78), v, 0x18); }
+void Pokemon::HT_name(pkm_t* pkm, u16* v) { memcpy((void*)(pkm->pk6 + 0x78), (void*)v, 0x18); }
 void Pokemon::HT_gender(pkm_t* pkm, u8 v) { *(u8*)(pkm->pk6 + 0x92) = v; }
 void Pokemon::currentHandler(pkm_t* pkm, u8 v) { *(u8*)(pkm->pk6 + 0x93) = v; }
 void Pokemon::geo1Region(pkm_t* pkm, u8 v) { *(u8*)(pkm->pk6 + 0x94) = v; }
@@ -694,7 +768,7 @@ void Pokemon::fullness(pkm_t* pkm, u8 v) { *(u8*)(pkm->pk6 + 0xae) = v; }
 void Pokemon::enjoyment(pkm_t* pkm, u8 v) { *(u8*)(pkm->pk6 + 0xaf) = v; }
 
 // Region D
-void Pokemon::OT_name(pkm_t* pkm, u8* v) { memcpy((u8*)(pkm->pk6 + 0xb0), v, 0x18); }
+void Pokemon::OT_name(pkm_t* pkm, u16* v) { memcpy((void*)(pkm->pk6 + 0xb0), (void*)v, 0x18); }
 void Pokemon::OT_friendship(pkm_t* pkm, u8 v) { *(u8*)(pkm->pk6 + 0xca) = v; }
 void Pokemon::OT_affection(pkm_t* pkm, u8 v) { *(u8*)(pkm->pk6 + 0xcb) = v; }
 void Pokemon::OT_intensity(pkm_t* pkm, u8 v) { *(u8*)(pkm->pk6 + 0xcc) = v; }

@@ -39,6 +39,12 @@ class Pokemon
 		static u16 SPA(pkm_t* pkm);
 		static u16 SPD(pkm_t* pkm);
 		static u16 SPE(pkm_t* pkm);
+		static u16 HP(pkm_t* pkm, u8 level);
+		static u16 ATK(pkm_t* pkm, u8 level);
+		static u16 DEF(pkm_t* pkm, u8 level);
+		static u16 SPA(pkm_t* pkm, u8 level);
+		static u16 SPD(pkm_t* pkm, u8 level);
+		static u16 SPE(pkm_t* pkm, u8 level);
 		static u8 HPType(pkm_t* pkm);
 		
 
@@ -180,7 +186,7 @@ class Pokemon
 		static u8 _0x3F(pkm_t* pkm);
 		
 		// Region B
-		static u8* nickname(pkm_t* pkm);
+		static u16* NK_name(pkm_t* pkm);
 		static u16 move1(pkm_t* pkm);
 		static u16 move2(pkm_t* pkm);
 		static u16 move3(pkm_t* pkm);
@@ -209,7 +215,7 @@ class Pokemon
 		static bool isNicknamed(pkm_t* pkm);
 
 		// Region C
-		static u8* HT_name(pkm_t* pkm);
+		static u16* HT_name(pkm_t* pkm);
 		static u8 HT_gender(pkm_t* pkm);
 		static u8 currentHandler(pkm_t* pkm);
 		static u8 geo1Region(pkm_t* pkm);
@@ -241,7 +247,7 @@ class Pokemon
 		static u8 enjoyment(pkm_t* pkm);
 
 		// Region D
-		static u8* OT_name(pkm_t* pkm);
+		static u16* OT_name(pkm_t* pkm);
 		static u8 OT_friendship(pkm_t* pkm);
 		static u8 OT_affection(pkm_t* pkm);
 		static u8 OT_intensity(pkm_t* pkm);
@@ -432,7 +438,7 @@ class Pokemon
 		static void _0x3F(pkm_t* pkm, u8 v);
 
 		// Region B
-		static void nickname(pkm_t* pkm, u8* v);
+		static void NK_name(pkm_t* pkm, u16* v);
 		static void move1(pkm_t* pkm, u16 v);
 		static void move2(pkm_t* pkm, u16 v);
 		static void move3(pkm_t* pkm, u16 v);
@@ -461,7 +467,7 @@ class Pokemon
 		static void isNicknamed(pkm_t* pkm, bool v);
 
 		// Region C
-		static void HT_name(pkm_t* pkm, u8* v);
+		static void HT_name(pkm_t* pkm, u16* v);
 		static void HT_gender(pkm_t* pkm, u8 v);
 		static void currentHandler(pkm_t* pkm, u8 v);
 		static void geo1Region(pkm_t* pkm, u8 v);
@@ -493,7 +499,7 @@ class Pokemon
 		static void enjoyment(pkm_t* pkm, u8 v);
 
 		// Region D
-		static void OT_name(pkm_t* pkm, u8* v);
+		static void OT_name(pkm_t* pkm, u16* v);
 		static void OT_friendship(pkm_t* pkm, u8 v);
 		static void OT_affection(pkm_t* pkm, u8 v);
 		static void OT_intensity(pkm_t* pkm, u8 v);

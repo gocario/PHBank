@@ -109,14 +109,14 @@ u8* PKData::species(u32 species)
 }
 
 
-const char hpTypes[16][9] = {
+const u8 hpTypes[16][9] = {
 	"Fighting", "Flying", "Poison", "Ground",
 	"Rock", "Bug", "Ghost", "Steel", "Fire", "Water",
 	"Grass", "Electric", "Psychic", "Ice", "Dragon", "Dark"
 };
 
 // --------------------------------------------------
-const char* PKData::HPTypes(u8 hiddenPower)
+const u8* PKData::HPTypes(u8 hiddenPower)
 // --------------------------------------------------
 {
 	if (hiddenPower < 16)

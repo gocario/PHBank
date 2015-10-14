@@ -164,69 +164,75 @@ Result BoxViewer::drawTopScreen()
 
 	sf2d_draw_texture(backgroundResume, 0, 0);
 
-	if (vPkm && !PHBank::pKBank()->isPkmEmpty(vPkm))
+	if (vPkm.pkm && !vPkm.emptySlot)
 	{
 		uint32_t x, y;
 
 		x = 32;
 		y = 16 - 2;
-		// sftd_draw_text_white(x, y, "%s", (Pokemon::isNicknamed(vPkm) ? Pokemon::nickname(vPkm) : PKData::species(Pokemon::speciesID(vPkm))));
-		if (Pokemon::isEgg(vPkm))
+		// sftd_draw_text_white(x, y, "%s", (Pokemon::isNicknamed(vPkm.pkm) ? Pokemon::nickname(vPkm.pkm) : PKData::species(Pokemon::speciesID(vPkm.pkm))));
+		if (Pokemon::isEgg(vPkm.pkm))
 			sftd_draw_text_white(x, y, "%s", "IT'S AN EGG!!!");
 		else
-			sftd_draw_text_white(x, y, "%s", (Pokemon::isNicknamed(vPkm) ? Pokemon::nickname(vPkm) : PKData::species(Pokemon::speciesID(vPkm))));
-		sftd_draw_text_white(x + 168, y, "Lv.%u", Pokemon::level(vPkm));
+			if (Pokemon::isNicknamed(vPkm.pkm))
+				sftd_draw_text_white(x, y, "%s", vPkm.NKName);
+			else
+				sftd_draw_text_white(x, y, "%s", vPkm.species);
+
+		sftd_draw_text_white(x + 168, y, "Lv.%u", vPkm.level);
 
 		x = 11;
 		y = 42 - 2;
+		sftd_draw_text_white(x, y, "Game's OT");
+		sftd_draw_text_white(x+80, y, "%s", PHBank::pKBank()->savedata->OTName);
 		sftd_draw_text_white(x, (y += 15), "Dex No.");
-		sftd_draw_text_white(x+50, y, "%u", Pokemon::speciesID(vPkm));
-		sftd_draw_text_white(x+80, y, "%s", PKData::species(Pokemon::speciesID(vPkm)));
-		sftd_draw_text_white(x, (y += 15), "OT");
-		sftd_draw_text_white(x+50, y, "%s", "Team Rocket!!");
+		sftd_draw_text_white(x+50, y, "%u", Pokemon::speciesID(vPkm.pkm));
+		sftd_draw_text_white(x+80, y, "%s", vPkm.species);
+		sftd_draw_text_white(x, (y += 15), "O.T.");
+		sftd_draw_text_white(x+50, y, "%s", vPkm.OTName);
 		sftd_draw_text_white(x, (y += 15), "Stat");
 		sftd_draw_text_white(x+90, y, "Value");
 		sftd_draw_text_white(x+128, y, "IVs");
 		sftd_draw_text_white(x+158, y, "EVs");
 		sftd_draw_text_white(x, (y+=15), "HP");
-		sftd_draw_text_white(x+100, y, "% 3u", Pokemon::HP(vPkm));
-		sftd_draw_text_white(x+130, y, "% 2u", Pokemon::IV_HP(vPkm));
-		sftd_draw_text_white(x+160, y, "% 3u", Pokemon::EV_HP(vPkm));
+		sftd_draw_text_white(x+100, y, "% 3u", vPkm.stats[Stat::HP]);
+		sftd_draw_text_white(x+130, y, "% 2u", vPkm.stats[Stat::HP]);
+		sftd_draw_text_white(x+160, y, "% 3u", vPkm.stats[Stat::HP]);
 		sftd_draw_text_white(x, (y+=15), "Attack");
-		sftd_draw_text_white(x+100, y, "% 3u", Pokemon::ATK(vPkm));
-		sftd_draw_text_white(x+130, y, "% 2u", Pokemon::IV_ATK(vPkm));
-		sftd_draw_text_white(x+160, y, "% 3u", Pokemon::EV_ATK(vPkm));
+		sftd_draw_text_white(x+100, y, "% 3u", vPkm.stats[Stat::ATK]);
+		sftd_draw_text_white(x+130, y, "% 2u", vPkm.stats[Stat::ATK]);
+		sftd_draw_text_white(x+160, y, "% 3u", vPkm.stats[Stat::ATK]);
 		sftd_draw_text_white(x, (y+=15), "Defense");
-		sftd_draw_text_white(x+100, y, "% 3u", Pokemon::DEF(vPkm));
-		sftd_draw_text_white(x+130, y, "% 2u", Pokemon::IV_DEF(vPkm));
-		sftd_draw_text_white(x+160, y, "% 3u", Pokemon::EV_DEF(vPkm));
+		sftd_draw_text_white(x+100, y, "% 3u", vPkm.stats[Stat::DEF]);
+		sftd_draw_text_white(x+130, y, "% 2u", vPkm.stats[Stat::DEF]);
+		sftd_draw_text_white(x+160, y, "% 3u", vPkm.stats[Stat::DEF]);
 		sftd_draw_text_white(x, (y+=15), "Sp.Attack");
-		sftd_draw_text_white(x+100, y, "% 3u", Pokemon::SPA(vPkm));
-		sftd_draw_text_white(x+130, y, "% 2u", Pokemon::IV_SPA(vPkm));
-		sftd_draw_text_white(x+160, y, "% 3u", Pokemon::EV_SPA(vPkm));
+		sftd_draw_text_white(x+100, y, "% 3u", vPkm.stats[Stat::SPA]);
+		sftd_draw_text_white(x+130, y, "% 2u", vPkm.stats[Stat::SPA]);
+		sftd_draw_text_white(x+160, y, "% 3u", vPkm.stats[Stat::SPA]);
 		sftd_draw_text_white(x, (y+=15), "Sp.Defense");
-		sftd_draw_text_white(x+100, y, "% 3u", Pokemon::SPD(vPkm));
-		sftd_draw_text_white(x+130, y, "% 2u", Pokemon::IV_SPD(vPkm));
-		sftd_draw_text_white(x+160, y, "% 3u", Pokemon::EV_SPD(vPkm));
+		sftd_draw_text_white(x+100, y, "% 3u", vPkm.stats[Stat::SPD]);
+		sftd_draw_text_white(x+130, y, "% 2u", vPkm.stats[Stat::SPD]);
+		sftd_draw_text_white(x+160, y, "% 3u", vPkm.stats[Stat::SPD]);
 		sftd_draw_text_white(x, (y+=15), "Speed");
-		sftd_draw_text_white(x+100, y, "% 3u", Pokemon::SPE(vPkm));
-		sftd_draw_text_white(x+130, y, "% 2u", Pokemon::IV_SPE(vPkm));
-		sftd_draw_text_white(x+160, y, "% 3u", Pokemon::EV_SPE(vPkm));
+		sftd_draw_text_white(x+100, y, "% 3u", vPkm.stats[Stat::SPE]);
+		sftd_draw_text_white(x+130, y, "% 2u", vPkm.stats[Stat::SPE]);
+		sftd_draw_text_white(x+160, y, "% 3u", vPkm.stats[Stat::SPE]);
 		sftd_draw_text_white(x, (y += 15), "Nature");
-		sftd_draw_text_white(x+50, y, "%s", PKData::natures(Pokemon::nature(vPkm)));
+		sftd_draw_text_white(x+50, y, "%s", vPkm.nature);
 		sftd_draw_text_white(x, (y += 15), "Ability");
-		sftd_draw_text_white(x+50, y, "%s", PKData::abilities(Pokemon::ability(vPkm)));
+		sftd_draw_text_white(x+50, y, "%s", vPkm.ability);
 		sftd_draw_text_white(x, (y += 15), "Item");
-		sftd_draw_text_white(x+50, y, "%s", PKData::items(Pokemon::itemID(vPkm)));
+		sftd_draw_text_white(x+50, y, "%s", vPkm.item);
 
 		x = 246;
 		y = 147 - 15 - 2;
-		sftd_draw_text_white(x, (y += 15), " %s Hidden Power", PKData::HPTypes(Pokemon::HPType(vPkm)));
+		sftd_draw_text_white(x, (y += 15), " %s Hidden Power", vPkm.hiddenPower);
 		sftd_draw_text_white(x, (y += 15), "Moves");
-		sftd_draw_text_white(x, (y += 15), " %s", PKData::moves(Pokemon::move1(vPkm))); // "Fire Blast"); // PKData::move(Pokemon::move1(pkm)));
-		sftd_draw_text_white(x, (y += 15), " %s", PKData::moves(Pokemon::move2(vPkm))); // "Extrasensory");
-		sftd_draw_text_white(x, (y += 15), " %s", PKData::moves(Pokemon::move3(vPkm))); // "Stone Edge");
-		sftd_draw_text_white(x, (y += 15), " %s", PKData::moves(Pokemon::move4(vPkm))); // "Bulldoze");
+		sftd_draw_text_white(x, (y += 15), " %s", vPkm.moves[0]);
+		sftd_draw_text_white(x, (y += 15), " %s", vPkm.moves[1]);
+		sftd_draw_text_white(x, (y += 15), " %s", vPkm.moves[2]);
+		sftd_draw_text_white(x, (y += 15), " %s", vPkm.moves[3]);
 	}
 
 	if (hasOverlayChild()) { this->child->drawTopScreen(); }
@@ -254,9 +260,9 @@ Result BoxViewer::drawBotScreen()
 		sf2d_draw_texture(backgroundBox, boxShift, 20);
 		char boxTitle[0x18];
 		snprintf(boxTitle, 0x18, "Box %i", (cursorBox.inBank ? cursorBox.boxBK : cursorBox.boxPC) + 1);
-		int boxTitleWidth = sftd_get_text_width(PHBank::font(), 8, boxTitle);
+		int boxTitleWidth = sftd_get_text_width(PHBank::font(), 13, boxTitle);
 
-		sftd_draw_text(PHBank::font(), boxShift + (BACKGROUND_WIDTH - boxTitleWidth) / 2, 25, RGBA8(0x00, 0x00, 0x00, 0xFF), 14, boxTitle);
+		sftd_draw_text(PHBank::font(), boxShift + (BACKGROUND_WIDTH - boxTitleWidth) / 2, 25, RGBA8(0x00, 0x00, 0x00, 0xFF), 13, boxTitle);
 
 		
 		// Draw Pokémon icons
@@ -312,7 +318,14 @@ Result BoxViewer::drawBotScreen()
 			}
 			else // isPkmHeld
 			{
-				sf2d_draw_texture_part(icons, boxShift + 12 + (cursorBox.inslot % 6) * 35, 20 + 13 + (cursorBox.inslot / 6) * 35, ((sPkm->speciesID-1) % 25) * 40, ((sPkm->speciesID-1) / 25) * 30, 40, 30);
+				if (cursorBox.inslot == SLOT_NO_SELECTION)
+				{
+					sf2d_draw_texture_part(icons, boxShift + 105, 8, ((sPkm->speciesID-1) % 25) * 40, ((sPkm->speciesID-1) / 25) * 30, 40, 30);
+				}
+				else
+				{
+					sf2d_draw_texture_part(icons, boxShift + 12 + (cursorBox.inslot % 6) * 35, 20 + 13 + (cursorBox.inslot / 6) * 35, ((sPkm->speciesID-1) % 25) * 40, ((sPkm->speciesID-1) / 25) * 30, 40, 30);
+				}
 			}
 		}
 		else
@@ -534,19 +547,20 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 				selectCursorType(CursorType::MultipleSelect);
 			}
 
-			else if (touchWithin(px, py, boxShift, 50, BACKGROUND_WIDTH, BACKGROUND_HEIGHT))
+			else if (touchWithin(px, py, boxShift, 50, BACKGROUND_WIDTH, BACKGROUND_HEIGHT - 30))
 			{
 				// printf("{%3u, %3u}", ((py - 50) / 35), ((px - boxShift) / 35));
 
 				if (!sPkm && !isPkmDragged)
 				{
-					isPkmDragged = true;
-
 					cursorBox.row = ((py - 50) / 35);
 					cursorBox.col = ((px - boxShift) / 35);
 					
 					selectViewPokemon();
 					selectMovePokemon();
+
+					if (!vPkm.emptySlot)
+						isPkmDragged = true;
 				}
 				else
 				{
@@ -557,7 +571,7 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 					cursorBox.col = ((px - boxShift) / 35);
 
 					selectViewPokemon();
-					if (oldRow == cursorBox.row && oldCol == cursorBox.col)
+					if (isPkmHeld && oldRow == cursorBox.row && oldCol == cursorBox.col)
 						selectMovePokemon();
 				}
 			}
@@ -681,14 +695,15 @@ void BoxViewer::selectViewPokemon()
 
 	if (cursorBox.slot == SLOT_NO_SELECTION)
 	{
-		vPkm = NULL;
+		vPkm.pkm = NULL;
 	}
 	else
 	{
-		PHBank::pKBank()->getPkm(*cursorBox.box, cursorBox.inslot, &vPkm, cursorBox.inBank);
+		PHBank::pKBank()->getPkm(*cursorBox.box, cursorBox.inslot, &vPkm.pkm, cursorBox.inBank);
+		populateVPkmData(&vPkm);
 	}
 
-	// printf("View Pokemon: [@%p]\n", vPkm);
+	// printf("View Pokemon: [@%p]\n", vPkm.pkm);
 }
 
 
@@ -701,24 +716,25 @@ void BoxViewer::selectMovePokemon()
 
 	if (!sPkm)
 	{
-		if (!PHBank::pKBank()->isPkmEmpty(vPkm))
+		if (!PHBank::pKBank()->isPkmEmpty(vPkm.pkm))
 		{
-			sPkm = vPkm;
-		// 	extractBoxSlot(&cursorBox, &sSlot);
+			sPkm = vPkm.pkm;
+			// extractBoxSlot(&cursorBox, &sSlot);
+			if (!isPkmDragged) isPkmHeld = true;
 		}
-		if (!isPkmDragged) isPkmHeld = true;
 	}
-	else if (vPkm)
+	else if (vPkm.pkm)
 	{
-		if (sPkm != vPkm)
+		if (sPkm != vPkm.pkm)
 		{
-			PHBank::pKBank()->movePkm(sPkm, vPkm, sSlot.inBank, cursorBox.inBank);
+			PHBank::pKBank()->movePkm(sPkm, vPkm.pkm, sSlot.inBank, cursorBox.inBank);
+			populateVPkmData(&vPkm);
 		}
 
 		cancelMovePokemon();
 	}
 
-	// printf("Selected Pokemon: [@%p]\n", vPkm);
+	// printf("Selected Pokemon: [@%p]\n", vPkm.pkm);
 }
 
 
@@ -729,4 +745,62 @@ void BoxViewer::cancelMovePokemon()
 	sPkm = NULL;
 	isPkmDragged = false;
 	isPkmHeld = false;
+}
+
+
+// --------------------------------------------------
+void BoxViewer::populateVPkmData(vPkm_t* vPkm)
+// --------------------------------------------------
+{
+	u16* name;
+
+	name = Pokemon::NK_name(vPkm->pkm);
+	if (name)
+		for (u8 i = 0; i < 0x18; i += 2)
+			vPkm->NKName[i / 2] = name[i / 2] & 0xFF;
+	vPkm->NKName[0x1a / 2 - 1] = '\0';
+
+	name = Pokemon::OT_name(vPkm->pkm);
+	if (name)
+		for (u8 i = 0; i < 0x18; i += 2)
+			vPkm->OTName[i / 2] = name[i / 2] & 0xFF;
+	vPkm->OTName[0x1a / 2 - 1] = '\0';
+
+	name = Pokemon::HT_name(vPkm->pkm);
+	if (name)
+		for (u8 i = 0; i < 0x18; i += 2)
+			vPkm->HTName[i / 2] = name[i / 2] & 0xFF;
+	vPkm->HTName[0x1a / 2 - 1] = '\0';
+
+
+	vPkm->emptySlot = PHBank::pKBank()->isPkmEmpty(vPkm->pkm);
+
+	vPkm->species = PKData::species(Pokemon::speciesID(vPkm->pkm));
+	vPkm->item = PKData::items(Pokemon::itemID(vPkm->pkm));
+	vPkm->nature = PKData::natures(Pokemon::nature(vPkm->pkm));
+	vPkm->ability = PKData::abilities(Pokemon::ability(vPkm->pkm));
+	vPkm->hiddenPower = PKData::HPTypes(Pokemon::HPType(vPkm->pkm));
+
+	vPkm->moves[0] = PKData::moves(Pokemon::move1(vPkm->pkm));
+	vPkm->moves[1] = PKData::moves(Pokemon::move2(vPkm->pkm));
+	vPkm->moves[2] = PKData::moves(Pokemon::move3(vPkm->pkm));
+	vPkm->moves[3] = PKData::moves(Pokemon::move4(vPkm->pkm));
+
+	vPkm->level = Pokemon::level(vPkm->pkm);
+	vPkm->stats[Stat::HP] = Pokemon::HP(vPkm->pkm);
+	vPkm->stats[Stat::ATK] = Pokemon::ATK(vPkm->pkm);
+	vPkm->stats[Stat::DEF] = Pokemon::DEF(vPkm->pkm);
+	vPkm->stats[Stat::SPA] = Pokemon::SPA(vPkm->pkm);
+	vPkm->stats[Stat::SPD] = Pokemon::SPD(vPkm->pkm);
+	vPkm->stats[Stat::SPE] = Pokemon::SPE(vPkm->pkm);
+	vPkm->ivs[Stat::ATK] = Pokemon::IV_ATK(vPkm->pkm);
+	vPkm->ivs[Stat::DEF] = Pokemon::IV_DEF(vPkm->pkm);
+	vPkm->ivs[Stat::SPA] = Pokemon::IV_SPA(vPkm->pkm);
+	vPkm->ivs[Stat::SPD] = Pokemon::IV_SPD(vPkm->pkm);
+	vPkm->ivs[Stat::SPE] = Pokemon::IV_SPE(vPkm->pkm);
+	vPkm->evs[Stat::ATK] = Pokemon::EV_ATK(vPkm->pkm);
+	vPkm->evs[Stat::DEF] = Pokemon::EV_DEF(vPkm->pkm);
+	vPkm->evs[Stat::SPA] = Pokemon::EV_SPA(vPkm->pkm);
+	vPkm->evs[Stat::SPD] = Pokemon::EV_SPD(vPkm->pkm);
+	vPkm->evs[Stat::SPE] = Pokemon::EV_SPE(vPkm->pkm);
 }

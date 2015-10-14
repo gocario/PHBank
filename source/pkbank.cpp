@@ -788,15 +788,15 @@ Result PKBank::loadSaveData()
 	uint32_t trainerCardOffset = (gametype == Game::XY ? TRAINERCARD_XY_OFFSET : TRAINERCARD_ORAS_OFFSET);
 
 	#pragma GCC diagnostic ignored "-Wstrict-aliasing"
-	// printf("[@%p]\n", savebuffer);
 	savedata->TID = *(uint16_t*)(savebuffer + trainerCardOffset + 0x0);
 	savedata->SID = *(uint16_t*)(savebuffer + trainerCardOffset + 0x2);
 	savedata->TSV = computeTSV(savedata->TID, savedata->SID);
 
 	savedata->OTGender = *(uint8_t*) (savebuffer + trainerCardOffset + 0x05);
-	for (uint32_t i = 0; i < 0x18; i ++)
-		savedata->OTName[i] = *(uint8_t*) (savebuffer + trainerCardOffset + 0x48 + i);
 
+	for (uint32_t i = 0; i < 0x18; i += 2)
+		savedata->OTName[i/2] = *(uint8_t*)(savebuffer + trainerCardOffset + 0x48 + i);
+	savedata->OTName[0x1a / 2 - 1] = '\0';
 
 	printf(" OK!\n");
 	#pragma GCC diagnostic pop
@@ -1343,7 +1343,7 @@ void PKBank::convertPkmTrainer(pkm_t* pkm)
 void PKBank::convertPkmHT(pkm_t* pkm)
 // --------------------------------------------------
 {
-	Pokemon::HT_name(pkm, savedata->OTName);
+	Pokemon::HT_name(pkm, (uint16_t*)(savebuffer + (gametype == Game::XY ? TRAINERCARD_XY_OFFSET : TRAINERCARD_ORAS_OFFSET) + 0x48)); // Save::OTName to Pkmn::HTName
 	Pokemon::HT_gender(pkm, savedata->OTGender);
 	Pokemon::currentHandler(pkm, 0x01);
 	Pokemon::geo5Region(pkm, Pokemon::geo4Region(pkm));
