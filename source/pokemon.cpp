@@ -124,7 +124,7 @@ u8 Pokemon::TSV(pkm_t* pkm) { return TID(pkm) ^ SID(pkm) >> 4; }
 bool Pokemon::isShiny(pkm_t* pkm) { return TSV(pkm) == PSV(pkm); }
 bool Pokemon::isInfected(pkm_t* pkm) { return PKRS_strain(pkm) > 0; }
 bool Pokemon::isCured(pkm_t* pkm) { return PKRS_days(pkm) == 0 && PKRS_strain(pkm) > 0; }
-bool Pokemon::isGen6(pkm_t* pkm) { return version(pkm) >= 24; }
+bool Pokemon::isKalosBorn(pkm_t* pkm) { return version(pkm) >= 24; }
 
 u8 Pokemon::level(pkm_t* pkm)
 {
@@ -165,7 +165,7 @@ u16 Pokemon::stat(u16 species, u8 IV, u8 EV, u8 nature, u8 level, u8 stat, u8 fo
 
 u16 Pokemon::HP(pkm_t* pkm)
 {
-	return stat(
+	return Pokemon::stat(
 		Pokemon::speciesID(pkm),
 		Pokemon::IV_HP(pkm),
 		Pokemon::EV_HP(pkm),
@@ -177,7 +177,7 @@ u16 Pokemon::HP(pkm_t* pkm)
 }
 u16 Pokemon::ATK(pkm_t* pkm)
 {
-	return stat(
+	return Pokemon::stat(
 		Pokemon::speciesID(pkm),
 		Pokemon::IV_ATK(pkm),
 		Pokemon::EV_ATK(pkm),
@@ -189,7 +189,7 @@ u16 Pokemon::ATK(pkm_t* pkm)
 }
 u16 Pokemon::DEF(pkm_t* pkm)
 {
-	return stat(
+	return Pokemon::stat(
 		Pokemon::speciesID(pkm),
 		Pokemon::IV_DEF(pkm),
 		Pokemon::EV_DEF(pkm),
@@ -201,7 +201,7 @@ u16 Pokemon::DEF(pkm_t* pkm)
 }
 u16 Pokemon::SPA(pkm_t* pkm)
 {
-	return stat(
+	return Pokemon::stat(
 		Pokemon::speciesID(pkm),
 		Pokemon::IV_SPA(pkm),
 		Pokemon::EV_SPA(pkm),
@@ -213,7 +213,7 @@ u16 Pokemon::SPA(pkm_t* pkm)
 }
 u16 Pokemon::SPD(pkm_t* pkm)
 {
-	return stat(
+	return Pokemon::stat(
 		Pokemon::speciesID(pkm),
 		Pokemon::IV_SPD(pkm),
 		Pokemon::EV_SPD(pkm),
@@ -225,7 +225,7 @@ u16 Pokemon::SPD(pkm_t* pkm)
 }
 u16 Pokemon::SPE(pkm_t* pkm)
 {
-	return stat(
+	return Pokemon::stat(
 		Pokemon::speciesID(pkm),
 		Pokemon::IV_SPE(pkm),
 		Pokemon::EV_SPE(pkm),

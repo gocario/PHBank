@@ -561,6 +561,7 @@ void PKBank::addDex(pkm_t* pkm)
 	bool male = (Pokemon::gender(pkm) == 1);
 	bool shiny = Pokemon::isShiny(pkm);
 	uint8_t lang = Pokemon::language(pkm);
+	bool kalosBorn = Pokemon::isKalosBorn(pkm);
 
 	if (shiny)
 	{
@@ -577,7 +578,7 @@ void PKBank::addDex(pkm_t* pkm)
 			dex.ownedFemale = true;
 	}
 	
-	if (!dex.owned)
+	if ((gametype == Game::XY && ((!kalosBorn && !dex.foreignXY) || (kalosBorn && !dex.owned))) || (!dex.owned))
 	{
 		if (shiny)
 		{
@@ -593,7 +594,11 @@ void PKBank::addDex(pkm_t* pkm)
 			else
 				dex.encounteredFemale = true;
 		}
-		dex.owned = true;
+
+		if (gametype == Game::XY && !kalosBorn)
+			dex.foreignXY = true;
+		else
+			dex.owned = true;
 	}
 
 	if (lang == 0)
@@ -924,59 +929,79 @@ void PKBank::loadDex()
 	uint32_t offsetDexlg = (gametype == Game::XY ? POKEDEXLANG_XY_OFFSET : POKEDEXLANG_ORAS_OFFSET);
 
 
-	offset = offsetDex + 0x8;
-	bitSize = 0x60 * 9 * 8;
-	bool* dexBool = new bool[bitSize];
-	for (b = 0; b < bitSize; b++)
-		dexBool[b] = ((savebuffer[offset + (b / 8)] >> (b % 8)) & 0x1) == 1;
-		// dexBool[i] = (((*(u8*)(savebuffer + offset + (i / 8))) >> (i % 8)) & 0x1) == 1;
-	
-	b = 0;
-	for (; b < 0x60 * 8 * 1; b++)
-		savedata->pokedex.dexes[b - 0x60 * 8 * 0].owned = dexBool[b];
-	for (; b < 0x60 * 8 * 2; b++)
-		savedata->pokedex.dexes[b - 0x60 * 8 * 1].ownedMale = dexBool[b];
-	for (; b < 0x60 * 8 * 3; b++)
-		savedata->pokedex.dexes[b - 0x60 * 8 * 2].ownedFemale = dexBool[b];
-	for (; b < 0x60 * 8 * 4; b++)
-		savedata->pokedex.dexes[b - 0x60 * 8 * 3].ownedShinyMale = dexBool[b];
-	for (; b < 0x60 * 8 * 5; b++)
-		savedata->pokedex.dexes[b - 0x60 * 8 * 4].ownedShinyFemale = dexBool[b];
-	for (; b < 0x60 * 8 * 6; b++)
-		savedata->pokedex.dexes[b - 0x60 * 8 * 5].encounteredMale = dexBool[b];
-	for (; b < 0x60 * 8 * 7; b++)
-		savedata->pokedex.dexes[b - 0x60 * 8 * 6].encounteredFemale = dexBool[b];
-	for (; b < 0x60 * 8 * 8; b++)
-		savedata->pokedex.dexes[b - 0x60 * 8 * 7].encounteredShinyMale = dexBool[b];
-	for (; b < 0x60 * 8 * 9; b++)
-		savedata->pokedex.dexes[b - 0x60 * 8 * 8].encounteredShinyFemale = dexBool[b];
+	{
+		offset = offsetDex + 0x8;
+		bitSize = 0x60 * 9 * 8;
+		bool* dexBool = new bool[bitSize];
+		for (b = 0; b < bitSize; b++)
+			dexBool[b] = ((savebuffer[offset + (b / 8)] >> (b % 8)) & 0x1) == 1;
+			// dexBool[i] = (((*(u8*)(savebuffer + offset + (i / 8))) >> (i % 8)) & 0x1) == 1;
+		
+		b = 0;
+		for (; b < 0x60 * 8 * 1; b++)
+			savedata->pokedex.dexes[b - 0x60 * 8 * 0].owned = dexBool[b];
+		for (; b < 0x60 * 8 * 2; b++)
+			savedata->pokedex.dexes[b - 0x60 * 8 * 1].ownedMale = dexBool[b];
+		for (; b < 0x60 * 8 * 3; b++)
+			savedata->pokedex.dexes[b - 0x60 * 8 * 2].ownedFemale = dexBool[b];
+		for (; b < 0x60 * 8 * 4; b++)
+			savedata->pokedex.dexes[b - 0x60 * 8 * 3].ownedShinyMale = dexBool[b];
+		for (; b < 0x60 * 8 * 5; b++)
+			savedata->pokedex.dexes[b - 0x60 * 8 * 4].ownedShinyFemale = dexBool[b];
+		for (; b < 0x60 * 8 * 6; b++)
+			savedata->pokedex.dexes[b - 0x60 * 8 * 5].encounteredMale = dexBool[b];
+		for (; b < 0x60 * 8 * 7; b++)
+			savedata->pokedex.dexes[b - 0x60 * 8 * 6].encounteredFemale = dexBool[b];
+		for (; b < 0x60 * 8 * 8; b++)
+			savedata->pokedex.dexes[b - 0x60 * 8 * 7].encounteredShinyMale = dexBool[b];
+		for (; b < 0x60 * 8 * 9; b++)
+			savedata->pokedex.dexes[b - 0x60 * 8 * 8].encounteredShinyFemale = dexBool[b];
 
+		delete[] dexBool;
+	}
 
-	offset = offsetDexlg;
-	bitSize = 0x27C * 8;
-	bool* dexlgBool = new bool[bitSize];
-	for (b = 0; b < bitSize; b++)
-		dexlgBool[b] = ((savebuffer[offset + (b / 8)] >> (b % 8)) & 0x1) == 1;
-		// dexlgBool[i] = (((*(u8*)(savebuffer + offset + (i / 8))) >> (i % 8)) & 0x1) == 1;
+	{
+		offset = offsetDexlg;
+		bitSize = 0x27C * 8;
+		bool* dexlgBool = new bool[bitSize];
+		for (b = 0; b < bitSize; b++)
+			dexlgBool[b] = ((savebuffer[offset + (b / 8)] >> (b % 8)) & 0x1) == 1;
+			// dexlgBool[i] = (((*(u8*)(savebuffer + offset + (i / 8))) >> (i % 8)) & 0x1) == 1;
 
-	for (b = 0; b < 0x27C; b += 7)
-		savedata->pokedex.dexes[(b - 0) / 7].langJapanese = dexlgBool[b];
-	for (b = 1; b < 0x27C; b += 7)
-		savedata->pokedex.dexes[(b - 1) / 7].langEnglish = dexlgBool[b];
-	for (b = 2; b < 0x27C; b += 7)
-		savedata->pokedex.dexes[(b - 2) / 7].langFrench = dexlgBool[b];
-	for (b = 3; b < 0x27C; b += 7)
-		savedata->pokedex.dexes[(b - 3) / 7].langItalian = dexlgBool[b];
-	for (b = 4; b < 0x27C; b += 7)
-		savedata->pokedex.dexes[(b - 4) / 7].langGerman = dexlgBool[b];
-	for (b = 5; b < 0x27C; b += 7)
-		savedata->pokedex.dexes[(b - 5) / 7].langSpanish = dexlgBool[b];
-	for (b = 6; b < 0x27C; b += 7)
-		savedata->pokedex.dexes[(b - 6) / 7].langKorean = dexlgBool[b];
+		for (b = 0; b < 0x27C; b += 7)
+			savedata->pokedex.dexes[(b - 0) / 7].langJapanese = dexlgBool[b];
+		for (b = 1; b < 0x27C; b += 7)
+			savedata->pokedex.dexes[(b - 1) / 7].langEnglish = dexlgBool[b];
+		for (b = 2; b < 0x27C; b += 7)
+			savedata->pokedex.dexes[(b - 2) / 7].langFrench = dexlgBool[b];
+		for (b = 3; b < 0x27C; b += 7)
+			savedata->pokedex.dexes[(b - 3) / 7].langItalian = dexlgBool[b];
+		for (b = 4; b < 0x27C; b += 7)
+			savedata->pokedex.dexes[(b - 4) / 7].langGerman = dexlgBool[b];
+		for (b = 5; b < 0x27C; b += 7)
+			savedata->pokedex.dexes[(b - 5) / 7].langSpanish = dexlgBool[b];
+		for (b = 6; b < 0x27C; b += 7)
+			savedata->pokedex.dexes[(b - 6) / 7].langKorean = dexlgBool[b];
 
+		delete[] dexlgBool;
+	}
 
-	delete[] dexBool;
-	delete[] dexlgBool;
+	if (gametype == Game::XY)
+	{
+		offset = offsetDex + 0x64c;
+		bitSize = 0x52 * 8;
+		bool* dexfgBool = new bool[bitSize];
+
+		for (b = 0; b < bitSize; b++)
+			dexfgBool[b] = ((savebuffer[offset + (b / 8)] >> (b % 8)) & 0x1) == 1;
+
+		for (b = 0; b < bitSize; b++)
+			savedata->pokedex.dexes[b].foreignXY = dexfgBool[b];
+		for (;b < 0x60 * 8; b++)
+			savedata->pokedex.dexes[b].foreignXY = false;
+
+		delete[] dexfgBool;
+	}
 }
 
 
@@ -1133,74 +1158,98 @@ void PKBank::saveDex()
 	uint32_t offsetDex = (gametype == Game::XY ? POKEDEX_XY_OFFSET : POKEDEX_ORAS_OFFSET);
 	uint32_t offsetDexlg = (gametype == Game::XY ? POKEDEXLANG_XY_OFFSET : POKEDEXLANG_ORAS_OFFSET);
 
+	{
+		offset = offsetDex + 0x8;
+		bitSize = 0x60 * 9 * 8;
+		bool* dexBool = new bool[bitSize];
 
-	offset = offsetDex + 0x8;
-	bitSize = 0x60 * 9 * 8;
-	bool* dexBool = new bool[bitSize];
+		b = 0;
+		for (; b < 0x60 * 8 * 1; b++)
+			dexBool[b] = savedata->pokedex.dexes[b - 0x60 * 8 * 0].owned;
+		for (; b < 0x60 * 8 * 2; b++)
+			dexBool[b] = savedata->pokedex.dexes[b - 0x60 * 8 * 1].ownedMale;
+		for (; b < 0x60 * 8 * 3; b++)
+			dexBool[b] = savedata->pokedex.dexes[b - 0x60 * 8 * 2].ownedFemale;
+		for (; b < 0x60 * 8 * 4; b++)
+			dexBool[b] = savedata->pokedex.dexes[b - 0x60 * 8 * 3].ownedShinyMale;
+		for (; b < 0x60 * 8 * 5; b++)
+			dexBool[b] = savedata->pokedex.dexes[b - 0x60 * 8 * 4].ownedShinyFemale;
+		for (; b < 0x60 * 8 * 6; b++)
+			dexBool[b] = savedata->pokedex.dexes[b - 0x60 * 8 * 5].encounteredMale;
+		for (; b < 0x60 * 8 * 7; b++)
+			dexBool[b] = savedata->pokedex.dexes[b - 0x60 * 8 * 6].encounteredFemale;
+		for (; b < 0x60 * 8 * 8; b++)
+			dexBool[b] = savedata->pokedex.dexes[b - 0x60 * 8 * 7].encounteredShinyMale;
+		for (; b < 0x60 * 8 * 9; b++)
+			dexBool[b] = savedata->pokedex.dexes[b - 0x60 * 8 * 8].encounteredShinyFemale;
 
-	b = 0;
-	for (; b < 0x60 * 8 * 1; b++)
-		dexBool[b] = savedata->pokedex.dexes[b - 0x60 * 8 * 0].owned;
-	for (; b < 0x60 * 8 * 2; b++)
-		dexBool[b] = savedata->pokedex.dexes[b - 0x60 * 8 * 1].ownedMale;
-	for (; b < 0x60 * 8 * 3; b++)
-		dexBool[b] = savedata->pokedex.dexes[b - 0x60 * 8 * 2].ownedFemale;
-	for (; b < 0x60 * 8 * 4; b++)
-		dexBool[b] = savedata->pokedex.dexes[b - 0x60 * 8 * 3].ownedShinyMale;
-	for (; b < 0x60 * 8 * 5; b++)
-		dexBool[b] = savedata->pokedex.dexes[b - 0x60 * 8 * 4].ownedShinyFemale;
-	for (; b < 0x60 * 8 * 6; b++)
-		dexBool[b] = savedata->pokedex.dexes[b - 0x60 * 8 * 5].encounteredMale;
-	for (; b < 0x60 * 8 * 7; b++)
-		dexBool[b] = savedata->pokedex.dexes[b - 0x60 * 8 * 6].encounteredFemale;
-	for (; b < 0x60 * 8 * 8; b++)
-		dexBool[b] = savedata->pokedex.dexes[b - 0x60 * 8 * 7].encounteredShinyMale;
-	for (; b < 0x60 * 8 * 9; b++)
-		dexBool[b] = savedata->pokedex.dexes[b - 0x60 * 8 * 8].encounteredShinyFemale;
+		uint8_t* dexByte = new uint8_t[bitSize / 8];
+		for (b = 0; b < bitSize; b += 8)
+			dexByte[b / 8] = 0;
+		for (b = 0; b < bitSize; b++)
+			dexByte[b / 8] |= ((dexBool[b] ? 1 : 0) << (b % 8));
 
-	uint8_t* dexByte = new uint8_t[bitSize / 8];
-	for (b = 0; b < bitSize; b += 8)
-		dexByte[b / 8] = 0;
-	for (b = 0; b < bitSize; b++)
-		dexByte[b / 8] |= ((dexBool[b] ? 1 : 0) << (b % 8));
+		for (b = 0; b < bitSize / 8; b++)
+			savebuffer[offset + b] = dexByte[b];
 
-	for (b = 0; b < bitSize / 8; b++)
-		savebuffer[offset + b] = dexByte[b];
+		delete[] dexBool;
+		delete[] dexByte;
+	}
 
+	{
+		offset = offsetDexlg;
+		bitSize = 0x27C * 8;
+		bool* dexlgBool = new bool[bitSize];
 
-	offset = offsetDexlg;
-	bitSize = 0x27C * 8;
-	bool* dexlgBool = new bool[bitSize];
+		for (b = 0; b < 0x27C; b += 7)
+			dexlgBool[b] = savedata->pokedex.dexes[(b - 0) / 7].langJapanese;
+		for (b = 1; b < 0x27C; b += 7)
+			dexlgBool[b] = savedata->pokedex.dexes[(b - 1) / 7].langEnglish;
+		for (b = 2; b < 0x27C; b += 7)
+			dexlgBool[b] = savedata->pokedex.dexes[(b - 2) / 7].langFrench;
+		for (b = 3; b < 0x27C; b += 7)
+			dexlgBool[b] = savedata->pokedex.dexes[(b - 3) / 7].langItalian;
+		for (b = 4; b < 0x27C; b += 7)
+			dexlgBool[b] = savedata->pokedex.dexes[(b - 4) / 7].langGerman;
+		for (b = 5; b < 0x27C; b += 7)
+			dexlgBool[b] = savedata->pokedex.dexes[(b - 5) / 7].langSpanish;
+		for (b = 6; b < 0x27C; b += 7)
+			dexlgBool[b] = savedata->pokedex.dexes[(b - 6) / 7].langKorean;
 
-	for (b = 0; b < 0x27C; b += 7)
-		dexlgBool[b] = savedata->pokedex.dexes[(b - 0) / 7].langJapanese;
-	for (b = 1; b < 0x27C; b += 7)
-		dexlgBool[b] = savedata->pokedex.dexes[(b - 1) / 7].langEnglish;
-	for (b = 2; b < 0x27C; b += 7)
-		dexlgBool[b] = savedata->pokedex.dexes[(b - 2) / 7].langFrench;
-	for (b = 3; b < 0x27C; b += 7)
-		dexlgBool[b] = savedata->pokedex.dexes[(b - 3) / 7].langItalian;
-	for (b = 4; b < 0x27C; b += 7)
-		dexlgBool[b] = savedata->pokedex.dexes[(b - 4) / 7].langGerman;
-	for (b = 5; b < 0x27C; b += 7)
-		dexlgBool[b] = savedata->pokedex.dexes[(b - 5) / 7].langSpanish;
-	for (b = 6; b < 0x27C; b += 7)
-		dexlgBool[b] = savedata->pokedex.dexes[(b - 6) / 7].langKorean;
+		uint8_t* dexlgByte = new uint8_t[bitSize / 8];
+		for (b = 0; b < bitSize; b += 8)
+			dexlgByte[b / 8] = 0;
+		for (b = 0; b < bitSize; b++)
+			dexlgByte[b / 8] |= ((dexlgBool[b] ? 1 : 0) << (b % 8));
 
-	uint8_t* dexlgByte = new uint8_t[bitSize / 8];
-	for (b = 0; b < bitSize; b += 8)
-		dexlgByte[b / 8] = 0;
-	for (b = 0; b < bitSize; b++)
-		dexlgByte[b / 8] |= ((dexlgBool[b] ? 1 : 0) << (b % 8));
+		for (b = 0; b < bitSize / 8; b++)
+			savebuffer[offset + b] = dexlgByte[b];
 
-	for (b = 0; b < bitSize / 8; b++)
-		savebuffer[offset + b] = dexlgByte[b];
+		delete[] dexlgBool;
+		delete[] dexlgByte;
+	}
 
+	if (gametype == Game::XY)
+	{
+		offset = offsetDex + 0x64c;
+		bitSize = 0x52 * 8;
+		bool* dexfgBool = new bool[bitSize];
 
-	delete[] dexBool;
-	delete[] dexlgBool;
-	delete[] dexByte;
-	delete[] dexlgByte;
+		for (b = 0; b < bitSize; b++)
+			dexfgBool[b] = savedata->pokedex.dexes[b].foreignXY;
+
+		uint8_t* dexfgByte = new uint8_t[bitSize / 8];
+		for (b = 0; b < bitSize; b += 8)
+			dexfgByte[b / 8] = 0;
+		for (b = 0; b < bitSize; b++)
+			dexfgByte[b / 8] |= ((dexfgBool[b] ? 1 : 0) << (b % 8));
+
+		for (b = 0; b < bitSize / 8; b++)
+			savebuffer[offset + b] = dexfgByte[b];
+
+		delete[] dexfgBool;
+	}
+
 }
 
 

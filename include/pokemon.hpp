@@ -7,12 +7,12 @@ namespace Stat
 {
 	typedef enum stat_e
 	{
-		HP,
-		ATK,
-		DEF,
-		SPE,
-		SPA,
-		SPD
+		HP = 0,
+		ATK = 1,
+		DEF = 2,
+		SPE = 3,
+		SPA = 4,
+		SPD = 5
 	} stat_e;
 }
 typedef Stat::stat_e stat_e;
@@ -29,7 +29,7 @@ class Pokemon
 		static bool isShiny(pkm_t* pkm);
 		static bool isInfected(pkm_t* pkm);
 		static bool isCured(pkm_t* pkm);
-		static bool isGen6(pkm_t* pkm);
+		static bool isKalosBorn(pkm_t* pkm);
 
 		static u8 level(pkm_t* pkm);
 		static u16 stat(u16 species, u8 IV, u8 EV, u8 nature, u8 level, u8 stat, u8 form);

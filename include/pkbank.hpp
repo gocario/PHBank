@@ -108,8 +108,8 @@ typedef struct PACKED dex_t
 	bool langGerman : 1;
 	bool langSpanish : 1;
 	bool langKorean : 1;
-	unsigned : 0;
-	uint16_t dexNavLevel : 16;
+	bool foreignXY : 1;
+	uint16_t dexNavLevel : 15;
 } dex_t;
 
 typedef struct pokedex_t
