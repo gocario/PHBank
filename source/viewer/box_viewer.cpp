@@ -793,11 +793,13 @@ void BoxViewer::populateVPkmData(vPkm_t* vPkm)
 	vPkm->stats[Stat::SPA] = Pokemon::SPA(vPkm->pkm);
 	vPkm->stats[Stat::SPD] = Pokemon::SPD(vPkm->pkm);
 	vPkm->stats[Stat::SPE] = Pokemon::SPE(vPkm->pkm);
+	vPkm->ivs[Stat::HP] = Pokemon::IV_HP(vPkm->pkm);
 	vPkm->ivs[Stat::ATK] = Pokemon::IV_ATK(vPkm->pkm);
 	vPkm->ivs[Stat::DEF] = Pokemon::IV_DEF(vPkm->pkm);
 	vPkm->ivs[Stat::SPA] = Pokemon::IV_SPA(vPkm->pkm);
 	vPkm->ivs[Stat::SPD] = Pokemon::IV_SPD(vPkm->pkm);
 	vPkm->ivs[Stat::SPE] = Pokemon::IV_SPE(vPkm->pkm);
+	vPkm->evs[Stat::HP] = Pokemon::EV_HP(vPkm->pkm);
 	vPkm->evs[Stat::ATK] = Pokemon::EV_ATK(vPkm->pkm);
 	vPkm->evs[Stat::DEF] = Pokemon::EV_DEF(vPkm->pkm);
 	vPkm->evs[Stat::SPA] = Pokemon::EV_SPA(vPkm->pkm);
