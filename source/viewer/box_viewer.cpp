@@ -756,20 +756,22 @@ void BoxViewer::populateVPkmData(vPkm_t* vPkm)
 
 	name = Pokemon::NK_name(vPkm->pkm);
 	if (name)
-		for (u8 i = 0; i < 0x18; i += 2)
-			vPkm->NKName[i / 2] = name[i / 2] & 0xFF;
+	// 	for (u8 i = 0; i < 0x18; i += 2)
+	// 		vPkm->NKName[i / 2] = name[i / 2] & 0xFF;
+	utf16_to_utf8(vPkm->NKName, name, 0x18 / 2);
 	vPkm->NKName[0x1a / 2 - 1] = '\0';
-
 	name = Pokemon::OT_name(vPkm->pkm);
 	if (name)
-		for (u8 i = 0; i < 0x18; i += 2)
-			vPkm->OTName[i / 2] = name[i / 2] & 0xFF;
+		// for (u8 i = 0; i < 0x18; i += 2)
+		// 	vPkm->OTName[i / 2] = name[i / 2] & 0xFF;
+	utf16_to_utf8(vPkm->OTName, name, 0x18 / 2);
 	vPkm->OTName[0x1a / 2 - 1] = '\0';
 
 	name = Pokemon::HT_name(vPkm->pkm);
 	if (name)
-		for (u8 i = 0; i < 0x18; i += 2)
-			vPkm->HTName[i / 2] = name[i / 2] & 0xFF;
+		// for (u8 i = 0; i < 0x18; i += 2)
+		// 	vPkm->HTName[i / 2] = name[i / 2] & 0xFF;
+	utf16_to_utf8(vPkm->HTName, name, 0x18 / 2);
 	vPkm->HTName[0x1a / 2 - 1] = '\0';
 
 

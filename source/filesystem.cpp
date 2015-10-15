@@ -67,7 +67,7 @@ Result FS_loadFile(char* path, void* dst, FS_archive* fsArchive, Handle* fsHandl
 	if (!ret)
 	{
 		ret = FSUSER_OpenFile(fsHandle, &fileHandle, *fsArchive, FS_makePath(PATH_CHAR, path), FS_OPEN_READ, FS_ATTRIBUTE_NONE);
-		if (ret) return ret;
+		// if (ret) return ret;
 	}
 
 	if (!ret)
