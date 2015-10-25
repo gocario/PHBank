@@ -2,10 +2,7 @@
 
 #include "ultra_box_viewer.hpp"
 #include "savexit_viewer.hpp"
-#include "pkm_resume_background.h"
-#include "box_background.h"
-#include "box_icons.h"
-#include "box_tiles.h"
+#include "image_manager.hpp"
 
 #include "pokemon.hpp"
 
@@ -141,13 +138,13 @@ Result BoxViewer::initialize()
 
 
 	if (!backgroundBox)
-		backgroundBox = sf2d_create_texture_mem_RGBA8(boxBackground23o_img.pixel_data, boxBackground23o_img.width, boxBackground23o_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
+		backgroundBox = sf2d_create_texture_mem_RGBA8(ImageManager::boxBackground23o_img.pixel_data, ImageManager::boxBackground23o_img.width, ImageManager::boxBackground23o_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
 	if (!backgroundResume)
-		backgroundResume = sf2d_create_texture_mem_RGBA8(resumeBackground_img.pixel_data, resumeBackground_img.width, resumeBackground_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
+		backgroundResume = sf2d_create_texture_mem_RGBA8(ImageManager::pokemonResumeBackground_img.pixel_data, ImageManager::pokemonResumeBackground_img.width, ImageManager::pokemonResumeBackground_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
 	if (!icons)
-		icons = sf2d_create_texture_mem_RGBA8(boxIcons_img.pixel_data, boxIcons_img.width, boxIcons_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
+		icons = sf2d_create_texture_mem_RGBA8(ImageManager::boxIcons_img.pixel_data, ImageManager::boxIcons_img.width, ImageManager::boxIcons_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
 	if (!tiles)
-		tiles = sf2d_create_texture_mem_RGBA8(boxTiles_img.pixel_data, boxTiles_img.width, boxTiles_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
+		tiles = sf2d_create_texture_mem_RGBA8(ImageManager::boxTiles_img.pixel_data, ImageManager::boxTiles_img.width, ImageManager::boxTiles_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
 
 	sf2d_set_clear_color(RGBA8(0x40, 0x40, 0x40, 0xFF));
 

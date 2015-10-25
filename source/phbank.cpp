@@ -1,9 +1,8 @@
 #include "phbank.hpp"
 
 #include "FreeSans_ttf.h"
-#include "PokemonGB_ttf.h"
+// #include "PokemonGB_ttf.h"
 #include "RobotoRegular_ttf.h"
-#include "AlegreyaRegular_otf.h"
 
 PHBank::PHBank() {}
 PHBank::~PHBank() {}
