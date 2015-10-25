@@ -3,6 +3,7 @@
 #include <time.h>
 #include <stdlib.h>
 
+#include "pkfilter.hpp"
 #include "pkdata.hpp"
 #include "pokemon.hpp"
 
@@ -441,9 +442,9 @@ void PKBank::movePkm(pkm_t* src, pkm_t* dst, bool srcBanked, bool dstBanked)
 	if (gametype == Game::XY)
 	{
 		// Filters for new data
-		if (!srcBanked && !isPkmEmpty(dst) && !filterPkm(dst))
+		if (!srcBanked && !isPkmEmpty(dst) && !filterPkm(dst, srcBanked, dstBanked))
 			{ printf("No! (dst)"); return; }
-		if (!dstBanked && !isPkmEmpty(src) && !filterPkm(src))
+		if (!dstBanked && !isPkmEmpty(src) && !filterPkm(src, dstBanked, srcBanked))
 			{ printf("No! (src)"); return; }
 	}
 
@@ -471,20 +472,28 @@ void PKBank::moveBox(uint16_t boxID_1, bool inBank_1, uint16_t boxID_2, bool inB
 
 
 // ==================================================
-bool PKBank::filterPkm(pkm_t* pkm)
+bool PKBank::filterPkm(pkm_t* pkm, bool toBank, bool fromBank)
 // --------------------------------------------------
 {
+	bool isFiltered = true;
+	bool toGame = !toBank;
+	bool fromGame = !fromBank;
 	// consoleClear();
 	// printf("\x1B[0;0HFiltering Pokémon\n");
-	bool isFiltered = true;
-	isFiltered &= PKFilter::filterItemID(Pokemon::itemID(pkm));
-	isFiltered &= PKFilter::filterMoveID(Pokemon::move1(pkm));
-	isFiltered &= PKFilter::filterMoveID(Pokemon::move2(pkm));
-	isFiltered &= PKFilter::filterMoveID(Pokemon::move3(pkm));
-	isFiltered &= PKFilter::filterMoveID(Pokemon::move4(pkm));
-	isFiltered &= PKFilter::filterAbilityID(Pokemon::ability(pkm));
-	isFiltered &= PKFilter::filterSchoolGirlPikachu(Pokemon::speciesID(pkm), Pokemon::form(pkm));
-
+	if (gametype == Game::XY)
+	{
+		if (toGame)
+			isFiltered &= PKFilter::filterToXY(pkm);
+		if (fromGame)
+			isFiltered &= PKFilter::filterFromXY(pkm);
+	}
+	else if (gametype == Game::ORAS)
+	{
+		if (toGame)
+			isFiltered &= PKFilter::filterToORAS(pkm);
+		if (fromGame)
+			isFiltered &= PKFilter::filterFromORAS(pkm);
+	}
 	// printf("Filtering: %s\n", (isFiltered ? "allowed" : "forbidden"));
 	// waitKey(KEY_A);
 	return isFiltered;

@@ -1,5 +1,5 @@
-#ifndef PBANK_HPP
-#define PBANK_HPP
+#ifndef PKBANK_HPP
+#define PKBANK_HPP
 
 /* ---------- Includes ---------- */
 
@@ -9,8 +9,6 @@
 
 #include "main.hpp"
 #include "filesystem.hpp"
-#include "pkfilter.hpp"
-
 
 /* ---------- Defines ---------- */
 
@@ -217,7 +215,7 @@ class PKBank
 		void movePkm(pkm_t* src, pkm_t* dest);
 		void movePkm(pkm_t* src, pkm_t* dst, bool srcBanked, bool dstBanked);
 		void moveBox(uint16_t boxID_1, bool inBank_1, uint16_t boxID_2, bool inBank_2);
-		bool filterPkm(pkm_t* pkm);
+		bool filterPkm(pkm_t* pkm, bool toBank = false, bool fromBank = false);
 		void addDex(uint16_t speciesID);
 		void addDex(pkm_t* pkm);
 
@@ -287,4 +285,4 @@ class PKBank
 		void rewriteSaveCHK();
 };
 
-#endif // PBANK_HPP
+#endif // PKBANK_HPP

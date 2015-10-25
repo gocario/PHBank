@@ -2,8 +2,63 @@
 
 #include <stdio.h>
 
+#include "pokemon.hpp"
+
+
 // --------------------------------------------------
-bool PKFilter::filterItemID(uint16_t itemID)
+/// From Bank to XY
+bool PKFilter::filterToXY(pkm_t* pkm)
+// --------------------------------------------------
+{
+	bool isFiltered = true;
+
+	isFiltered &= PKFilter::filterItemORASExclusiv(Pokemon::itemID(pkm));
+	isFiltered &= PKFilter::filterMoveORASExclusiv(Pokemon::move1(pkm));
+	isFiltered &= PKFilter::filterMoveORASExclusiv(Pokemon::move2(pkm));
+	isFiltered &= PKFilter::filterMoveORASExclusiv(Pokemon::move3(pkm));
+	isFiltered &= PKFilter::filterMoveORASExclusiv(Pokemon::move4(pkm));
+	isFiltered &= PKFilter::filterAbilityORASExclusiv(Pokemon::ability(pkm));
+	isFiltered &= PKFilter::filterSchoolGirlPikachu(Pokemon::speciesID(pkm), Pokemon::form(pkm));
+
+	return isFiltered;
+}
+
+
+// --------------------------------------------------
+/// From XY to Bank
+bool PKFilter::filterFromXY(pkm_t* pkm)
+// --------------------------------------------------
+{
+	bool isFiltered = true;
+
+	return isFiltered;
+}
+
+
+// --------------------------------------------------
+// From Bank to ORAS
+bool PKFilter::filterToORAS(pkm_t* pkm)
+// --------------------------------------------------
+{
+	bool isFiltered = true;
+
+	return isFiltered;
+}
+
+
+// --------------------------------------------------
+// From Bank to ORAS
+bool PKFilter::filterFromORAS(pkm_t* pkm)
+// --------------------------------------------------
+{
+	bool isFiltered = true;
+
+	return isFiltered;
+}
+
+
+// --------------------------------------------------
+bool PKFilter::filterItemORASExclusiv(uint16_t itemID)
 // --------------------------------------------------
 {
 	uint16_t itemCount = 64; // + 6;
@@ -27,7 +82,7 @@ bool PKFilter::filterItemID(uint16_t itemID)
 
 
 // --------------------------------------------------
-bool PKFilter::filterMoveID(uint16_t moveID)
+bool PKFilter::filterMoveORASExclusiv(uint16_t moveID)
 // --------------------------------------------------
 {
 	uint16_t moveCount = 4;
@@ -50,7 +105,7 @@ bool PKFilter::filterMoveID(uint16_t moveID)
 
 
 // --------------------------------------------------
-bool PKFilter::filterAbilityID(uint16_t abilityID)
+bool PKFilter::filterAbilityORASExclusiv(uint16_t abilityID)
 // --------------------------------------------------
 {
 	// printf(/*\x1B[1;0H*/" Ability[%x] %s\n", abilityID, (true ? "allowed" : "forbidden"));
