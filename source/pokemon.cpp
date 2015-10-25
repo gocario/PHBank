@@ -136,7 +136,7 @@ u8 Pokemon::level(pkm_t* pkm)
 	{
 		iterLevel++;
 	}
-	return 0;
+	return iterLevel;
 }
 
 u16 Pokemon::stat(u16 species, u8 IV, u8 EV, u8 nature, u8 level, u8 stat, u8 form)
