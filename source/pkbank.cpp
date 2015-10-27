@@ -417,7 +417,7 @@ void PKBank::getPkm(uint16_t boxId, uint16_t rowId, uint16_t colId, pkm_t** pkm,
 
 
 // ==================================================
-void PKBank::movePkm(pkm_t* src, pkm_t* dst)
+bool PKBank::movePkm(pkm_t* src, pkm_t* dst)
 // --------------------------------------------------
 {
 	pkm_t tmp;
@@ -432,23 +432,27 @@ void PKBank::movePkm(pkm_t* src, pkm_t* dst)
 		src->moved = true;
 	if (!isPkmEmpty(dst))
 		dst->moved = true;
+
+	return true;
 }
 
 
 // ==================================================
-void PKBank::movePkm(pkm_t* src, pkm_t* dst, bool srcBanked, bool dstBanked)
+bool PKBank::movePkm(pkm_t* src, pkm_t* dst, bool srcBanked, bool dstBanked)
 // --------------------------------------------------
 {
 	if (gametype == Game::XY)
 	{
 		// Filters for new data
 		if (!srcBanked && !isPkmEmpty(dst) && !filterPkm(dst, srcBanked, dstBanked))
-			{ printf("No! (dst)"); return; }
+			{ printf("No! (dst)"); return false; }
 		if (!dstBanked && !isPkmEmpty(src) && !filterPkm(src, dstBanked, srcBanked))
-			{ printf("No! (src)"); return; }
+			{ printf("No! (src)"); return false; }
 	}
 
 	movePkm(src, dst);
+
+	return true;
 }
 
 
@@ -497,67 +501,6 @@ bool PKBank::filterPkm(pkm_t* pkm, bool toBank, bool fromBank)
 	// printf("Filtering: %s\n", (isFiltered ? "allowed" : "forbidden"));
 	// waitKey(KEY_A);
 	return isFiltered;
-}
-
-
-// ==================================================
-void PKBank::addDex(uint16_t speciesID)
-// --------------------------------------------------
-{
-	/*
-
-	DEBUG - TESTING
-
-	if (speciesID == 3)
-	{
-		dex_t &dex = savedata->pokedex.dexes[1];
-		dex.owned = 1;
-		dex.ownedShinyMale = 1;
-		dex.ownedShinyFemale = 1;
-
-		dex.encounteredShinyMale = 1;
-		dex.encounteredShinyFemale = 1;
-
-		dex.langJapanese = 1;
-		speciesID = 1;
-	}
-
-	if (speciesID == 2)
-	{
-		loadDex();
-		speciesID = 1;
-	}
-	*/
-
-	// {
-	// 	for (uint32_t i = 0; i < 10; i++)
-	// 	{
-	// 		dex_t &dex = savedata->pokedex.dexes[i];
-
-			// printf("%x", dex.owned);
-			// printf("%x", dex.ownedMale);
-			// printf("%x", dex.ownedFemale);
-			// printf("%x", dex.ownedShinyMale);
-			// printf("%x", dex.ownedShinyFemale);
-			// printf(" ");
-			// printf("%x", dex.encounteredMale);
-			// printf("%x", dex.encounteredFemale);
-			// printf("%x", dex.encounteredShinyMale);
-			// printf("%x", dex.encounteredShinyFemale);
-			// printf(" ");
-			// printf("%x", dex.langJapanese);
-			// printf("%x", dex.langEnglish);
-			// printf("%x", dex.langFrench);
-			// printf("%x", dex.langItalian);
-			// printf("%x", dex.langGerman);
-			// printf("%x", dex.langSpanish);
-			// printf("%x", dex.langKorean);
-			// printf("\n");
-	// 	}
-	// }
-
-	printf("\n");
-
 }
 
 

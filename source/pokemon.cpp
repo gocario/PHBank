@@ -311,7 +311,7 @@ u16 Pokemon::SPE(pkm_t* pkm, u8 level)
 
 u8 Pokemon::HPType(pkm_t* pkm)
 {
-	return ((15 * ((IV_HP(pkm) & 1) + 2 * (IV_ATK(pkm) & 1) + 4 * (IV_DEF(pkm)) + 8 * (IV_SPE(pkm) & 1) + 16 * (IV_SPA(pkm) & 1) + 32 * (IV_SPD(pkm) & 1))) / 63);
+	return ((15 * ((IV_HP(pkm) & 1) + 2 * (IV_ATK(pkm) & 1) + 4 * (IV_DEF(pkm) & 1) + 8 * (IV_SPE(pkm) & 1) + 16 * (IV_SPA(pkm) & 1) + 32 * (IV_SPD(pkm) & 1))) / 63);
 }
 
  /** GETTERS **/

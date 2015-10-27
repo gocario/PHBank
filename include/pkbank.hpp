@@ -161,29 +161,6 @@ typedef struct fs_t
 	FS_archive* saveArchive = NULL;
 } fs_t;
 
-// typedef struct cursorPosition_t
-// {
-// 	uint16_t slot = 0;
-// 	uint16_t inslot = 0;
-// 	int16_t box = 0;
-// 	int16_t row = 0;
-// 	int16_t col = 0;
-// } CursorPosition_t;
-
-// typedef struct cursorBox_t
-// {
-// 	pkm_t* vPkm = NULL;
-// 	pkm_t* sPkm = NULL;
-
-// 	uint16_t slot = 0;
-
-// 	CursorPosition_t cPosPC;
-// 	CursorPosition_t cPosBK;
-
-// 	bool inBank = false;
-// 	CursorType_e cursorType = CursorType::SingleSelect;
-// } CursorBox_t;
-
 
 /* ---------- Functions ---------- */
 
@@ -212,11 +189,10 @@ class PKBank
 		void getPkm(uint16_t slotId, pkm_t** pkm, bool inBank = false);
 		void getPkm(uint16_t boxId, uint16_t slotId, pkm_t** pkm, bool inBank = false);
 		void getPkm(uint16_t boxId, uint16_t rowId, uint16_t colId, pkm_t** pkm, bool inBank = false);
-		void movePkm(pkm_t* src, pkm_t* dest);
-		void movePkm(pkm_t* src, pkm_t* dst, bool srcBanked, bool dstBanked);
+		bool movePkm(pkm_t* src, pkm_t* dest);
+		bool movePkm(pkm_t* src, pkm_t* dst, bool srcBanked, bool dstBanked);
 		void moveBox(uint16_t boxID_1, bool inBank_1, uint16_t boxID_2, bool inBank_2);
 		bool filterPkm(pkm_t* pkm, bool toBank = false, bool fromBank = false);
-		void addDex(uint16_t speciesID);
 		void addDex(pkm_t* pkm);
 
 

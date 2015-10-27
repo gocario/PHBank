@@ -109,35 +109,28 @@ Result UltraBoxViewer::drawBotScreen()
 // --------------------------------------------------
 {
 	if (hasRegularChild()) { if (child->drawBotScreen() == PARENT_STEP); else return CHILD_STEP; }
-	// Viewer::drawBotScreen(); // Not useful here!
 
-	// Draw bottom screen here!
-
-	// sf2d_draw_fill_circle(offsetLeft, offsetTop, 10, RGBA8(0x00, 0xFF, 0xFF, 0xFF));
-	// sf2d_draw_fill_circle(offsetLeft + 100, offsetTop, 10, RGBA8(0x00, 0xFF, 0xFF, 0xFF));
-	// sf2d_draw_fill_circle(offsetLeft + 100, offsetTop + 100, 10, RGBA8(0xFF, 0x7F, 0x7F, 0xFF));
-	// sf2d_draw_fill_circle(offsetLeft, offsetTop + 100, 10, RGBA8(0xFF, 0x7F, 0x7F, 0xFF));
-
-	printf("\x1B[0;20H[%i | %i | %i]", boxCount, rowCount, colCount);
-
-	// printf("\x1B[0;0H");
+	// Draw the box icons
 	for (uint16_t row = 0; row < rowCount; row++)
 	{
 		for (uint16_t col = 0; col < currentColCount(row); col++)
 		{
-			// printf("x ");
+			// If the current box is the box currently selected
 			if (row == cursorUBox.row && col == cursorUBox.col)
 			{
+				// Draw the selected box icon
 				sf2d_draw_rectangle(col * 40, row * 40 - offsetTop, 40, 40, RGBA8(0x00, 0x7F, 0xFF, 0xFF));
 			}
 			else
 			{
+				// Draw the normal box icon
 				sf2d_draw_rectangle(col * 40, row * 40 - offsetTop, 40, 40, ((col % 2 == 0 && row % 2 == 1) || (col % 2 == 1 && row % 2 == 0) ? RGBA8(0xFF, 0x00, 0x00, 0xFF) : RGBA8(0x00, 0xFF, 0x00, 0xFF)));
 			}
 		}
-		// printf("\n");
 	}
 
+	// Draw the bottom-bar
+	// TODO: REMOVE THIS SHIT OMAGAWD, IT'S HORRIBLE
 	sf2d_draw_rectangle(0, 5 * 40, 320, 40, RGBA8(0xFF, 0xFF, 0xFF, 0xFF));
 
 	if (hasOverlayChild()) { child->drawBotScreen(); }
@@ -150,15 +143,16 @@ Result UltraBoxViewer::updateControls(const u32& kDown, const u32& kHeld, const 
 // --------------------------------------------------
 {
 	if (hasRegularChild() || hasOverlayChild()) { if (child->updateControls(kDown, kHeld, kUp, touch) == PARENT_STEP); else return CHILD_STEP; }
-	// Viewer::updateControls(kDown, kHeld, kUp);
 
 	if (kDown & KEY_B)
 	{
+		// Close the viewer
 		return closeViewer(false);
 	}
 
 	if (kDown & KEY_A)
 	{
+		// Close the viewer and update the box of the main viewer
 		return closeViewer(true);
 	}
 
@@ -213,6 +207,7 @@ Result UltraBoxViewer::updateControls(const u32& kDown, const u32& kHeld, const 
 
 		if (boolMod)
 		{
+			// Update the current box
 			selectViewBox();
 		}
 	}
@@ -256,7 +251,6 @@ Result UltraBoxViewer::updateControls(const u32& kDown, const u32& kHeld, const 
 				}
 
 				printf("\x1B[2;20H{%3u, %3u}", cursorUBox.row, cursorUBox.col);
-
 			// }
 		}
 		else if (kHeld & KEY_TOUCH)

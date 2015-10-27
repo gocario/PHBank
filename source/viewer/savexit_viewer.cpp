@@ -46,7 +46,6 @@ Result SavexitViewer::initialize()
 // --------------------------------------------------
 {
 	if (hasChild()) { if (child->initialize() == PARENT_STEP) ; else return CHILD_STEP; }
-	// Viewer::initialize(); // Not useful here!
 	
 	consoleClear();
 
@@ -59,7 +58,6 @@ Result SavexitViewer::drawTopScreen()
 // --------------------------------------------------
 {
 	if (hasRegularChild()) { if (child->drawTopScreen() == PARENT_STEP); else return CHILD_STEP; }
-	// Viewer::drawTopScreen(); // Not useful here!
 
 	sf2d_draw_rectangle(79, 66, 240, 135, RGBA8(0x48, 0xA2, 0x3E, 0xE8));
 
@@ -83,7 +81,6 @@ Result SavexitViewer::drawBotScreen()
 // --------------------------------------------------
 {
 	if (hasRegularChild()) { if (child->drawBotScreen() == PARENT_STEP); else return CHILD_STEP; }
-	// Viewer::drawBotScreen(); // Not useful here!
 
 	// Draw bottom screen here!
 	// TODO: Content is missing!
@@ -98,10 +95,10 @@ Result SavexitViewer::updateControls(const u32& kDown, const u32& kHeld, const u
 // --------------------------------------------------
 {
 	if (hasRegularChild() || hasOverlayChild()) { if (child->updateControls(kDown, kHeld, kUp, touch) == PARENT_STEP); else return CHILD_STEP; }
-	// Viewer::updateControls(kDown, kHeld, kUp);
 	
 	if (kDown & KEY_A)
 	{
+		// Return the "You have to save" code
 		parent->setLStateView(StateView::Saving);
 		// consoleClear();
 		return close();
@@ -109,6 +106,7 @@ Result SavexitViewer::updateControls(const u32& kDown, const u32& kHeld, const u
 
 	if (kDown & (KEY_B | KEY_START))
 	{
+		// Return to the main viewer
 		parent->setLStateView(StateView::Continuing);
 		// consoleClear();
 		return close();
@@ -116,6 +114,7 @@ Result SavexitViewer::updateControls(const u32& kDown, const u32& kHeld, const u
 
 	if (kDown & KEY_X)
 	{
+		// Exit the homebrew
 		parent->setLStateView(StateView::Exiting);
 		// consoleClear();
 		return close();
@@ -123,6 +122,7 @@ Result SavexitViewer::updateControls(const u32& kDown, const u32& kHeld, const u
 
 	if (kDown & KEY_Y)
 	{
+		// Backup the data and return to the main viewer
 		consoleClear();
 		PHBank::pKBank()->backupFile();
 		
