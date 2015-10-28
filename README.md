@@ -5,17 +5,19 @@
 It is used to manage Pokémon storage with a Bank, like the Pokébank, but as free service (and a local storage solution).
 This homebrew is not intended to cheat (not even cloning). It's just a storage solution!!
 
-What this Homebrew can do:
+## What this Homebrew can do:
 
-Navigate through PC boxes from ORAS save.
-Navigate through Bank boxes.
-Select one Pokémon and move it to another box slot.
-Swap a box content to another (pc <-> bank)
-Export/Import savedata to/from game (/main).
-Load/Save bankdata to/from bank (/pkbank/bank).
-Autocomplete Pokédex when transfering Pokémon (OR/AS, may be bugged in X/Y).
-Prompt a dialog to save/exit/backup during execution
-Work on o3DS AND n3DS!
+<ul>
+  <li>Navigate through PC boxes from ORAS save.</li>
+  <li>Navigate through Bank boxes.</li>
+  <li>Select one Pokémon and move it to another box slot.</li>
+  <li>Swap a box content to another (pc <-> bank)</li>
+  <li>Export/Import savedata to/from game (/main).</li>
+  <li>Load/Save bankdata to/from bank (/pkbank/bank).</li>
+  <li>Autocomplete Pokédex when transfering Pokémon (OR/AS, may be bugged in X/Y).</li>
+  <li>Prompt a dialog to save/exit/backup during execution</li>
+  <li>Work on o3DS AND n3DS!</li>
+</ul>
 
 ## How to install:
 <ol>
