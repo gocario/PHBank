@@ -38,26 +38,34 @@ Everywhere:​
       <li>Drag & Drop Pokémon.</li>
       <li>Change selection mode.</li>
     </ul>
-    <li>Start: Open the savexit menu.
-    <li>Select: Switching selection mode. (Single -> Quick -> Multiple Select)
-    <li>L+R+A+B+X+Y: Emergency exit... That's fun!
+    <li>Start: Open the savexit menu.</li>
+    <li>Select: Switching selection mode. (Single -> Quick -> Multiple Select)</li>
+    <li>L+R+A+B+X+Y: Emergency exit... That's fun!</li>
     <br>
     <b>In Single Selection mode (Red):​</b>
     <ul>
-      <li>A: Select Pokémon / Move Pokémon if one already selected.
-      <li>B: Cancel selection.
+      <li>A: Select Pokémon / Move Pokémon if one already selected.</li>
+      <li>B: Cancel selection.</li>
     </ul>
     <b>In Quick Selection mode (Blue):​</b>
     <ul>
-      <li>A: Select Pokémon / Move Pokémon if one already selected.
-      <li>B: Cancel selection.
-      <li>Y: Swap the current PC box content with the current Bank box content.
+      <li>A: Select Pokémon / Move Pokémon if one already selected.</li>
+      <li>B: Cancel selection.</li>
+      <li>Y: Swap the current PC box content with the current Bank box content.</li>
     </ul>
     <b>In Multiple Selection mode (Green):​</b>
     <ul>
-      <li>Y: Active the box selector.
+      <li>Y: Active the box selector.</li>
     </ul>
   </ul>
+
+## TODO
+
+<ul>
+  <li>Add a multiple selection. (lazyness...)</li>
+  <li>Display more specific information per Pokémon. (Tabs for contest/met/etc)</li>
+  <li>Enhance more the GUI.</li>
+</ul>
 
 ## Warning:
 
