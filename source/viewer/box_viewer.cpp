@@ -177,7 +177,7 @@ Result BoxViewer::drawTopScreen()
 		sftd_draw_text_white(x, y, "Game's OT");
 		sftd_draw_text_white(x+80, y, "%s", PHBank::pKBank()->savedata->OTName);
 		sftd_draw_text_white(x, (y += 15), "Dex No.");
-		sftd_draw_text_white(x+50, y, "%u", Pokemon::speciesID(vPkm.pkm));
+		sftd_draw_text_white(x+50, y, "%u", vPkm.speciesID);
 		sftd_draw_text_white(x+80, y, "%s", vPkm.species);
 		sftd_draw_text_white(x, (y += 15), "O.T.");
 		sftd_draw_text_white(x+50, y, "%s", vPkm.OTName);
@@ -218,12 +218,32 @@ Result BoxViewer::drawTopScreen()
 
 		x = 246;
 		y = 147 - 15 - 2;
-		sftd_draw_text_white(x, (y += 15), " %s Hidden Power", vPkm.hiddenPower);
+		sftd_draw_text_white(x, (y += 15), "Hidden Power: %s", vPkm.hiddenPower);
 		sftd_draw_text_white(x, (y += 15), "Moves");
 		sftd_draw_text_white(x, (y += 15), " %s", vPkm.moves[0]);
 		sftd_draw_text_white(x, (y += 15), " %s", vPkm.moves[1]);
 		sftd_draw_text_white(x, (y += 15), " %s", vPkm.moves[2]);
 		sftd_draw_text_white(x, (y += 15), " %s", vPkm.moves[3]);
+
+
+		sf2d_draw_texture_part_scale(icons, 256, 48, ((vPkm.speciesID-1) % 25) * 40, ((vPkm.speciesID-1) / 25) * 30, 40, 30, 3.0f, 3.0f);
+
+
+		if (vPkm.isShiny)
+		{
+			sf2d_draw_texture_part(tiles, 240, 135, 57, 73, 9, 9);
+		}
+
+		if (vPkm.isKalosBorn)
+		{
+			sf2d_draw_texture_part(tiles, 250, 135, 66, 73, 9, 9);
+		}
+
+		if (vPkm.isCured)
+		{
+			sf2d_draw_texture_part(tiles, 260, 135, 75, 73, 9, 9);
+		}
+
 	}
 
 	if (hasOverlayChild()) { this->child->drawTopScreen(); }
@@ -884,7 +904,22 @@ void BoxViewer::populateVPkmData(vPkm_t* vPkm)
 
 	vPkm->emptySlot = PHBank::pKBank()->isPkmEmpty(vPkm->pkm);
 
-	vPkm->species = PKData::species(Pokemon::speciesID(vPkm->pkm));
+	if (Pokemon::isEgg(vPkm->pkm))
+	{
+		vPkm->isShiny = Pokemon::isShiny(vPkm->pkm, PHBank::pKBank()->savedata->TID, PHBank::pKBank()->savedata->SID);
+	}
+	else
+	{
+		vPkm->isShiny = Pokemon::isShiny(vPkm->pkm);
+	}
+
+	vPkm->isKalosBorn = Pokemon::isKalosBorn(vPkm->pkm);
+	vPkm->isInfected = Pokemon::isInfected(vPkm->pkm);
+	vPkm->isCured = Pokemon::isCured(vPkm->pkm);
+
+
+	vPkm->speciesID = Pokemon::speciesID(vPkm->pkm);
+	vPkm->species = PKData::species(vPkm->speciesID);
 	vPkm->item = PKData::items(Pokemon::itemID(vPkm->pkm));
 	vPkm->nature = PKData::natures(Pokemon::nature(vPkm->pkm));
 	vPkm->ability = PKData::abilities(Pokemon::ability(vPkm->pkm));

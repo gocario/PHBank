@@ -119,12 +119,53 @@ void Pokemon::computeChecksum(pkm_t* pkm)
 }
 
 // Quickers
-u16 Pokemon::PSV(pkm_t* pkm) { return ((PID(pkm) >> 16) ^(PID(pkm) & 0xffff)) >> 4; }
-u8 Pokemon::TSV(pkm_t* pkm) { return TID(pkm) ^ SID(pkm) >> 4; }
-bool Pokemon::isShiny(pkm_t* pkm) { return TSV(pkm) == PSV(pkm); }
-bool Pokemon::isInfected(pkm_t* pkm) { return PKRS_strain(pkm) > 0; }
-bool Pokemon::isCured(pkm_t* pkm) { return PKRS_days(pkm) == 0 && PKRS_strain(pkm) > 0; }
-bool Pokemon::isKalosBorn(pkm_t* pkm) { return version(pkm) >= 24; }
+u16 Pokemon::PSV(pkm_t* pkm)
+{
+	u32 _PID = Pokemon::PID(pkm);
+	return (((_PID >> 16) ^ (_PID & 0xffff)) >> 4);
+}
+
+u16 Pokemon::TSV(u16 _TID, u16 _SID)
+{
+	return ((_TID ^ _SID) >> 4);
+}
+
+u16 Pokemon::TSV(pkm_t* pkm)
+{
+	u16 _TID = Pokemon::TID(pkm);
+	u16 _SID = Pokemon::SID(pkm);
+	return ((_TID ^ _SID) >> 4);
+}
+
+bool Pokemon::isShiny(pkm_t* pkm, u16 _TID, u16 _SID)
+{
+	u16 _PSV = Pokemon::PSV(pkm);
+	u16 _TSV = Pokemon::TSV(_TID, _SID);
+	return (_PSV == _TSV);
+}
+
+bool Pokemon::isShiny(pkm_t* pkm)
+{
+	u16 _PSV = Pokemon::PSV(pkm);
+	u16 _TSV = Pokemon::TSV(pkm);
+	return (_PSV == _TSV);
+}
+
+
+bool Pokemon::isInfected(pkm_t* pkm)
+{
+	return PKRS_strain(pkm) > 0;
+}
+
+bool Pokemon::isCured(pkm_t* pkm)
+{
+	return PKRS_days(pkm) == 0 && PKRS_strain(pkm) > 0;
+}
+
+bool Pokemon::isKalosBorn(pkm_t* pkm)
+{
+	return version(pkm) >= 24;
+}
 
 u8 Pokemon::level(pkm_t* pkm)
 {
@@ -386,14 +427,14 @@ bool Pokemon::ST7_1(pkm_t* pkm) { return (Pokemon::ST4(pkm) & (1 << 4)) == (1 <<
 bool Pokemon::ST7_2(pkm_t* pkm) { return (Pokemon::ST4(pkm) & (1 << 5)) == (1 << 5); }
 bool Pokemon::ST7_3(pkm_t* pkm) { return (Pokemon::ST4(pkm) & (1 << 6)) == (1 << 6); }
 bool Pokemon::ST8_1(pkm_t* pkm) { return (Pokemon::ST4(pkm) & (1 << 7)) == (1 << 7); }
-bool Pokemon::RIB0_0(pkm_t* pkm) { return (RIB0(pkm) & (1 << 0)) == (1 << 0); }
-bool Pokemon::RIB0_1(pkm_t* pkm) { return (RIB0(pkm) & (1 << 1)) == (1 << 1); }
-bool Pokemon::RIB0_2(pkm_t* pkm) { return (RIB0(pkm) & (1 << 2)) == (1 << 2); }
-bool Pokemon::RIB0_3(pkm_t* pkm) { return (RIB0(pkm) & (1 << 3)) == (1 << 3); }
-bool Pokemon::RIB0_4(pkm_t* pkm) { return (RIB0(pkm) & (1 << 4)) == (1 << 4); }
-bool Pokemon::RIB0_5(pkm_t* pkm) { return (RIB0(pkm) & (1 << 5)) == (1 << 5); }
-bool Pokemon::RIB0_6(pkm_t* pkm) { return (RIB0(pkm) & (1 << 6)) == (1 << 6); }
-bool Pokemon::RIB0_7(pkm_t* pkm) { return (RIB0(pkm) & (1 << 7)) == (1 << 7); }
+bool Pokemon::RIB0_0(pkm_t* pkm) { return (Pokemon::RIB0(pkm) & (1 << 0)) == (1 << 0); }
+bool Pokemon::RIB0_1(pkm_t* pkm) { return (Pokemon::RIB0(pkm) & (1 << 1)) == (1 << 1); }
+bool Pokemon::RIB0_2(pkm_t* pkm) { return (Pokemon::RIB0(pkm) & (1 << 2)) == (1 << 2); }
+bool Pokemon::RIB0_3(pkm_t* pkm) { return (Pokemon::RIB0(pkm) & (1 << 3)) == (1 << 3); }
+bool Pokemon::RIB0_4(pkm_t* pkm) { return (Pokemon::RIB0(pkm) & (1 << 4)) == (1 << 4); }
+bool Pokemon::RIB0_5(pkm_t* pkm) { return (Pokemon::RIB0(pkm) & (1 << 5)) == (1 << 5); }
+bool Pokemon::RIB0_6(pkm_t* pkm) { return (Pokemon::RIB0(pkm) & (1 << 6)) == (1 << 6); }
+bool Pokemon::RIB0_7(pkm_t* pkm) { return (Pokemon::RIB0(pkm) & (1 << 7)) == (1 << 7); }
 bool Pokemon::RIB1_0(pkm_t* pkm) { return (Pokemon::RIB1(pkm) & (1 << 0)) == (1 << 0); }
 bool Pokemon::RIB1_1(pkm_t* pkm) { return (Pokemon::RIB1(pkm) & (1 << 1)) == (1 << 1); }
 bool Pokemon::RIB1_2(pkm_t* pkm) { return (Pokemon::RIB1(pkm) & (1 << 2)) == (1 << 2); }

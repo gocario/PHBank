@@ -18,7 +18,12 @@
 
 typedef struct vPkm_t {
 	pkm_t* pkm = NULL;
-	bool emptySlot;
+	bool emptySlot : 1;
+	bool isShiny : 1;
+	bool isKalosBorn : 1;
+	bool isInfected : 1;
+	bool isCured : 1;
+	unsigned : 0;
 	u8 NKName[0x1a / 2];
 	u8 OTName[0x1a / 2];
 	u8 HTName[0x1a / 2];
@@ -28,6 +33,7 @@ typedef struct vPkm_t {
 	const u8* ability;
 	const u8* moves[4];
 	const u8* hiddenPower;
+	u16 speciesID;
 	u8 level;
 	u16 stats[6];
 	u16 ivs[6];

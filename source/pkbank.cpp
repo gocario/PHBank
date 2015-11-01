@@ -551,6 +551,8 @@ void PKBank::addDex(pkm_t* pkm)
 			dex.foreignXY = true;
 		else
 			dex.owned = true;
+
+		dex.dexNavLevel = 1;
 	}
 
 	if (lang == 0)
