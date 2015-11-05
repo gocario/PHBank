@@ -494,7 +494,7 @@ u8 Pokemon::_0x3E(pkm_t* pkm) { return *(u8*)(pkm->pk6 + 0x3e); }
 u8 Pokemon::_0x3F(pkm_t* pkm) { return *(u8*)(pkm->pk6 + 0x3f); }
 
 // Region B
-u16* Pokemon::NK_name(pkm_t* pkm) { return (u16*)(pkm->pk6 + 0x18); }
+u16* Pokemon::NK_name(pkm_t* pkm) { return (u16*)(pkm->pk6 + 0x40); }
 u16 Pokemon::move1(pkm_t* pkm) { return *(u16*)(pkm->pk6 + 0x5a); }
 u16 Pokemon::move2(pkm_t* pkm) { return *(u16*)(pkm->pk6 + 0x5c); }
 u16 Pokemon::move3(pkm_t* pkm) { return *(u16*)(pkm->pk6 + 0x5e); }
