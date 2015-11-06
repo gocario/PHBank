@@ -47,6 +47,8 @@ typedef struct BoxSlot_t {
 	int16_t box = 0;
 	int16_t row = 0;
 	int16_t col = 0;
+	int16_t rowCount = 0;
+	int16_t colCount = 0;
 } BoxSlot_t;
 
 typedef struct CursorBox_t {
@@ -110,18 +112,25 @@ class BoxViewer : public Viewer
 		touchPosition touch;
 		bool isPkmHeld = false;
 		bool isPkmDragged = false;
-		bool isMultiPkmDragged = false;
+		bool isPkmMDragged = false;
+		bool isPkmMSelecting = false;
 		BoxSlot_t sSlot;
 		pkm_t* sPkm = NULL;
 		vPkm_t vPkm;
 		box_t* vPCBox = NULL;
 		box_t* vBKBox = NULL;
 
+		float cursorPositionOffY = 0.0f;
+		float cursorPositionMaxY = 8.0f;
+		float cursorPositionShiftY = 0.5f;
+		bool cursorPositionDirY = true;
+
 		void selectCursorType(CursorType_e cursorType);
 		void switchCursorType();
 		void selectViewBox();
 		void selectViewPokemon();
 		void selectMovePokemon();
+		void selectMultiMovePokemon();
 		void cancelMovePokemon();
 		void populateVPkmData(vPkm_t* vPkm);
 };

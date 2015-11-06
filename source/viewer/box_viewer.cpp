@@ -44,8 +44,35 @@ void computeSlot(CursorBox_t* cursorBox)
 	cursorBox->slot   = (cursorBox->row == BOX_HEADER_SELECTED ? SLOT_NO_SELECTION : *cursorBox->box * BOX_PKMCOUNT + cursorBox->inslot);
 }
 
+
 // --------------------------------------------------
-void extractBoxSlot(CursorBox_t* cursorBox, BoxSlot_t* boxSlot)
+void computeBoxSlot(BoxSlot_t* boxSlot, CursorBox_t* cursorBox)
+// --------------------------------------------------
+{
+	// extractBoxSlot shall already called before
+
+	boxSlot->rowCount = cursorBox->row - boxSlot->row;
+	boxSlot->colCount = cursorBox->col - boxSlot->col;
+
+	if (boxSlot->rowCount < 0)
+	{
+		boxSlot->row = boxSlot->row + boxSlot->rowCount;
+		boxSlot->row *= -1;
+	}
+	if (boxSlot->colCount < 0)
+	{
+		boxSlot->col = boxSlot->col + boxSlot->colCount;
+		boxSlot->col *= -1;
+	}
+
+	boxSlot->rowCount++;
+	boxSlot->colCount++;
+}
+
+
+// --------------------------------------------------
+/// Convert CursorBox position to BoxSlot position
+void extractBoxSlot(BoxSlot_t* boxSlot, CursorBox_t* cursorBox)
 // --------------------------------------------------
 {
 	boxSlot->inBank = cursorBox->inBank;
@@ -57,16 +84,14 @@ void extractBoxSlot(CursorBox_t* cursorBox, BoxSlot_t* boxSlot)
 }
 
 // --------------------------------------------------
-void injectBoxSlot(CursorBox_t* cursorBox, BoxSlot_t* boxSlot)
+/// Convert BoxSlot position to CursorBox position
+void injectBoxSlot(BoxSlot_t* boxSlot, CursorBox_t* cursorBox)
 // --------------------------------------------------
 {
 	cursorBox->inBank = boxSlot->inBank;
 	cursorBox->slot = boxSlot->slot;
 	cursorBox->inslot = boxSlot->inslot;
-	if (boxSlot->inBank)
-		cursorBox->boxBK = boxSlot->box;
-	else
-		cursorBox->boxPC = boxSlot->box;
+	(boxSlot->inBank ? cursorBox->boxBK : cursorBox->boxPC) = boxSlot->box;
 	cursorBox->row = boxSlot->row;
 	cursorBox->col = boxSlot->col;
 }
@@ -262,7 +287,7 @@ Result BoxViewer::drawBotScreen()
 
 
 	// TODO: Merge the Pokémon box draw function for both boxes (DRY)
-	//       Draw selected Pokémon AFTER the both boxes
+	//       Draw selected Pokémon AFTER the both boxes background/buttons
 
 
 	// Draw the current box (PC|BK) data
@@ -364,12 +389,12 @@ Result BoxViewer::drawBotScreen()
 			if (cursorBox.inslot == SLOT_NO_SELECTION)
 			{
 				// Draw the cursor icon on the box title
-				sf2d_draw_texture_part(tiles, boxShift + 105, 8, 32 * cursorType, 32, 32, 32);
+				sf2d_draw_texture_part(tiles, boxShift + 105, 8 - cursorPositionOffY, 32 * cursorType, 32, 32, 32);
 			}
 			else
 			{
 				// Draw the cursor icon on the current slot a bit shifted
-				sf2d_draw_texture_part(tiles, boxShift + 17 + (cursorBox.inslot % 6) * 35, 20 + 13 + (cursorBox.inslot / 6) * 35, 32 * cursorType, 32, 32, 32);
+				sf2d_draw_texture_part(tiles, boxShift + 17 + (cursorBox.inslot % 6) * 35, 20 + 13 + (cursorBox.inslot / 6) * 35 - cursorPositionOffY, 32 * cursorType, 32, 32, 32);
 			}
 		}
 	}
@@ -511,7 +536,7 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 			*cursorBox.box += boxMod;
 			cursorBox.row += rowMod;
 			cursorBox.col += colMod;
-
+			
 			if (*cursorBox.box < 0) *cursorBox.box = (cursorBox.inBank ? BANK_BOXCOUNT : PC_BOXCOUNT)-1;
 			else if (*cursorBox.box > (cursorBox.inBank ? BANK_BOXCOUNT : PC_BOXCOUNT)-1) *cursorBox.box = 0;
 
@@ -583,6 +608,8 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 			selectMovePokemon();
 
 			// TODO: Feature to Move Pokémon (multiple-grab and multiple-drop)
+			// selectMultiMovePokemon();
+
 		}
 
 		if (kDown & KEY_Y)
@@ -689,7 +716,7 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 					cancelMovePokemon();
 
 					// Return to the old dragged Pokémon slot?
-					// injectBoxSlot(&cursorBox, &sSlot);
+					// injectBoxSlot(&sSlot, &cursorBox);
 					// selectViewBox();
 
 					// Update the current Pokémon
@@ -700,6 +727,10 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 			}
 		}
 	}
+
+	cursorPositionOffY += cursorPositionShiftY;
+	if (cursorPositionOffY < 0 || cursorPositionOffY > cursorPositionMaxY)
+		cursorPositionShiftY *= -1;
 
 	return SUCCESS_STEP;
 }
@@ -812,7 +843,7 @@ void BoxViewer::selectMovePokemon()
 		{
 			// Select the current Pokémon
 			sPkm = vPkm.pkm;
-			// extractBoxSlot(&cursorBox, &sSlot);
+			extractBoxSlot(&sSlot, &cursorBox);
 			if (!isPkmDragged) isPkmHeld = true;
 		}
 	}
@@ -844,6 +875,33 @@ void BoxViewer::selectMovePokemon()
 
 
 // --------------------------------------------------
+void BoxViewer::selectMultiMovePokemon()
+// --------------------------------------------------
+{
+	computeSlot(&cursorBox);
+
+	// If no Pokémon is currently selected
+	if (!sPkm)
+	{
+		sPkm = vPkm.pkm;
+		extractBoxSlot(&sSlot, &cursorBox);
+		isPkmMSelecting = true;
+	}
+	else if (isPkmMSelecting)
+	{
+		computeBoxSlot(&sSlot, &cursorBox);
+		injectBoxSlot(&sSlot, &cursorBox);
+		isPkmMSelecting = false;
+		isPkmMDragged = true;
+	}
+	else if (isPkmMDragged)
+	{
+
+	}
+}
+
+
+// --------------------------------------------------
 void BoxViewer::cancelMovePokemon()
 // --------------------------------------------------
 {
@@ -852,7 +910,8 @@ void BoxViewer::cancelMovePokemon()
 	sPkm = NULL;
 	isPkmHeld = false;
 	isPkmDragged = false;
-	isMultiPkmDragged = false;
+	isPkmMDragged = false;
+	isPkmMSelecting = false;
 }
 
 
