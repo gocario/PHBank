@@ -21,5 +21,4 @@ class PKFilter
 		static uint8_t getBaseFriendship(uint16_t speciesID);
 };
 
-
 #endif // PKFILTER_HPP

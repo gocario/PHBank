@@ -3,7 +3,6 @@
 
 #include "viewer.hpp"
 
-
 class SavexitViewer : public Viewer
 {
 	public:
@@ -16,6 +15,5 @@ class SavexitViewer : public Viewer
 		Result drawBotScreen() override;
 		Result updateControls(const u32& kDown = 0, const u32& kHeld = 0, const u32& kUp = 0, const touchPosition* touch = NULL) override;
 };
-
 
 #endif // SAVEXIT_VIEWER_HPP

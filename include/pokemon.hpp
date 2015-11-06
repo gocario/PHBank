@@ -553,5 +553,4 @@ namespace Pokemon
 	void IV32(pkm_t* pkm, u32 v);
 };
 
-
 #endif // POKEMON_HPP

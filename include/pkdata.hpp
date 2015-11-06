@@ -51,5 +51,4 @@ class PKData
 		static u8 _species[DEX_SPECIES_COUNT][DEX_SPECIES_LENGTH];
 };
 
-
 #endif // PKDATA_HPP

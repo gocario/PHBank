@@ -6,13 +6,6 @@
 #include <sftd.h>
 #include <wchar.h>
 
-/* ---------- Macros ---------- */
-
-// #define NULL nullptr
-
-#define cdelete(x) {delete x; x = NULL;}
-#define adelete(x) {delete [] x; x = NULL;}
-
 void waitKey(u32 keyWait);
 void sftd_draw_text_pkm(const u16 x, const u16 y, const char* text, ... );
 void sftd_draw_text_white(const u16 x, const u16 y, const char* text, ... );

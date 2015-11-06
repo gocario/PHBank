@@ -4,14 +4,12 @@
 #include "phbank.hpp"
 #include "viewer.hpp"
 
-
 typedef struct CursorUBox_t {
 	bool inBank = false;
 	int16_t slot = 0;
 	int16_t row = 0;
 	int16_t col = 0;
 } CursorUBox_t;
-
 
 void computeSlot(CursorUBox_t* cursorUBox);
 
@@ -51,6 +49,5 @@ class UltraBoxViewer : public Viewer
 		int16_t currentColCount(int16_t row);
 		Result closeViewer(bool save = false);
 };
-
 
 #endif // ULTRA_BOX_VIEWER_HPP

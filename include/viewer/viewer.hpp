@@ -3,13 +3,9 @@
 
 #include "main.hpp"
 
-#include <stdio.h>
-
-
 #define SUCCESS_STEP 0
 #define CHILD_STEP 1
 #define PARENT_STEP 2
-
 
 namespace StateView
 {
@@ -29,7 +25,6 @@ namespace StateView
 }
 typedef StateView::StateView_e StateView_e;
 typedef StateView::LStateView_e LStateView_e;
-
 
 class Viewer
 {
@@ -97,6 +92,5 @@ class Viewer
 
 	private:
 };
-
 
 #endif // VIEWER_HPP

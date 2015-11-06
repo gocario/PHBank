@@ -35,7 +35,11 @@ PKBank::~PKBank()
 			{
 				pkm_t* ppkm = &this->savedata->pc.box[iB].slot[iP];
 				ppkm->ek6 = NULL;
-				if (ppkm->pk6 != NULL) adelete(ppkm->pk6)
+				if (ppkm->pk6 != NULL)
+				{
+					delete[] ppkm->pk6;
+					ppkm->pk6 = NULL;
+				}
 			}
 		}
 	}
@@ -49,12 +53,16 @@ PKBank::~PKBank()
 			{
 				pkm_t* ppkm = &this->bankdata->bank.box[iB].slot[iP];
 				ppkm->ek6 = NULL;
-				if (ppkm->pk6 != NULL) adelete(ppkm->pk6)
+				if (ppkm->pk6 != NULL)
+				{
+					delete[] ppkm->pk6;
+					ppkm->pk6 = NULL;
+				}
 			}
 		}
 	}
-	cdelete(this->savedata);
-	cdelete(this->bankdata);
+	delete this->savedata; this->savedata = NULL;
+	delete this->bankdata; this->bankdata = NULL;
 	this->gametype = Game::None;
 }
 
@@ -711,7 +719,7 @@ Result PKBank::loadSaveData()
 {
 	Result ret = 0;
 
-	cdelete(savedata);
+	delete savedata;
 	savedata = new savedata_t();
 
 	printf("Loading PC Boxes:\n");
@@ -765,7 +773,7 @@ Result PKBank::loadBankData()
 {
 	Result ret = 0;
 
-	cdelete(bankdata);
+	delete bankdata;
 	bankdata = new bankdata_t();
 
 	printf("Loading BK Boxes:\n");
@@ -1396,7 +1404,7 @@ void PKBank::shufflePk6(pk6_t* pk6, uint8_t sv)
 		}
 	}
 
-	adelete(cpk6);
+	delete[] cpk6;
 }
 
 // ==================================================
@@ -1566,7 +1574,7 @@ void PKBank::rewriteSaveCHK()
 		memcpy(savebuffer + csoff + i * 8, &cs, 2);
 	}
 
-	adelete(tmp);
+	delete[] tmp;
 }
 
 // {
@@ -1607,9 +1615,9 @@ void PKBank::rewriteSaveCHK()
 // 	}
 
 
-// 	adelete(starts);
-// 	adelete(lengths);
-// 	adelete(blockIDs);
-// 	adelete(checksums);
+// 	delete[] starts;
+// 	delete[] lengths;
+// 	delete[] blockIDs;
+// 	delete[] checksums;
 // }
 
