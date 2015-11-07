@@ -36,6 +36,7 @@
 #define POKEDEX_ORAS_OFFSET 0x15000
 #define POKEDEXLANG_XY_OFFSET POKEDEX_XY_OFFSET + 0x3c8
 #define POKEDEXLANG_ORAS_OFFSET POKEDEX_ORAS_OFFSET + 0x400
+#define ENCOUNTERCOUNT_ORAS_OFFSET POKEDEX_ORAS_OFFSET + 0x686
 #define BANK_PKBK_OFFSET 0x100
 
 #define SAVEDATA_XY_SIZE 0x65600 // 0x34ad0 (PC size)
@@ -108,7 +109,7 @@ typedef struct PACKED dex_t
 	bool langSpanish : 1;
 	bool langKorean : 1;
 	bool foreignXY : 1;
-	uint16_t dexNavLevel : 15;
+	uint16_t dexNavCount : 15;
 } dex_t;
 
 typedef struct pokedex_t

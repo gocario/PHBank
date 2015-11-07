@@ -560,7 +560,7 @@ void PKBank::addDex(pkm_t* pkm)
 		else
 			dex.owned = true;
 
-		dex.dexNavLevel = 1;
+		dex.dexNavCount = 1;
 	}
 
 	if (lang == 0)
@@ -948,6 +948,7 @@ void PKBank::loadDex()
 		delete[] dexlgBool;
 	}
 
+
 	if (gametype == Game::XY)
 	{
 		offset = offsetDex + 0x64c;
@@ -963,6 +964,12 @@ void PKBank::loadDex()
 			savedata->pokedex.dexes[b].foreignXY = false;
 
 		delete[] dexfgBool;
+	}
+	else if (gametype == Game::ORAS)
+	{
+		offset = ENCOUNTERCOUNT_ORAS_OFFSET;
+		for (b = 0; b < 0x60 * 8; b++)
+			savedata->pokedex.dexes[b].dexNavCount = *(uint16_t*)(savebuffer + offset + (b - 1) * 2);
 	}
 }
 
@@ -1210,6 +1217,12 @@ void PKBank::saveDex()
 			savebuffer[offset + b] = dexfgByte[b];
 
 		delete[] dexfgBool;
+	}
+	else if (gametype == Game::ORAS)
+	{
+		offset = ENCOUNTERCOUNT_ORAS_OFFSET;
+		for (b = 0; b < 0x60 * 8; b++)
+			*(uint16_t*)(savebuffer + offset + (b - 1) * 2) = savedata->pokedex.dexes[b].dexNavCount;
 	}
 
 }
@@ -1620,4 +1633,3 @@ void PKBank::rewriteSaveCHK()
 // 	delete[] blockIDs;
 // 	delete[] checksums;
 // }
-
