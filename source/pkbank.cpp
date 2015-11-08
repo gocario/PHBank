@@ -1106,13 +1106,12 @@ void PKBank::savePkmPk6(pkm_t* pkm)
 
 	if (pkm->moved)
 	{
-		convertPkmTrainer(pkm);
-		Pokemon::computeChecksum(pkm);
-
-		if (gametype == Game::ORAS)
+		if (!isPkmEmpty(pkm))
 		{
-			if (!isPkmEmpty(pkm))
-				addDex(pkm);
+			convertPkmTrainer(pkm);
+			Pokemon::computeChecksum(pkm);
+
+			addDex(pkm);
 		}
 	}
 }
