@@ -449,15 +449,12 @@ bool PKBank::movePkm(pkm_t* src, pkm_t* dst)
 bool PKBank::movePkm(pkm_t* src, pkm_t* dst, bool srcBanked, bool dstBanked)
 // --------------------------------------------------
 {
-	if (gametype == Game::XY)
-	{
 		// Filters for new data
-		if (!srcBanked && !isPkmEmpty(dst) && !filterPkm(dst, srcBanked, dstBanked))
-			{ printf("No! (dst)"); return false; }
-		if (!dstBanked && !isPkmEmpty(src) && !filterPkm(src, dstBanked, srcBanked))
-			{ printf("No! (src)"); return false; }
-	}
-
+	if (!isPkmEmpty(dst) && !filterPkm(dst, srcBanked, dstBanked))
+		{ printf("No! (dst)"); return false; }
+	if (!isPkmEmpty(src) && !filterPkm(src, dstBanked, srcBanked))
+		{ printf("No! (src)"); return false; }
+	
 	movePkm(src, dst);
 
 	return true;
@@ -1109,7 +1106,6 @@ void PKBank::savePkmPk6(pkm_t* pkm)
 		if (!isPkmEmpty(pkm))
 		{
 			convertPkmTrainer(pkm);
-			Pokemon::computeChecksum(pkm);
 
 			addDex(pkm);
 		}
@@ -1309,6 +1305,8 @@ void PKBank::convertPkmTrainer(pkm_t* pkm)
 				}
 			}
 		}
+		
+		Pokemon::computeChecksum(pkm);
 	}
 }
 
