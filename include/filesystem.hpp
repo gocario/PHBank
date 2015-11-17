@@ -6,9 +6,10 @@
 #ifndef FILESYSTEM_HPP
 #define FILESYSTEM_HPP
 
-#include <stdio.h>
-#include <string.h>
 #include <3ds.h>
+// #include <3ds/services/fs.h>
+// #include <3ds/srv.h>
+// #include <3ds/svc.h>
 
 Result FS_loadFile(char* path, void* dst, FS_archive* fsarch, Handle* fshdl, u64 maxSize, u32* bytesRead);
 Result FS_saveFile(char* path, void* src, u64 size, FS_archive* archive, Handle* fsHandle, u32* bytesWritten);

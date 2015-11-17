@@ -3,6 +3,7 @@
 #include <time.h>
 #include <stdlib.h>
 
+#include "filesystem.hpp"
 #include "pkfilter.hpp"
 #include "pkdata.hpp"
 #include "pokemon.hpp"

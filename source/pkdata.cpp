@@ -1,5 +1,10 @@
 #include "pkdata.hpp"
 
+#include <stdio.h>
+#include <string.h>
+
+#include "filesystem.hpp"
+
 
 // --------------------------------------------------
 u8 PKData::_lang = LANG_EN;
@@ -224,4 +229,3 @@ Result PKData::loadDataLine(u8* src, u8* dst, u32 lineLength, u32 lineCount)
 	}
 	return 0;
 }
-

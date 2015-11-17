@@ -135,5 +135,4 @@ class BoxViewer : public Viewer
 		void populateVPkmData(vPkm_t* vPkm);
 };
 
-
 #endif // BOX_VIEWER_HPP

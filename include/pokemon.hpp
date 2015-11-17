@@ -1,7 +1,7 @@
 #ifndef POKEMON_HPP
 #define POKEMON_HPP
 
-#include "pkbank.hpp"
+#include "save.hpp"
 
 namespace Stat
 {

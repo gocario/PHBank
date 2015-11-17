@@ -15216,4 +15216,3 @@ const PokemonResumeBackgroundGIMP ImageManager::pokemonResumeBackground_img = {
   "\361\377e\331\361\377e\331\361\377e\331\361\377e\331\361\377e\331\361\377"
   "e\331\361\377e\331\361\377e\331\361\377e\331\361\377e\331\361\377",
 };
-

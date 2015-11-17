@@ -2,6 +2,8 @@
 
 #include "pkdata.hpp"
 
+#include <string.h>
+
 const u32 expTable[100][6] = {
 	{0, 0, 0, 0, 0, 0},
 	{8, 15, 4, 9, 6, 10},

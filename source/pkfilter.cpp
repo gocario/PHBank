@@ -1,12 +1,10 @@
 #include "pkfilter.hpp"
 
-#include <stdio.h>
-
 #include "pokemon.hpp"
 
 
 // --------------------------------------------------
-/// From Bank to XY
+// From Bank to XY
 bool PKFilter::filterToXY(pkm_t* pkm)
 // --------------------------------------------------
 {
@@ -25,7 +23,7 @@ bool PKFilter::filterToXY(pkm_t* pkm)
 
 
 // --------------------------------------------------
-/// From XY to Bank
+// From XY to Bank
 bool PKFilter::filterFromXY(pkm_t* pkm)
 // --------------------------------------------------
 {

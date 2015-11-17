@@ -7680,4 +7680,3 @@ const BoxBackgroundImageGIMP ImageManager::boxBackground23o_img = {
   "\223i8\377\223i8\377\216e;\377\216e;\377\216e3\377\224k9\377\224k:\377\244"
   "{J\377\257}D\377\265\203J\377\267\206L\377\267\206L\377",
 };
-

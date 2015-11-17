@@ -1,8 +1,9 @@
 #ifndef PKFILTER_HPP
 #define PKFILTER_HPP
 
-#include "main.hpp"
-#include "pkbank.hpp"
+#include <3ds/types.h>
+
+#include "save.hpp"
 
 class PKFilter
 {
