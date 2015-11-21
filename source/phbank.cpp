@@ -29,7 +29,7 @@ sftd_font* PHBank::font()
 
 Result PHBank::load()
 {
-	PHBank::_font = sftd_load_font_mem(FreeSans_ttf, FreeSans_ttf_size);
+	PHBank::_font = sftd_load_font_mem(RobotoRegular_ttf, RobotoRegular_ttf_size);
 
 	return 0;
 }
