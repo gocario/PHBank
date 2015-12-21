@@ -1,19 +1,23 @@
 #include "ultra_box_viewer.hpp"
 
+#include "phbank.hpp"
+
 #include "box_viewer.hpp"
+
+#include <stdio.h>
 
 #define SCREEN_WIDTH 320
 #define SCREEN_HEIGHT 240
 
-#define ROWCOUNT 5
-#define COLCOUNT 8
+#define ROW_COUNT 5
+#define COL_COUNT 8
 
 
 // --------------------------------------------------
-void computeSlot(CursorUBox_t* cursorUBox)
+void computeSlot(CursorUBox_s* cursorUBox)
 // --------------------------------------------------
 {
-	cursorUBox->slot = cursorUBox->row * COLCOUNT + cursorUBox->col;
+	cursorUBox->slot = cursorUBox->row * COL_COUNT + cursorUBox->col;
 }
 
 
@@ -63,14 +67,14 @@ Result UltraBoxViewer::initialize()
 	if (hasChild()) { if (child->initialize() == PARENT_STEP) ; else return CHILD_STEP; }
 	// Viewer::initialize(); // Not useful here!
 
-	consoleClear();
+	// consoleClear();
 	printf("Initialize();\n");
 	computeSlot(&cursorUBox);
 	selectViewBox();
 
-	boxCount = (cursorUBox.inBank ? BANK_BOXCOUNT : PC_BOXCOUNT);
-	rowCount = (boxCount / COLCOUNT) + 1;
-	colCount = (boxCount % COLCOUNT);
+	boxCount = (cursorUBox.inBank ? BANK_BOX_COUNT : PC_BOX_COUNT);
+	rowCount = (boxCount / COL_COUNT) + 1;
+	colCount = (boxCount % COL_COUNT);
 
 	printf("\x1B[8;0H[%i | %i | %i]", boxCount, rowCount, colCount);
 
@@ -258,7 +262,7 @@ Result UltraBoxViewer::updateControls(const u32& kDown, const u32& kHeld, const 
 			this->touch.px = touch->px;
 			this->touch.py = touch->py;
 
-			if (boxCount == BANK_BOXCOUNT)
+			if (boxCount == BANK_BOX_COUNT)
 			{
 				offsetTop = originalOffsetTop + originalTouch.py - touch->py;
 				// offsetLeft = originalOffsetLeft + originalTouch.px - touch->px;
@@ -286,8 +290,8 @@ bool UltraBoxViewer::selectViewBox(uint16_t boxID, bool inBank)
 {
 	cursorUBox.inBank = inBank;
 	cursorUBox.slot = boxID;
-	cursorUBox.row = (boxID / COLCOUNT);
-	cursorUBox.col = (boxID % COLCOUNT);
+	cursorUBox.row = (boxID / COL_COUNT);
+	cursorUBox.col = (boxID % COL_COUNT);
 
 	return selectViewBox();
 }
@@ -311,7 +315,7 @@ bool UltraBoxViewer::selectViewBox()
 
 	if (cursorUBox.slot != -1)
 	{
-		PHBank::pKBank()->getBox(cursorUBox.slot, &vBox, cursorUBox.inBank);
+		PHBanku::save->getBox(cursorUBox.slot, &vBox, cursorUBox.inBank);
 		printf("View Box: [@%p]\n", vBox);
 		return true;
 	}
@@ -336,7 +340,7 @@ bool UltraBoxViewer::selectMoveBox()
 int16_t UltraBoxViewer::currentColCount(int16_t row)
 // --------------------------------------------------
 {
-	return (row == rowCount - 1 ? colCount : COLCOUNT);
+	return (row == rowCount - 1 ? colCount : COL_COUNT);
 }
 
 
@@ -348,6 +352,6 @@ Result UltraBoxViewer::closeViewer(bool save)
 		selectMoveBox();
 	this->setLStateView(StateView::Exiting);
 	// parent->setLStateView(StateView::Exiting);
-	consoleClear();
+	// consoleClear();
 	return close();
 }

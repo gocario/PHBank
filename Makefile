@@ -29,7 +29,7 @@ include $(DEVKITARM)/3ds_rules
 #---------------------------------------------------------------------------------
 TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
-SOURCES		:=	source source/viewer source/viewer/res
+SOURCES		:=	source source/viewer source/textures
 DATA		:=	data
 INCLUDES	:=	include include/viewer
 

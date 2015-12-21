@@ -1,9 +1,11 @@
+#pragma once
 #ifndef PHBANK_HPP
 #define PHBANK_HPP
 
-#include "pkbank.hpp"
-#include "pkdata.hpp"
-
+#include "save_manager.hpp"
+#include "data_manager.hpp"
+#include "font_manager.hpp"
+/*
 class PHBank
 {
 	public:
@@ -22,5 +24,14 @@ class PHBank
 		static PKBank _pKBank;
 		static sftd_font* _font;
 };
+*/
+
+namespace PHBanku
+{
+	extern SaveManager* save;
+	extern DataManager* data;
+	extern FontManager* font;
+}
+
 
 #endif // PHBANK_HPP

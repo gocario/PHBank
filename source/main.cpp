@@ -7,11 +7,11 @@
 #include <string.h>
 #include <time.h>
 
+#include "fs.h"
 #include "main.hpp"
 #include "phbank.hpp"
-#include "filesystem.hpp"
 #include "box_viewer.hpp"
-#include "pkdata.hpp"
+// #include "pkdata.hpp"
 
 void waitKey(u32 keyWait)
 {
@@ -34,8 +34,8 @@ void sftd_draw_text_pkm(const u16 x, const u16 y, const char* text, ... )
 	va_list args;
 	va_start(args, text);
 	vsnprintf(buffer, 256, text, args);
-	sftd_draw_text(PHBank::font(), x+1, y+1, RGBA8(0x00, 0x00, 0x00, 0xAF), 12, buffer);
-	sftd_draw_text(PHBank::font(), x, y, RGBA8(0xFF, 0xFF, 0xFF, 0xFF), 12, buffer);
+	sftd_draw_text(PHBanku::font->font, x+1, y+1, RGBA8(0x00, 0x00, 0x00, 0xAF), 12, buffer);
+	sftd_draw_text(PHBanku::font->font, x, y, RGBA8(0xFF, 0xFF, 0xFF, 0xFF), 12, buffer);
 	va_end(args);
 }
 
@@ -46,7 +46,7 @@ void sftd_draw_text_white(const u16 x, const u16 y, const char* text, ... )
 	va_list args;
 	va_start(args, text);
 	vsnprintf(buffer, 256, text, args);
-	sftd_draw_text(PHBank::font(), x, y, RGBA8(0xFF, 0xFF, 0xFF, 0xFF), 12, buffer);
+	sftd_draw_text(PHBanku::font->font, x, y, RGBA8(0xFF, 0xFF, 0xFF, 0xFF), 12, buffer);
 	va_end(args);
 }
 
@@ -57,7 +57,7 @@ void sftd_draw_text_black(const u16 x, const u16 y, const char* text, ... )
 	va_list args;
 	va_start(args, text);
 	vsnprintf(buffer, 256, text, args);
-	sftd_draw_text(PHBank::font(), x, y, RGBA8(0x00, 0x00, 0x00, 0xFF), 12, buffer);
+	sftd_draw_text(PHBanku::font->font, x, y, RGBA8(0x00, 0x00, 0x00, 0xFF), 12, buffer);
 	va_end(args);
 }
 
@@ -68,7 +68,7 @@ void sftd_draw_text_black(const u16 x, const u16 y, const char* text, ... )
 // 	va_list args;
 // 	va_start(args, text);
 // 	vswprintf(buffer, 256, text, args);
-// 	sftd_draw_wtext(PHBank::font(), x, y, RGBA8(0xFF, 0xFF, 0xFF, 0xFF), 12, buffer);
+// 	sftd_draw_wtext(PHBanku::font->font, x, y, RGBA8(0xFF, 0xFF, 0xFF, 0xFF), 12, buffer);
 // 	va_end(args);
 // }
 
@@ -81,42 +81,63 @@ int main(int argc, char* argv[])
 	sftd_init();
 
 	// PrintConsole top;
-	// consoleInit(GFX_TOP, NULL);
+	consoleInit(GFX_TOP, NULL);
 	// consoleInit(GFX_BOTTOM, NULL);
 	// consoleSetWindow(&top, 0, 22, 40, 7);
 	// consoleSetWindow(&top, 0, 0, 50, 30);
 
-	Handle sdHandle, saveHandle;
-	FS_archive sdArchive, saveArchive;
+	PHBanku::save = new SaveManager();
+	PHBanku::data = new DataManager();
+	PHBanku::font = new FontManager();
+
 	printf("Initializing FileSystem\n");
-	Result fs = FS_filesysInit(&sdHandle, &saveHandle, &sdArchive, &saveArchive);
-	if (fs) printf("Init FS Failed\n");
+	if (FS_FilesysInit()) printf("Init FS Failed\n");
 	else printf("Init FS OK\n");
 
 	srand(time(NULL));
 
-	if (PHBank::load())
+	// if (PHBank::load())
+	// {
+	// 	printf("\n\nProblem with PHBank, check logs and press A\n");
+	// 	waitKey(KEY_A);
+	// }
+
+	// if (PKData::load())
+	// {
+	// 	printf("\n\nProblem with PKData, check logs and press A\n");
+	// 	waitKey(KEY_A);
+	// }
+
+
+	if (PHBanku::save->load())
 	{
-		printf("\n\nProblem with PHBank, check logs and press A\n");
+		printf("\n\nProblem with the Save Manager,\ncheck the previous logs and press A\n");
 		waitKey(KEY_A);
 	}
 
-	if (PKData::load(&sdHandle, &sdArchive))
+	if (PHBanku::data->load())
 	{
-		printf("\n\nProblem with PKData, check logs and press A\n");
+		printf("\n\nProblem with the Data Manager,\ncheck the previous logs and press A\n");
+		waitKey(KEY_A);
+	}
+
+	if (PHBanku::font->load())
+	{
+		printf("\n\nProblem with the Font Manager,\ncheck the previous logs and press A\n");
 		waitKey(KEY_A);
 	}
 
 
 	Viewer* viewer = new BoxViewer();
-	if (!PHBank::pKBank()->load(fs, &sdHandle, &saveHandle, &sdArchive, &saveArchive))
+	if (PHBanku::save->loaded)
 	{
-		consoleClear();
+		// consoleClear();
 		Result ret = Viewer::startMainLoop(viewer);
 
 		if (ret == StateView::Saving)
 		{
-			PHBank::pKBank()->save(fs, &sdHandle, &saveHandle, &sdArchive, &saveArchive);
+			// PHBank::pKBank()->save();
+			PHBanku::save->save();
 		}
 	}
 	else
@@ -124,18 +145,23 @@ int main(int argc, char* argv[])
 		printf("Error, bad target?\n");
 	}
 	
-	// printf("\n\nProgram terminated, press A\n");
-	// waitKey(KEY_A);
+	printf("\n\nProgram terminated, press A\n");
+	waitKey(KEY_A);
+
+	delete PHBanku::save;
+	delete PHBanku::data;
+	delete PHBanku::font;
 
 	printf("Deleting view...\n");
 	delete viewer;
-	printf("Deleting PHBank...\n");
-	PHBank::destroy();
+	
+	// printf("Deleting PHBank...\n");
+	// PHBank::destroy();
+	
 	printf("Deleting FS...\n");
-	FS_filesysExit(&sdHandle, &saveHandle, &sdArchive, &saveArchive);
-	printf("Deleting SFTD...\n");
+	FS_FilesysExit();
+	
 	sftd_fini();
-	printf("Deleting SF2D...\n");
 	sf2d_fini();
 	return 0;
 }

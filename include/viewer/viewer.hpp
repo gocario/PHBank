@@ -1,7 +1,11 @@
+#pragma once
 #ifndef VIEWER_HPP
 #define VIEWER_HPP
 
 #include "main.hpp"
+
+#include <3ds.h>
+#include <sf2d.h>
 
 #define SUCCESS_STEP 0
 #define CHILD_STEP 1

@@ -1,19 +1,20 @@
+#pragma once
 #ifndef SAVE_HPP
 #define SAVE_HPP
 
 #include <3ds/types.h>
 
-#define BOX_ROW_PKMCOUNT 5
-#define BOX_COL_PKMCOUNT 6
-#define BOX_PKMCOUNT BOX_ROW_PKMCOUNT * BOX_COL_PKMCOUNT
-#define PC_BOXCOUNT 31 // 0x1f
-#define BANK_BOXCOUNT 100 // 0x64
+#define BOX_ROW_PKM_COUNT 5
+#define BOX_COL_PKM_COUNT 6
+#define BOX_PKM_COUNT BOX_ROW_PKM_COUNT * BOX_COL_PKM_COUNT
+#define PC_BOX_COUNT 31 // 0x1f
+#define BANK_BOX_COUNT 100 // 0x64
 #define PKM_COUNT 721
 
 #define PKM_SIZE 0xe8
-#define BOX_SIZE PKM_SIZE * BOX_PKMCOUNT
-#define PC_SIZE BOX_SIZE * PC_BOXCOUNT
-#define BANK_SIZE BOX_SIZE * BANK_BOXCOUNT
+#define BOX_SIZE PKM_SIZE * BOX_PKM_COUNT
+#define PC_SIZE BOX_SIZE * PC_BOX_COUNT
+#define BANK_SIZE BOX_SIZE * BANK_BOX_COUNT
 #define PCNAME_SIZE 0x22
 
 
@@ -45,42 +46,40 @@
 typedef u8 ek6_t;
 typedef u8 pk6_t;
 
-typedef struct pkm_t
+struct pkm_s
 {
 	ek6_t* ek6 = NULL; // Pointer to MainBuffer
 	pk6_t* pk6 = NULL; // Pointer to OwnBuffer
 	bool moved : 1;
 	bool modified : 1;
 	bool isShiny : 1;
-	unsigned : 0;
 	
-	u8* species;
-	u8* item;
 	u16 speciesID;
+	u8* species;
 	u16 itemID;
+	u8* item;
 	// T O D O !!
 
-	pkm_t() : moved {false}, modified {false} {}
-} pkm_t;
+	pkm_s() : moved {false}, modified {false} {}
+};
 
-
-typedef struct box_t
+struct box_s
 {
-	pkm_t slot[BOX_PKMCOUNT];
-} box_t;
+	pkm_s slot[BOX_PKM_COUNT];
+};
 
-typedef struct pc_t
+struct pc_s
 {
-	box_t box[PC_BOXCOUNT];
-} pc_t;
+	box_s box[PC_BOX_COUNT];
+};
 
-typedef struct bank_t
+struct bank_s
 {
-	box_t box[BANK_BOXCOUNT];
-} bank_t;
+	box_s box[BANK_BOX_COUNT];
+};
 
 
-typedef struct PACKED dex_t
+struct PACKED dex_s
 {
 	bool owned : 1;
 	bool ownedMale : 1;
@@ -99,19 +98,19 @@ typedef struct PACKED dex_t
 	bool langSpanish : 1;
 	bool langKorean : 1;
 	bool foreignXY : 1;
-	uint16_t dexNavCount : 15;
-} dex_t;
+	u16 dexNavCount : 15;
+};
 
-typedef struct pokedex_t
+struct pokedex_s
 {
-	dex_t dexes[0x60 * 8]; // [PKM_COUNT]
-} pokedex_t;
+	dex_s dexes[0x60 * 8]; // [PKM_COUNT]
+};
 
 
-typedef struct savedata_t
+struct savedata_s
 {
-	pc_t pc;
-	pokedex_t pokedex;
+	pc_s pc;
+	pokedex_s pokedex;
 	u16 TID; // 0x0
 	u16 SID; // 0x2
 	u16 TSV;
@@ -119,28 +118,51 @@ typedef struct savedata_t
 	u8 OTName[0x1a / 2]; // 0x48
 	u8 GEORegion; // 0x26
 	u8 GEOCountry; // 0x27
+};
 
-} savedata_t;
-
-typedef struct bankdata_t
+struct bankdata_s
 {
-	bank_t bank;
-} bankdata_t;
+	bank_s bank;
+};
 
 
-typedef uint8_t savebuffer_t[SAVEDATA_ORAS_SIZE];
-typedef uint8_t bankbuffer_t[BANKDATA_PKBK_SIZE];
+typedef u8 savebuffer_t[SAVEDATA_ORAS_SIZE];
+typedef u8 bankbuffer_t[BANKDATA_PKBK_SIZE];
+
 
 namespace Game
 {
-	typedef enum gametype_e
+	enum gameVersion_e
 	{
 		None = 0x0,
-		XY = 0x1,
-		ORAS = 0x2,
-	} Gametype_e;
+		X = 1 << 0,
+		Y = 1 << 1,
+		XY = X | Y,
+		OR = 1 << 2,
+		AS = 1 << 3,
+		ORAS = OR | AS,
+	};
+
+	inline bool is(gameVersion_e g1, gameVersion_e g2) { return (g1 & g2); }
 };
 
-typedef Game::gametype_e gametype_e;
+typedef Game::gameVersion_e GameVersion;
+
+typedef u32 saveConst_t;
+
+namespace SaveConst
+{
+	const saveConst_t XY_size = 0x65600;
+	const saveConst_t XY_offsetTrainerCard = 0x14000;
+	const saveConst_t XY_offsetPCName = 0x4400;
+	const saveConst_t XY_offsetPC = 0x22600;
+	const saveConst_t ORAS_size = 0x76000;
+	const saveConst_t ORAS_offsetTrainerCard = 0x14000;
+	const saveConst_t ORAS_offsetPCName = 0x4400;
+	const saveConst_t ORAS_offsetPC = 0x33000;
+
+	const saveConst_t BANK_size = 0xaa000;
+	const saveConst_t BANK_offsetBK = 0x100;
+}
 
 #endif // SAVE_HPP

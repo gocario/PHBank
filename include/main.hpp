@@ -1,9 +1,8 @@
+#pragma once
 #ifndef MAIN_HPP_INCLUDED
 #define MAIN_HPP_INCLUDED
 
-#include <3ds.h>
-#include <sf2d.h>
-#include <sftd.h>
+#include <3ds/types.h>
 
 void waitKey(u32 keyWait);
 void sftd_draw_text_pkm(const u16 x, const u16 y, const char* text, ... );

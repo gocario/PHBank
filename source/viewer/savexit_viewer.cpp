@@ -47,7 +47,7 @@ Result SavexitViewer::initialize()
 {
 	if (hasChild()) { if (child->initialize() == PARENT_STEP) ; else return CHILD_STEP; }
 	
-	consoleClear();
+	// consoleClear();
 
 	return SUCCESS_STEP;
 }
@@ -123,8 +123,8 @@ Result SavexitViewer::updateControls(const u32& kDown, const u32& kHeld, const u
 	if (kDown & KEY_Y)
 	{
 		// Backup the data and return to the main viewer
-		consoleClear();
-		PHBank::pKBank()->backupFile();
+		// consoleClear();
+		PHBanku::save->backupFile();
 		
 		parent->setLStateView(StateView::Continuing);
 		// consoleClear();

@@ -1,3 +1,4 @@
+#pragma once
 #ifndef WONDER_POKEMON_HPP
 #define WONDER_POKEMON_HPP
 

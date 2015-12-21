@@ -1,3 +1,4 @@
+#pragma once
 #ifndef SAVEXIT_VIEWER_HPP
 #define SAVEXIT_VIEWER_HPP
 

@@ -3,7 +3,7 @@
 #include "FreeSans_ttf.h"
 // #include "PokemonGB_ttf.h"
 #include "RobotoRegular_ttf.h"
-
+/*
 PHBank::PHBank() {}
 PHBank::~PHBank() {}
 
@@ -44,4 +44,12 @@ Result PHBank::destroy()
 	printf(" OK!\n");
 
 	return 0;
+}
+*/
+
+namespace PHBanku
+{
+	SaveManager* save = NULL;
+	DataManager* data = NULL;
+	FontManager* font = NULL;
 }
