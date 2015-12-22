@@ -16,53 +16,44 @@ FS_Archive sdmcArchive;
 Handle saveHandle;
 FS_Archive saveArchive;
 
+
 Result _srvGetServiceHandle(Handle* out, const char* name)
 {
-	/*
 	u32* cmdbuf = getThreadCommandBuffer();
-	cmdbuf[0] = 0x50100;
-	strcpy((char*) &cmdbuf[1], name);
+	cmdbuf[0] = 0x50100; // IPC_MakeHeader(0x5, 4, 0);
+	strncpy((char*) &cmdbuf[1], name, 8);
 	cmdbuf[3] = strlen(name);
 	cmdbuf[4] = 0x0;
 
-	Result ret  = 0;
-
-	ret = svcSendSyncRequest(*srvGetSessionHandle());
-	if (R_FAILED(ret)) return ret;
+	Result rc = svcSendSyncRequest(*srvGetSessionHandle());
+	if (R_FAILED(rc)) return rc;
 
 	*out = cmdbuf[3];
 	return cmdbuf[1];
-	*/
-	return -1;
 }
 
 
 Result FSUSER_ControlArchive(FS_Archive archive)
 {
-	/*
 	u32* cmdbuf = getThreadCommandBuffer();
 
 	u32 b1 = 0, b2 = 0;
 
-	cmdbuf[0] = 0x080d0144;
-	cmdbuf[1] = archive.handleLow;
-	cmdbuf[2] = archive.handleHigh;
+	cmdbuf[0] = 0x080d0144; // IPC_MakeHeader(0x80D, 5, 4);
+	cmdbuf[1] = (u32) archive.handle;
+	cmdbuf[2] = (u32) (archive.handle >> 32);
 	cmdbuf[3] = 0x0;
 	cmdbuf[4] = 0x1; //buffer1 size
-	cmdbuf[5] = 0x1; //buffer1 size
-	cmdbuf[6] = 0x1a;
+	cmdbuf[5] = 0x1; //buffer2 size
+	cmdbuf[6] = 0x1a; // IPC_Desc_Buffer(0x1, IPC_BUFFER_R)
 	cmdbuf[7] = (u32)&(b1);
-	cmdbuf[8] = 0x1c;
+	cmdbuf[8] = 0x1c; // IPC_Desc_Buffer(0x1, IPC_BUFFER_W)
 	cmdbuf[9] = (u32)&(b2);
 
-	Result ret;
-
-	ret = svcSendSyncRequest(archive.id);
-	if (R_FAILED(ret)) return ret;
+	Result rc = svcSendSyncRequest(archive.id);
+	if (R_FAILED(rc)) return rc;
 
 	return cmdbuf[1];
-	*/
-	return -1;
 }
 
 
@@ -229,8 +220,8 @@ Result FS_FilesysInit()
 #endif
 		if (R_FAILED(ret)) return ret;
 
-		// ret = _srvGetServiceHandle(&saveHandle, "fs:USER"); // TODO: Uncomment
-		ret = srvGetServiceHandle(&saveHandle, "fs:USER"); // TODO: Remove
+		ret = _srvGetServiceHandle(&saveHandle, "fs:USER"); // TODO: Uncomment
+		// ret = srvGetServiceHandle(&saveHandle, "fs:USER"); // TODO: Remove
 #ifdef DEBUG_FS
 		printf(" > _srvGetServiceHandle: %li\n", ret);
 #endif

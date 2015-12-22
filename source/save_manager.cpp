@@ -9,6 +9,7 @@
 // #include <3ds/util/utf.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
 
 

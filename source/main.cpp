@@ -86,6 +86,9 @@ int main(int argc, char* argv[])
 	// consoleSetWindow(&top, 0, 22, 40, 7);
 	// consoleSetWindow(&top, 0, 0, 50, 30);
 
+	printf("Press A to start");
+	waitKey(KEY_A);
+
 	PHBanku::save = new SaveManager();
 	PHBanku::data = new DataManager();
 	PHBanku::font = new FontManager();
