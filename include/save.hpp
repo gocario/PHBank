@@ -73,7 +73,7 @@ struct pc_s
 	box_s box[PC_BOX_COUNT];
 };
 
-struct bank_s
+struct bk_s
 {
 	box_s box[BANK_BOX_COUNT];
 };
@@ -122,7 +122,7 @@ struct savedata_s
 
 struct bankdata_s
 {
-	bank_s bank;
+	bk_s bk;
 };
 
 

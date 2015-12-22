@@ -52,7 +52,7 @@ SaveManager::~SaveManager()
 		printf("Deleting Box %-2u\n", iB);
 		for (u16 iP = 0; iP < BOX_PKM_COUNT; iP++)
 		{
-			pkm_s* ppkm = &bankdata.bank.box[iB].slot[iP];
+			pkm_s* ppkm = &bankdata.bk.box[iB].slot[iP];
 			if (ppkm->pk6 != NULL)
 			{
 				delete[] ppkm->pk6;
@@ -421,7 +421,7 @@ void SaveManager::loadPkmBK(uint16_t boxId, uint16_t slotId)
 {
 	// if (!loaded) return;
 
-	pkm_s* pkm = &bankdata.bank.box[boxId].slot[slotId];
+	pkm_s* pkm = &bankdata.bk.box[boxId].slot[slotId];
 	loadEk6BK(pkm, BOX_SIZE * boxId + PKM_SIZE * slotId);
 	// loadPk6Ek6(pkm); // Pokemon stored as Pk6
 	loadPkmPk6(pkm);
@@ -577,7 +577,7 @@ void SaveManager::savePkmBK(u16 boxId, u16 slotId)
 {
 	// if (!loaded) return;
 
-	pkm_s* pkm = &bankdata.bank.box[boxId].slot[slotId];
+	pkm_s* pkm = &bankdata.bk.box[boxId].slot[slotId];
 	// savePkmPk6(pkm); // #if COMMIT_CHEAT_CHANGE
 	// savePk6Ek6(pkm); // Pokemon stored as Pk6
 	saveEk6BK(pkm); // Pokemon stored as Pk6
@@ -701,7 +701,7 @@ bool SaveManager::isSlotEmpty(u16 boxId, u16 slotId, bool inBank)
 void SaveManager::getBox(u16 boxId, box_s** box, bool inBank)
 {
 	if (inBank)
-		*box = &bankdata.bank.box[boxId];
+		*box = &bankdata.bk.box[boxId];
 	else
 		*box = &savedata.pc.box[boxId];
 }
@@ -720,7 +720,7 @@ void SaveManager::getPkm(u16 boxId, u16 slotId, pkm_s** pkm, bool inBank)
 // ------------------------------------
 {
 	if (inBank)
-		*pkm = &bankdata.bank.box[boxId].slot[slotId];
+		*pkm = &bankdata.bk.box[boxId].slot[slotId];
 	else
 		*pkm = &savedata.pc.box[boxId].slot[slotId];
 }
