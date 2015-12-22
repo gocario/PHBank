@@ -350,7 +350,7 @@ Result SaveManager::loadSaveData()
 	savedata = {};
 
 	printf("Loading PC Boxes:\n");
-	for (u16 iB = 0; iB < BOX_PKM_COUNT; iB++)
+	for (u16 iB = 0; iB < PC_BOX_COUNT; iB++)
 	{
 		printf("%-2u ", iB);
 		if (iB % 0x10 == 0xf) printf("\n");
