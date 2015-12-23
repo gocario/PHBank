@@ -32,9 +32,9 @@ SaveManager::SaveManager()
 SaveManager::~SaveManager()
 // ------------------------------------
 {
+	printf("Loading PC Boxes:");
 	for (u16 iB = 0; iB < PC_BOX_COUNT; iB++)
 	{
-		printf("Deleting Box %-2u\n", iB);
 		for (u16 iP = 0; iP < BOX_PKM_COUNT; iP++)
 		{
 			pkm_s* ppkm = &savedata.pc.box[iB].slot[iP];
@@ -46,10 +46,11 @@ SaveManager::~SaveManager()
 			}
 		}
 	}
+	printf(" OK\n");
 
+	printf("Loading BK Boxes:");
 	for (u16 iB = 0; iB < BANK_BOX_COUNT; iB++)
 	{
-		printf("Deleting Box %-2u\n", iB);
 		for (u16 iP = 0; iP < BOX_PKM_COUNT; iP++)
 		{
 			pkm_s* ppkm = &bankdata.bk.box[iB].slot[iP];
@@ -61,6 +62,7 @@ SaveManager::~SaveManager()
 			}
 		}
 	}
+	printf(" OK\n");
 
 	version = Game::None;
 }
@@ -72,11 +74,11 @@ Result SaveManager::load()
 {
 	Result ret;
 
-	printf("> Reading...\n");
+	printf(">Reading...\n");
 	ret = loadFile();
 	if (ret) return ret;
 
-	printf("> Loading...\n");
+	printf(">Loading...\n");
 	ret = loadData();
 	if (ret) return ret;
 
@@ -212,7 +214,7 @@ Result SaveManager::loadSaveFile(FS_Archive *fsArchive)
 	u32 size = sizeSave;
 	char path[] = "/main";
 
-	printf("Loading savefile... ");
+	printf("Loading savefile...");
 
 	ret = FS_ReadFile(path, savebuffer, fsArchive, size, &bytesRead);
 	if (ret) return ret;
@@ -234,7 +236,7 @@ Result SaveManager::loadBankFile(FS_Archive *fsArchive)
 	u32 size = SaveConst::BANK_size;
 	char path[] = "/pkbank/bank";
 
-	printf("Loading bankfile... ");
+	printf("Loading bankfile...");
 
 	ret = FS_ReadFile(path, bankbuffer, fsArchive, size, &bytesRead);
 	if (ret)
@@ -396,7 +398,7 @@ Result SaveManager::loadSaveData()
 {
 	savedata = {};
 
-	printf("Loading PC Boxes:\n");
+	printf("Loading PC Boxes:");
 	for (u16 iB = 0; iB < PC_BOX_COUNT; iB++)
 	{
 		// printf("%-2u ", iB);
@@ -406,13 +408,13 @@ Result SaveManager::loadSaveData()
 			loadPkmPC(iB, iP);
 		}
 	}
-	// printf(" OK!\n");
+	printf(" OK\n");
 
 	if (Game::is(version, Game::XY) || Game::is(version, Game::ORAS))
 	{
 		printf("Loading Dex:");
 		loadDex();
-		printf(" OK!\n");
+		printf(" OK\n");
 
 		printf("Loading Trainer Card:");
 		savedata.TID = *(u16*) (savebuffer + offsetTrainerCard + 0x00);
@@ -420,7 +422,7 @@ Result SaveManager::loadSaveData()
 		savedata.TSV = computeTSV(savedata.TID, savedata.SID);
 		savedata.OTGender = *(u8*) (savebuffer + offsetTrainerCard + 0x05);
 		readName(savebuffer + offsetTrainerCard + 0x48, savedata.OTName, 0x18);
-		printf(" OK!\n");
+		printf(" OK\n");
 	}
 
 
@@ -434,7 +436,7 @@ Result SaveManager::loadBankData()
 {
 	bankdata = {};
 
-	printf("Loading BK Boxes:\n");
+	printf("Loading BK Boxes:");
 	for (u16 iB = 0; iB < BANK_BOX_COUNT; iB++)
 	{
 		// printf("%-2u ", iB);
@@ -444,7 +446,7 @@ Result SaveManager::loadBankData()
 			loadPkmBK(iB, iP);
 		}
 	}
-	// printf(" OK!\n");
+	printf(" OK\n");
 
 	return 0;
 }
@@ -558,7 +560,7 @@ Result SaveManager::saveData()
 Result SaveManager::saveSaveData()
 // ------------------------------------
 {
-	printf("Saving PC Boxes:\n");
+	printf("Saving PC Boxes:");
 	for (u16 iB = 0; iB < PC_BOX_COUNT; iB++)
 	{
 		// printf("%-2u ", iB);
@@ -568,16 +570,18 @@ Result SaveManager::saveSaveData()
 			savePkmPC(iB, iP);
 		}
 	}
-	// printf("\n");
+	printf(" OK\n");
 
 	if (Game::is(version, Game::XY) || Game::is(version, Game::ORAS))
 	{
 		printf("Saving Dex:");
 		saveDex();
-		printf(" OK!\n");
+		printf(" OK\n");
 	}
 
+	printf("Rewriting Checksum:");
 	rewriteSaveCHK();
+	printf(" OK\n");
 
 	return 0;
 }
@@ -589,7 +593,7 @@ Result SaveManager::saveBankData()
 {
 	Result ret = 0;
 
-	printf("Saving BK Boxes:\n");
+	printf("Saving BK Boxes:");
 	for (u16 iB = 0; iB < BANK_BOX_COUNT; iB++)
 	{
 		// printf("%-2u ", iB);
@@ -599,7 +603,7 @@ Result SaveManager::saveBankData()
 			savePkmBK(iB, iP);
 		}
 	}
-	// printf("\n");
+	printf(" OK\n");
 
 	return ret;
 }
@@ -715,12 +719,16 @@ void SaveManager::setGameOffsets()
 		offsetTrainerCard = SaveConst::XY_offsetTrainerCard;
 		offsetPCName = SaveConst::XY_offsetPCName;
 		offsetPC = SaveConst::XY_offsetPC;
+
+		sizeSave = SaveConst::XY_size;
 	}
 	else if (Game::is(version, Game::ORAS))
 	{
 		offsetTrainerCard = SaveConst::ORAS_offsetTrainerCard;
 		offsetPCName = SaveConst::ORAS_offsetPCName;
 		offsetPC = SaveConst::ORAS_offsetPC;
+
+		sizeSave = SaveConst::ORAS_size;
 	}
 
 	offsetBK = SaveConst::BANK_offsetBK;
@@ -836,7 +844,7 @@ void SaveManager::moveBox(u16 boxId_1, bool inBank_1, u16 boxId_2, bool inBank_2
 	pkm_s* pkm_1 = NULL;
 	pkm_s* pkm_2 = NULL;
 
-	printf("Transfering Pokemon... [%s]%u [%s]%u\n", (inBank_1 ? "BK" : "PC"), boxId_1, (inBank_2 ? "BK" : "PC"), boxId_2);
+	printf("Transfering Pokemon... [%s]%u <-> [%s]%u\n", (inBank_1 ? "BK" : "PC"), boxId_1, (inBank_2 ? "BK" : "PC"), boxId_2);
 	for (u32 i = 0; i < BOX_PKM_COUNT; i++)
 	{
 		getPkm(boxId_1, i, &pkm_1, inBank_1);

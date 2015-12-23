@@ -153,7 +153,6 @@ Result DataManager::load()
 	ret = FS_ReadFile(path, buffer, &sdmcArchive, 12000, &bytesRead);
 	if (ret) { printf(" ERROR loading \"%s\"...\n", path); return ret; }
 	memcpy(_personal, buffer, bytesRead);
-	printf(" OK!\n");
 
 	return 0;
 }
