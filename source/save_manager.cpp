@@ -114,20 +114,20 @@ Result SaveManager::loadFile()
 {
 	Result ret;
 
-	char path[] = "/pkdata";
-	ret = FS_CreateDirectory(path, &sdmcArchive);
+	// char path[] = "/pkbank";
+	// ret = FS_CreateDirectory(path, &sdmcArchive);
 	// if (ret) return ret;
 
-	if (!fsInitialized)
+	if (fsInitialized & SAVE_INITIALIZED)
 	{
-		printf(">Loading Save from sdmc\n");
-		ret = loadSaveFile(&sdmcArchive);
+		printf(">Loading Save from save\n");
+		ret = loadSaveFile(&saveArchive);
 		if (ret) return ret;
 	}
 	else
 	{
-		printf(">Loading Save from save\n");
-		ret = loadSaveFile(&saveArchive);
+		printf(">Loading Save from sdmc\n");
+		ret = loadSaveFile(&sdmcArchive);
 		if (ret) return ret;
 	}
 
@@ -138,13 +138,12 @@ Result SaveManager::loadFile()
 	hidScanInput();
 	if (hidKeysHeld() & KEY_L)
 	{
-		printf(">Backing up Save to sdmc\n");
-		ret = backupSaveFile(&sdmcArchive);
-		// if (ret) return ret;
+		printf(">Backing up\n");
+		backupFile();
 	}
 	else
 	{
-		printf(">Not backing up Save\n");
+		printf(">Not backing up\n");
 	}
 
 	return ret;
@@ -161,16 +160,16 @@ Result SaveManager::saveFile()
 	ret = FS_CreateDirectory(path, &sdmcArchive);
 	// if (ret) return ret;
 
-	if (!fsInitialized)
+	if (fsInitialized & SAVE_INITIALIZED)
 	{
-		printf(">Saving Save to sdmc\n");
-		ret = saveSaveFile(&sdmcArchive);
+		printf(">Saving Save to save\n");
+		ret = saveSaveFile(&saveArchive);
 		// if (ret) return ret;
 	}
 	else
 	{
-		printf(">Saving Save to save\n");
-		ret = saveSaveFile(&saveArchive);
+		printf(">Saving Save to sdmc\n");
+		ret = saveSaveFile(&sdmcArchive);
 		// if (ret) return ret;
 	}
 
@@ -186,18 +185,18 @@ Result SaveManager::saveFile()
 Result SaveManager::backupFile()
 // ----------------------------------------------
 {
-	Result ret = 0;
+	Result ret;
 
 	char path[] = "/pkbank";
 	ret = FS_CreateDirectory(path, &sdmcArchive);
 	// if (ret) return ret;
 
-	// path = "/pkbank";
-	// ret = FS_CreateDirectory(path, &sdmcArchive);
-	// if (ret) return ret;
-
 	printf(">Backing up Save to sdmc\n");
 	ret = backupSaveFile(&sdmcArchive);
+	// if (ret) return ret;
+
+	printf(">Backing up Bank to sdmc\n");
+	ret = backupBankFile(&sdmcArchive);
 	// if (ret) return ret;
 
 	return ret;
@@ -208,7 +207,7 @@ Result SaveManager::backupFile()
 Result SaveManager::loadSaveFile(FS_Archive *fsArchive)
 // ----------------------------------------------
 {
-	Result ret = 0;
+	Result ret;
 	u32 bytesRead;
 	u32 size = sizeSave;
 	char path[] = "/main";
@@ -230,7 +229,7 @@ Result SaveManager::loadSaveFile(FS_Archive *fsArchive)
 Result SaveManager::loadBankFile(FS_Archive *fsArchive)
 // ----------------------------------------------
 {
-	Result ret = 0;
+	Result ret;
 	u32 bytesRead;
 	u32 size = SaveConst::BANK_size;
 	char path[] = "/pkbank/bank";
@@ -260,18 +259,35 @@ Result SaveManager::loadBankFile(FS_Archive *fsArchive)
 Result SaveManager::saveSaveFile(FS_Archive *fsArchive)
 // ----------------------------------------------
 {
-	Result ret = 0;
+	Result ret;
 	u32 bytesWritten;
 	u32 size = sizeSave;
 	char path[] = "/main";
 
-	ret = FS_DeleteFile(path, fsArchive);
+	if (fsInitialized & SAVE_INITIALIZED)
+	{
+		printf("Deleting savefile (save)... ");
+		ret = FS_DeleteSFile(path, fsArchive);
+		if (ret) printf(" ERROR\n");
+		else printf(" OK\n");
 
-	printf("Writing savefile... ");
-	ret = FS_WriteSFile(path, savebuffer, size, fsArchive, &bytesWritten);
+		printf("Writing savefile (save)... ");
+		ret = FS_WriteSFile(path, savebuffer, size, fsArchive, &bytesWritten);
+		if (ret) printf(" ERROR\n");
+		else printf(" OK\n  Written %ld bytes\n", bytesWritten);
+	}
+	else
+	{
+		printf("Deleting savefile (sdmc)... ");
+		ret = FS_DeleteFile(path, fsArchive);
+		if (ret) printf(" ERROR\n");
+		else printf(" OK\n");
 
-	if (ret) printf(" ERROR\n");
-	else printf(" OK\n  Written %ld bytes\n", bytesWritten);
+		printf("Writing savefile (sdmc)... ");
+		ret = FS_WriteFile(path, savebuffer, size, fsArchive, &bytesWritten);
+		if (ret) printf(" ERROR\n");
+		else printf(" OK\n  Written %ld bytes\n", bytesWritten);
+	}
 
 	return ret;
 }
@@ -281,10 +297,15 @@ Result SaveManager::saveSaveFile(FS_Archive *fsArchive)
 Result SaveManager::saveBankFile(FS_Archive *fsArchive)
 // ----------------------------------------------
 {
-	Result ret = 0;
+	Result ret;
 	u32 bytesWritten;
 	u32 size = SaveConst::BANK_size;
 	char path[] = "/pkbank/bank";
+
+	printf("Deleting bankfile... ");
+	ret = FS_DeleteFile(path, fsArchive);
+	if (ret) printf(" ERROR\n");
+	else printf(" OK\n");
 
 	printf("Writing bankfile... ");
 	ret = FS_WriteFile(path, bankbuffer, size, fsArchive, &bytesWritten);
@@ -299,21 +320,47 @@ Result SaveManager::saveBankFile(FS_Archive *fsArchive)
 Result SaveManager::backupSaveFile(FS_Archive *fsArchive)
 // ----------------------------------------------
 {
-	Result ret = 0;
+	Result ret;
 	u32 bytesWritten;
 	u32 size = sizeSave;
-	char path[0x20];
+	char path[40];
 
 	char pathDir[] = "/pkbank/backup/";
 	ret = FS_CreateDirectory(pathDir, fsArchive);
 	// if (ret) return ret;
 
 	sprintf(path, "%smain_%i", pathDir, (int) time(NULL));
-	ret = FS_DeleteFile(path, fsArchive);
+	// ret = FS_DeleteFile(path, fsArchive);
 	// if (ret) return ret;
 
 	printf("Backing up savefile...");
 	ret = FS_WriteFile(path, savebuffer, size, fsArchive, &bytesWritten);
+	if (ret) printf(" ERROR\n");
+	else printf(" OK\n  Written %ld bytes\n", bytesWritten);
+
+	return ret;
+}
+
+
+// ----------------------------------------------
+Result SaveManager::backupBankFile(FS_Archive *fsArchive)
+// ----------------------------------------------
+{
+	Result ret;
+	u32 bytesWritten;
+	u32 size = SaveConst::BANK_size;
+	char path[40];
+
+	char pathDir[] = "/pkbank/backup/";
+	ret = FS_CreateDirectory(pathDir, fsArchive);
+	// if (ret) return ret;
+
+	sprintf(path, "%sbank_%i", pathDir, (int) time(NULL));
+	// ret = FS_DeleteFile(path, fsArchive);
+	// if (ret) return ret;
+
+	printf("Backing up bankfile...");
+	ret = FS_WriteFile(path, bankbuffer, size, fsArchive, &bytesWritten);
 	if (ret) printf(" ERROR\n");
 	else printf(" OK\n  Written %ld bytes\n", bytesWritten);
 
@@ -352,14 +399,14 @@ Result SaveManager::loadSaveData()
 	printf("Loading PC Boxes:\n");
 	for (u16 iB = 0; iB < PC_BOX_COUNT; iB++)
 	{
-		printf("%-2u ", iB);
-		if (iB % 0x10 == 0xf) printf("\n");
+		// printf("%-2u ", iB);
+		// if (iB % 0x10 == 0xf) printf("\n");
 		for (u16 iP = 0; iP < BOX_PKM_COUNT; iP++)
 		{
 			loadPkmPC(iB, iP);
 		}
 	}
-	printf(" OK!\n");
+	// printf(" OK!\n");
 
 	if (Game::is(version, Game::XY) || Game::is(version, Game::ORAS))
 	{
@@ -390,14 +437,14 @@ Result SaveManager::loadBankData()
 	printf("Loading BK Boxes:\n");
 	for (u16 iB = 0; iB < BANK_BOX_COUNT; iB++)
 	{
-		printf("%-2u ", iB);
-		if (iB % 0x10 == 0xf) printf("\n");
+		// printf("%-2u ", iB);
+		// if (iB % 0x10 == 0xf) printf("\n");
 		for (u16 iP = 0; iP < BOX_PKM_COUNT; iP++)
 		{
 			loadPkmBK(iB, iP);
 		}
 	}
-	printf(" OK!\n");
+	// printf(" OK!\n");
 
 	return 0;
 }
@@ -789,7 +836,7 @@ void SaveManager::moveBox(u16 boxId_1, bool inBank_1, u16 boxId_2, bool inBank_2
 	pkm_s* pkm_1 = NULL;
 	pkm_s* pkm_2 = NULL;
 
-	printf("Transfering Pokémon... [%s]%u [%s]%u\n", (inBank_1 ? "BK" : "PC"), boxId_1, (inBank_2 ? "BK" : "PC"), boxId_2);
+	printf("Transfering Pokemon... [%s]%u [%s]%u\n", (inBank_1 ? "BK" : "PC"), boxId_1, (inBank_2 ? "BK" : "PC"), boxId_2);
 	for (u32 i = 0; i < BOX_PKM_COUNT; i++)
 	{
 		getPkm(boxId_1, i, &pkm_1, inBank_1);

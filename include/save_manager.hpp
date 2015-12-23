@@ -76,6 +76,7 @@ class SaveManager
 		Result saveSaveFile(FS_Archive *fsArchive);
 		Result saveBankFile(FS_Archive *fsArchive);
 		Result backupSaveFile(FS_Archive *fsArchive);
+		Result backupBankFile(FS_Archive *fsArchive);
 
 		// Load Data
 		Result loadData();

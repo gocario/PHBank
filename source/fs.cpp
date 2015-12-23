@@ -10,7 +10,7 @@
 
 // #define DEBUG_FS
 
-Result fsInitialized;
+Result fsInitialized = UNINITIALIZED;
 Handle sdmcHandle;
 FS_Archive sdmcArchive;
 Handle saveHandle;
@@ -145,7 +145,7 @@ Result FS_WriteSFile(char* path, void* src, u64 size, FS_Archive* archive, u32* 
 
 	ret = FS_WriteFile(path, src, size, archive, bytesWritten);
 #ifdef DEBUG_FS
-	printf(" > FS_saveFile: %li\n", ret);
+	printf(" > FS_WriteFile: %li\n", ret);
 #endif
 	if (R_FAILED(ret)) return ret;
 
@@ -177,6 +177,32 @@ Result FS_DeleteFile(char* path, FS_Archive* archive)
 }
 
 
+Result FS_DeleteSFile(char* path, FS_Archive* archive)
+{
+	if (!path || !archive) return -1;
+
+	Result ret;
+
+#ifdef DEBUG_FS
+	printf("FS_DeleteSFile:\n");
+#endif
+
+	ret = FS_DeleteFile(path, archive);
+#ifdef DEBUG_FS
+	printf(" > FS_DeleteFile: %li\n", ret);
+#endif
+	if (R_FAILED(ret)) return ret;
+
+	ret = FSUSER_ControlArchive(*archive);
+#ifdef DEBUG_FS
+	printf(" > FSUSER_ControlArchive: %li\n", ret);
+#endif
+
+	return ret;
+
+}
+
+
 Result FS_CreateDirectory(char* path, FS_Archive* archive)
 {
 	if (!path || !archive) return -1;
@@ -200,12 +226,13 @@ Result FS_FilesysInit()
 {
 	Result ret = 0;
 
-#ifdef DEBUG_FS
+// #ifdef DEBUG_FS
 	printf("FS_filesysInit:\n");
-#endif
+// #endif
 
-	if (fsInitialized == 0)
+	if (!(fsInitialized & INITIALIZED))
 	{
+		fsInitialized &= INITIALIZING;
 
 		ret = srvGetServiceHandle(&sdmcHandle, "fs:USER");
 #ifdef DEBUG_FS
@@ -220,8 +247,9 @@ Result FS_FilesysInit()
 #endif
 		if (R_FAILED(ret)) return ret;
 
-		ret = _srvGetServiceHandle(&saveHandle, "fs:USER"); // TODO: Uncomment
-		// ret = srvGetServiceHandle(&saveHandle, "fs:USER"); // TODO: Remove
+		fsInitialized &= SDMC_INITIALIZED;
+
+		ret = _srvGetServiceHandle(&saveHandle, "fs:USER");
 #ifdef DEBUG_FS
 		printf(" > _srvGetServiceHandle: %li\n", ret);
 #endif
@@ -240,7 +268,10 @@ Result FS_FilesysInit()
 #endif
 		if (R_FAILED(ret)) return ret;
 
-		fsInitialized = 1;
+		fsInitialized &= SAVE_INITIALIZED;
+
+		fsInitialized &= INITIALIZED;
+		fsInitialized &= ~INITIALIZING;
 	}
 
 	return ret;
@@ -255,7 +286,7 @@ Result FS_FilesysExit()
 	printf("FS_filesysExit:\n");
 #endif
 
-	if (fsInitialized == 1)
+	if (fsInitialized != UNINITIALIZED)
 	{
 		ret = FSUSER_CloseArchive(&sdmcArchive);
 		ret = svcCloseHandle(sdmcHandle);
@@ -263,7 +294,7 @@ Result FS_FilesysExit()
 		ret = FSUSER_CloseArchive(&saveArchive);
 		ret = svcCloseHandle(saveHandle);
 
-		fsInitialized = 0;
+		fsInitialized = UNINITIALIZED;
 	}
 
 	return ret;
