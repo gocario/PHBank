@@ -14,10 +14,9 @@ typedef enum
 	SAVE_INITIALIZED = BIT(5),
 } FS_State;
 
-extern Result fsInitialized;
-extern Handle sdmcHandle;
+extern int fsState;
+extern Handle* fsHandle;
 extern FS_Archive sdmcArchive;
-extern Handle saveHandle;
 extern FS_Archive saveArchive;
 
 Result FS_ReadFile(char* path, void* dst, FS_Archive* archive, u64 maxSize, u32* bytesRead);

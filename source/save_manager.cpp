@@ -120,7 +120,7 @@ Result SaveManager::loadFile()
 	// ret = FS_CreateDirectory(path, &sdmcArchive);
 	// if (ret) return ret;
 
-	if (fsInitialized & SAVE_INITIALIZED)
+	if (fsState & SAVE_INITIALIZED)
 	{
 		printf(">Loading Save from save\n");
 		ret = loadSaveFile(&saveArchive);
@@ -162,7 +162,7 @@ Result SaveManager::saveFile()
 	ret = FS_CreateDirectory(path, &sdmcArchive);
 	// if (ret) return ret;
 
-	if (fsInitialized & SAVE_INITIALIZED)
+	if (fsState & SAVE_INITIALIZED)
 	{
 		printf(">Saving Save to save\n");
 		ret = saveSaveFile(&saveArchive);
@@ -266,7 +266,7 @@ Result SaveManager::saveSaveFile(FS_Archive *fsArchive)
 	u32 size = sizeSave;
 	char path[] = "/main";
 
-	if (fsInitialized & SAVE_INITIALIZED)
+	if (fsState & SAVE_INITIALIZED)
 	{
 		printf("Deleting savefile (save)... ");
 		ret = FS_DeleteSFile(path, fsArchive);
