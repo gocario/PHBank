@@ -235,6 +235,7 @@ Result FS_FilesysInit()
 		fsState |= INITIALIZING;
 
 		fsHandle = fsGetSessionHandle();
+		printf(" > fsGetSessionHandle: %lu\n", fsHandle);
 
 // 		ret = srvGetServiceHandle(&sdmcHandle, "fs:USER");
 // // #ifdef DEBUG_FS

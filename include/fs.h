@@ -22,8 +22,8 @@ extern FS_Archive saveArchive;
 Result FS_ReadFile(char* path, void* dst, FS_Archive* archive, u64 maxSize, u32* bytesRead);
 Result FS_WriteFile(char* path, void* src, u64 size, FS_Archive* archive, u32* bytesWritten);
 Result FS_WriteSFile(char* path, void* src, u64 size, FS_Archive* archive, u32* bytesWritten);
-Result FS_DeleteFile(char* path, FS_Archive* fsarch);
-Result FS_DeleteSFile(char* path, FS_Archive* fsarch);
+Result FS_DeleteFile(char* path, FS_Archive* archive);
+Result FS_DeleteSFile(char* path, FS_Archive* archive);
 
 Result FS_CreateDirectory(char* path, FS_Archive* fsArchive);
 
