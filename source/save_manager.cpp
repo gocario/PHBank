@@ -130,7 +130,8 @@ Result SaveManager::loadFile()
 	if (hidKeysHeld() & KEY_L)
 	{
 		printf(">Backing up\n");
-		backupFile();
+		ret = backupFile();
+		// if (R_FAILED(ret)) return ret;
 	}
 	else
 	{
@@ -149,10 +150,11 @@ Result SaveManager::saveFile()
 
 	ret = FS_CreateDirectory((char*) pk_baseFolder, &sdmcArchive);
 	ret = FS_CreateDirectory((char*) pk_saveFolder, &sdmcArchive);
+	ret = FS_CreateDirectory((char*) pk_bankFolder, &sdmcArchive);
 
 	printf(">Saving Save to sdmc\n");
 	ret = saveSaveFile(&sdmcArchive);
-	// if (ret) return ret; // ASK Uncomment this?
+	// if (R_FAILED(ret)) return ret; // ASK Uncomment this?
 
 	printf(">Saving Bank to sdmc\n");
 	ret = saveBankFile(&sdmcArchive);
@@ -173,11 +175,11 @@ Result SaveManager::backupFile()
 
 	printf(">Backing up Save to sdmc\n");
 	ret = backupSaveFile(&sdmcArchive);
-	// if (ret) return ret; // ASK Uncomment this?
+	// if (R_FAILED(ret)) return ret; // ASK Uncomment this?
 
 	printf(">Backing up Bank to sdmc\n");
 	ret = backupBankFile(&sdmcArchive);
-	// if (ret) return ret;
+	// if (R_FAILED(ret)) return ret;
 
 	return ret;
 }
@@ -363,7 +365,7 @@ Result SaveManager::loadData()
 Result SaveManager::loadSaveData()
 // ------------------------------------
 {
-	savedata = {}; // ASK Is it really needed?
+	savedata = {0}; // ASK Is it really needed?
 
 	printf("Loading PC Boxes:");
 	for (u16 iB = 0; iB < PC_BOX_COUNT; iB++)
@@ -401,7 +403,7 @@ Result SaveManager::loadSaveData()
 Result SaveManager::loadBankData()
 // ----------------------------------------------
 {
-	bankdata = {}; // ASK Is it really needed?
+	bankdata = {0}; // ASK Is it really needed?
 
 	printf("Loading BK Boxes:");
 	for (u16 iB = 0; iB < BANK_BOX_COUNT; iB++)
@@ -495,7 +497,9 @@ void SaveManager::loadPkmPk6(pkm_s* pkm)
 }
 
 
+// ------------------------------------
 void SaveManager::loadDex()
+// ------------------------------------
 {
 	// TODO
 }
@@ -647,7 +651,9 @@ void SaveManager::savePkmPk6(pkm_s* pkm)
 }
 
 
+// ------------------------------------
 void SaveManager::saveDex()
+// ------------------------------------
 {
 	// TODO
 }
@@ -720,7 +726,9 @@ bool SaveManager::isSlotEmpty(u16 boxId, u16 slotId, bool inBank)
 }
 
 
+// ------------------------------------
 void SaveManager::getBox(u16 boxId, box_s** box, bool inBank)
+// ------------------------------------
 {
 	if (inBank)
 		*box = &bankdata.bk.box[boxId];
