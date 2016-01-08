@@ -951,7 +951,7 @@ void SaveManager::decryptEk6(pkm_s* pkm)
 	u16 tmp;
 	for (u32 i = 0x8; i < PKM_SIZE; i += 0x2)
 	{
-		memcpy(&tmp, pkm->ek6 + i, 0x2);
+		memcpy(&tmp, pkm->pk6 + i, 0x2);
 
 		seed = LCRNG(seed);
 		tmp ^= (seed >> 16);
@@ -979,7 +979,7 @@ void SaveManager::encryptPk6(pkm_s* pkm)
 	u16 tmp;
 	for (u32 i = 0x8; i < PKM_SIZE; i += 0x2)
 	{
-		memcpy(&tmp, pkm->pk6 + i, 0x2);
+		memcpy(&tmp, pkm->ek6 + i, 0x2);
 
 		seed = LCRNG(seed);
 		tmp ^= (seed >> 16);
@@ -1141,7 +1141,7 @@ u16 SaveManager::ccitt16(u8* data, u32 len)
 
 		for (u32 j = 0; j < 0x8; j++)
 		{
-			if (crc & 0x8000)
+			if ((crc & 0x8000) > 0)
 				crc = (u16) ((crc << 1) ^ 0x1021);
 			else
 				crc <<= 1;

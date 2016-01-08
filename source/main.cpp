@@ -112,7 +112,7 @@ int main(int argc, char* argv[])
 	delete PHBanku::data;
 	delete PHBanku::font;
 
-	printf("Deleting FS...\n");
+	printf("Exiting FS...\n");
 	FS_FilesysExit();
 
 	sftd_fini();
