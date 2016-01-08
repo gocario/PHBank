@@ -224,12 +224,7 @@ Result SaveManager::loadBankFile(FS_Archive *fsArchive)
 	if (R_FAILED(ret))
 	{
 		printf(" Creating...");
-		bytesRead = BANKDATA_PKBK_SIZE;
-		for (u32 i = 0; i < bytesRead; i++)
-		{
-			bankbuffer[i] = 0x00;
-		}
-
+		memset(bankbuffer, 0, BANKDATA_PKBK_SIZE);
 		ret = 0;
 	}
 
@@ -365,7 +360,7 @@ Result SaveManager::loadData()
 Result SaveManager::loadSaveData()
 // ------------------------------------
 {
-	savedata = {0}; // ASK Is it really needed?
+	// memset(savedata, 0, sizeof(savedata)); // ASK Is it needed?
 
 	printf("Loading PC Boxes:");
 	for (u16 iB = 0; iB < PC_BOX_COUNT; iB++)
@@ -403,7 +398,7 @@ Result SaveManager::loadSaveData()
 Result SaveManager::loadBankData()
 // ----------------------------------------------
 {
-	bankdata = {0}; // ASK Is it really needed?
+	// memset(bankdata, 0, sizeof(bankdata)); // ASK Is it needed?
 
 	printf("Loading BK Boxes:");
 	for (u16 iB = 0; iB < BANK_BOX_COUNT; iB++)
