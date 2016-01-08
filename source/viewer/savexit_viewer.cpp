@@ -1,6 +1,7 @@
 #include "savexit_viewer.hpp"
 
 #include "phbank.hpp"
+#include "text.hpp"
 
 /*----------------------------------------------------------*\
  |                       Viewer Class                       |

@@ -1,9 +1,9 @@
 #include "phbank.hpp"
 
+#include <sf2d.h>
 #include <sftd.h>
 #include <stdio.h>
 #include <stdarg.h>
-
 
 void sftd_draw_text_pkm(const u16 x, const u16 y, const char* text, ... )
 {

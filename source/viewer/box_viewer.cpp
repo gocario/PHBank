@@ -3,6 +3,7 @@
 #include "textures.h"
 #include "phbank.hpp"
 #include "pokemon.hpp"
+#include "text.hpp"
 
 #include "ultra_box_viewer.hpp"
 #include "savexit_viewer.hpp"

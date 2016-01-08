@@ -4,7 +4,7 @@
 
 #include <string.h>
 
-const u32 expTable[100][6] = {
+static const u32 expTable[100][6] = {
 	{0, 0, 0, 0, 0, 0},
 	{8, 15, 4, 9, 6, 10},
 	{27, 52, 13, 57, 21, 33},

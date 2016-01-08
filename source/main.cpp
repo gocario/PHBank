@@ -1,5 +1,5 @@
 #include <3ds.h> // Useless --v
-#include <sf2d.h> // Useless --v
+#include <sf2d.h>
 #include <sftd.h>
 #include <stdio.h>
 #include <stdlib.h>
