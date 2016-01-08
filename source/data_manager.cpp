@@ -1,6 +1,7 @@
 #include "data_manager.hpp"
 
 #include "fs.h"
+#include "pkdir.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -116,7 +117,7 @@ const u8* DataManager::species(u32 species)
 }
 
 
-const u8 hpTypes[16][9] = {
+static const u8 hpTypes[16][9] = {
 	"Fighting", "Flying", "Poison", "Ground",
 	"Rock", "Bug", "Ghost", "Steel", "Fire", "Water",
 	"Grass", "Electric", "Psychic", "Ice", "Dragon", "Dark"
@@ -138,18 +139,17 @@ Result DataManager::load()
 // ----------------------------------------------
 {
 	Result ret;
-	ret = loadData((char*)("abilities"), (u8*)&(_abilities), DEX_ABILITIES_LENGTH, DEX_ABILITIES_COUNT);
-	ret = loadData((char*)("items"), (u8*)&(_items), DEX_ITEMS_LENGTH, DEX_ITEMS_COUNT);
-	ret = loadData((char*)("moves"), (u8*)&(_moves), DEX_MOVES_LENGTH, DEX_MOVES_COUNT);
-	ret = loadData((char*)("natures"), (u8*)&(_natures), DEX_NATURES_LENGTH, DEX_NATURES_COUNT);
-	ret = loadData((char*)("species"), (u8*)&(_species), DEX_SPECIES_LENGTH, DEX_SPECIES_COUNT);
+	ret = loadData((char*) "abilities", (u8*)&(_abilities), DEX_ABILITIES_LENGTH, DEX_ABILITIES_COUNT);
+	ret = loadData((char*) "items", (u8*)&(_items), DEX_ITEMS_LENGTH, DEX_ITEMS_COUNT);
+	ret = loadData((char*) "moves", (u8*)&(_moves), DEX_MOVES_LENGTH, DEX_MOVES_COUNT);
+	ret = loadData((char*) "natures", (u8*)&(_natures), DEX_NATURES_LENGTH, DEX_NATURES_COUNT);
+	ret = loadData((char*) "species", (u8*)&(_species), DEX_SPECIES_LENGTH, DEX_SPECIES_COUNT);
 
 	u8 buffer[12000];
 	u32 bytesRead;
 	char path[64];
-	char pkmFolder[] = "/pkbank/";
-	char dataFolder[] = "data/";
-	sprintf(path, "%s%spersonal", pkmFolder, dataFolder);
+
+	sprintf(path, "%spersonal", pk_dataFolder); // Add it into pkdir.h?
 	ret = FS_ReadFile(path, buffer, &sdmcArchive, 12000, &bytesRead);
 	if (ret) { printf(" ERROR loading \"%s\"...\n", path); return ret; }
 	memcpy(_personal, buffer, bytesRead);
@@ -167,18 +167,13 @@ Result DataManager::loadData(char* file, u8* dest, u32 lineLength, u32 lineCount
 	u8* buffer = new u8[lineLength * lineCount];
 
 	Result ret;
-
 	char path[64];
-	char pkmFolder[] = "/pkbank/";
-	char dataFolder[] = "data/";
-	sprintf(path, "%s%s%s/%s_%s.txt", pkmFolder, dataFolder, lang(), file, lang());
+	
+	sprintf(path, "%s%s/%s_%s.txt", pk_dataFolder, lang(), file, lang());
 	ret = FS_ReadFile(path, buffer, &sdmcArchive, lineLength * lineCount, &bytesRead);
 	if (ret) printf(" ERROR loading \"%s\"...\n", path);
-
-	if (!ret)
-	{
+	else
 		ret = loadDataLine(buffer, dest, lineLength, lineCount);
-	}
 
 	delete[] buffer;
 	return ret;

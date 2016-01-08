@@ -192,7 +192,7 @@ Result SaveManager::loadSaveFile(FS_Archive *fsArchive)
 	u32 size = sizeSave;
 	char path[32];
 
-	sprintf(path, "%s%s", pk_rootFolder, pk_saveFile);
+	sprintf(path, "%s%s", pk_saveFolder, pk_saveFile);
 
 	printf("Loading savefile...");
 	ret = FS_ReadFile(path, savebuffer, fsArchive, size, &bytesRead);
