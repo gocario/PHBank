@@ -1,4 +1,8 @@
 #pragma once
+/**
+ * @file font_manager.hpp
+ * @brief Font Manager
+ */
 #ifndef FONT_MANAGER_HPP
 #define FONT_MANAGER_HPP
 

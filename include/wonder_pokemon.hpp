@@ -1,4 +1,7 @@
 #pragma once
+/**
+ * @file wonder_pokemon.hpp
+ */
 #ifndef WONDER_POKEMON_HPP
 #define WONDER_POKEMON_HPP
 

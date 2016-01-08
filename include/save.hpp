@@ -1,4 +1,7 @@
 #pragma once
+/**
+ * @file save.hpp
+ */
 #ifndef SAVE_HPP
 #define SAVE_HPP
 
@@ -11,7 +14,7 @@
 #define BANK_BOX_COUNT 100 // 0x64
 #define PKM_COUNT 721
 
-#define PKM_SIZE 0xe8
+#define PKM_SIZE 0xe8 // 232
 #define BOX_SIZE PKM_SIZE * BOX_PKM_COUNT
 #define PC_SIZE BOX_SIZE * PC_BOX_COUNT
 #define BANK_SIZE BOX_SIZE * BANK_BOX_COUNT

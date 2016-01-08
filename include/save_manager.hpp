@@ -1,4 +1,8 @@
 #pragma once
+/**
+ * @file save_manager.hpp
+ * @brief Save Manager
+ */
 #ifndef SAVE_MANAGER_HPP
 #define SAVE_MANAGER_HPP
 

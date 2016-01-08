@@ -1,4 +1,8 @@
 #pragma once
+/**
+ * @file data_manager.hpp
+ * @brief Data Manager
+ */
 #ifndef DATA_MANAGER_HPP
 #define DATA_MANAGER_HPP
 
@@ -20,7 +24,6 @@
 #define DEX_NATURES_LENGTH 10
 #define DEX_SPECIES_COUNT 722
 #define DEX_SPECIES_LENGTH 20
-
 
 class DataManager
 {

@@ -1,4 +1,7 @@
 #pragma once
+/**
+ * @file pokemon.hpp
+ */
 #ifndef POKEMON_HPP
 #define POKEMON_HPP
 
@@ -17,7 +20,6 @@ namespace Stat
 	} stat_e;
 }
 typedef Stat::stat_e stat_e;
-
 
 namespace Pokemon
 {
