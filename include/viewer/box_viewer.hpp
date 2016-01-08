@@ -1,23 +1,13 @@
+#pragma once
 #ifndef BOX_VIEWER_HPP
 #define BOX_VIEWER_HPP
 
-#include "phbank.hpp"
 #include "viewer.hpp"
+#include "save.hpp"
 
-#define BOX_ROW_PKMCOUNT 5
-#define BOX_COL_PKMCOUNT 6
-#define BOX_PKMCOUNT BOX_ROW_PKMCOUNT * BOX_COL_PKMCOUNT
-#define PC_BOXCOUNT 31 // 0x1f
-#define BANK_BOXCOUNT 100 // 0x64
-#define PKM_COUNT 721
 
-#define PKM_SIZE 0xe8
-#define BOX_SIZE PKM_SIZE * BOX_PKMCOUNT
-#define PC_SIZE BOX_SIZE * PC_BOXCOUNT
-#define BANK_SIZE BOX_SIZE * BANK_BOXCOUNT
-
-typedef struct vPkm_t {
-	pkm_t* pkm = NULL;
+struct vPkm_s {
+	pkm_s* pkm = NULL;
 	bool emptySlot : 1;
 	bool isShiny : 1;
 	bool isKalosBorn : 1;
@@ -38,9 +28,9 @@ typedef struct vPkm_t {
 	u16 stats[6];
 	u16 ivs[6];
 	u16 evs[6];
-} vPkm_t;
+};
 
-typedef struct BoxSlot_t {
+struct BoxSlot_s {
 	bool inBank = false;
 	int16_t slot = 0;
 	int16_t inslot = 0;
@@ -49,9 +39,9 @@ typedef struct BoxSlot_t {
 	int16_t col = 0;
 	int16_t rowCount = 0;
 	int16_t colCount = 0;
-} BoxSlot_t;
+};
 
-typedef struct CursorBox_t {
+struct CursorBox_s {
 	bool inBank = false;
 	int16_t slot = 0;
 	int16_t inslot = 0;
@@ -60,7 +50,7 @@ typedef struct CursorBox_t {
 	int16_t* box = NULL;
 	int16_t row = 0;
 	int16_t col = 0;
-} CursorBox_t;
+};
 
 namespace CursorType
 {
@@ -83,9 +73,9 @@ namespace CursorState
 typedef CursorState::CursorState_e CursorState_e;
 
 
-void computeSlot(CursorBox_t* cursorBox);
-void extractBoxSlot(CursorBox_t* cursorBox, BoxSlot_t* boxSlot);
-void injectBoxSlot(CursorBox_t* cursorBox, BoxSlot_t* boxSlot);
+void computeSlot(CursorBox_s* cursorBox);
+void extractBoxSlot(CursorBox_s* cursorBox, BoxSlot_s* boxSlot);
+void injectBoxSlot(CursorBox_s* cursorBox, BoxSlot_s* boxSlot);
 
 
 class BoxViewer : public Viewer
@@ -107,18 +97,18 @@ class BoxViewer : public Viewer
 		sf2d_texture* icons = NULL;
 		sf2d_texture* tiles = NULL;
 
-		CursorBox_t cursorBox;
+		CursorBox_s cursorBox;
 		CursorType_e cursorType = CursorType::SingleSelect;
 		touchPosition touch;
 		bool isPkmHeld = false;
 		bool isPkmDragged = false;
 		bool isPkmMDragged = false;
 		bool isPkmMSelecting = false;
-		BoxSlot_t sSlot;
-		pkm_t* sPkm = NULL;
-		vPkm_t vPkm;
-		box_t* vPCBox = NULL;
-		box_t* vBKBox = NULL;
+		BoxSlot_s sSlot;
+		pkm_s* sPkm = NULL;
+		vPkm_s vPkm;
+		box_s* vPCBox = NULL;
+		box_s* vBKBox = NULL;
 
 		float cursorPositionOffY = 0.0f;
 		float cursorPositionMaxY = 8.0f;
@@ -132,7 +122,7 @@ class BoxViewer : public Viewer
 		void selectMovePokemon();
 		void selectMultiMovePokemon();
 		void cancelMovePokemon();
-		void populateVPkmData(vPkm_t* vPkm);
+		void populateVPkmData(vPkm_s* vPkm);
 };
 
 #endif // BOX_VIEWER_HPP

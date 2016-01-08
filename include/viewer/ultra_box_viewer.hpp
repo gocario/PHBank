@@ -1,17 +1,20 @@
+#pragma once
 #ifndef ULTRA_BOX_VIEWER_HPP
 #define ULTRA_BOX_VIEWER_HPP
 
-#include "phbank.hpp"
 #include "viewer.hpp"
 
-typedef struct CursorUBox_t {
+#include "save.hpp"
+
+struct CursorUBox_s
+{
 	bool inBank = false;
 	int16_t slot = 0;
 	int16_t row = 0;
 	int16_t col = 0;
-} CursorUBox_t;
+};
 
-void computeSlot(CursorUBox_t* cursorUBox);
+void computeSlot(CursorUBox_s* cursorUBox);
 
 class UltraBoxViewer : public Viewer
 {
@@ -30,10 +33,10 @@ class UltraBoxViewer : public Viewer
 	protected:
 		sf2d_texture* tiles = NULL;
 
-		CursorUBox_t cursorUBox;
+		CursorUBox_s cursorUBox;
 		touchPosition touch;
 		touchPosition originalTouch;
-		box_t* vBox = NULL;
+		box_s* vBox = NULL;
 		uint16_t boxCount;
 		uint16_t rowCount;
 		uint16_t colCount;

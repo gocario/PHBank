@@ -1,10 +1,14 @@
 #include "box_viewer.hpp"
 
+#include "textures.h"
+#include "phbank.hpp"
+#include "pokemon.hpp"
+#include "text.hpp"
+
 #include "ultra_box_viewer.hpp"
 #include "savexit_viewer.hpp"
-#include "image_manager.hpp"
 
-#include "pokemon.hpp"
+#include <stdio.h>
 
 #define BOX_HEADER_SELECTED -1
 #define SLOT_NO_SELECTION -1
@@ -26,7 +30,7 @@
 
 // --------------------------------------------------
 /// Compute the current box pointer of the cursor
-int16_t* currentBox(CursorBox_t* cursorBox)
+int16_t* currentBox(CursorBox_s* cursorBox)
 // --------------------------------------------------
 {
 	cursorBox->box = &(cursorBox->inBank ? cursorBox->boxBK : cursorBox->boxPC);
@@ -36,17 +40,17 @@ int16_t* currentBox(CursorBox_t* cursorBox)
 
 // --------------------------------------------------
 /// Compute the slot and the inslot of the cursor
-void computeSlot(CursorBox_t* cursorBox)
+void computeSlot(CursorBox_s* cursorBox)
 // --------------------------------------------------
 {
 	currentBox(cursorBox);
-	cursorBox->inslot = (cursorBox->row == BOX_HEADER_SELECTED ? SLOT_NO_SELECTION : cursorBox->row * BOX_COL_PKMCOUNT + cursorBox->col);
-	cursorBox->slot   = (cursorBox->row == BOX_HEADER_SELECTED ? SLOT_NO_SELECTION : *cursorBox->box * BOX_PKMCOUNT + cursorBox->inslot);
+	cursorBox->inslot = (cursorBox->row == BOX_HEADER_SELECTED ? SLOT_NO_SELECTION : cursorBox->row * BOX_COL_PKM_COUNT + cursorBox->col);
+	cursorBox->slot   = (cursorBox->row == BOX_HEADER_SELECTED ? SLOT_NO_SELECTION : *cursorBox->box * BOX_PKM_COUNT + cursorBox->inslot);
 }
 
 
 // --------------------------------------------------
-void computeBoxSlot(BoxSlot_t* boxSlot, CursorBox_t* cursorBox)
+void computeBoxSlot(BoxSlot_s* boxSlot, CursorBox_s* cursorBox)
 // --------------------------------------------------
 {
 	// extractBoxSlot shall already called before
@@ -72,7 +76,7 @@ void computeBoxSlot(BoxSlot_t* boxSlot, CursorBox_t* cursorBox)
 
 // --------------------------------------------------
 /// Convert CursorBox position to BoxSlot position
-void extractBoxSlot(BoxSlot_t* boxSlot, CursorBox_t* cursorBox)
+void extractBoxSlot(BoxSlot_s* boxSlot, CursorBox_s* cursorBox)
 // --------------------------------------------------
 {
 	boxSlot->inBank = cursorBox->inBank;
@@ -85,7 +89,7 @@ void extractBoxSlot(BoxSlot_t* boxSlot, CursorBox_t* cursorBox)
 
 // --------------------------------------------------
 /// Convert BoxSlot position to CursorBox position
-void injectBoxSlot(BoxSlot_t* boxSlot, CursorBox_t* cursorBox)
+void injectBoxSlot(BoxSlot_s* boxSlot, CursorBox_s* cursorBox)
 // --------------------------------------------------
 {
 	cursorBox->inBank = boxSlot->inBank;
@@ -155,13 +159,13 @@ Result BoxViewer::initialize()
 
 	// Load textures
 	if (!backgroundBox)
-		backgroundBox = sf2d_create_texture_mem_RGBA8(ImageManager::boxBackground23o_img.pixel_data, ImageManager::boxBackground23o_img.width, ImageManager::boxBackground23o_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
+		backgroundBox = sf2d_create_texture_mem_RGBA8(boxBackground23o_img.pixel_data, boxBackground23o_img.width, boxBackground23o_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
 	if (!backgroundResume)
-		backgroundResume = sf2d_create_texture_mem_RGBA8(ImageManager::pokemonResumeBackground_img.pixel_data, ImageManager::pokemonResumeBackground_img.width, ImageManager::pokemonResumeBackground_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
+		backgroundResume = sf2d_create_texture_mem_RGBA8(pokemonResumeBackground_img.pixel_data, pokemonResumeBackground_img.width, pokemonResumeBackground_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
 	if (!icons)
-		icons = sf2d_create_texture_mem_RGBA8(ImageManager::boxIcons_img.pixel_data, ImageManager::boxIcons_img.width, ImageManager::boxIcons_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
+		icons = sf2d_create_texture_mem_RGBA8(boxIcons_img.pixel_data, boxIcons_img.width, boxIcons_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
 	if (!tiles)
-		tiles = sf2d_create_texture_mem_RGBA8(ImageManager::boxTiles_img.pixel_data, ImageManager::boxTiles_img.width, ImageManager::boxTiles_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
+		tiles = sf2d_create_texture_mem_RGBA8(boxTiles_img.pixel_data, boxTiles_img.width, boxTiles_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
 
 	sf2d_set_clear_color(RGBA8(0x40, 0x40, 0x40, 0xFF));
 
@@ -200,7 +204,7 @@ Result BoxViewer::drawTopScreen()
 		x = 11;
 		y = 42 - 2;
 		sftd_draw_text_white(x, y, "Game's OT");
-		sftd_draw_text_white(x+80, y, "%s", PHBank::pKBank()->savedata->OTName);
+		sftd_draw_text_white(x+80, y, "%s", PHBanku::save->savedata.OTName);
 		sftd_draw_text_white(x, (y += 15), "Dex No.");
 		sftd_draw_text_white(x+50, y, "%u", vPkm.speciesID);
 		sftd_draw_text_white(x+80, y, "%s", vPkm.species);
@@ -283,7 +287,7 @@ Result BoxViewer::drawBotScreen()
 	if (hasRegularChild()) { if (this->child->drawBotScreen() == PARENT_STEP); else return CHILD_STEP; }
 	
 	int16_t boxShift;
-	box_t** vBox = NULL;
+	box_s** vBox = NULL;
 
 
 	// TODO: Merge the Pokémon box draw function for both boxes (DRY)
@@ -300,8 +304,8 @@ Result BoxViewer::drawBotScreen()
 		sf2d_draw_texture(backgroundBox, boxShift, 20);
 		char boxTitle[0x18];
 		snprintf(boxTitle, 0x18, "Box %i", (cursorBox.inBank ? cursorBox.boxBK : cursorBox.boxPC) + 1);
-		int boxTitleWidth = sftd_get_text_width(PHBank::font(), 13, boxTitle);
-		sftd_draw_text(PHBank::font(), boxShift + (BACKGROUND_WIDTH - boxTitleWidth) / 2, 25, RGBA8(0x00, 0x00, 0x00, 0xFF), 13, boxTitle);
+		int boxTitleWidth = sftd_get_text_width(PHBanku::font->font, 13, boxTitle);
+		sftd_draw_text(PHBanku::font->font, boxShift + (BACKGROUND_WIDTH - boxTitleWidth) / 2, 25, RGBA8(0x00, 0x00, 0x00, 0xFF), 13, boxTitle);
 
 		
 		// If there is a Pokémon currently selected
@@ -318,12 +322,12 @@ Result BoxViewer::drawBotScreen()
 					if (Pokemon::isEgg(&((*vBox)->slot[i])))
 					{
 						// Draw the egg icon
-						sf2d_draw_texture_part(icons, boxShift + (i % BOX_COL_PKMCOUNT) * 35, (i / BOX_COL_PKMCOUNT) * 35 + 50, ((PKM_COUNT) % 25) * 40, ((PKM_COUNT) / 25) * 30, 40, 30);
+						sf2d_draw_texture_part(icons, boxShift + (i % BOX_COL_PKM_COUNT) * 35, (i / BOX_COL_PKM_COUNT) * 35 + 50, ((PKM_COUNT) % 25) * 40, ((PKM_COUNT) / 25) * 30, 40, 30);
 					}
 					else
 					{
 						// Draw the Pokémon icon
-						sf2d_draw_texture_part(icons, boxShift + (i % BOX_COL_PKMCOUNT) * 35, (i / BOX_COL_PKMCOUNT) * 35 + 50, (((*vBox)->slot[i].speciesID-1) % 25) * 40, (((*vBox)->slot[i].speciesID-1) / 25) * 30, 40, 30);
+						sf2d_draw_texture_part(icons, boxShift + (i % BOX_COL_PKM_COUNT) * 35, (i / BOX_COL_PKM_COUNT) * 35 + 50, (((*vBox)->slot[i].speciesID-1) % 25) * 40, (((*vBox)->slot[i].speciesID-1) / 25) * 30, 40, 30);
 					}
 				}
 			}
@@ -338,12 +342,12 @@ Result BoxViewer::drawBotScreen()
 				if (Pokemon::isEgg(&((*vBox)->slot[i])))
 				{
 					// Draw the egg icon
-					sf2d_draw_texture_part(icons, boxShift + (i % BOX_COL_PKMCOUNT) * 35, (i / BOX_COL_PKMCOUNT) * 35 + 50, ((PKM_COUNT) % 25) * 40, ((PKM_COUNT) / 25) * 30, 40, 30);
+					sf2d_draw_texture_part(icons, boxShift + (i % BOX_COL_PKM_COUNT) * 35, (i / BOX_COL_PKM_COUNT) * 35 + 50, ((PKM_COUNT) % 25) * 40, ((PKM_COUNT) / 25) * 30, 40, 30);
 				}
 				else
 				{
 					// Draw the Pokémon icon
-					sf2d_draw_texture_part(icons, boxShift + (i % BOX_COL_PKMCOUNT) * 35, (i / BOX_COL_PKMCOUNT) * 35 + 50, (((*vBox)->slot[i].speciesID-1) % 25) * 40, (((*vBox)->slot[i].speciesID-1) / 25) * 30, 40, 30);
+					sf2d_draw_texture_part(icons, boxShift + (i % BOX_COL_PKM_COUNT) * 35, (i / BOX_COL_PKM_COUNT) * 35 + 50, (((*vBox)->slot[i].speciesID-1) % 25) * 40, (((*vBox)->slot[i].speciesID-1) / 25) * 30, 40, 30);
 				}
 			}
 		}
@@ -394,7 +398,7 @@ Result BoxViewer::drawBotScreen()
 			else
 			{
 				// Draw the cursor icon on the current slot a bit shifted
-				sf2d_draw_texture_part(tiles, boxShift + 17 + (cursorBox.inslot % 6) * 35, 20 + 13 + (cursorBox.inslot / 6) * 35 - cursorPositionOffY, 32 * cursorType, 32, 32, 32);
+				sf2d_draw_texture_part(tiles, boxShift + 17 + (cursorBox.inslot % 6) * 35 + cursorPositionOffY / 2, 20 + 13 + (cursorBox.inslot / 6) * 35 - cursorPositionOffY, 32 * cursorType, 32, 32, 32);
 			}
 		}
 	}
@@ -429,12 +433,12 @@ Result BoxViewer::drawBotScreen()
 					if (Pokemon::isEgg(&((*vBox)->slot[i])))
 					{
 						// Draw the egg icon
-						sf2d_draw_texture_part(icons, boxShift + (i % BOX_COL_PKMCOUNT) * 35, (i / BOX_COL_PKMCOUNT) * 35 + 50, ((PKM_COUNT) % 25) * 40, ((PKM_COUNT) / 25) * 30, 40, 30);
+						sf2d_draw_texture_part(icons, boxShift + (i % BOX_COL_PKM_COUNT) * 35, (i / BOX_COL_PKM_COUNT) * 35 + 50, ((PKM_COUNT) % 25) * 40, ((PKM_COUNT) / 25) * 30, 40, 30);
 					}
 					else
 					{
 						// Draw the Pokémon icon
-						sf2d_draw_texture_part(icons, boxShift + (i % BOX_COL_PKMCOUNT) * 35, (i / BOX_COL_PKMCOUNT) * 35 + 50, (((*vBox)->slot[i].speciesID-1) % 25) * 40, (((*vBox)->slot[i].speciesID-1) / 25) * 30, 40, 30);
+						sf2d_draw_texture_part(icons, boxShift + (i % BOX_COL_PKM_COUNT) * 35, (i / BOX_COL_PKM_COUNT) * 35 + 50, (((*vBox)->slot[i].speciesID-1) % 25) * 40, (((*vBox)->slot[i].speciesID-1) / 25) * 30, 40, 30);
 					}
 				}
 			}
@@ -449,12 +453,12 @@ Result BoxViewer::drawBotScreen()
 				if (Pokemon::isEgg(&((*vBox)->slot[i])))
 				{
 					// Draw the egg icon
-					sf2d_draw_texture_part(icons, boxShift + (i % BOX_COL_PKMCOUNT) * 35, (i / BOX_COL_PKMCOUNT) * 35 + 50, ((PKM_COUNT) % 25) * 40, ((PKM_COUNT) / 25) * 30, 40, 30);
+					sf2d_draw_texture_part(icons, boxShift + (i % BOX_COL_PKM_COUNT) * 35, (i / BOX_COL_PKM_COUNT) * 35 + 50, ((PKM_COUNT) % 25) * 40, ((PKM_COUNT) / 25) * 30, 40, 30);
 				}
 				else
 				{
 					// Draw the Pokémon icon
-					sf2d_draw_texture_part(icons, boxShift + (i % BOX_COL_PKMCOUNT) * 35, (i / BOX_COL_PKMCOUNT) * 35 + 50, (((*vBox)->slot[i].speciesID-1) % 25) * 40, (((*vBox)->slot[i].speciesID-1) / 25) * 30, 40, 30);
+					sf2d_draw_texture_part(icons, boxShift + (i % BOX_COL_PKM_COUNT) * 35, (i / BOX_COL_PKM_COUNT) * 35 + 50, (((*vBox)->slot[i].speciesID-1) % 25) * 40, (((*vBox)->slot[i].speciesID-1) / 25) * 30, 40, 30);
 				}
 			}
 		}
@@ -537,14 +541,14 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 			cursorBox.row += rowMod;
 			cursorBox.col += colMod;
 			
-			if (*cursorBox.box < 0) *cursorBox.box = (cursorBox.inBank ? BANK_BOXCOUNT : PC_BOXCOUNT)-1;
-			else if (*cursorBox.box > (cursorBox.inBank ? BANK_BOXCOUNT : PC_BOXCOUNT)-1) *cursorBox.box = 0;
+			if (*cursorBox.box < 0) *cursorBox.box = (cursorBox.inBank ? BANK_BOX_COUNT : PC_BOX_COUNT)-1;
+			else if (*cursorBox.box > (cursorBox.inBank ? BANK_BOX_COUNT : PC_BOX_COUNT)-1) *cursorBox.box = 0;
 
-			if (cursorBox.row < BOX_HEADER_SELECTED) cursorBox.row = BOX_ROW_PKMCOUNT-1;
-			else if (cursorBox.row > BOX_ROW_PKMCOUNT-1) cursorBox.row = BOX_HEADER_SELECTED;
+			if (cursorBox.row < BOX_HEADER_SELECTED) cursorBox.row = BOX_ROW_PKM_COUNT-1;
+			else if (cursorBox.row > BOX_ROW_PKM_COUNT-1) cursorBox.row = BOX_HEADER_SELECTED;
 
-			if (cursorBox.col < 0) { cursorBox.col = BOX_COL_PKMCOUNT-1; cursorBox.inBank = !cursorBox.inBank; }
-			else if (cursorBox.col > BOX_COL_PKMCOUNT-1) { cursorBox.col = 0; cursorBox.inBank = !cursorBox.inBank; }
+			if (cursorBox.col < 0) { cursorBox.col = BOX_COL_PKM_COUNT-1; cursorBox.inBank = !cursorBox.inBank; }
+			else if (cursorBox.col > BOX_COL_PKM_COUNT-1) { cursorBox.col = 0; cursorBox.inBank = !cursorBox.inBank; }
 
 			boolMod = true;
 		}
@@ -596,7 +600,7 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 			if (vPCBox && vBKBox) // TODO: Is the `if` useless?
 			{
 				// Swap the two boxes (PC|BK)
-				PHBank::pKBank()->moveBox(cursorBox.boxPC, false, cursorBox.boxBK, true);
+				PHBanku::save->moveBox(cursorBox.boxPC, false, cursorBox.boxBK, true);
 			}
 		}
 	}
@@ -797,13 +801,13 @@ void BoxViewer::selectViewBox()
 	// Compute the current cursor slot
 	computeSlot(&cursorBox);
 
-	box_t** vBox = NULL;
+	box_s** vBox = NULL;
 	if (cursorBox.inBank)
 		vBox = &vBKBox;
 	else
 		vBox = &vPCBox;
 
-	PHBank::pKBank()->getBox(*cursorBox.box, vBox, cursorBox.inBank);
+	PHBanku::save->getBox(*cursorBox.box, vBox, cursorBox.inBank);
 }
 
 
@@ -822,7 +826,7 @@ void BoxViewer::selectViewPokemon()
 	// If the cursor is in a box slot
 	else
 	{
-		PHBank::pKBank()->getPkm(*cursorBox.box, cursorBox.inslot, &vPkm.pkm, cursorBox.inBank);
+		PHBanku::save->getPkm(*cursorBox.box, cursorBox.inslot, &vPkm.pkm, cursorBox.inBank);
 		populateVPkmData(&vPkm);
 	}
 }
@@ -854,7 +858,7 @@ void BoxViewer::selectMovePokemon()
 		if (sPkm != vPkm.pkm)
 		{
 			// Swap the Pokémon currenlty selected and the current Pokémon, and keep the return value (true: had moved, false: hadn't)
-			bool moved = PHBank::pKBank()->movePkm(sPkm, vPkm.pkm, sSlot.inBank, cursorBox.inBank);
+			bool moved = PHBanku::save->movePkm(sPkm, vPkm.pkm, sSlot.inBank, cursorBox.inBank);
 
 			// If the Pokémon had moved
 			if (moved)
@@ -916,7 +920,7 @@ void BoxViewer::cancelMovePokemon()
 
 
 // --------------------------------------------------
-void BoxViewer::populateVPkmData(vPkm_t* vPkm)
+void BoxViewer::populateVPkmData(vPkm_s* vPkm)
 // --------------------------------------------------
 {
 	u16* name;
@@ -961,11 +965,11 @@ void BoxViewer::populateVPkmData(vPkm_t* vPkm)
 	}
 	
 
-	vPkm->emptySlot = PHBank::pKBank()->isPkmEmpty(vPkm->pkm);
+	vPkm->emptySlot = PHBanku::save->isPkmEmpty(vPkm->pkm);
 
 	if (Pokemon::isEgg(vPkm->pkm))
 	{
-		vPkm->isShiny = Pokemon::isShiny(vPkm->pkm, PHBank::pKBank()->savedata->TID, PHBank::pKBank()->savedata->SID);
+		vPkm->isShiny = Pokemon::isShiny(vPkm->pkm, PHBanku::save->savedata.TID, PHBanku::save->savedata.SID);
 	}
 	else
 	{
@@ -978,16 +982,16 @@ void BoxViewer::populateVPkmData(vPkm_t* vPkm)
 
 
 	vPkm->speciesID = Pokemon::speciesID(vPkm->pkm);
-	vPkm->species = PKData::species(vPkm->speciesID);
-	vPkm->item = PKData::items(Pokemon::itemID(vPkm->pkm));
-	vPkm->nature = PKData::natures(Pokemon::nature(vPkm->pkm));
-	vPkm->ability = PKData::abilities(Pokemon::ability(vPkm->pkm));
-	vPkm->hiddenPower = PKData::HPTypes(Pokemon::HPType(vPkm->pkm));
+	vPkm->species = PHBanku::data->species(vPkm->speciesID);
+	vPkm->item = PHBanku::data->items(Pokemon::itemID(vPkm->pkm));
+	vPkm->nature = PHBanku::data->natures(Pokemon::nature(vPkm->pkm));
+	vPkm->ability = PHBanku::data->abilities(Pokemon::ability(vPkm->pkm));
+	vPkm->hiddenPower = PHBanku::data->HPTypes(Pokemon::HPType(vPkm->pkm));
 
-	vPkm->moves[0] = PKData::moves(Pokemon::move1(vPkm->pkm));
-	vPkm->moves[1] = PKData::moves(Pokemon::move2(vPkm->pkm));
-	vPkm->moves[2] = PKData::moves(Pokemon::move3(vPkm->pkm));
-	vPkm->moves[3] = PKData::moves(Pokemon::move4(vPkm->pkm));
+	vPkm->moves[0] = PHBanku::data->moves(Pokemon::move1(vPkm->pkm));
+	vPkm->moves[1] = PHBanku::data->moves(Pokemon::move2(vPkm->pkm));
+	vPkm->moves[2] = PHBanku::data->moves(Pokemon::move3(vPkm->pkm));
+	vPkm->moves[3] = PHBanku::data->moves(Pokemon::move4(vPkm->pkm));
 
 	vPkm->level = Pokemon::level(vPkm->pkm);
 	vPkm->stats[Stat::HP] = Pokemon::HP(vPkm->pkm);

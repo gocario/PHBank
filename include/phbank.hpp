@@ -1,26 +1,21 @@
+#pragma once
+/**
+ * @file phbank.hpp
+ * @brief Master-manager
+ */
 #ifndef PHBANK_HPP
 #define PHBANK_HPP
 
-#include "pkbank.hpp"
-#include "pkdata.hpp"
+#include "save_manager.hpp"
+#include "data_manager.hpp"
+#include "font_manager.hpp"
 
-class PHBank
+// TODO Rename back to PHBank
+namespace PHBanku
 {
-	public:
-		explicit PHBank();
-		~PHBank();
-
-		static PHBank* pHBank();
-		static PKBank* pKBank();
-		static sftd_font* font();
-
-		static Result load();
-		static Result destroy();
-
-	private:
-		static PHBank _pHBank;
-		static PKBank _pKBank;
-		static sftd_font* _font;
-};
+	extern SaveManager* save;
+	extern DataManager* data;
+	extern FontManager* font;
+}
 
 #endif // PHBANK_HPP

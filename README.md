@@ -1,5 +1,5 @@
 
-# [Pokémon Homebrew Bank​s](https://gbatemp.net/threads/wip-phbank-pok%C3%A9mon-homebrew-bank.398718/)
+# [Pokémon Homebrew Bank​](https://gbatemp.net/threads/wip-phbank-pok%C3%A9mon-homebrew-bank.398718/)
 
 
 It is used to manage Pokémon storage with a Bank, like the Pokébank, but as free service (and a local storage solution).
