@@ -10,23 +10,22 @@
 
 #include <stdio.h>
 
-#define BOX_HEADER_SELECTED -1
-#define SLOT_NO_SELECTION -1
+#define BOX_HEADER_SELECTED (-1)
+#define SLOT_NO_SELECTION (-1)
 
-#define SCREEN_WIDTH 320
-#define SCREEN_HEIGHT 240
+#define SCREEN_WIDTH (320)
+#define SCREEN_HEIGHT (240)
 
-#define BACKGROUND_WIDTH 220
-#define BACKGROUND_HEIGHT 210
-#define BACKGROUND_SHIFT 40
+#define BACKGROUND_WIDTH (220)
+#define BACKGROUND_HEIGHT (210)
+#define BACKGROUND_SHIFT (40)
 
-#define PC_BOX_SHIFT_USED 0
-#define BK_BOX_SHIFT_UNUSED PC_BOX_SHIFT_USED + BACKGROUND_WIDTH + BACKGROUND_SHIFT
+#define PC_BOX_SHIFT_USED (0)
+#define BK_BOX_SHIFT_USED (SCREEN_WIDTH - BACKGROUND_WIDTH)
+#define BK_BOX_SHIFT_UNUSED (PC_BOX_SHIFT_USED + BACKGROUND_WIDTH + BACKGROUND_SHIFT)
+#define PC_BOX_SHIFT_UNUSED (BK_BOX_SHIFT_USED - BACKGROUND_WIDTH - BACKGROUND_SHIFT)
 
-
-#define BK_BOX_SHIFT_USED SCREEN_WIDTH - BACKGROUND_WIDTH
-#define PC_BOX_SHIFT_UNUSED BK_BOX_SHIFT_USED - BACKGROUND_WIDTH - BACKGROUND_SHIFT
-
+#define EGG_ID (PKM_COUNT)
 
 // --------------------------------------------------
 /// Compute the current box pointer of the cursor
@@ -167,7 +166,7 @@ Result BoxViewer::initialize()
 	if (!tiles)
 		tiles = sf2d_create_texture_mem_RGBA8(boxTiles_img.pixel_data, boxTiles_img.width, boxTiles_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
 
-	sf2d_set_clear_color(RGBA8(0x40, 0x40, 0x40, 0xFF));
+	sf2d_set_clear_color(RGBA8(0x40,0x40,0x40,0xFF));
 
 	return PARENT_STEP;
 }
@@ -190,14 +189,18 @@ Result BoxViewer::drawTopScreen()
 		x = 32;
 		y = 16 - 2;
 		// Is the Pokémon an egg?
-		if (Pokemon::isEgg(vPkm.pkm))
+		if (vPkm.isEgg)
+		{
 			sftd_draw_text_white(x, y, "%s", "Egg");
+		}
 		else
+		{
 			// Is the Pokémon nicknamed?
 			if (Pokemon::isNicknamed(vPkm.pkm))
 				sftd_draw_text_white(x, y, "%s", vPkm.NKName);
 			else
 				sftd_draw_text_white(x, y, "%s", vPkm.species);
+		}
 
 		sftd_draw_text_white(x + 168, y, "Lv.%u", vPkm.level);
 
@@ -254,9 +257,7 @@ Result BoxViewer::drawTopScreen()
 		sftd_draw_text_white(x, (y += 15), " %s", vPkm.moves[2]);
 		sftd_draw_text_white(x, (y += 15), " %s", vPkm.moves[3]);
 
-
-		sf2d_draw_texture_part_scale(icons, 256, 48, ((vPkm.speciesID-1) % 25) * 40, ((vPkm.speciesID-1) / 25) * 30, 40, 30, 3.0f, 3.0f);
-
+		drawPokemonScale(vPkm.pkm, 256, 48, 3.0f);
 
 		if (vPkm.isShiny)
 		{
@@ -286,72 +287,21 @@ Result BoxViewer::drawBotScreen()
 {
 	if (hasRegularChild()) { if (this->child->drawBotScreen() == PARENT_STEP); else return CHILD_STEP; }
 	
-	int16_t boxShift;
-	box_s** vBox = NULL;
-
-
-	// TODO: Merge the Pokémon box draw function for both boxes (DRY)
-	//       Draw selected Pokémon AFTER the both boxes background/buttons
-
-
-	// Draw the current box (PC|BK) data
 	{
 		// Retrieve the current box, and the drawing offset.
-		boxShift = (cursorBox.inBank ? BK_BOX_SHIFT_USED : PC_BOX_SHIFT_USED);
-		vBox = &(cursorBox.inBank ? vBKBox : vPCBox);
+		int16_t boxShift = (cursorBox.inBank ? BK_BOX_SHIFT_USED : PC_BOX_SHIFT_USED);
+
+		// Draw the current box: the background and the icons.
+		drawBox((cursorBox.inBank ? vBKBox : vPCBox), boxShift, 20);
+
+		// Draw the other box: the background and the icons.
+		drawBox((cursorBox.inBank ? vPCBox : vBKBox), (cursorBox.inBank ? PC_BOX_SHIFT_UNUSED : BK_BOX_SHIFT_UNUSED), 20);
 
 		// Draw the box background and the box title
-		sf2d_draw_texture(backgroundBox, boxShift, 20);
 		char boxTitle[0x18];
 		snprintf(boxTitle, 0x18, "Box %i", (cursorBox.inBank ? cursorBox.boxBK : cursorBox.boxPC) + 1);
 		int boxTitleWidth = sftd_get_text_width(PHBanku::font->font, 13, boxTitle);
-		sftd_draw_text(PHBanku::font->font, boxShift + (BACKGROUND_WIDTH - boxTitleWidth) / 2, 25, RGBA8(0x00, 0x00, 0x00, 0xFF), 13, boxTitle);
-
-		
-		// If there is a Pokémon currently selected
-		if (isPkmDragged || isPkmHeld)
-			// if (sPkm.pkm)
-		{
-			// Draw Pokémon icons
-			for (uint32_t i = 0; i < 30; i++)
-			{
-				// If the Pokémon isn't the selected Pokémon
-				if (sPkm != &((*vBox)->slot[i]))
-				{
-					// If the Pokémon is an egg
-					if (Pokemon::isEgg(&((*vBox)->slot[i])))
-					{
-						// Draw the egg icon
-						sf2d_draw_texture_part(icons, boxShift + (i % BOX_COL_PKM_COUNT) * 35, (i / BOX_COL_PKM_COUNT) * 35 + 50, ((PKM_COUNT) % 25) * 40, ((PKM_COUNT) / 25) * 30, 40, 30);
-					}
-					else
-					{
-						// Draw the Pokémon icon
-						sf2d_draw_texture_part(icons, boxShift + (i % BOX_COL_PKM_COUNT) * 35, (i / BOX_COL_PKM_COUNT) * 35 + 50, (((*vBox)->slot[i].speciesID-1) % 25) * 40, (((*vBox)->slot[i].speciesID-1) / 25) * 30, 40, 30);
-					}
-				}
-			}
-		}
-		// If there is no Pokémon currently selected
-		else
-		{
-			// Draw Pokémon icons
-			for (uint32_t i = 0; i < 30; i++)
-			{
-				// If the Pokémon is an egg
-				if (Pokemon::isEgg(&((*vBox)->slot[i])))
-				{
-					// Draw the egg icon
-					sf2d_draw_texture_part(icons, boxShift + (i % BOX_COL_PKM_COUNT) * 35, (i / BOX_COL_PKM_COUNT) * 35 + 50, ((PKM_COUNT) % 25) * 40, ((PKM_COUNT) / 25) * 30, 40, 30);
-				}
-				else
-				{
-					// Draw the Pokémon icon
-					sf2d_draw_texture_part(icons, boxShift + (i % BOX_COL_PKM_COUNT) * 35, (i / BOX_COL_PKM_COUNT) * 35 + 50, (((*vBox)->slot[i].speciesID-1) % 25) * 40, (((*vBox)->slot[i].speciesID-1) / 25) * 30, 40, 30);
-				}
-			}
-		}
-		
+		sftd_draw_text(PHBanku::font->font, boxShift + (BACKGROUND_WIDTH - boxTitleWidth) / 2, 25, RGBA8(0x00,0x00,0x00,0xFF), 13, boxTitle);
 
 		// Draw CursorType buttons (Red|Blue|Green)
 		sf2d_draw_texture_part(tiles, boxShift + 21 +   0, 0,   0, 0, 64, 32);
@@ -359,33 +309,40 @@ Result BoxViewer::drawBotScreen()
 		sf2d_draw_texture_part(tiles, boxShift + 21 + 128, 0, 128, 0, 64, 32);
 
 		// Draw the SwapBox buttons
-		sf2d_draw_texture_part(tiles, boxShift + 10 +  0, 20,   0, 64, 16, 24);
-		sf2d_draw_texture_part(tiles, boxShift + BACKGROUND_WIDTH - 24, 20,  16, 64, 16, 24);
+		sf2d_draw_texture_part(tiles, boxShift + 10 + 0, 20, 0, 64, 16, 24);
+		sf2d_draw_texture_part(tiles, boxShift + BACKGROUND_WIDTH - 24, 20, 16, 64, 16, 24);
 
 
 		// If a Pokémon is currently selected
 		if (sPkm)
 		{
+			uint16_t pkm_x, pkm_y;
+
 			// If the selected Pokémon is dragged
 			if (isPkmDragged)
 			{
 				// Draw dragged Pokémon icon under the stylus
-				sf2d_draw_texture_part(icons, touch.px - 16, touch.py - 16, ((sPkm->speciesID-1) % 25) * 40, ((sPkm->speciesID-1) / 25) * 30, 40, 30);
+				pkm_x = touch.px - 16;
+				pkm_y = touch.py - 16;
 			}
 			// If the selected Pokémon is held
-			else // (isPkmHeld)
+			else // if (isPkmHeld)
 			{
 				if (cursorBox.inslot == SLOT_NO_SELECTION)
 				{
 					// Draw the Pokémon icon on the box title
-					sf2d_draw_texture_part(icons, boxShift + 105, 8, ((sPkm->speciesID-1) % 25) * 40, ((sPkm->speciesID-1) / 25) * 30, 40, 30);
+					pkm_x = boxShift + 105;
+					pkm_y = 8;
 				}
 				else
 				{
 					// Draw the Pokémon icon on the current slot a bit shifted
-					sf2d_draw_texture_part(icons, boxShift + 12 + (cursorBox.inslot % 6) * 35, 20 + 13 + (cursorBox.inslot / 6) * 35, ((sPkm->speciesID-1) % 25) * 40, ((sPkm->speciesID-1) / 25) * 30, 40, 30);
+					pkm_x = boxShift + 12 + (cursorBox.inslot % 6) * 35;
+					pkm_y = 20 + 13 + (cursorBox.inslot / 6) * 35;
 				}
 			}
+
+			drawPokemon(sPkm, pkm_x, pkm_y);
 		}
 		else
 		{
@@ -402,68 +359,6 @@ Result BoxViewer::drawBotScreen()
 			}
 		}
 	}
-
-
-	// Draw the other box (PC|BK) data
-	{
-		// Retrieve the current box, and the drawing offset
-		boxShift = (cursorBox.inBank ? PC_BOX_SHIFT_UNUSED : BK_BOX_SHIFT_UNUSED);
-		vBox = &(cursorBox.inBank ? vPCBox : vBKBox);
-
-		// Draw the box background
-		sf2d_draw_texture(backgroundBox, boxShift, 20);
-		
-
-		// Draw the SwapBox buttons
-		sf2d_draw_texture_part(tiles, boxShift + 10 +  0, 20,   0, 64, 16, 24);
-		sf2d_draw_texture_part(tiles, boxShift + BACKGROUND_WIDTH - 24, 20,  16, 64, 16, 24);
-
-
-		// If there is a Pokémon currently selected
-		if (isPkmDragged || isPkmHeld)
-			// if (sPkm.pkm)
-		{
-			// Draw Pokémon icons
-			for (uint32_t i = 0; i < 30; i++)
-			{
-				// If the Pokémon isn't the selected Pokémon
-				if (sPkm != &((*vBox)->slot[i]))
-				{
-					// If the Pokémon is an egg
-					if (Pokemon::isEgg(&((*vBox)->slot[i])))
-					{
-						// Draw the egg icon
-						sf2d_draw_texture_part(icons, boxShift + (i % BOX_COL_PKM_COUNT) * 35, (i / BOX_COL_PKM_COUNT) * 35 + 50, ((PKM_COUNT) % 25) * 40, ((PKM_COUNT) / 25) * 30, 40, 30);
-					}
-					else
-					{
-						// Draw the Pokémon icon
-						sf2d_draw_texture_part(icons, boxShift + (i % BOX_COL_PKM_COUNT) * 35, (i / BOX_COL_PKM_COUNT) * 35 + 50, (((*vBox)->slot[i].speciesID-1) % 25) * 40, (((*vBox)->slot[i].speciesID-1) / 25) * 30, 40, 30);
-					}
-				}
-			}
-		}
-		// If there is no Pokémon currently selected
-		else
-		{
-			// Draw Pokémon icons
-			for (uint32_t i = 0; i < 30; i++)
-			{
-				// If the Pokémon is an egg
-				if (Pokemon::isEgg(&((*vBox)->slot[i])))
-				{
-					// Draw the egg icon
-					sf2d_draw_texture_part(icons, boxShift + (i % BOX_COL_PKM_COUNT) * 35, (i / BOX_COL_PKM_COUNT) * 35 + 50, ((PKM_COUNT) % 25) * 40, ((PKM_COUNT) / 25) * 30, 40, 30);
-				}
-				else
-				{
-					// Draw the Pokémon icon
-					sf2d_draw_texture_part(icons, boxShift + (i % BOX_COL_PKM_COUNT) * 35, (i / BOX_COL_PKM_COUNT) * 35 + 50, (((*vBox)->slot[i].speciesID-1) % 25) * 40, (((*vBox)->slot[i].speciesID-1) / 25) * 30, 40, 30);
-				}
-			}
-		}
-	}
-
 
 	if (hasOverlayChild()) { this->child->drawBotScreen(); }
 	return SUCCESS_STEP;
@@ -771,6 +666,76 @@ void BoxViewer::selectViewBox(uint16_t boxID, bool inBank)
 		\*------------------------------------------*/
 
 
+void BoxViewer::drawBox(box_s* box, int16_t x, int16_t y)
+{
+	// Draw the box background
+	sf2d_draw_texture(backgroundBox, x, y);
+	
+
+	// Draw the SwapBox buttons
+	sf2d_draw_texture_part(tiles, x + 10 + 0, y, 0, 64, 16, 24);
+	sf2d_draw_texture_part(tiles, x + BACKGROUND_WIDTH - 24, y, 16, 64, 16, 24);
+
+	// TODO Merge that! v
+
+	// If there is a Pokémon currently selected
+	if (sPkm)
+	{
+		// Draw Pokémon icons
+		for (uint8_t i = 0; i < 30; i++)
+		{
+			// If the Pokémon isn't the selected Pokémon
+			if (sPkm != &(box->slot[i]))
+			{
+				drawPokemon(&(box->slot[i]), x + (i % BOX_COL_PKM_COUNT) * 35, (i / BOX_COL_PKM_COUNT) * 35 + y + 30);
+			}
+		}
+	}
+	// If there is no Pokémon currently selected
+	else
+	{
+		// Draw Pokémon icons
+		for (uint8_t i = 0; i < 30; i++)
+		{
+			drawPokemon(&(box->slot[i]), x + (i % BOX_COL_PKM_COUNT) * 35, (i / BOX_COL_PKM_COUNT) * 35 + y + 30);
+		}
+	}
+	
+	// TODO Merge that! ^
+}
+
+
+void BoxViewer::drawPokemon(pkm_s* pkm, int16_t x, int16_t y)
+{
+	if (Pokemon::isEgg(pkm))
+	{
+		// Draw the egg icon
+		sf2d_draw_texture_part_blend(icons, x, y, ((pkm->speciesID-1) % 25) * 40, ((pkm->speciesID-1) / 25) * 30, 40, 30, RGBA8(0xFF,0xFF,0xFF,0xAA));
+		sf2d_draw_texture_part(icons, x, y, ((EGG_ID) % 25) * 40, ((EGG_ID) / 25) * 30, 40, 30);
+	}
+	else
+	{
+		// Draw the Pokémon icon
+		sf2d_draw_texture_part(icons, x, y, ((pkm->speciesID-1) % 25) * 40, ((pkm->speciesID-1) / 25) * 30, 40, 30);
+	}
+}
+
+
+void BoxViewer::drawPokemonScale(pkm_s* pkm, int16_t x, int16_t y, float scale)
+{
+	if (Pokemon::isEgg(pkm))
+	{
+		// Draw the egg icon
+		sf2d_draw_texture_part_scale(icons, x, y, ((pkm->speciesID-1) % 25) * 40, ((pkm->speciesID-1) / 25) * 30, 40, 30, scale, scale);
+		sf2d_draw_texture_part(icons, x, y + 30 * (scale - 1), ((EGG_ID) % 25) * 40, ((EGG_ID) / 25) * 30, 40, 30);
+	}
+	else
+	{
+		// Draw the Pokémon icon
+		sf2d_draw_texture_part_scale(icons, x, y, ((pkm->speciesID-1) % 25) * 40, ((pkm->speciesID-1) / 25) * 30, 40, 30, scale, scale);
+	}
+}
+
 
 // --------------------------------------------------
 void BoxViewer::selectCursorType(CursorType_e cursorType)
@@ -967,19 +932,12 @@ void BoxViewer::populateVPkmData(vPkm_s* vPkm)
 
 	vPkm->emptySlot = PHBanku::save->isPkmEmpty(vPkm->pkm);
 
-	if (Pokemon::isEgg(vPkm->pkm))
-	{
-		vPkm->isShiny = Pokemon::isShiny(vPkm->pkm, PHBanku::save->savedata.TID, PHBanku::save->savedata.SID);
-	}
-	else
-	{
-		vPkm->isShiny = Pokemon::isShiny(vPkm->pkm);
-	}
-
 	vPkm->isKalosBorn = Pokemon::isKalosBorn(vPkm->pkm);
 	vPkm->isInfected = Pokemon::isInfected(vPkm->pkm);
 	vPkm->isCured = Pokemon::isCured(vPkm->pkm);
-
+	vPkm->isEgg = Pokemon::isEgg(vPkm->pkm);
+	if (vPkm->isEgg) vPkm->isShiny = Pokemon::isShiny(vPkm->pkm, PHBanku::save->savedata.TID, PHBanku::save->savedata.SID);
+	else vPkm->isShiny = Pokemon::isShiny(vPkm->pkm);
 
 	vPkm->speciesID = Pokemon::speciesID(vPkm->pkm);
 	vPkm->species = PHBanku::data->species(vPkm->speciesID);

@@ -13,7 +13,8 @@ struct vPkm_s {
 	bool isKalosBorn : 1;
 	bool isInfected : 1;
 	bool isCured : 1;
-	unsigned : 0;
+	bool isEgg : 1;
+	unsigned : 2;
 	u8 NKName[0x1a / 2];
 	u8 OTName[0x1a / 2];
 	u8 HTName[0x1a / 2];
@@ -114,6 +115,10 @@ class BoxViewer : public Viewer
 		float cursorPositionMaxY = 8.0f;
 		float cursorPositionShiftY = 0.5f;
 		bool cursorPositionDirY = true;
+
+		void drawBox(box_s* box, int16_t x, int16_t y);
+		void drawPokemon(pkm_s* pkm, int16_t x, int16_t y);
+		void drawPokemonScale(pkm_s* pkm, int16_t x, int16_t y, float scale);
 
 		void selectCursorType(CursorType_e cursorType);
 		void switchCursorType();
