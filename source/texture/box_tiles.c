@@ -1,10 +1,10 @@
 /* GIMP RGBA C-Include image dump (box_tiles.h) */
 
 const struct {
-  unsigned int width;
-  unsigned int height;
-  unsigned int bytes_per_pixel; /* 2:RGB16, 3:RGB, 4:RGBA */ 
-  unsigned char pixel_data[192 * 88 * 4 + 1];
+  unsigned int   width;
+  unsigned int   height;
+  unsigned int   bytes_per_pixel; /* 2:RGB16, 3:RGB, 4:RGBA */ 
+  unsigned char  pixel_data[192 * 88 * 4 + 1];
 } boxTiles_img = {
   192, 88, 4,
   "pPP\20@@@\360\360\220\200\360\360\200`\360\360pP\360\360`@\360\360`@\360"

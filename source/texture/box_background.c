@@ -1,10 +1,10 @@
-/* GIMP RGBA C-Include image dump (boxBackground_wp_img.c) */
+/* GIMP RGBA C-Include image dump (box_background_23o.c) */
 
 const struct {
-  unsigned int width;
-  unsigned int height;
-  unsigned int bytes_per_pixel; /* 2:RGB16, 3:RGB, 4:RGBA */ 
-  unsigned char pixel_data[220 * 210 * 4 + 1];
+  unsigned int   width;
+  unsigned int   height;
+  unsigned int   bytes_per_pixel; /* 2:RGB16, 3:RGB, 4:RGBA */ 
+  unsigned char  pixel_data[220 * 210 * 4 + 1];
 } boxBackground23o_img = {
   220, 210, 4,
   "\260f$\377\272p.\377\272p.\377\272p.\377\273y7\377\273y7\377\273y7\377\273"

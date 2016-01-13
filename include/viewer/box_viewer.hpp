@@ -5,7 +5,6 @@
 #include "viewer.hpp"
 #include "save.hpp"
 
-
 struct vPkm_s {
 	pkm_s* pkm = NULL;
 	bool emptySlot : 1;
@@ -29,6 +28,7 @@ struct vPkm_s {
 	u16 stats[6];
 	u16 ivs[6];
 	u16 evs[6];
+	u8 ball;
 };
 
 struct BoxSlot_s {
@@ -95,8 +95,9 @@ class BoxViewer : public Viewer
 	private:
 		sf2d_texture* backgroundBox = NULL;
 		sf2d_texture* backgroundResume = NULL;
-		sf2d_texture* icons = NULL;
 		sf2d_texture* tiles = NULL;
+		sf2d_texture* pkmIcons = NULL;
+		sf2d_texture* ballIcons = NULL;
 
 		CursorBox_s cursorBox;
 		CursorType_e cursorType = CursorType::SingleSelect;

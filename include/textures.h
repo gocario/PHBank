@@ -13,8 +13,9 @@ typedef struct {
 } gimp_img_t;
 
 extern const gimp_img_t boxBackground23o_img;
-extern const gimp_img_t boxIcons_img;
 extern const gimp_img_t boxTiles_img;
-extern const gimp_img_t pokemonResumeBackground_img;
+extern const gimp_img_t boxPkmIcons_img;
+extern const gimp_img_t itemBallIcons_img;
+extern const gimp_img_t pkmResumeBackground_img;
 
 #endif // TEXTURES_H
