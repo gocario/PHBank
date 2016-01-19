@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "fs.h"
 #include "main.hpp"
 #include "phbank.hpp"
 #include "box_viewer.hpp"
@@ -46,19 +45,6 @@ int main(int argc, char* argv[])
 
 	Result error = 0;
 	Result ret;
-
-	// Initialize filesystem
-
-	ret = FS_FilesysInit();
-	if (R_FAILED(ret))
-	{
-		printf("Init FS Failed: %lx\n", ret);
-		error &= -BIT(1);
-	}
-	else
-	{
-		printf("Init FS OK: %lx\n", ret);
-	}
 
 	// Load managers data
 
@@ -111,9 +97,6 @@ int main(int argc, char* argv[])
 	delete PHBanku::save;
 	delete PHBanku::data;
 	delete PHBanku::font;
-
-	printf("Exiting FS...\n");
-	FS_FilesysExit();
 
 	sftd_fini();
 	sf2d_fini();
