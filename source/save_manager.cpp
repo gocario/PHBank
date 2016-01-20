@@ -202,6 +202,7 @@ Result SaveManager::loadSaveFile()
 	if (!fp) return -1;
 
 	bytesRead = fread(savebuffer, 1, size, fp);
+	
 	if (ferror(fp)) printf(" ERROR\n");
 	else printf(" OK\n");
 	printf("  Read %ld/%ld bytes\n", bytesRead, size);
