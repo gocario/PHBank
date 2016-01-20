@@ -1,6 +1,5 @@
 #include "save_manager.hpp"
 
-#include "fs.h"
 #include "pkdir.h"
 
 #include "pokemon.hpp"
@@ -13,6 +12,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+
+#include <sys/dirent.h>
 
 
 // ------------------------------------
@@ -119,11 +120,11 @@ Result SaveManager::loadFile()
 	Result ret;
 
 	printf(">Loading Save from sdmc\n");
-	ret = loadSaveFile(&sdmcArchive);
+	ret = loadSaveFile();
 	if (R_FAILED(ret)) return ret;
 
 	printf(">Loading Bank from sdmc\n");
-	ret = loadBankFile(&sdmcArchive);
+	ret = loadBankFile();
 	if (R_FAILED(ret)) return ret;
 
 	hidScanInput();
@@ -148,16 +149,16 @@ Result SaveManager::saveFile()
 {
 	Result ret;
 
-	ret = FS_CreateDirectory((char*) pk_baseFolder, &sdmcArchive);
-	ret = FS_CreateDirectory((char*) pk_saveFolder, &sdmcArchive);
-	ret = FS_CreateDirectory((char*) pk_bankFolder, &sdmcArchive);
+	mkdir((char*) pk_baseFolder, 0700);
+	mkdir((char*) pk_saveFolder, 0700);
+	mkdir((char*) pk_bankFolder, 0700);
 
 	printf(">Saving Save to sdmc\n");
-	ret = saveSaveFile(&sdmcArchive);
+	ret = saveSaveFile();
 	// if (R_FAILED(ret)) return ret; // ASK Uncomment this?
 
 	printf(">Saving Bank to sdmc\n");
-	ret = saveBankFile(&sdmcArchive);
+	ret = saveBankFile();
 	// if (R_FAILED(ret)) return ret;
 
 	return ret;
@@ -170,15 +171,15 @@ Result SaveManager::backupFile()
 {
 	Result ret;
 
-	ret = FS_CreateDirectory((char*) pk_baseFolder, &sdmcArchive);
-	ret = FS_CreateDirectory((char*) pk_backupFolder, &sdmcArchive);
+	mkdir((char*) pk_baseFolder, 0700);
+	mkdir((char*) pk_backupFolder, 0700);
 
 	printf(">Backing up Save to sdmc\n");
-	ret = backupSaveFile(&sdmcArchive);
+	ret = backupSaveFile();
 	// if (R_FAILED(ret)) return ret; // ASK Uncomment this?
 
 	printf(">Backing up Bank to sdmc\n");
-	ret = backupBankFile(&sdmcArchive);
+	ret = backupBankFile();
 	// if (R_FAILED(ret)) return ret;
 
 	return ret;
@@ -186,131 +187,155 @@ Result SaveManager::backupFile()
 
 
 // ----------------------------------------------
-Result SaveManager::loadSaveFile(FS_Archive *fsArchive)
+Result SaveManager::loadSaveFile()
 // ----------------------------------------------
 {
 	Result ret;
-	u32 bytesRead;
+	u32 bytesRead = 0;
 	u32 size = sizeSave;
 	char path[32];
 
 	sprintf(path, "%s%s", pk_saveFolder, pk_saveFile);
 
 	printf("Loading savefile...");
-	ret = FS_ReadFile(path, savebuffer, fsArchive, size, &bytesRead);
-	if (R_FAILED(ret)) return ret;
+	FILE* fp = fopen(path, "rb");
+	if (!fp) return -1;
 
-	printf(" OK\n  Read %ld bytes\n", bytesRead);
+	bytesRead = fread(savebuffer, 1, size, fp);
+	if (ferror(fp)) printf(" ERROR\n");
+	else printf(" OK\n");
+	printf("  Read %ld/%ld bytes\n", bytesRead, size);
 
 	setGame(bytesRead);
 
+	ret = ferror(fp);
+	fclose(fp);
 	return ret;
 }
 
 
 // ----------------------------------------------
-Result SaveManager::loadBankFile(FS_Archive *fsArchive)
+Result SaveManager::loadBankFile()
 // ----------------------------------------------
 {
 	Result ret;
-	u32 bytesRead;
+	u32 bytesRead = 0;
 	u32 size = SaveConst::BANK_size;
 	char path[32];
 
 	sprintf(path, "%s%s", pk_bankFolder, pk_bankFile);
 
 	printf("Loading bankfile...");
-	ret = FS_ReadFile(path, bankbuffer, fsArchive, size, &bytesRead);
-	if (R_FAILED(ret))
+	FILE* fp = fopen(path, "rb");
+	if (fp)
+	{
+		printf(" Reading...");
+		bytesRead = fread(bankbuffer, 1, size, fp);
+
+		if (ferror(fp)) printf(" ERROR\n");
+		else printf(" OK\n");
+		printf("  Read %ld/%ld bytes\n", bytesRead, size);
+
+		ret = ferror(fp);
+		fclose(fp);
+	}
+	else
 	{
 		printf(" Creating...");
-		memset(bankbuffer, 0, BANKDATA_PKBK_SIZE);
-		ret = 0;
-	}
+		memset(bankbuffer, 0, size);
 
-	printf(" OK\n  Read %ld bytes\n", bytesRead);
+		printf(" OK\n  Created %ld bytes\n", size);
+
+		ret = -1;
+	}
 
 	return ret;
 }
 
 
 // ----------------------------------------------
-Result SaveManager::saveSaveFile(FS_Archive *fsArchive)
+Result SaveManager::saveSaveFile()
 // ----------------------------------------------
 {
 	Result ret;
-	u32 bytesWritten;
+	u32 bytesWritten = 0;
 	u32 size = sizeSave;
 	char path[32];
 
 	sprintf(path, "%s%s", pk_saveFolder, pk_saveFile);
 
-	printf("Deleting savefile...");
-	ret = FS_DeleteFile(path, fsArchive);
-	if (R_FAILED(ret)) printf(" ERROR\n");
-	else printf(" OK\n");
-
 	printf("Writing savefile...");
-	ret = FS_WriteFile(path, savebuffer, size, fsArchive, &bytesWritten);
-	if (R_FAILED(ret)) printf(" ERROR\n");
-	else printf(" OK\n  Written %ld bytes\n", bytesWritten);
+	FILE* fp = fopen(path, "wb");
+	if (!fp) return -1;
 
+	bytesWritten = fwrite(savebuffer, 1, size, fp);
+
+	if (ferror(fp)) printf(" ERROR\n");
+	else printf(" OK\n");
+	printf("  Written %ld bytes\n", bytesWritten);
+
+	ret = ferror(fp);
+	fclose(fp);
 	return ret;
 }
 
 
 // ----------------------------------------------
-Result SaveManager::saveBankFile(FS_Archive *fsArchive)
+Result SaveManager::saveBankFile()
 // ----------------------------------------------
 {
 	Result ret;
-	u32 bytesWritten;
+	u32 bytesWritten = 0;
 	u32 size = SaveConst::BANK_size;
 	char path[32];
 
 	sprintf(path, "%s%s", pk_bankFolder, pk_bankFile);
 
-	printf("Deleting bankfile...");
-	ret = FS_DeleteFile(path, fsArchive);
-	if (R_FAILED(ret)) printf(" ERROR\n");
-	else printf(" OK\n");
-
 	printf("Writing bankfile...");
-	ret = FS_WriteFile(path, bankbuffer, size, fsArchive, &bytesWritten);
-	if (R_FAILED(ret)) printf(" ERROR\n");
-	else printf(" OK\n  Written %ld bytes\n", bytesWritten);
+	FILE* fp = fopen(path, "wb");
+	if (!fp) return -1;
 
+	bytesWritten = fwrite(bankbuffer, 1, size, fp);
+
+	if (ferror(fp)) printf(" ERROR\n");
+	else printf(" OK\n");
+	printf("  Written %ld bytes\n", bytesWritten);
+
+	ret = ferror(fp);
+	fclose(fp);
 	return ret;
 }
 
 
 // ----------------------------------------------
-Result SaveManager::backupSaveFile(FS_Archive *fsArchive)
+Result SaveManager::backupSaveFile()
 // ----------------------------------------------
 {
 	Result ret;
-	u32 bytesWritten;
+	u32 bytesWritten = 0;
 	u32 size = sizeSave;
 	char path[40];
 
 	sprintf(path, "%s%s_%lli", pk_backupFolder, pk_saveFile, osGetTime()/* - 2208988800L*/);
 
-	// printf("Deleting save backup...");
-	// ret = FS_DeleteFile(path, fsArchive);
-	// if (R_FAILED(ret)) printf(" ERROR\n");
-	// else printf(" OK\n");
-
 	printf("Backing up savefile...");
-	ret = FS_WriteFile(path, savebuffer, size, fsArchive, &bytesWritten);
-	if (R_FAILED(ret)) printf(" ERROR\n");
-	else printf(" OK\n  Written %ld bytes\n", bytesWritten);
+	FILE* fp = fopen(path, "wb");
+	if (!fp) return -1;
 
+	bytesWritten = fwrite(savebuffer, 1, size, fp);
+
+	if (ferror(fp)) printf(" ERROR\n");
+	else printf(" OK\n");
+	printf("  Written %ld bytes\n", bytesWritten);
+
+	ret = ferror(fp);
+	fclose(fp);
 	return ret;
 }
 
 
 // ----------------------------------------------
-Result SaveManager::backupBankFile(FS_Archive *fsArchive)
+Result SaveManager::backupBankFile()
 // ----------------------------------------------
 {
 	Result ret;
@@ -320,16 +345,18 @@ Result SaveManager::backupBankFile(FS_Archive *fsArchive)
 
 	sprintf(path, "%s%s_%lli", pk_backupFolder, pk_bankFile, osGetTime()/* - 2208988800L*/);
 
-	// printf("Deleting bank backup...");
-	// ret = FS_DeleteFile(path, fsArchive);
-	// if (R_FAILED(ret)) printf(" ERROR\n");
-	// else printf(" OK\n");
-
 	printf("Backing up bankfile...");
-	ret = FS_WriteFile(path, bankbuffer, size, fsArchive, &bytesWritten);
-	if (R_FAILED(ret)) printf(" ERROR\n");
-	else printf(" OK\n  Written %ld bytes\n", bytesWritten);
+	FILE* fp = fopen(path, "wb");
+	if (!fp) return -1;
 
+	bytesWritten = fwrite(bankbuffer, 1, size, fp);
+	
+	if (ferror(fp)) printf(" ERROR\n");
+	else printf(" OK\n");
+	printf("  Written %ld bytes\n", bytesWritten);
+
+	ret = ferror(fp);
+	fclose(fp);
 	return ret;
 }
 

@@ -75,12 +75,12 @@ class SaveManager
 		Result loadFile();
 		Result saveFile();
 
-		Result loadSaveFile(FS_Archive *fsArchive);
-		Result loadBankFile(FS_Archive *fsArchive);
-		Result saveSaveFile(FS_Archive *fsArchive);
-		Result saveBankFile(FS_Archive *fsArchive);
-		Result backupSaveFile(FS_Archive *fsArchive);
-		Result backupBankFile(FS_Archive *fsArchive);
+		Result loadSaveFile();
+		Result loadBankFile();
+		Result saveSaveFile();
+		Result saveBankFile();
+		Result backupSaveFile();
+		Result backupBankFile();
 
 		// Load Data
 		Result loadData();
