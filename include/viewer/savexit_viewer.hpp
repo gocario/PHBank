@@ -1,4 +1,7 @@
 #pragma once
+/**
+ * @file savexit_viewer.hpp
+ */
 #ifndef SAVEXIT_VIEWER_HPP
 #define SAVEXIT_VIEWER_HPP
 

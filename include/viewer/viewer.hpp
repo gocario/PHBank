@@ -1,8 +1,9 @@
 #pragma once
+/**
+ * @file viewer.hpp
+ */
 #ifndef VIEWER_HPP
 #define VIEWER_HPP
-
-#include "main.hpp"
 
 #include <3ds.h>
 #include <sf2d.h>

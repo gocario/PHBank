@@ -983,5 +983,4 @@ void BoxViewer::populateVPkmData(vPkm_s* vPkm)
 	vPkm->evs[Stat::SPE] = Pokemon::EV_SPE(vPkm->pkm);
 
 	vPkm->ball = Pokemon::ball(vPkm->pkm) - 1;
-	printf("BALL: %d", vPkm->ball);
 }

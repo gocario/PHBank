@@ -5,22 +5,9 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "main.hpp"
+#include "key.hpp"
 #include "phbank.hpp"
 #include "box_viewer.hpp"
-
-void waitKey(u32 keyWait)
-{
-	while (aptMainLoop())
-	{
-		hidScanInput();
-
-		if (hidKeysDown() & keyWait || (hidKeysHeld() & KEY_L && hidKeysHeld() & KEY_R && hidKeysHeld() & KEY_A)) break;
-
-		gfxFlushBuffers();
-		gspWaitForVBlank();
-	}
-}
 
 
 int main(int argc, char* argv[])
@@ -43,37 +30,34 @@ int main(int argc, char* argv[])
 
 	// Results values
 
-	Result error = 0;
-	Result ret;
+	Result ret, error = 0;
 
 	// Load managers data
 
 	ret = PHBanku::save->load();
 	if (R_FAILED(ret))
 	{
-		printf("\n\nProblem with the Save Manager,\ncheck the previous logs and press A\n");
-		waitKey(KEY_A);
-		error &= -BIT(2);
+		printf("\n\nProblem with the Save Manager,\nplease check the previous logs\n");
+		error |= -BIT(2);
 	}
 
 	ret = PHBanku::data->load();
 	if (R_FAILED(ret))
 	{
-		printf("\n\nProblem with the Data Manager,\ncheck the previous logs and press A\n");
-		waitKey(KEY_A);
-		error &= -BIT(3);
+		printf("\n\nProblem with the Data Manager,\nplease check the previous logs\n");
+		error |= -BIT(3);
 	}
 
 	ret = PHBanku::font->load();
 	if (R_FAILED(ret))
 	{
-		printf("\n\nProblem with the Font Manager,\ncheck the previous logs and press A\n");
-		waitKey(KEY_A);
-		error &= -BIT(4);
+		printf("\n\nProblem with the Font Manager,\nplease check the previous logs\n");
+		error |= -BIT(4);
 	}
 
 	if (R_SUCCEEDED(error) || error == -1)
 	{
+		printf("Newing viewer...\n");
 		Viewer* viewer = new BoxViewer();
 
 		Result ret = Viewer::startMainLoop(viewer);
@@ -88,7 +72,7 @@ int main(int argc, char* argv[])
 	}
 	else
 	{
-		printf("Problem happened: %li\nCan't start the viewer.\n", error);
+		printf("\nProblem happened: %li\nCan't start the viewer.\n", error);
 		printf("Press A to exit\n");
 		waitKey(KEY_A);
 	}
