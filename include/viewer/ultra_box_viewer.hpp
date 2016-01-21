@@ -1,4 +1,7 @@
 #pragma once
+/**
+ * @file ultra_box_viewer.hpp
+ */
 #ifndef ULTRA_BOX_VIEWER_HPP
 #define ULTRA_BOX_VIEWER_HPP
 

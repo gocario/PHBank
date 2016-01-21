@@ -1,4 +1,7 @@
 #pragma once
+/**
+ * @file box_viewer.hpp
+ */
 #ifndef BOX_VIEWER_HPP
 #define BOX_VIEWER_HPP
 

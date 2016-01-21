@@ -1,6 +1,5 @@
 #include "data_manager.hpp"
 
-#include "fs.h"
 #include "pkdir.h"
 
 #include <stdio.h>
@@ -138,73 +137,71 @@ const u8* DataManager::HPTypes(u8 hiddenPower)
 Result DataManager::load()
 // ----------------------------------------------
 {
-	Result ret;
-	ret = loadData((char*) "abilities", (u8*)&(_abilities), DEX_ABILITIES_LENGTH, DEX_ABILITIES_COUNT);
-	ret = loadData((char*) "items", (u8*)&(_items), DEX_ITEMS_LENGTH, DEX_ITEMS_COUNT);
-	ret = loadData((char*) "moves", (u8*)&(_moves), DEX_MOVES_LENGTH, DEX_MOVES_COUNT);
-	ret = loadData((char*) "natures", (u8*)&(_natures), DEX_NATURES_LENGTH, DEX_NATURES_COUNT);
-	ret = loadData((char*) "species", (u8*)&(_species), DEX_SPECIES_LENGTH, DEX_SPECIES_COUNT);
+	Result ret = 0;
+	ret = loadDataFile((char*) "abilities", (u8*)&(_abilities), DEX_ABILITIES_LENGTH, DEX_ABILITIES_COUNT);
+	ret = loadDataFile((char*) "items", (u8*)&(_items), DEX_ITEMS_LENGTH, DEX_ITEMS_COUNT);
+	ret = loadDataFile((char*) "moves", (u8*)&(_moves), DEX_MOVES_LENGTH, DEX_MOVES_COUNT);
+	ret = loadDataFile((char*) "natures", (u8*)&(_natures), DEX_NATURES_LENGTH, DEX_NATURES_COUNT);
+	ret = loadDataFile((char*) "species", (u8*)&(_species), DEX_SPECIES_LENGTH, DEX_SPECIES_COUNT);
 
-	u8 buffer[12000];
-	u32 bytesRead;
-	char path[64];
+	char path[32];
 
 	sprintf(path, "%spersonal", pk_dataFolder); // Add it into pkdir.h?
-	ret = FS_ReadFile(path, buffer, &sdmcArchive, 12000, &bytesRead);
-	if (ret) { printf(" ERROR loading \"%s\"...\n", path); return ret; }
-	memcpy(_personal, buffer, bytesRead);
+	FILE* fp = fopen(path, "rb");
+	if (!fp) return -1;
+	
+	fread(_personal, PERSONAL_LENGTH, PERSONAL_COUNT, fp);
+
+	fclose(fp);
+
+	return ret;
+}
+
+
+
+// ----------------------------------------------
+Result DataManager::loadDataFile(char* file, u8* dest, u32 lineMaxLength, u32 lineCount)
+// ----------------------------------------------
+{
+	char path[40];
+	
+	sprintf(path, "%s%s/%s_%s.txt", pk_dataFolder, lang(), file, lang());
+	FILE* fp = fopen(path, "r");
+	if (!fp) return -1;
+
+	u8 buffer[lineMaxLength * lineCount];
+	fread(buffer, 1, lineMaxLength * lineCount, fp);
+	loadDataLines(buffer, dest, lineMaxLength, lineCount);
+
+	fclose(fp);
 
 	return 0;
 }
 
 
-
 // ----------------------------------------------
-Result DataManager::loadData(char* file, u8* dest, u32 lineLength, u32 lineCount)
-// ----------------------------------------------
-{
-	u32 bytesRead;
-	u8* buffer = new u8[lineLength * lineCount];
-
-	Result ret;
-	char path[64];
-	
-	sprintf(path, "%s%s/%s_%s.txt", pk_dataFolder, lang(), file, lang());
-	ret = FS_ReadFile(path, buffer, &sdmcArchive, lineLength * lineCount, &bytesRead);
-	if (ret) printf(" ERROR loading \"%s\"...\n", path);
-	else
-		ret = loadDataLine(buffer, dest, lineLength, lineCount);
-
-	delete[] buffer;
-	return ret;
-}
-
-
-// ----------------------------------------------
-Result DataManager::loadDataLine(u8* src, u8* dst, u32 lineLength, u32 lineCount)
+Result DataManager::loadDataLines(u8* src, u8* dst, u32 lineMaxLength, u32 lineCount)
 // ----------------------------------------------
 {
 	u32 count = 0;
 	u32 lineOffset = 0;
 	u32 sourceOffset = 3;
-	while(count < lineCount)
+	while (count < lineCount)
 	{
 		lineOffset = 0;
-		while (src[sourceOffset] != '\n' && src[sourceOffset] != '\0' && lineOffset < lineLength)
+		while (src[sourceOffset] != '\n' && src[sourceOffset] != '\0' && lineOffset < lineMaxLength)
 		{
-			*(u8*)(dst + lineLength * count + lineOffset) = *(u8*)(src + sourceOffset);
+			*(u8*)(dst + lineMaxLength * count + lineOffset) = *(u8*)(src + sourceOffset);
 			lineOffset++;
 			sourceOffset++;
 		}
-		while (lineOffset < lineLength)
+		while (lineOffset < lineMaxLength)
 		{
-			*(u8*)(dst + lineLength * count + lineOffset) = '\0';
+			*(u8*)(dst + lineMaxLength * count + lineOffset) = '\0';
 			lineOffset++;
 		}
 		while (src[sourceOffset] == '\n' || src[sourceOffset] == '\0') sourceOffset++;
 		count++;
-
 	}
-
 	return 0;
 }
