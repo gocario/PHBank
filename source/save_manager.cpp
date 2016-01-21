@@ -1,6 +1,7 @@
 #include "save_manager.hpp"
 
 #include "pkdir.h"
+#include "utils.h"
 
 #include "pokemon.hpp"
 #include "filter.hpp"
@@ -413,7 +414,7 @@ Result SaveManager::loadSaveData()
 		savedata.SID = *(u16*) (savebuffer + offsetTrainerCard + 0x02);
 		savedata.TSV = computeTSV(savedata.TID, savedata.SID);
 		savedata.OTGender = *(u8*) (savebuffer + offsetTrainerCard + 0x05);
-		readName(savebuffer + offsetTrainerCard + 0x48, savedata.OTName, 0x18);
+		readUnicode(savedata.OTName, savebuffer + offsetTrainerCard + 0x48, 0x1a);
 		printf(" OK\n");
 	}
 
@@ -1086,21 +1087,6 @@ u16 SaveManager::computeTSV(u16 TID, u16 SID)
 // ------------------------------------
 {
 	return ((TID ^ SID) >> 4);
-}
-
-
-// ------------------------------------
-void SaveManager::readName(void* src, void* dst, u16 length)
-// ------------------------------------
-{
-	length /= 2;
-	u16* srcName = (u16*) src;
-	u8* dstName = (u8*) dst;
-	
-	for (u8 i = 0; i < length; i++)
-		dstName[i] = srcName[i] & 0xFF;
-	utf16_to_utf8(dstName, srcName, length);
-	dstName[length] = '\0';
 }
 
 

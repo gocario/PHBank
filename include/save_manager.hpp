@@ -63,7 +63,6 @@ class SaveManager
 		void rewriteSaveCHK();
 
 		u16 computeTSV(u16 TID, u16 SID);
-		void readName(void* src, void* dst, u16 length);
 		
 		u32 LCRNG(u32 seed);
 		u32 CHKOffset(u32 i);

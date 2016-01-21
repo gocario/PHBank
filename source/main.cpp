@@ -64,6 +64,11 @@ int main(int argc, char* argv[])
 
 		if (ret == StateView::Saving)
 		{
+			// TODO Remove when better save display!
+			consoleInit(GFX_TOP, NULL);
+			printf("Saving...\n");
+			// ^
+			
 			PHBanku::save->save();
 		}
 

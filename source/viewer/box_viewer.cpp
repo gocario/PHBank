@@ -1,5 +1,6 @@
 #include "box_viewer.hpp"
 
+#include "utils.h"
 #include "textures.h"
 #include "phbank.hpp"
 #include "pokemon.hpp"
@@ -186,6 +187,9 @@ Result BoxViewer::drawTopScreen()
 	// Draw the resume background
 	sf2d_draw_texture(backgroundResume, 0, 0);
 
+	sftd_draw_text_white(11, 40, "Game's OT");
+	sftd_draw_text_white(91, 40, "%s (%lx-%lx-%lx)", PHBanku::save->savedata.OTName, PHBanku::save->savedata.TID, PHBanku::save->savedata.SID, PHBanku::save->savedata.TSV);
+
 	// If there is a current Pokémon
 	if (vPkm.pkm && !vPkm.emptySlot)
 	{
@@ -213,8 +217,8 @@ Result BoxViewer::drawTopScreen()
 
 		x = 11;
 		y = 42 - 2;
-		sftd_draw_text_white(x, y, "Game's OT");
-		sftd_draw_text_white(x+80, y, "%s", PHBanku::save->savedata.OTName);
+		// sftd_draw_text_white(x, y, "Game's OT");
+		// sftd_draw_text_white(x+80, y, "%s (%lx-%lx-%lx)", PHBanku::save->savedata.OTName, PHBanku::save->savedata.TID, PHBanku::save->savedata.SID, PHBanku::save->savedata.TSV);
 		sftd_draw_text_white(x, (y += 15), "Dex No.");
 		sftd_draw_text_white(x+50, y, "%u", vPkm.speciesID);
 		sftd_draw_text_white(x+80, y, "%s", vPkm.species);
@@ -867,8 +871,10 @@ void BoxViewer::selectMultiMovePokemon()
 		extractBoxSlot(&sSlot, &cursorBox);
 		isPkmMSelecting = true;
 	}
+	// If a Pokémon is currently selected for the multi selection
 	else if (isPkmMSelecting)
 	{
+		// TODO Stuff here!
 		computeBoxSlot(&sSlot, &cursorBox);
 		injectBoxSlot(&sSlot, &cursorBox);
 		isPkmMSelecting = false;
@@ -876,7 +882,7 @@ void BoxViewer::selectMultiMovePokemon()
 	}
 	else if (isPkmMDragged)
 	{
-
+		// TODO Stuff here!
 	}
 }
 
@@ -899,47 +905,9 @@ void BoxViewer::cancelMovePokemon()
 void BoxViewer::populateVPkmData(vPkm_s* vPkm)
 // --------------------------------------------------
 {
-	u16* name;
-
-	name = Pokemon::NK_name(vPkm->pkm);
-	if (name)
-	{
-		for (u8 i = 0; i < 0x18; i += 2)
-			vPkm->NKName[i / 2] = name[i / 2] & 0xFF;
-		utf16_to_utf8(vPkm->NKName, name, 0x18 / 2);
-		vPkm->NKName[0x1a / 2 - 1] = '\0';
-	}
-	else
-	{
-		vPkm->NKName[0] = '\0';
-	}
-
-	name = Pokemon::OT_name(vPkm->pkm);
-	if (name)
-	{
-		for (u8 i = 0; i < 0x18; i += 2)
-			vPkm->OTName[i / 2] = name[i / 2] & 0xFF;
-		utf16_to_utf8(vPkm->OTName, name, 0x18 / 2);
-		vPkm->OTName[0x1a / 2 - 1] = '\0';
-	}
-	else
-	{
-		vPkm->OTName[0] = '\0';
-	}
-
-	name = Pokemon::HT_name(vPkm->pkm);
-	if (name)
-	{
-		for (u8 i = 0; i < 0x18; i += 2)
-			vPkm->HTName[i / 2] = name[i / 2] & 0xFF;
-		utf16_to_utf8(vPkm->HTName, name, 0x18 / 2);
-		vPkm->HTName[0x1a / 2 - 1] = '\0';
-	}
-	else
-	{
-		vPkm->HTName[0] = '\0';
-	}
-	
+	readUnicode(vPkm->NKName, Pokemon::NK_name(vPkm->pkm), 0x1a);
+	readUnicode(vPkm->OTName, Pokemon::OT_name(vPkm->pkm), 0x1a);
+	readUnicode(vPkm->HTName, Pokemon::HT_name(vPkm->pkm), 0x1a);
 
 	vPkm->emptySlot = PHBanku::save->isPkmEmpty(vPkm->pkm);
 
