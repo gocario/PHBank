@@ -5,7 +5,8 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "key.hpp"
+#include "fs.h"
+#include "key.h"
 #include "phbank.hpp"
 #include "box_viewer.hpp"
 
@@ -15,6 +16,8 @@ int main(int argc, char* argv[])
 	sf2d_init();
 	sf2d_set_clear_color(RGBA8(0x10, 0x10, 0x10, 0xFF));
 	sftd_init();
+
+	FS_fsInit();
 
 	srand(osGetTime());
 
@@ -86,6 +89,8 @@ int main(int argc, char* argv[])
 	delete PHBanku::save;
 	delete PHBanku::data;
 	delete PHBanku::font;
+
+	FS_fsExit();
 
 	sftd_fini();
 	sf2d_fini();

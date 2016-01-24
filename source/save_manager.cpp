@@ -1,5 +1,6 @@
 #include "save_manager.hpp"
 
+#include "fs.h"
 #include "pkdir.h"
 #include "utils.h"
 
@@ -25,7 +26,7 @@ SaveManager::SaveManager()
 	offsetPCName = 0;
 	offsetPC = 0;
 	offsetBK = 0;
-	sizeSave = SaveConst::ORAS_size;
+	sizeSave = SaveConst::ORAS_size; // Which is greater than SaveConst::XY_size
 
 	version = Game::None;
 	loaded = false;
@@ -120,7 +121,7 @@ Result SaveManager::loadFile()
 {
 	Result ret;
 
-	printf(">Loading Save from sdmc\n");
+	printf(">Loading Save from save\n");
 	ret = loadSaveFile();
 	if (R_FAILED(ret)) return ret;
 
@@ -154,7 +155,7 @@ Result SaveManager::saveFile()
 	mkdir((char*) pk_saveFolder, 0700);
 	mkdir((char*) pk_bankFolder, 0700);
 
-	printf(">Saving Save to sdmc\n");
+	printf(">Saving Save to save\n");
 	ret = saveSaveFile();
 	// if (R_FAILED(ret)) return ret; // ASK Uncomment this?
 
@@ -196,22 +197,18 @@ Result SaveManager::loadSaveFile()
 	u32 size = sizeSave;
 	char path[32];
 
-	sprintf(path, "%s%s", pk_saveFolder, pk_saveFile);
+	sprintf(path, "%s%s", pk_rootFolder, pk_saveFile);
 
 	printf("Loading savefile...");
-	FILE* fp = fopen(path, "rb");
-	if (!fp) return -1;
+	ret = FS_ReadFile(path, savebuffer, &saveArchive, size, &bytesRead);
 
-	bytesRead = fread(savebuffer, 1, size, fp);
-	
-	if (ferror(fp)) printf(" ERROR\n");
+	if (R_FAILED(ret)) printf(" ERROR\n");
 	else printf(" OK\n");
 	printf("  Read %ld/%ld bytes\n", bytesRead, size);
 
-	setGame(bytesRead);
+	if (R_SUCCEEDED(ret))
+		setGame(bytesRead);
 
-	ret = ferror(fp);
-	fclose(fp);
 	return ret;
 }
 
@@ -248,7 +245,7 @@ Result SaveManager::loadBankFile()
 
 		printf(" OK\n  Created %ld bytes\n", size);
 
-		ret = -1;
+		ret = 0;
 	}
 
 	return ret;
@@ -264,20 +261,18 @@ Result SaveManager::saveSaveFile()
 	u32 size = sizeSave;
 	char path[32];
 
-	sprintf(path, "%s%s", pk_saveFolder, pk_saveFile);
+	sprintf(path, "%s%s", pk_rootFolder, pk_saveFile);
 
-	printf("Writing savefile...");
-	FILE* fp = fopen(path, "wb");
-	if (!fp) return -1;
-
-	bytesWritten = fwrite(savebuffer, 1, size, fp);
-
-	if (ferror(fp)) printf(" ERROR\n");
+	printf("Deleting old savefile...");
+	ret = FS_DeleteFile(path, &saveArchive);
+	if (R_FAILED(ret)) printf(" ERROR\n");
 	else printf(" OK\n");
-	printf("  Written %ld bytes\n", bytesWritten);
+	
+	printf("Writing savefile...");
+	ret = FS_WriteFile(path, savebuffer, size, &saveArchive, &bytesWritten);
+	if (R_FAILED(ret)) printf(" ERROR\n");
+	else printf(" OK\n  Written %ld bytes\n", bytesWritten);
 
-	ret = ferror(fp);
-	fclose(fp);
 	return ret;
 }
 
@@ -458,7 +453,7 @@ void SaveManager::loadPkmPC(u16 boxId, u16 slotId)
 }
 
 // ----------------------------------------------
-void SaveManager::loadPkmBK(uint16_t boxId, uint16_t slotId)
+void SaveManager::loadPkmBK(u16 boxId, u16 slotId)
 // ----------------------------------------------
 {
 	// if (!loaded) return;
@@ -944,7 +939,7 @@ void SaveManager::convertPkmTrainer(pkm_s* pkm)
 void SaveManager::convertPkmHT(pkm_s* pkm)
 // ----------------------------------------------
 {
-	Pokemon::HT_name(pkm, (uint16_t*)(savebuffer + offsetTrainerCard + 0x48)); // Save::OTName to Pkmn::HTName
+	Pokemon::HT_name(pkm, (u16*)(savebuffer + offsetTrainerCard + 0x48)); // Save::OTName to Pkmn::HTName
 	Pokemon::HT_gender(pkm, savedata.OTGender);
 	Pokemon::currentHandler(pkm, 0x01);
 	Pokemon::geo5Region(pkm, Pokemon::geo4Region(pkm));
