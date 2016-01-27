@@ -99,7 +99,6 @@ class BoxViewer : public Viewer
 		sf2d_texture* backgroundBox = NULL;
 		sf2d_texture* backgroundResume = NULL;
 		sf2d_texture* tiles = NULL;
-		sf2d_texture* pkmIcons = NULL;
 		sf2d_texture* ballIcons = NULL;
 
 		CursorBox_s cursorBox;

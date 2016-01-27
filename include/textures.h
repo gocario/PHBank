@@ -14,7 +14,7 @@ typedef struct {
 
 extern const gimp_img_t boxBackground23o_img;
 extern const gimp_img_t boxTiles_img;
-extern const gimp_img_t boxPkmIcons_img;
+// extern const gimp_img_t boxPkmIcons_img;
 extern const gimp_img_t itemBallIcons_img;
 extern const gimp_img_t pkmResumeBackground_img;
 

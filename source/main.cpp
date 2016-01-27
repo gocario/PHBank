@@ -30,10 +30,11 @@ int main(int argc, char* argv[])
 	PHBanku::save = new SaveManager();
 	PHBanku::data = new DataManager();
 	PHBanku::font = new FontManager();
+	PHBanku::texture = new TextureManager();
 
 	// Results values
 
-	Result ret, error = 0;
+	Result ret = 0, error = 0;
 
 	// Load managers data
 
@@ -41,24 +42,31 @@ int main(int argc, char* argv[])
 	if (R_FAILED(ret))
 	{
 		printf("\n\nProblem with the Save Manager,\nplease check the previous logs\n");
-		error |= -BIT(2);
+		error |= BIT(2);
 	}
 
 	ret = PHBanku::data->load();
 	if (R_FAILED(ret))
 	{
 		printf("\n\nProblem with the Data Manager,\nplease check the previous logs\n");
-		error |= -BIT(3);
+		error |= BIT(3);
 	}
 
 	ret = PHBanku::font->load();
 	if (R_FAILED(ret))
 	{
 		printf("\n\nProblem with the Font Manager,\nplease check the previous logs\n");
-		error |= -BIT(4);
+		error |= BIT(4);
 	}
 
-	if (R_SUCCEEDED(error) || error == -1)
+	ret = PHBanku::texture->load();
+	if (R_FAILED(ret))
+	{
+		printf("\n\nProblem with the Texture Manager,\nplease check the previous logs\n");
+		error |= BIT(5);
+	}
+
+	if (R_SUCCEEDED(error) || error == 1)
 	{
 		printf("Newing viewer...\n");
 		Viewer* viewer = new BoxViewer();

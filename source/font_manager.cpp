@@ -4,7 +4,6 @@
 // #include "PokemonGB_ttf.h"
 #include "RobotoRegular_ttf.h"
 
-
 FontManager::FontManager()
 {
 

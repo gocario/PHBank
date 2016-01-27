@@ -132,7 +132,7 @@ BoxViewer::~BoxViewer()
 	if (backgroundBox) sf2d_free_texture(backgroundBox);
 	if (backgroundResume) sf2d_free_texture(backgroundResume);
 	if (tiles) sf2d_free_texture(tiles);
-	if (pkmIcons) sf2d_free_texture(pkmIcons);
+	// if (pkmIcons) sf2d_free_texture(pkmIcons);
 	if (ballIcons) sf2d_free_texture(ballIcons);
 }
 
@@ -157,7 +157,7 @@ Result BoxViewer::initialize()
 	cursorBox.inBank = true; selectViewBox();
 	cursorBox.inBank = false; selectViewBox();
 
-	// Initialise the current Pokémon
+	// Initialize the current Pokémon
 	selectViewPokemon();
 
 	// Load textures
@@ -167,8 +167,8 @@ Result BoxViewer::initialize()
 		backgroundResume = sf2d_create_texture_mem_RGBA8(pkmResumeBackground_img.pixel_data, pkmResumeBackground_img.width, pkmResumeBackground_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
 	if (!tiles)
 		tiles = sf2d_create_texture_mem_RGBA8(boxTiles_img.pixel_data, boxTiles_img.width, boxTiles_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
-	if (!pkmIcons)
-		pkmIcons = sf2d_create_texture_mem_RGBA8(boxPkmIcons_img.pixel_data, boxPkmIcons_img.width, boxPkmIcons_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
+	// if (!pkmIcons)
+	// 	pkmIcons = sf2d_create_texture_mem_RGBA8(boxPkmIcons_img.pixel_data, boxPkmIcons_img.width, boxPkmIcons_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
 	if (!ballIcons)
 		ballIcons = sf2d_create_texture_mem_RGBA8(itemBallIcons_img.pixel_data, itemBallIcons_img.width, itemBallIcons_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
 
@@ -720,14 +720,26 @@ void BoxViewer::drawBox(box_s* box, int16_t x, int16_t y)
 void BoxViewer::drawPokemon(pkm_s* pkm, int16_t x, int16_t y)
 // --------------------------------------------------
 {
+	sf2d_texture* pkmIcons = PHBanku::texture->pkmIcons;
+
 	if (Pokemon::isEgg(pkm))
 	{
+		if (Pokemon::isShiny(pkm, PHBanku::save->savedata.TID, PHBanku::save->savedata.SID))
+		{
+			pkmIcons = PHBanku::texture->pkmShinyIcons;
+		}
+
 		// Draw the egg icon
 		sf2d_draw_texture_part_blend(pkmIcons, x, y, ((pkm->speciesID-1) % 25) * 40, ((pkm->speciesID-1) / 25) * 30, 40, 30, RGBA8(0xFF,0xFF,0xFF,0xAA));
 		sf2d_draw_texture_part(pkmIcons, x, y, ((EGG_ID) % 25) * 40, ((EGG_ID) / 25) * 30, 40, 30);
 	}
 	else
 	{
+		if (Pokemon::isShiny(pkm))
+		{
+			pkmIcons = PHBanku::texture->pkmShinyIcons;
+		}
+
 		// Draw the Pokémon icon
 		sf2d_draw_texture_part(pkmIcons, x, y, ((pkm->speciesID-1) % 25) * 40, ((pkm->speciesID-1) / 25) * 30, 40, 30);
 	}
@@ -738,14 +750,26 @@ void BoxViewer::drawPokemon(pkm_s* pkm, int16_t x, int16_t y)
 void BoxViewer::drawPokemonScale(pkm_s* pkm, int16_t x, int16_t y, float scale)
 // --------------------------------------------------
 {
+	sf2d_texture* pkmIcons = PHBanku::texture->pkmIcons;
+
 	if (Pokemon::isEgg(pkm))
 	{
+		if (Pokemon::isShiny(pkm, PHBanku::save->savedata.TID, PHBanku::save->savedata.SID))
+		{
+			pkmIcons = PHBanku::texture->pkmShinyIcons;
+		}
+
 		// Draw the egg icon
 		sf2d_draw_texture_part_scale(pkmIcons, x, y, ((pkm->speciesID-1) % 25) * 40, ((pkm->speciesID-1) / 25) * 30, 40, 30, scale, scale);
 		sf2d_draw_texture_part(pkmIcons, x, y + 30 * (scale - 1), ((EGG_ID) % 25) * 40, ((EGG_ID) / 25) * 30, 40, 30);
 	}
 	else
 	{
+		if (Pokemon::isShiny(pkm))
+		{
+			pkmIcons = PHBanku::texture->pkmShinyIcons;
+		}
+
 		// Draw the Pokémon icon
 		sf2d_draw_texture_part_scale(pkmIcons, x, y, ((pkm->speciesID-1) % 25) * 40, ((pkm->speciesID-1) / 25) * 30, 40, 30, scale, scale);
 	}
