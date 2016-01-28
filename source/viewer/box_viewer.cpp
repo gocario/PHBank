@@ -343,12 +343,12 @@ Result BoxViewer::drawBotScreen()
 			if (cursorBox.inslot == SLOT_NO_SELECTION)
 			{
 				// Draw the cursor icon on the box title
-				sf2d_draw_texture_part(PHBanku::texture->boxTiles, boxShift + 105, 8 - cursorPositionOffY, 32 * cursorType, 32, 32, 32);
+				sf2d_draw_texture_part(PHBanku::texture->boxTiles, boxShift + 105, 8 - cursorPositionOffY, 32 * (u8) cursorType, 32, 32, 32);
 			}
 			else
 			{
 				// Draw the cursor icon on the current slot a bit shifted
-				sf2d_draw_texture_part(PHBanku::texture->boxTiles, boxShift + 17 + (cursorBox.inslot % 6) * 35 + cursorPositionOffY / 2, 20 + 13 + (cursorBox.inslot / 6) * 35 - cursorPositionOffY, 32 * cursorType, 32, 32, 32);
+				sf2d_draw_texture_part(PHBanku::texture->boxTiles, boxShift + 17 + (cursorBox.inslot % 6) * 35 + cursorPositionOffY / 2, 20 + 13 + (cursorBox.inslot / 6) * 35 - cursorPositionOffY, 32 * (u8) cursorType, 32, 32, 32);
 			}
 		}
 	}
@@ -760,7 +760,7 @@ void BoxViewer::drawPokemonScale(pkm_s* pkm, int16_t x, int16_t y, float scale)
 
 
 // --------------------------------------------------
-void BoxViewer::selectCursorType(CursorType_e cursorType)
+void BoxViewer::selectCursorType(CursorType cursorType)
 // --------------------------------------------------
 {
 	this->cursorType = cursorType;

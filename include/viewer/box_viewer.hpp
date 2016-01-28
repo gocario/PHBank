@@ -56,25 +56,19 @@ struct CursorBox_s {
 	int16_t col = 0;
 };
 
-namespace CursorType
+enum class CursorType : u8
 {
-	typedef enum CursorType_e {
-		SingleSelect = 0,
-		QuickSelect = 1,
-		MultipleSelect = 2,
-	} CursorType_e;
-}
-typedef CursorType::CursorType_e CursorType_e;
+	SingleSelect = 0,
+	QuickSelect = 1,
+	MultipleSelect = 2,
+};
 
-namespace CursorState
+enum class CursorState : u8
 {
-	typedef enum CursorState_e {
-		SelectingTarget = 0,
-		TargetFound = 1,
-		DraggingTarget = 2,
-	} CursorState_e;
-}
-typedef CursorState::CursorState_e CursorState_e;
+	SelectingTarget = 0,
+	TargetFound = 1,
+	DraggingTarget = 2,
+};
 
 
 void computeSlot(CursorBox_s* cursorBox);
@@ -98,7 +92,7 @@ class BoxViewer : public Viewer
 
 	private:
 		CursorBox_s cursorBox;
-		CursorType_e cursorType = CursorType::SingleSelect;
+		CursorType cursorType = CursorType::SingleSelect;
 		touchPosition touch;
 		bool isPkmHeld = false;
 		bool isPkmDragged = false;
@@ -119,7 +113,7 @@ class BoxViewer : public Viewer
 		void drawPokemon(pkm_s* pkm, int16_t x, int16_t y);
 		void drawPokemonScale(pkm_s* pkm, int16_t x, int16_t y, float scale);
 
-		void selectCursorType(CursorType_e cursorType);
+		void selectCursorType(CursorType cursorType);
 		void switchCursorType();
 		void selectViewBox();
 		void selectViewPokemon();
