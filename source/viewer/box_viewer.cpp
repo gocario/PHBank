@@ -1,7 +1,6 @@
 #include "box_viewer.hpp"
 
 #include "utils.h"
-#include "textures.h"
 #include "phbank.hpp"
 #include "pokemon.hpp"
 #include "text.hpp"
@@ -128,12 +127,7 @@ BoxViewer::BoxViewer(StateView_e state, Viewer* parent) : Viewer(state, parent) 
 BoxViewer::~BoxViewer()
 // --------------------------------------------------
 {
-	// Free the textures previoulsy created.
-	if (backgroundBox) sf2d_free_texture(backgroundBox);
-	if (backgroundResume) sf2d_free_texture(backgroundResume);
-	if (tiles) sf2d_free_texture(tiles);
-	// if (pkmIcons) sf2d_free_texture(pkmIcons);
-	if (ballIcons) sf2d_free_texture(ballIcons);
+
 }
 
 
@@ -160,18 +154,6 @@ Result BoxViewer::initialize()
 	// Initialize the current Pokémon
 	selectViewPokemon();
 
-	// Load textures
-	if (!backgroundBox)
-		backgroundBox = sf2d_create_texture_mem_RGBA8(boxBackground23o_img.pixel_data, boxBackground23o_img.width, boxBackground23o_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
-	if (!backgroundResume)
-		backgroundResume = sf2d_create_texture_mem_RGBA8(pkmResumeBackground_img.pixel_data, pkmResumeBackground_img.width, pkmResumeBackground_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
-	if (!tiles)
-		tiles = sf2d_create_texture_mem_RGBA8(boxTiles_img.pixel_data, boxTiles_img.width, boxTiles_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
-	// if (!pkmIcons)
-	// 	pkmIcons = sf2d_create_texture_mem_RGBA8(boxPkmIcons_img.pixel_data, boxPkmIcons_img.width, boxPkmIcons_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
-	if (!ballIcons)
-		ballIcons = sf2d_create_texture_mem_RGBA8(itemBallIcons_img.pixel_data, itemBallIcons_img.width, itemBallIcons_img.height, TEXFMT_RGBA8, SF2D_PLACE_RAM);
-
 	sf2d_set_clear_color(RGBA8(0x40,0x40,0x40,0xFF));
 
 	return PARENT_STEP;
@@ -185,7 +167,7 @@ Result BoxViewer::drawTopScreen()
 	if (hasRegularChild()) { if (this->child->drawTopScreen() == PARENT_STEP); else return CHILD_STEP; }
 	
 	// Draw the resume background
-	sf2d_draw_texture(backgroundResume, 0, 0);
+	sf2d_draw_texture(PHBanku::texture->resumeBackground, 0, 0);
 
 	sftd_draw_text_white(11, 40, "Game's OT");
 	sftd_draw_text_white(91, 40, "%s (%lx-%lx-%lx)", PHBanku::save->savedata.OTName, PHBanku::save->savedata.TID, PHBanku::save->savedata.SID, PHBanku::save->savedata.TSV);
@@ -195,7 +177,7 @@ Result BoxViewer::drawTopScreen()
 	{
 		uint32_t x, y;
 
-		sf2d_draw_texture_part(ballIcons, 5, 5, (vPkm.ball % BALL_ROW_COUNT) * BALL_SIZE, (vPkm.ball / BALL_ROW_COUNT) * BALL_SIZE, BALL_SIZE, BALL_SIZE);
+		sf2d_draw_texture_part(PHBanku::texture->ballIcons, 5, 5, (vPkm.ball % BALL_ROW_COUNT) * BALL_SIZE, (vPkm.ball / BALL_ROW_COUNT) * BALL_SIZE, BALL_SIZE, BALL_SIZE);
 
 		x = 32;
 		y = 16 - 2;
@@ -272,17 +254,17 @@ Result BoxViewer::drawTopScreen()
 
 		if (vPkm.isShiny)
 		{
-			sf2d_draw_texture_part(tiles, 240, 135, 57, 73, 9, 9);
+			sf2d_draw_texture_part(PHBanku::texture->boxTiles, 240, 135, 57, 73, 9, 9);
 		}
 
 		if (vPkm.isKalosBorn)
 		{
-			sf2d_draw_texture_part(tiles, 250, 135, 66, 73, 9, 9);
+			sf2d_draw_texture_part(PHBanku::texture->boxTiles, 250, 135, 66, 73, 9, 9);
 		}
 
 		if (vPkm.isCured)
 		{
-			sf2d_draw_texture_part(tiles, 260, 135, 75, 73, 9, 9);
+			sf2d_draw_texture_part(PHBanku::texture->boxTiles, 260, 135, 75, 73, 9, 9);
 		}
 
 	}
@@ -315,13 +297,13 @@ Result BoxViewer::drawBotScreen()
 		sftd_draw_text(PHBanku::font->font, boxShift + (BACKGROUND_WIDTH - boxTitleWidth) / 2, 25, RGBA8(0x00,0x00,0x00,0xFF), 13, boxTitle);
 
 		// Draw CursorType buttons (Red|Blue|Green)
-		sf2d_draw_texture_part(tiles, boxShift + 21 +   0, 0,   0, 0, 64, 32);
-		sf2d_draw_texture_part(tiles, boxShift + 21 +  64, 0,  64, 0, 64, 32);
-		sf2d_draw_texture_part(tiles, boxShift + 21 + 128, 0, 128, 0, 64, 32);
+		sf2d_draw_texture_part(PHBanku::texture->boxTiles, boxShift + 21 +   0, 0,   0, 0, 64, 32);
+		sf2d_draw_texture_part(PHBanku::texture->boxTiles, boxShift + 21 +  64, 0,  64, 0, 64, 32);
+		sf2d_draw_texture_part(PHBanku::texture->boxTiles, boxShift + 21 + 128, 0, 128, 0, 64, 32);
 
 		// Draw the SwapBox buttons
-		sf2d_draw_texture_part(tiles, boxShift + 10 + 0, 20, 0, 64, 16, 24);
-		sf2d_draw_texture_part(tiles, boxShift + BACKGROUND_WIDTH - 24, 20, 16, 64, 16, 24);
+		sf2d_draw_texture_part(PHBanku::texture->boxTiles, boxShift + 10 + 0, 20, 0, 64, 16, 24);
+		sf2d_draw_texture_part(PHBanku::texture->boxTiles, boxShift + BACKGROUND_WIDTH - 24, 20, 16, 64, 16, 24);
 
 		// If a Pokémon is currently selected
 		if (sPkm)
@@ -360,12 +342,12 @@ Result BoxViewer::drawBotScreen()
 			if (cursorBox.inslot == SLOT_NO_SELECTION)
 			{
 				// Draw the cursor icon on the box title
-				sf2d_draw_texture_part(tiles, boxShift + 105, 8 - cursorPositionOffY, 32 * cursorType, 32, 32, 32);
+				sf2d_draw_texture_part(PHBanku::texture->boxTiles, boxShift + 105, 8 - cursorPositionOffY, 32 * cursorType, 32, 32, 32);
 			}
 			else
 			{
 				// Draw the cursor icon on the current slot a bit shifted
-				sf2d_draw_texture_part(tiles, boxShift + 17 + (cursorBox.inslot % 6) * 35 + cursorPositionOffY / 2, 20 + 13 + (cursorBox.inslot / 6) * 35 - cursorPositionOffY, 32 * cursorType, 32, 32, 32);
+				sf2d_draw_texture_part(PHBanku::texture->boxTiles, boxShift + 17 + (cursorBox.inslot % 6) * 35 + cursorPositionOffY / 2, 20 + 13 + (cursorBox.inslot / 6) * 35 - cursorPositionOffY, 32 * cursorType, 32, 32, 32);
 			}
 		}
 	}
@@ -680,12 +662,12 @@ void BoxViewer::drawBox(box_s* box, int16_t x, int16_t y)
 // --------------------------------------------------
 {
 	// Draw the box background
-	sf2d_draw_texture(backgroundBox, x, y);
+	sf2d_draw_texture(PHBanku::texture->boxBackground, x, y);
 	
 
 	// Draw the SwapBox buttons
-	sf2d_draw_texture_part(tiles, x + 10 + 0, y, 0, 64, 16, 24);
-	sf2d_draw_texture_part(tiles, x + BACKGROUND_WIDTH - 24, y, 16, 64, 16, 24);
+	sf2d_draw_texture_part(PHBanku::texture->boxTiles, x + 10 + 0, y, 0, 64, 16, 24);
+	sf2d_draw_texture_part(PHBanku::texture->boxTiles, x + BACKGROUND_WIDTH - 24, y, 16, 64, 16, 24);
 
 	// TODO Merge that! v
 
