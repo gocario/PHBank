@@ -13,7 +13,6 @@ void readUTF16(void* _dst, void* _src, u16 length)
 	dst[length] = '\0';
 }
 
-
 void readUnicode(void* _dst, void* _src, u16 length)
 {
 	u8* dst = (u8*) _dst;

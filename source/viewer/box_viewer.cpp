@@ -1,5 +1,6 @@
 #include "box_viewer.hpp"
 
+#include "lang.h"
 #include "utils.h"
 #include "phbank.hpp"
 #include "pokemon.hpp"

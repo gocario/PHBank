@@ -15,6 +15,7 @@ class TextureManager
 		sf2d_texture* pkmIcons;
 		sf2d_texture* pkmShinyIcons;
 		sf2d_texture* ballIcons;
+		sf2d_texture* types;
 		sf2d_texture* boxTiles;
 		sf2d_texture* boxBackground;
 		sf2d_texture* resumeBackground;
