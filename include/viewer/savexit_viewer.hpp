@@ -11,7 +11,7 @@ class SavexitViewer : public Viewer
 {
 	public:
 		SavexitViewer(Viewer* parent = NULL);
-		SavexitViewer(StateView_e state, Viewer* parent = NULL);
+		SavexitViewer(ViewType vType, Viewer* parent = NULL);
 		~SavexitViewer();
 
 		Result initialize() override;

@@ -3,6 +3,8 @@
 #include "phbank.hpp"
 #include "text.hpp"
 
+#include <stdio.h>
+
 /*----------------------------------------------------------*\
  |                       Viewer Class                       |
 \*----------------------------------------------------------*/
@@ -19,7 +21,7 @@ SavexitViewer::SavexitViewer(Viewer* parent) : Viewer(parent) { }
 
 
 // --------------------------------------------------
-SavexitViewer::SavexitViewer(StateView_e state, Viewer* parent) : Viewer(state, parent) { }
+SavexitViewer::SavexitViewer(ViewType vType, Viewer* parent) : Viewer(vType, parent) { }
 // --------------------------------------------------
 
 
@@ -100,36 +102,36 @@ Result SavexitViewer::updateControls(const u32& kDown, const u32& kHeld, const u
 	if (kDown & KEY_A)
 	{
 		// Return the "You have to save" code
-		parent->setLStateView(StateView::Saving);
-		// consoleClear();
-		return close();
+		parent->setState(ViewState::Saving);
+			consoleInit(GFX_TOP, NULL);
+			printf("Saving asked...\n");
+		close();
+		return CHILD_STEP;
 	}
 
 	if (kDown & (KEY_B | KEY_START))
 	{
 		// Return to the main viewer
-		parent->setLStateView(StateView::Continuing);
-		// consoleClear();
-		return close();
+		parent->setState(ViewState::Continuing);
+		close();
+		return PARENT_STEP;
 	}
 
 	if (kDown & KEY_X)
 	{
 		// Exit the homebrew
-		parent->setLStateView(StateView::Exiting);
-		// consoleClear();
-		return close();
+		parent->setState(ViewState::Exiting);
+		close();
+		return CHILD_STEP;
 	}
 
 	if (kDown & KEY_Y)
 	{
 		// Backup the data and return to the main viewer
-		// consoleClear();
 		PHBanku::save->backupFile();
-		
-		parent->setLStateView(StateView::Continuing);
-		// consoleClear();
-		return close();
+		parent->setState(ViewState::Continuing);
+		close();
+		return PARENT_STEP;
 	}
 
 	return SUCCESS_STEP;

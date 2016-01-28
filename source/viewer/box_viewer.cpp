@@ -120,7 +120,7 @@ BoxViewer::BoxViewer(Viewer* parent) : Viewer(parent) { }
 
 
 // --------------------------------------------------
-BoxViewer::BoxViewer(StateView_e state, Viewer* parent) : Viewer(state, parent) { }
+BoxViewer::BoxViewer(ViewType vType, Viewer* parent) : Viewer(vType, parent) { }
 // --------------------------------------------------
 
 
@@ -367,7 +367,7 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 	if (kDown & KEY_START)
 	{
 		// Open the Savexit popup
-		new SavexitViewer(StateView::Overlay, this);
+		new SavexitViewer(ViewType::Overlay, this);
 		child->initialize();
 		return CHILD_STEP;
 	}
@@ -506,7 +506,7 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 		if (kDown & KEY_Y)
 		{
 			// Open the UltraBox viewer
-			UltraBoxViewer* ultraBoxViewer = new UltraBoxViewer(StateView::Regular, this);
+			UltraBoxViewer* ultraBoxViewer = new UltraBoxViewer(ViewType::Regular, this);
 			ultraBoxViewer->selectViewBox(*cursorBox.box, cursorBox.inBank);
 			child->initialize();
 			return CHILD_STEP;

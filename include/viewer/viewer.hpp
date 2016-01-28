@@ -12,29 +12,25 @@
 #define CHILD_STEP 1
 #define PARENT_STEP 2
 
-namespace StateView
+enum class ViewState : u8
 {
-	enum StateView_e
-	{
-		Regular = 0,
-		Overlay = 1,
-	};
-	enum LStateView_e
-	{
-		Running = 0,
-		Exiting = 1,
-		Continuing = 2,
-		Aborting = 3,
-		Saving = 4,
-	};
-}
-typedef StateView::StateView_e StateView_e;
-typedef StateView::LStateView_e LStateView_e;
+	Running = 0,
+	Exiting = 1,
+	Continuing = 2,
+	Aborting = 3,
+	Saving = 4,
+};
+
+enum class ViewType : u8
+{
+	Regular = 0,
+	Overlay = 1,
+};
 
 class Viewer
 {
 	public:
-	/*-- Viewer Destructor --*/
+		/*-- Viewer Destructor --*/
 		virtual ~Viewer();
 		/*-----------------------*/
 
@@ -54,17 +50,17 @@ class Viewer
 		bool hasOverlayChild();
 		/*----------------------*/
 
-		/*-- Viewer State --*/
+		/*-- Viewer Type --*/
 		bool isRegular();
 		bool isOverlay();
-		virtual void setStateView(StateView_e state);
+		virtual void setType(ViewType type);
 		/*------------------*/
 
-		/*-- Viewer L.State --*/
-		virtual Result close();
-		virtual Result state();
+		/*-- Viewer State --*/
+		virtual ViewState close();
+		virtual ViewState state();
 		virtual bool isRunning();
-		virtual void setLStateView(LStateView_e state);
+		virtual void setState(ViewState state);
 		/*--------------------*/
 
 		/*-- Utils --*/
@@ -73,13 +69,13 @@ class Viewer
 
 		/*-- Viewer Starter --*/
 		static PrintConsole console[2];
-		static Result startMainLoop(Viewer* viewer);
+		static ViewState startMainLoop(Viewer* viewer);
 		/*--------------------*/
 		
 	protected:
 		/*-- Viewer Constructors --*/
 		Viewer(Viewer* parent = NULL);
-		Viewer(StateView_e state, Viewer* parent = NULL);
+		Viewer(ViewType type, Viewer* parent = NULL);
 		/*-------------------------*/
 
 		/*-- Viewer Hierarchy --*/
@@ -87,15 +83,13 @@ class Viewer
 		Viewer* child = NULL;
 		/*----------------------*/
 
-		/*-- Viewer State --*/
-		StateView_e stateView = StateView::Regular;
+		/*-- Viewer Type --*/
+		ViewType vType = ViewType::Regular;
 		/*------------------*/
 
-		/*-- Viewer L.State --*/
-		LStateView_e lStateView = StateView::Running;
+		/*-- Viewer Type --*/
+		ViewState vState = ViewState::Running;
 		/*--------------------*/
-
-	private:
 };
 
 #endif // VIEWER_HPP

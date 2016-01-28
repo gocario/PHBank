@@ -23,7 +23,7 @@ class UltraBoxViewer : public Viewer
 {
 	public:
 		UltraBoxViewer(Viewer* parent = NULL);
-		UltraBoxViewer(StateView_e state, Viewer* parent = NULL);
+		UltraBoxViewer(ViewType vType, Viewer* parent = NULL);
 		~UltraBoxViewer();
 
 		Result initialize() override;
@@ -53,7 +53,7 @@ class UltraBoxViewer : public Viewer
 		bool selectViewBox();
 		bool selectMoveBox();
 		int16_t currentColCount(int16_t row);
-		Result closeViewer(bool save = false);
+		ViewState closeViewer(bool save = false);
 };
 
 #endif // ULTRA_BOX_VIEWER_HPP

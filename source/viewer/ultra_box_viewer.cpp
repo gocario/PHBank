@@ -37,7 +37,7 @@ UltraBoxViewer::UltraBoxViewer(Viewer* parent) : Viewer(parent) { }
 
 
 // --------------------------------------------------
-UltraBoxViewer::UltraBoxViewer(StateView_e state, Viewer* parent) : Viewer(state, parent) { }
+UltraBoxViewer::UltraBoxViewer(ViewType vType, Viewer* parent) : Viewer(vType, parent) { }
 // --------------------------------------------------
 
 
@@ -151,13 +151,15 @@ Result UltraBoxViewer::updateControls(const u32& kDown, const u32& kHeld, const 
 	if (kDown & KEY_B)
 	{
 		// Close the viewer
-		return closeViewer(false);
+		closeViewer(false);
+		return PARENT_STEP;
 	}
 
 	if (kDown & KEY_A)
 	{
 		// Close the viewer and update the box of the main viewer
-		return closeViewer(true);
+		closeViewer(true);
+		return PARENT_STEP;
 	}
 
 
@@ -240,7 +242,8 @@ Result UltraBoxViewer::updateControls(const u32& kDown, const u32& kHeld, const 
 
 				if (cursorUBox.row == oldRow && cursorUBox.col == oldCol)
 				{
-					return closeViewer(true);
+					closeViewer(true);
+					return PARENT_STEP;
 				}
 				else if (cursorUBox.row < 0 || cursorUBox.row > (rowCount-1) || cursorUBox.col < 0 || cursorUBox.col > (currentColCount(cursorUBox.row)-1))
 				{
@@ -259,8 +262,7 @@ Result UltraBoxViewer::updateControls(const u32& kDown, const u32& kHeld, const 
 		}
 		else if (kHeld & KEY_TOUCH)
 		{
-			this->touch.px = touch->px;
-			this->touch.py = touch->py;
+			this->touch = *touch;
 
 			if (boxCount == BANK_BOX_COUNT)
 			{
@@ -345,12 +347,11 @@ int16_t UltraBoxViewer::currentColCount(int16_t row)
 
 
 // --------------------------------------------------
-Result UltraBoxViewer::closeViewer(bool save)
+ViewState UltraBoxViewer::closeViewer(bool save)
 // --------------------------------------------------
 {
-	if (save)
-		selectMoveBox();
-	this->setLStateView(StateView::Exiting);
+	if (save) selectMoveBox();
+	this->setState(ViewState::Exiting);
 	// parent->setLStateView(StateView::Exiting);
 	// consoleClear();
 	return close();

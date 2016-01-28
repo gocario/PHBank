@@ -86,7 +86,7 @@ class BoxViewer : public Viewer
 {
 	public:
 		BoxViewer(Viewer* parent = NULL);
-		BoxViewer(StateView_e state, Viewer* parent = NULL);
+		BoxViewer(ViewType vType, Viewer* parent = NULL);
 		~BoxViewer();
 
 		Result initialize() override;
@@ -95,6 +95,7 @@ class BoxViewer : public Viewer
 		Result updateControls(const u32& kDown = 0, const u32& kHeld = 0, const u32& kUp = 0, const touchPosition* touch = NULL) override;
 
 		void selectViewBox(uint16_t boxID, bool inBank = false);
+
 	private:
 		CursorBox_s cursorBox;
 		CursorType_e cursorType = CursorType::SingleSelect;

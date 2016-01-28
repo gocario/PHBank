@@ -1,5 +1,6 @@
 #include "viewer.hpp"
 
+#include <sf2d.h>
 
 /*----------------------------------------------------------*\
  |                       Viewer Class                       |
@@ -26,10 +27,10 @@ Viewer::Viewer(Viewer* parent)
 
 
 // --------------------------------------------------
-Viewer::Viewer(StateView_e state, Viewer* parent) : Viewer(parent)
+Viewer::Viewer(ViewType vType, Viewer* parent) : Viewer(parent)
 // --------------------------------------------------
 {
-	this->stateView = state;
+	this->vType = vType;
 }
 
 
@@ -144,7 +145,7 @@ bool Viewer::hasOverlayChild()
 bool Viewer::isRegular()
 // --------------------------------------------------
 {
-	return (stateView == StateView::Regular);
+	return (vType == ViewType::Regular);
 }
 
 
@@ -152,15 +153,15 @@ bool Viewer::isRegular()
 bool Viewer::isOverlay()
 // --------------------------------------------------
 {
-	return (stateView == StateView::Overlay);
+	return (vType == ViewType::Overlay);
 }
 
 
 // --------------------------------------------------
-void Viewer::setStateView(StateView_e state)
+void Viewer::setType(ViewType vType)
 // --------------------------------------------------
 {
-	this->stateView = state;
+	this->vType = vType;
 }
 
 
@@ -173,33 +174,33 @@ void Viewer::setStateView(StateView_e state)
 bool Viewer::isRunning()
 // --------------------------------------------------
 {
-	return (lStateView == StateView::Running) || (lStateView == StateView::Continuing);
+	return (vState == ViewState::Running) || (vState == ViewState::Continuing);
 }
 
 
 // --------------------------------------------------
-Result Viewer::close()
+ViewState Viewer::close()
 // --------------------------------------------------
 {
-	Result ret = this->state();
+	ViewState state = this->state();
 	if (this->isChild()) delete this;
-	return ret;
+	return state;
 }
 
 
 // --------------------------------------------------
-Result Viewer::state()
+ViewState Viewer::state()
 // --------------------------------------------------
 {
-	return this->lStateView;
+	return this->vState;
 }
 
 
 // --------------------------------------------------
-void Viewer::setLStateView(LStateView_e state)
+void Viewer::setState(ViewState vState)
 // --------------------------------------------------
 {
-	this->lStateView = state;
+	this->vState = vState;
 }
 
 
@@ -235,12 +236,11 @@ bool Viewer::touchWithin(u16 px, u16 py, s16 x, s16 y, s16 w, s16 h)
 PrintConsole Viewer::console[2];
 // --------------------------------------------------
 
-
 // --------------------------------------------------
-Result Viewer::startMainLoop(Viewer* viewer)
+ViewState Viewer::startMainLoop(Viewer* viewer)
 // --------------------------------------------------
 {
-	sf2d_init();
+	// sf2d_init();
 
 	viewer->initialize();
 	
@@ -267,6 +267,6 @@ Result Viewer::startMainLoop(Viewer* viewer)
 		viewer->updateControls(kDown, kHeld, kUp, &touch);
 	}
 	
-	sf2d_fini();
+	// sf2d_fini();
 	return viewer->state();
 }

@@ -28,8 +28,10 @@ int main(int argc, char* argv[])
 	srand(osGetTime());
 
 	// Initialize console;
-	// consoleInit(GFX_TOP, NULL);
+	consoleInit(GFX_TOP, NULL);
 	// consoleInit(GFX_BOTTOM, NULL);
+
+	// TODO Add a loading screen here!
 
 	// Initialize managers instance
 
@@ -83,9 +85,9 @@ int main(int argc, char* argv[])
 	
 		consoleExit(GFX_TOP, NULL);
 
-		Result ret = Viewer::startMainLoop(viewer);
+		ViewState state = Viewer::startMainLoop(viewer);
 
-		if (ret == StateView::Saving)
+		if (state == ViewState::Saving)
 		{
 			// TODO Remove when better save display!
 			consoleInit(GFX_TOP, NULL);
