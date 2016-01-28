@@ -55,7 +55,7 @@ ASFLAGS	:=	-g $(ARCH)
 LDFLAGS	=	-specs=3dsx.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
 
 # LIBS	:= -lsf2d -lctru -lm
-LIBS	:= -lsftd -lfreetype -lpng -lz -lsf2d -lctru -lm
+LIBS	:= -lsfil -lsftd -lfreetype -lpng -lz -lsf2d -lctru -lm
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
