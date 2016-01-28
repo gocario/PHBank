@@ -10,6 +10,12 @@
 #include "phbank.hpp"
 #include "box_viewer.hpp"
 
+PrintConsole* consoleExit(gfxScreen_t screen, PrintConsole* console)
+{
+	// TODO Future implementation!
+	gspWaitForVBlank();
+	return console;
+}
 
 int main(int argc, char* argv[])
 {
@@ -74,6 +80,8 @@ int main(int argc, char* argv[])
 	{
 		printf("Newing viewer...\n");
 		Viewer* viewer = new BoxViewer();
+	
+		consoleExit(GFX_TOP, NULL);
 
 		Result ret = Viewer::startMainLoop(viewer);
 
