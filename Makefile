@@ -29,15 +29,15 @@ include $(DEVKITARM)/3ds_rules
 #---------------------------------------------------------------------------------
 TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
-SOURCES		:=	source source/viewer source/texture
 DATA		:=	data
+SOURCES		:=	source source/viewer source/texture
 INCLUDES	:=	include include/viewer
 #ROMFS		:=	romfs
 
-# NO_SMDH 		:= NO_SMDH
-APP_TITLE       := PHBank
-APP_DESCRIPTION := Pokémon Homebrew Bank
-APP_AUTHOR      := Gocario
+# NO_SMDH 		:=	NO_SMDH
+APP_TITLE		:=	PHBank
+APP_DESCRIPTION	:=	Pokémon Homebrew Bank
+APP_AUTHOR		:=	Gocario
 #---------------------------------------------------------------------------------
 # options for code generation
 #---------------------------------------------------------------------------------
