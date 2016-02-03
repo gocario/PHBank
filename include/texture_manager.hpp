@@ -12,8 +12,8 @@ class TextureManager
 {
 	public:
 		sf2d_texture* ballLoadingScreen;
-		sf2d_texture* pkmSprites;		///< The sprite sheet for Pokémon 2D art.
-		sf2d_texture* pkmShinySprites;	///< The sprite sheet for shiny Pokémon 2D art.
+		// sf2d_texture* pkmSprites;		///< The sprite sheet for Pokémon 2D art.
+		// sf2d_texture* pkmShinySprites;	///< The sprite sheet for shiny Pokémon 2D art.
 		sf2d_texture* pkmIcons;			///< The sprite sheet for Pokémon icons.
 		sf2d_texture* pkmShinyIcons;	///< The sprite sheet for shiny Pokémon icons.
 		sf2d_texture* itemIcons;		///< The sprite sheet for item icons.
@@ -28,6 +28,17 @@ class TextureManager
 		~TextureManager(void);
 
 		Result load(void);
+
+	private:
+		bool loadTextures(void);
+		inline void drawLoadingPokeball(int x, int y);
+		inline void drawLoadingGreatball(int x, int y);
+		inline void drawLoadingUltraball(int x, int y);
+		inline void drawLoadingBackball(int x, int y);
+		inline void drawLoadingText(int rx, int ry);
+		inline void drawLoadingScreen();
+		friend void loading_screen(void* arg);
+		friend void load_textures(void* arg);
 };
 
 #endif // TEXTURE_MANAGER_HPP

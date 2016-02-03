@@ -38,7 +38,7 @@ namespace Filter
 	 */
 	bool filterFromORAS(pkm_s* pkm);
 
-	// TODO Move to a DataManager
+	// TODO Move to a PersonalManager (Pokemon?)
 	u8 getBaseFriendship(u16 speciesID);
 };
 

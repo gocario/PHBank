@@ -34,7 +34,7 @@ SOURCES		:=	source source/viewer source/texture
 INCLUDES	:=	include include/viewer
 #ROMFS		:=	romfs
 
-# NO_SMDH 		:=	NO_SMDH
+# NO_SMDH		:=	NO_SMDH
 APP_TITLE		:=	PHBank
 APP_DESCRIPTION	:=	Pokémon Homebrew Bank
 APP_AUTHOR		:=	Gocario
@@ -149,12 +149,12 @@ clean:
 #---------------------------------------------------------------------------------
 run: $(BUILD)
 	@echo run ...
-	H:\devkitPro\devkitCITRA\citra.exe $(TARGET).elf
+	@echo TODO: add citra path
 
 #---------------------------------------------------------------------------------
 send: $(BUILD)
-	3dslink -a 192.168.0.19 $(TARGET).3dsx
-#	3dslink -a 10.3.19.58 $(TARGET).3dsx
+	@echo send ...
+	@echo TODO: add 3dslink cmd
 
 #---------------------------------------------------------------------------------
 else

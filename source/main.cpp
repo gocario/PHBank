@@ -10,6 +10,29 @@
 #include "phbank.hpp"
 #include "box_viewer.hpp"
 
+extern "C"
+{
+	void __attribute__((weak)) __appInit(void)
+	{
+		srvInit();
+		aptInit();
+		hidInit();
+
+		fsInit();
+		sdmcInit();
+	}
+
+	void __attribute__((weak)) __appExit(void)
+	{
+		sdmcExit();
+		fsExit();
+		
+		hidExit();
+		aptExit();
+		srvExit();
+	}
+}
+
 PrintConsole* consoleExit(gfxScreen_t screen, PrintConsole* console)
 {
 	// TODO Future implementation!
@@ -20,7 +43,6 @@ PrintConsole* consoleExit(gfxScreen_t screen, PrintConsole* console)
 int main(int argc, char* argv[])
 {
 	sf2d_init();
-	sf2d_set_clear_color(RGBA8(0x10, 0x10, 0x10, 0xFF));
 	sftd_init();
 
 	FS_fsInit();
@@ -28,7 +50,7 @@ int main(int argc, char* argv[])
 	srand(osGetTime());
 
 	// Initialize console;
-	consoleInit(GFX_TOP, NULL);
+	// consoleInit(GFX_TOP, NULL);
 	// consoleInit(GFX_BOTTOM, NULL);
 
 	// TODO Add a loading screen here!
@@ -46,20 +68,12 @@ int main(int argc, char* argv[])
 
 	// Load managers data
 
-	printf("> Loading save manager\n");
-	ret = PHBanku::save->load();
+	printf("> Loading texture manager\n");
+	ret = PHBanku::texture->load();
 	if (R_FAILED(ret))
 	{
-		printf("\n\nProblem with the Save Manager,\nplease check the previous logs\n");
-		error |= -BIT(2);
-	}
-
-	printf("> Loading data manager\n");
-	ret = PHBanku::data->load();
-	if (R_FAILED(ret))
-	{
-		printf("\n\nProblem with the Data Manager,\nplease check the previous logs\n");
-		error |= -BIT(3);
+		printf("\n\nProblem with the Texture Manager,\nplease check the previous logs\n");
+		error |= -BIT(5);
 	}
 
 	printf("> Loading font manager\n");
@@ -70,12 +84,20 @@ int main(int argc, char* argv[])
 		error |= -BIT(4);
 	}
 
-	printf("> Loading texture manager\n");
-	ret = PHBanku::texture->load();
+	printf("> Loading data manager\n");
+	ret = PHBanku::data->load();
 	if (R_FAILED(ret))
 	{
-		printf("\n\nProblem with the Texture Manager,\nplease check the previous logs\n");
-		error |= -BIT(5);
+		printf("\n\nProblem with the Data Manager,\nplease check the previous logs\n");
+		error |= -BIT(3);
+	}
+
+	printf("> Loading save manager\n");
+	ret = PHBanku::save->load();
+	if (R_FAILED(ret))
+	{
+		printf("\n\nProblem with the Save Manager,\nplease check the previous logs\n");
+		error |= -BIT(2);
 	}
 
 	if (R_SUCCEEDED(error) || error == -1)
@@ -102,6 +124,9 @@ int main(int argc, char* argv[])
 	}
 	else
 	{
+		// TODO Remove when better error display!
+		consoleInit(GFX_TOP, NULL);
+		
 		printf("\nProblem happened: %li\nCan't start the viewer.\n", error);
 		printf("Press any key to exit\n");
 		waitKey(KEY_ANY);
