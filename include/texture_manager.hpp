@@ -12,8 +12,10 @@ class TextureManager
 {
 	public:
 		sf2d_texture* ballLoadingScreen;
-		// sf2d_texture* pkmSprites;		///< The sprite sheet for Pokémon 2D art.
-		// sf2d_texture* pkmShinySprites;	///< The sprite sheet for shiny Pokémon 2D art.
+		sf2d_texture* pkmSprites1;		///< The sprite sheet for Pokémon 2D art. (Part 1)
+		sf2d_texture* pkmSprites2;		///< The sprite sheet for Pokémon 2D art. (Part 2)
+		sf2d_texture* pkmShinySprites1;	///< The sprite sheet for shiny Pokémon 2D art. (Part 1)
+		sf2d_texture* pkmShinySprites2;	///< The sprite sheet for shiny Pokémon 2D art. (Part 2)
 		sf2d_texture* pkmIcons;			///< The sprite sheet for Pokémon icons.
 		sf2d_texture* pkmShinyIcons;	///< The sprite sheet for shiny Pokémon icons.
 		sf2d_texture* itemIcons;		///< The sprite sheet for item icons.

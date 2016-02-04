@@ -912,9 +912,9 @@ void BoxViewer::cancelMovePokemon()
 void BoxViewer::populateVPkmData(vPkm_s* vPkm)
 // --------------------------------------------------
 {
-	readUnicode(vPkm->NKName, Pokemon::NK_name(vPkm->pkm), 0x1a);
-	readUnicode(vPkm->OTName, Pokemon::OT_name(vPkm->pkm), 0x1a);
-	readUnicode(vPkm->HTName, Pokemon::HT_name(vPkm->pkm), 0x1a);
+	unicodeToChar((char*) vPkm->NKName, Pokemon::NK_name(vPkm->pkm), 0x1a);
+	unicodeToChar((char*) vPkm->OTName, Pokemon::OT_name(vPkm->pkm), 0x1a);
+	unicodeToChar((char*) vPkm->HTName, Pokemon::HT_name(vPkm->pkm), 0x1a);
 
 	vPkm->emptySlot = PHBanku::save->isPkmEmpty(vPkm->pkm);
 

@@ -42,14 +42,28 @@ void load_textures(void* arg)
 
 TextureManager::TextureManager(void)
 {
-
+	ballLoadingScreen = NULL;
+	pkmSprites1 = NULL;
+	pkmSprites2 = NULL;
+	pkmShinySprites1 = NULL;
+	pkmShinySprites2 = NULL;
+	pkmIcons = NULL;
+	pkmShinyIcons = NULL;
+	itemIcons = NULL;
+	ballIcons = NULL;
+	types = NULL;
+	boxTiles = NULL;
+	boxBackground = NULL;
+	resumeBackground = NULL;
 }
 
 TextureManager::~TextureManager(void)
 {
 	sf2d_free_texture(ballLoadingScreen);
-	// sf2d_free_texture(pkmSprites);
-	// sf2d_free_texture(pkmShinySprites);
+	// sf2d_free_texture(pkmSprites1);
+	// sf2d_free_texture(pkmSprites2);
+	// sf2d_free_texture(pkmShinySprites1);
+	// sf2d_free_texture(pkmShinySprites2);
 	sf2d_free_texture(pkmIcons);
 	sf2d_free_texture(pkmShinyIcons);
 	sf2d_free_texture(itemIcons);
@@ -68,9 +82,9 @@ Result TextureManager::load(void)
 	printf("Loading ballLoadingScreen: %p\n", (ballLoadingScreen = sfil_load_PNG_file(ROMFS "ball_loading_screen.png", SF2D_PLACE_RAM)));
 	
 	sf2d_set_clear_color(RGBA8(0xF8, 0xF8, 0xF8, 0xFF));
-	sf2d_end_frame();
-	sf2d_start_frame(GFX_TOP, GFX_LEFT);
-	sf2d_end_frame();
+	// sf2d_end_frame();
+	// sf2d_start_frame(GFX_TOP, GFX_LEFT);
+	// sf2d_end_frame();
 	sf2d_start_frame(GFX_BOTTOM, GFX_LEFT);
 		drawLoadingScreen();
 	sf2d_end_frame();
@@ -78,7 +92,7 @@ Result TextureManager::load(void)
 	
 	// threadMainLoop = true;
 	// svcGetThreadPriority(&prio, CUR_THREAD_HANDLE);
-	// loadingThread = threadCreate(load_textures, (void*)this, STACKSIZE, prio-1, -2, false);
+	// loadingThread = threadCreate(loading_screen, (void*)this, STACKSIZE, prio-1, -2, false);
 
 	Result ret = (loadTextures() ? 0 : -5);
 
@@ -91,8 +105,10 @@ Result TextureManager::load(void)
 
 bool TextureManager::loadTextures()
 {
-	// printf("Loading pkmSprites: %p\n", (this->pkmSprites = sfil_load_PNG_file(ROMFS "pokemon_spritesheet.png", SF2D_PLACE_RAM)));
-	// printf("Loading pkmShinySprites: %p\n", (this->pkmShinySprites = sfil_load_PNG_file(ROMFS "pokemon_shiny_spritesheet.png", SF2D_PLACE_RAM)));
+	// printf("Loading pkmSprites1: %p\n", (this->pkmSprites1 = sfil_load_PNG_file(ROMFS "pokemon_spritesheet_1.png", SF2D_PLACE_RAM)));
+	// printf("Loading pkmSprites2: %p\n", (this->pkmSprites2 = sfil_load_PNG_file(ROMFS "pokemon_spritesheet_2.png", SF2D_PLACE_RAM)));
+	// printf("Loading pkmShinySprites1: %p\n", (this->pkmShinySprites1 = sfil_load_PNG_file(ROMFS "pokemon_shiny_spritesheet_1.png", SF2D_PLACE_RAM)));
+	// printf("Loading pkmShinySprites2: %p\n", (this->pkmShinySprites2 = sfil_load_PNG_file(ROMFS "pokemon_shiny_spritesheet_2.png", SF2D_PLACE_RAM)));
 	printf("Loading pkmIcons: %p\n", (this->pkmIcons = sfil_load_PNG_file(ROMFS "pokemon_icons_spritesheet.png", SF2D_PLACE_RAM)));
 	printf("Loading pkmShinyIcons: %p\n", (this->pkmShinyIcons = sfil_load_PNG_file(ROMFS "pokemon_shiny_icons_spritesheet.png", SF2D_PLACE_RAM)));
 	printf("Loading itemIcons: %p\n", (this->itemIcons = sfil_load_PNG_file(ROMFS "item_icons_spritesheet.png", SF2D_PLACE_RAM)));
@@ -102,7 +118,7 @@ bool TextureManager::loadTextures()
 	printf("Loading boxBackground: %p\n", (this->boxBackground = sfil_load_PNG_file(ROMFS "box_wp23o.png", SF2D_PLACE_RAM)));
 	printf("Loading resumeBackground: %p\n", (this->resumeBackground = sfil_load_PNG_file(ROMFS "resume_background.png", SF2D_PLACE_RAM)));
 
-	return (/*pkmSprites && pkmShinySprites &&*/ pkmIcons && pkmShinyIcons && itemIcons && ballIcons && resumeBackground && types && boxTiles && boxBackground);
+	return (/*pkmSprites1 && pkmSprites2 && pkmShinySprites1 && pkmShinySprites2 &&*/ pkmIcons && pkmShinyIcons && itemIcons && ballIcons && resumeBackground && types && boxTiles && boxBackground);
 }
 
 void TextureManager::drawLoadingPokeball(int x, int y)
@@ -144,7 +160,7 @@ void TextureManager::drawLoadingScreen()
 	}
 
 	// for (u8 i = 0; i < 9; i++) // row
-	// for (u8 j = 0; j < 8; j++) // row
+	// for (u8 j = 0; j < 8; j++) // col
 	// {
 	// 	drawLoadingPokeball(
 	// 		rowBackball[(i*2)%3][0] + (j*2) * 24 - 32 + tick % 64,

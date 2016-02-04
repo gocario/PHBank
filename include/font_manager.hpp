@@ -15,10 +15,13 @@ class FontManager
 		sftd_font* font;
 		
 	public:
-		FontManager();
-		~FontManager();
+		FontManager(void);
+		~FontManager(void);
 
-		Result load();
+		Result load(void);
+
+	private:
+		bool loadFonts(void);
 };
 
 #endif // FONT_MANAGER_HPP
