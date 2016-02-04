@@ -254,8 +254,6 @@ ViewState Viewer::startMainLoop(Viewer* viewer)
 		kUp = hidKeysUp();
 		hidTouchRead(&touch);
 
-		if (kHeld & KEY_L && kHeld & KEY_R && kHeld & KEY_A && kHeld & KEY_B && kHeld & KEY_X && kHeld & KEY_Y) break;
-
 		sf2d_start_frame(GFX_TOP, GFX_LEFT);
 			viewer->drawTopScreen();
 		sf2d_end_frame();
