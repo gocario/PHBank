@@ -12,20 +12,19 @@ extern "C" {
 #include <3ds/types.h>
 
 /**
- * @brief Converts an UTF-16 string to an ascii string.
- * @param dst Destination (u8).
- * @param src Source (u16).
- * @param length Length of dst.
- */
-void readUTF16(void* dst, void* src, u16 length);
-
-/**
  * @brief Converts an unicode string to an ascii string.
  * @param dst The destination (u8).
  * @param src The source (u16).
- * @param length Length of dst.
+ * @param max The max length of the string.
  */
-void readUnicode(void* dst, void* src, u16 length);
+inline void unicodeToChar(char* dst, u16* src, s16 max)
+{
+	if (!src || !dst) return;
+	u16 ii;
+	for (ii = 0; *src && ii < max-1; ii++)
+		*(dst + ii) = (*(src + ii)) & 0xFF;
+	*(dst + ii) = 0x00;
+}
 
 #ifdef __cplusplus
 }
