@@ -424,6 +424,13 @@ Result SaveManager::loadBankData()
 {
 	// memset(bankdata, 0, sizeof(bankdata)); // ASK Is it needed?
 
+	// bankdata.version = *(u32*) (bankbuffer + 0x00);
+	bankdata.magic = (bankbuffer[0x04]) |
+		(bankbuffer[0x01] << 24) |
+		(bankbuffer[0x02] << 16) |
+		(bankbuffer[0x03] << 8);
+	bankdata.version = *(u32*) (bankbuffer + 0x08);
+
 	printf("Loading BK Boxes:");
 	for (u16 iB = 0; iB < BANK_BOX_COUNT; iB++)
 	{

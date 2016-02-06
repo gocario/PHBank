@@ -45,6 +45,16 @@
 #define PK_SPECIES_SIZE 20
 #define PK_ITEM_SIZE 20
 
+/**
+ * MAJOR VERSION (0-99)
+ * MINOR VERSION (0-99)
+ * PATCH VERSION (0-99)
+ * KIND VERSION (0xA-0xF)
+ * PATCH (0xA-0xF)
+ *
+ * e.g: 2.1.0-beta-a (020100BA)
+ */
+#define VERSION 0x020000B0
 
 typedef u8 ek6_t;
 typedef u8 pk6_t;
@@ -125,6 +135,8 @@ struct savedata_s
 
 struct bankdata_s
 {
+	u32 magic;
+	u32 version;
 	bk_s bk;
 };
 
@@ -132,6 +144,10 @@ struct bankdata_s
 typedef u8 savebuffer_t[SAVEDATA_ORAS_SIZE];
 typedef u8 bankbuffer_t[BANKDATA_PKBK_SIZE];
 
+static inline uint32_t MakeMagic(char a, char b, char c, char d)
+{
+	return a | b << 8 | c << 16 | d << 24;
+}
 
 namespace Game
 {
