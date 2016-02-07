@@ -1,7 +1,7 @@
 #pragma once
 /**
  * @file filter.hpp
- * @brief Filter namespace
+ * @brief Filter module
  */
 #ifndef FILTER_HPP
 #define FILTER_HPP
