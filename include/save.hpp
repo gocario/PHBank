@@ -178,10 +178,13 @@ namespace SaveConst
 	const saveConst_t XY_offsetTrainerCard = 0x14000;
 	const saveConst_t XY_offsetPCName = 0x4400;
 	const saveConst_t XY_offsetPC = 0x22600;
+	const saveConst_t XY_offsetDex = 0x1A400 - 0x05400;
+
 	const saveConst_t ORAS_size = 0x76000;
 	const saveConst_t ORAS_offsetTrainerCard = 0x14000;
 	const saveConst_t ORAS_offsetPCName = 0x4400;
 	const saveConst_t ORAS_offsetPC = 0x33000;
+	const saveConst_t ORAS_offsetDex = 0x1A400 - 0x05400;
 
 	const saveConst_t BANK_size = 0xaa100;
 	const saveConst_t BANK_offsetBK = 0x100;

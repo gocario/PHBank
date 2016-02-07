@@ -97,7 +97,7 @@ namespace Filter
 		isFiltered &= Filter::filterMoveORASExclusiv(Pokemon::move3(pkm));
 		isFiltered &= Filter::filterMoveORASExclusiv(Pokemon::move4(pkm));
 		isFiltered &= Filter::filterAbilityORASExclusiv(Pokemon::ability(pkm));
-		// isFiltered &= Filter::filterSchoolGirlPikachu(Pokemon::speciesID(pkm), Pokemon::form(pkm));
+		// isFiltered &= Filter::filterSchoolGirlPikachu(Pokemon::speciesID(pkm), Pokemon::formID(pkm));
 
 		return isFiltered;
 	}
@@ -132,7 +132,7 @@ namespace Filter
 	{
 		bool isFiltered = true;
 
-		isFiltered &= Filter::filterSchoolGirlPikachu(Pokemon::speciesID(pkm), Pokemon::form(pkm));
+		isFiltered &= Filter::filterSchoolGirlPikachu(Pokemon::speciesID(pkm), Pokemon::formID(pkm));
 
 		return isFiltered;
 	}

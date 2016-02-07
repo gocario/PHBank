@@ -70,7 +70,7 @@ namespace Pokemon
 	u8 nature(pkm_s* pkm);
 	bool fatefulEncounter(pkm_s* pkm);
 	u8 gender(pkm_s* pkm);
-	u8 form(pkm_s* pkm);
+	u8 formID(pkm_s* pkm);
 	u8 EV_HP(pkm_s* pkm);
 	u8 EV_ATK(pkm_s* pkm);
 	u8 EV_DEF(pkm_s* pkm);
@@ -322,7 +322,7 @@ namespace Pokemon
 	void nature(pkm_s* pkm, u8 v);
 	void fatefulEncounter(pkm_s* pkm, bool v);
 	void gender(pkm_s* pkm, u8 v);
-	void form(pkm_s* pkm, u8 v);
+	void formID(pkm_s* pkm, u8 v);
 	void EV_HP(pkm_s* pkm, u8 v);
 	void EV_ATK(pkm_s* pkm, u8 v);
 	void EV_DEF(pkm_s* pkm, u8 v);

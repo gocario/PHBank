@@ -215,7 +215,7 @@ u16 Pokemon::HP(pkm_s* pkm)
 		Pokemon::nature(pkm),
 		Pokemon::level(pkm),
 		Stat::HP,
-		Pokemon::form(pkm)
+		Pokemon::formID(pkm)
 	);
 }
 u16 Pokemon::ATK(pkm_s* pkm)
@@ -227,7 +227,7 @@ u16 Pokemon::ATK(pkm_s* pkm)
 		Pokemon::nature(pkm),
 		Pokemon::level(pkm),
 		Stat::ATK,
-		Pokemon::form(pkm)
+		Pokemon::formID(pkm)
 	);
 }
 u16 Pokemon::DEF(pkm_s* pkm)
@@ -239,7 +239,7 @@ u16 Pokemon::DEF(pkm_s* pkm)
 		Pokemon::nature(pkm),
 		Pokemon::level(pkm),
 		Stat::DEF,
-		Pokemon::form(pkm)
+		Pokemon::formID(pkm)
 	);
 }
 u16 Pokemon::SPA(pkm_s* pkm)
@@ -251,7 +251,7 @@ u16 Pokemon::SPA(pkm_s* pkm)
 		Pokemon::nature(pkm),
 		Pokemon::level(pkm),
 		Stat::SPA,
-		Pokemon::form(pkm)
+		Pokemon::formID(pkm)
 	);
 }
 u16 Pokemon::SPD(pkm_s* pkm)
@@ -263,7 +263,7 @@ u16 Pokemon::SPD(pkm_s* pkm)
 		Pokemon::nature(pkm),
 		Pokemon::level(pkm),
 		Stat::SPD,
-		Pokemon::form(pkm)
+		Pokemon::formID(pkm)
 	);
 }
 u16 Pokemon::SPE(pkm_s* pkm)
@@ -275,7 +275,7 @@ u16 Pokemon::SPE(pkm_s* pkm)
 		Pokemon::nature(pkm),
 		Pokemon::level(pkm),
 		Stat::SPE,
-		Pokemon::form(pkm)
+		Pokemon::formID(pkm)
 	);
 }
 
@@ -288,7 +288,7 @@ u16 Pokemon::HP(pkm_s* pkm, u8 level)
 		Pokemon::nature(pkm),
 		level,
 		Stat::HP,
-		Pokemon::form(pkm)
+		Pokemon::formID(pkm)
 	);
 }
 u16 Pokemon::ATK(pkm_s* pkm, u8 level)
@@ -300,7 +300,7 @@ u16 Pokemon::ATK(pkm_s* pkm, u8 level)
 		Pokemon::nature(pkm),
 		level,
 		Stat::ATK,
-		Pokemon::form(pkm)
+		Pokemon::formID(pkm)
 	);
 }
 u16 Pokemon::DEF(pkm_s* pkm, u8 level)
@@ -312,7 +312,7 @@ u16 Pokemon::DEF(pkm_s* pkm, u8 level)
 		Pokemon::nature(pkm),
 		level,
 		Stat::DEF,
-		Pokemon::form(pkm)
+		Pokemon::formID(pkm)
 	);
 }
 u16 Pokemon::SPA(pkm_s* pkm, u8 level)
@@ -322,9 +322,9 @@ u16 Pokemon::SPA(pkm_s* pkm, u8 level)
 		Pokemon::IV_SPA(pkm),
 		Pokemon::EV_SPA(pkm),
 		Pokemon::nature(pkm),
-		Pokemon::level(pkm),
+		level,
 		Stat::SPA,
-		Pokemon::form(pkm)
+		Pokemon::formID(pkm)
 	);
 }
 u16 Pokemon::SPD(pkm_s* pkm, u8 level)
@@ -336,7 +336,7 @@ u16 Pokemon::SPD(pkm_s* pkm, u8 level)
 		Pokemon::nature(pkm),
 		level,
 		Stat::SPD,
-		Pokemon::form(pkm)
+		Pokemon::formID(pkm)
 	);
 }
 u16 Pokemon::SPE(pkm_s* pkm, u8 level)
@@ -348,7 +348,7 @@ u16 Pokemon::SPE(pkm_s* pkm, u8 level)
 		Pokemon::nature(pkm),
 		level,
 		Stat::SPE,
-		Pokemon::form(pkm)
+		Pokemon::formID(pkm)
 	);
 }
 
@@ -376,7 +376,7 @@ u32 Pokemon::PID(pkm_s* pkm) { return *(u32*)(pkm->pk6 + 0x18); }
 u8 Pokemon::nature(pkm_s* pkm) { return *(u8*)(pkm->pk6 + 0x1c); }
 bool Pokemon::fatefulEncounter(pkm_s* pkm) { return ((*(u8*)(pkm->pk6 + 0x1d)) & 1) == 1; }
 u8 Pokemon::gender(pkm_s* pkm) { return ((*(u8*)(pkm->pk6 + 0x1d)) >> 1) & 0x3; }
-u8 Pokemon::form(pkm_s* pkm) { return (*(u8*)(pkm->pk6 + 0x1d)) >> 3; }
+u8 Pokemon::formID(pkm_s* pkm) { return (*(u8*)(pkm->pk6 + 0x1d)) >> 3; }
 u8 Pokemon::EV_HP(pkm_s* pkm) { return *(u8*)(pkm->pk6 + 0x1e); }
 u8 Pokemon::EV_ATK(pkm_s* pkm) { return *(u8*)(pkm->pk6 + 0x1f); }
 u8 Pokemon::EV_DEF(pkm_s* pkm) { return *(u8*)(pkm->pk6 + 0x20); }
@@ -630,7 +630,7 @@ void Pokemon::PID(pkm_s* pkm, u32 v) { *(u32*)(pkm->pk6 + 0x18) = v; }
 void Pokemon::nature(pkm_s* pkm, u8 v) { *(u8*)(pkm->pk6 + 0x1c) = v; }
 void Pokemon::fatefulEncounter(pkm_s* pkm, bool v) { *(u8*)(pkm->pk6 + 0x1d) = (Pokemon::fatefulEncounter(pkm) & ~0x01) | (v ? 1 : 0); }
 void Pokemon::gender(pkm_s* pkm, u8 v) { *(u8*)(pkm->pk6 + 0x1d) = (Pokemon::gender(pkm) & ~0x06) | ((v ? 1 : 0) << 1); }
-void Pokemon::form(pkm_s* pkm, u8 v) { *(u8*)(pkm->pk6 + 0x1d) = (Pokemon::form(pkm) & ~0x07) | ((v ? 1 : 0) << 3); }
+void Pokemon::formID(pkm_s* pkm, u8 v) { *(u8*)(pkm->pk6 + 0x1d) = (Pokemon::formID(pkm) & ~0x07) | ((v ? 1 : 0) << 3); }
 void Pokemon::EV_HP(pkm_s* pkm, u8 v) { *(u8*)(pkm->pk6 + 0x1e) = v; }
 void Pokemon::EV_ATK(pkm_s* pkm, u8 v) { *(u8*)(pkm->pk6 + 0x1f) = v; }
 void Pokemon::EV_DEF(pkm_s* pkm, u8 v) { *(u8*)(pkm->pk6 + 0x20) = v; }

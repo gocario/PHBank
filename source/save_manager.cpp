@@ -1,22 +1,19 @@
 #include "save_manager.hpp"
 
 #include "fs.h"
-#include "pkdir.h"
 #include "utils.h"
+#include "pkdir.h"
 
 #include "pokemon.hpp"
+#include "pokedex.hpp"
 #include "filter.hpp"
 
 #include <3ds.h>
-// #include <3ds/services/hid.h>
-// #include <3ds/util/utf.h>
-#include <string.h>
+#include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
-
+#include <string.h>
 #include <sys/dirent.h>
-
 
 // ------------------------------------
 SaveManager::SaveManager()
@@ -26,12 +23,12 @@ SaveManager::SaveManager()
 	offsetPCName = 0;
 	offsetPC = 0;
 	offsetBK = 0;
-	sizeSave = SaveConst::ORAS_size; // Which is greater than SaveConst::XY_size
+	sizeSave = SaveConst::ORAS_size;
+	// Which is greater than SaveConst::XY_size
 
 	version = Game::None;
 	loaded = false;
 }
-
 
 // ------------------------------------
 SaveManager::~SaveManager()
@@ -524,6 +521,7 @@ void SaveManager::loadPkmPk6(pkm_s* pkm)
 {
 	if (!pkm || !pkm->pk6) return;
 
+	pkm->moved = false;
 	pkm->isShiny = Pokemon::isShiny(pkm);
 	pkm->speciesID = Pokemon::speciesID(pkm);
 	pkm->itemID = Pokemon::itemID(pkm);
@@ -623,9 +621,13 @@ void SaveManager::savePkmPC(u16 boxId, u16 slotId)
 	// if (!loaded) return;
 
 	pkm_s* pkm = &savedata.pc.box[boxId].slot[slotId];
-	savePkmPk6(pkm); // For trainer convert
-	savePk6Ek6(pkm); // Pokemon stored as Ek6
-	// saveEk6PC(pkm); // Pokemon stored as Ek6
+
+	if (pkm->moved)
+	{
+		savePkmPk6(pkm); // For trainer convert
+		savePk6Ek6(pkm); // Pokemon stored as Ek6
+		// saveEk6PC(pkm); // Pokemon stored as Ek6
+	}
 }
 
 
@@ -636,9 +638,13 @@ void SaveManager::savePkmBK(u16 boxId, u16 slotId)
 	// if (!loaded) return;
 
 	pkm_s* pkm = &bankdata.bk.box[boxId].slot[slotId];
-	// savePkmPk6(pkm); // To cheat/modify
-	// savePk6Ek6(pkm); // Pokemon stored as Pk6
-	saveEk6BK(pkm); // Pokemon stored as Pk6
+
+	if (pkm->moved)
+	{
+		// savePkmPk6(pkm); // To cheat/modify
+		// savePk6Ek6(pkm); // Pokemon stored as Pk6
+		saveEk6BK(pkm); // Pokemon stored as Pk6
+	}
 }
 
 
