@@ -17,6 +17,8 @@
 #define SCREEN_WIDTH (320)
 #define SCREEN_HEIGHT (240)
 
+#define BOX_HEADER_WIDTH (220)
+#define BOX_HEADER_HEIGHT (32)
 #define BACKGROUND_WIDTH (220)
 #define BACKGROUND_HEIGHT (210)
 #define BACKGROUND_SHIFT (40)
@@ -663,7 +665,8 @@ void BoxViewer::drawBox(box_s* box, int16_t x, int16_t y)
 // --------------------------------------------------
 {
 	// Draw the box background
-	sf2d_draw_texture(PHBanku::texture->boxBackground, x, y);
+	sf2d_draw_texture_part(PHBanku::texture->boxBackgrounds, x, y, (box->background % 16) * BACKGROUND_WIDTH, (box->background % 16) * BACKGROUND_HEIGHT, BACKGROUND_WIDTH, BACKGROUND_HEIGHT);
+	sf2d_draw_texture_part(PHBanku::texture->boxBackgrounds, x, y, (box->background % 16) * BOX_HEADER_WIDTH, 840 + (box->background % 16) * BOX_HEADER_HEIGHT, BOX_HEADER_WIDTH, BOX_HEADER_HEIGHT);
 	
 
 	// Draw the SwapBox buttons

@@ -43,34 +43,26 @@ void load_textures(void* arg)
 TextureManager::TextureManager(void)
 {
 	ballLoadingScreen = NULL;
-	pkmSprites1 = NULL;
-	pkmSprites2 = NULL;
-	pkmShinySprites1 = NULL;
-	pkmShinySprites2 = NULL;
 	pkmIcons = NULL;
 	pkmShinyIcons = NULL;
 	itemIcons = NULL;
 	ballIcons = NULL;
 	types = NULL;
 	boxTiles = NULL;
-	boxBackground = NULL;
+	boxBackgrounds = NULL;
 	resumeBackground = NULL;
 }
 
 TextureManager::~TextureManager(void)
 {
 	sf2d_free_texture(ballLoadingScreen);
-	// sf2d_free_texture(pkmSprites1);
-	// sf2d_free_texture(pkmSprites2);
-	// sf2d_free_texture(pkmShinySprites1);
-	// sf2d_free_texture(pkmShinySprites2);
 	sf2d_free_texture(pkmIcons);
 	sf2d_free_texture(pkmShinyIcons);
 	sf2d_free_texture(itemIcons);
 	sf2d_free_texture(ballIcons);
 	sf2d_free_texture(types);
 	sf2d_free_texture(boxTiles);
-	sf2d_free_texture(boxBackground);
+	sf2d_free_texture(boxBackgrounds);
 	sf2d_free_texture(resumeBackground);
 }
 
@@ -105,20 +97,16 @@ Result TextureManager::load(void)
 
 bool TextureManager::loadTextures()
 {
-	// printf("Loading pkmSprites1: %p\n", (this->pkmSprites1 = sfil_load_PNG_file(ROMFS "pokemon_spritesheet_1.png", SF2D_PLACE_RAM)));
-	// printf("Loading pkmSprites2: %p\n", (this->pkmSprites2 = sfil_load_PNG_file(ROMFS "pokemon_spritesheet_2.png", SF2D_PLACE_RAM)));
-	// printf("Loading pkmShinySprites1: %p\n", (this->pkmShinySprites1 = sfil_load_PNG_file(ROMFS "pokemon_shiny_spritesheet_1.png", SF2D_PLACE_RAM)));
-	// printf("Loading pkmShinySprites2: %p\n", (this->pkmShinySprites2 = sfil_load_PNG_file(ROMFS "pokemon_shiny_spritesheet_2.png", SF2D_PLACE_RAM)));
 	printf("Loading pkmIcons: %p\n", (this->pkmIcons = sfil_load_PNG_file(ROMFS "pokemon_icons_spritesheet.png", SF2D_PLACE_RAM)));
 	printf("Loading pkmShinyIcons: %p\n", (this->pkmShinyIcons = sfil_load_PNG_file(ROMFS "pokemon_shiny_icons_spritesheet.png", SF2D_PLACE_RAM)));
 	printf("Loading itemIcons: %p\n", (this->itemIcons = sfil_load_PNG_file(ROMFS "item_icons_spritesheet.png", SF2D_PLACE_RAM)));
 	printf("Loading ballIcons: %p\n", (this->ballIcons = sfil_load_PNG_file(ROMFS "ball_icons_spritesheet.png", SF2D_PLACE_RAM)));
 	printf("Loading types: %p\n", (this->types = sfil_load_PNG_file(ROMFS "types_lang.png", SF2D_PLACE_RAM)));
 	printf("Loading boxTiles: %p\n", (this->boxTiles = sfil_load_PNG_file(ROMFS "box_tiles.png", SF2D_PLACE_RAM)));
-	printf("Loading boxBackground: %p\n", (this->boxBackground = sfil_load_PNG_file(ROMFS "box_wp23o.png", SF2D_PLACE_RAM)));
+	printf("Loading boxBackgrounds: %p\n", (this->boxBackgrounds = sfil_load_PNG_file(ROMFS "box_backgrounds.png", SF2D_PLACE_RAM)));
 	printf("Loading resumeBackground: %p\n", (this->resumeBackground = sfil_load_PNG_file(ROMFS "resume_background.png", SF2D_PLACE_RAM)));
 
-	return (/*pkmSprites1 && pkmSprites2 && pkmShinySprites1 && pkmShinySprites2 &&*/ pkmIcons && pkmShinyIcons && itemIcons && ballIcons && resumeBackground && types && boxTiles && boxBackground);
+	return (pkmIcons && pkmShinyIcons && itemIcons && ballIcons && types && boxTiles && boxBackgrounds && resumeBackground);
 }
 
 void TextureManager::drawLoadingPokeball(int x, int y)

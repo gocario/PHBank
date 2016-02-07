@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
 	// consoleInit(GFX_TOP, NULL);
 	// consoleInit(GFX_BOTTOM, NULL);
 
-	// TODO Add a loading screen here!
+	// TODO Export the loading screen here?
 
 	// Initialize managers instance
 

@@ -36,7 +36,7 @@
 
 #define SAVEDATA_XY_SIZE 0x65600 // 0x34ad0 (PC size)
 #define SAVEDATA_ORAS_SIZE 0x76000 // 0x34ad0 (PC size)
-#define BANKDATA_PKBK_SIZE 0xaa000 // 0xa9ec0 (Bank size)
+#define BANKDATA_PKBK_SIZE 0xaa100 // 0xa9ec0 (Bank size)
 
 
 #define EK6_SIZE PKM_SIZE
@@ -68,9 +68,11 @@ struct pkm_s
 	bool isShiny : 1;
 	
 	u16 speciesID;
-	u8* species;
 	u16 itemID;
+
+	u8* species;
 	u8* item;
+	
 	// T O D O !!
 
 	pkm_s() : moved {false}, modified {false} {}
@@ -79,6 +81,7 @@ struct pkm_s
 struct box_s
 {
 	pkm_s slot[BOX_PKM_COUNT];
+	u8 background;
 };
 
 struct pc_s

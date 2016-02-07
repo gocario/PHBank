@@ -192,6 +192,8 @@ Result SaveManager::backupFile()
 Result SaveManager::loadSaveFile()
 // ----------------------------------------------
 {
+	memset(savebuffer, 0, sizeof(savebuffer_t));
+
 	Result ret;
 	u32 bytesRead = 0;
 	u32 size = sizeSave;
@@ -217,6 +219,8 @@ Result SaveManager::loadSaveFile()
 Result SaveManager::loadBankFile()
 // ----------------------------------------------
 {
+	memset(bankbuffer, 0, sizeof(bankbuffer_t));
+	
 	Result ret;
 	u32 bytesRead = 0;
 	u32 size = SaveConst::BANK_size;
@@ -395,6 +399,10 @@ Result SaveManager::loadSaveData()
 		{
 			loadPkmPC(iB, iP);
 		}
+
+		savedata.pc.box[iB].background = 0;
+		// savedata.pc.box[iB].background = *(savebuffer + 0x??? + 0x1 * iB);
+		// TODO: Load the backgrounds of the save
 	}
 	printf(" OK\n");
 
@@ -440,6 +448,8 @@ Result SaveManager::loadBankData()
 		{
 			loadPkmBK(iB, iP);
 		}
+
+		bankdata.bk.box[iB].background = *(bankbuffer + 0xAA000 + 0x1 * iB);
 	}
 	printf(" OK\n");
 
