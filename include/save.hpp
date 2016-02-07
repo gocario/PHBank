@@ -131,7 +131,7 @@ struct savedata_s
 	u16 SID; // 0x2
 	u16 TSV;
 	u8 OTGender; // 0x05
-	u8 OTName[0x1a / 2]; // 0x48
+	char OTName[0x1a]; // 0x48
 	u8 GEORegion; // 0x26
 	u8 GEOCountry; // 0x27
 };
@@ -183,7 +183,7 @@ namespace SaveConst
 	const saveConst_t ORAS_offsetPCName = 0x4400;
 	const saveConst_t ORAS_offsetPC = 0x33000;
 
-	const saveConst_t BANK_size = 0xaa000;
+	const saveConst_t BANK_size = 0xaa100;
 	const saveConst_t BANK_offsetBK = 0x100;
 }
 

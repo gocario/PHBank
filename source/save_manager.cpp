@@ -417,7 +417,7 @@ Result SaveManager::loadSaveData()
 		savedata.SID = *(u16*) (savebuffer + offsetTrainerCard + 0x02);
 		savedata.TSV = computeTSV(savedata.TID, savedata.SID);
 		savedata.OTGender = *(u8*) (savebuffer + offsetTrainerCard + 0x05);
-		unicodeToChar((char*) savedata.OTName, (u16*) savebuffer + offsetTrainerCard + 0x48, 0x1a);
+		unicodeToChar(savedata.OTName, (u16*) (savebuffer + offsetTrainerCard + 0x48), 0x1a);
 		printf(" OK\n");
 	}
 
