@@ -156,7 +156,7 @@ namespace Game
 {
 	enum gameVersion_e
 	{
-		None = 0x0,
+		None = 0,
 		X = 1 << 0,
 		Y = 1 << 1,
 		XY = X | Y,
