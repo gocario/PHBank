@@ -185,61 +185,85 @@ namespace Pokedex
 
 	void importToXY(savebuffer_t sav, pkm_s* pkm)
 	{
+		bool isMale = Pokemon::gender(pkm) == 1; // TODO: Verify!!
 		bool isShiny = Pokemon::isShiny(pkm);
+		u16 speciesID = Pokemon::speciesID(pkm);
 		u8 formID = Pokemon::formID(pkm);
+		u8 lang = Pokemon::language(pkm);
+
+		bool isDisplayed = false;
+
+		isDisplayed |= getOffsetBit(sav, SaveConst::XY_offsetDex /* + MALE_DISPLAY_OFFSET */, speciesID);
+		isDisplayed |= getOffsetBit(sav, SaveConst::XY_offsetDex /* + FEMALE_DISPLAY_OFFSET */, speciesID);
+		isDisplayed |= getOffsetBit(sav, SaveConst::XY_offsetDex /* + MALE_SHINY_DISPLAY_OFFSET */, speciesID);
+		isDisplayed |= getOffsetBit(sav, SaveConst::XY_offsetDex /* + FEMALE_SHINY_DISPLAY_OFFSET */, speciesID);
 
 		// Formdex
 		if (formID > 0)
 		{
-			s32 formdexOffset = getFormDexOffsetXY(pkm);
+			s32 formdexBit = getFormDexOffsetXY(pkm);
 
-			if (formdexOffset >= 0)
+			if (formdexBit >= 0)
 			{
-				formdexOffset += SaveConst::XY_offsetDex + (isShiny ? 0x380 : 0x368);
+				formdexBit += formID;
 
-				if (isShiny)
-				{
-					setOffsetBit(sav, formdexOffset, formID, true);
-				}
-				else
-				{
-					setOffsetBit(sav, formdexOffset, formID, true);
-				}
+				isDisplayed |= getOffsetBit(sav, SaveConst::XY_offsetDex /* + FORM_DISPLAY_OFFSET */, formdexBit);
+				isDisplayed |= getOffsetBit(sav, SaveConst::XY_offsetDex /* + FORM_SHINY_DISPLAY_OFFSET */, formdexBit);
 
-				// TODO: Displayed form flag
+				if (isShiny) setOffsetBit(sav, SaveConst::XY_offsetDex /* + FORM_SHINY_SEEN_OFFSET */, formdexBit, true);
+				else setOffsetBit(sav, SaveConst::XY_offsetDex /* + FORM_SEEN_OFFSET */, formdexBit, true);
+
+				if (!isDisplayed)
+				{
+					if (isShiny) setOffsetBit(sav, SaveConst::XY_offsetDex /* + FORM_SHINY_DISPLAYED_OFFSET */, formdexBit, true);
+					else setOffsetBit(sav, SaveConst::XY_offsetDex /* + FORM_DISPLAYED_OFFSET */, formdexBit, true);
+					isDisplayed = true;
+				}
 			}
 		}
 
-		// TODO: Owned flag/Encountered flag/Displayed flag
+		// Owned
+		setOffsetBit(sav, SaveConst::XY_offsetDex /* + OWNED_OFFSET */, speciesID, true);
+
+		// Seen
+		if (isMale)
+		{
+			if (isShiny) setOffsetBit(sav, SaveConst::XY_offsetDex /* + MALE_SHINY_SEEN_OFFSET */, speciesID, true);
+			else setOffsetBit(sav, SaveConst::XY_offsetDex /* + MALE_SEEN_OFFSET */, speciesID, true);
+		}
+		else
+		{
+			if (isShiny) setOffsetBit(sav, SaveConst::XY_offsetDex /* + FEMALE_SHINY_SEEN_OFFSET */, speciesID, true);
+			else setOffsetBit(sav, SaveConst::XY_offsetDex /* + FEMALE_SEEN_OFFSET */, speciesID, true);
+		}
+
+		// Displayed
+		if (!isDisplayed)
+		{
+			if (isMale)
+			{
+				if (isShiny) setOffsetBit(sav, SaveConst::XY_offsetDex /* + MALE_SHINY_DISPLAYED_OFFSET */, speciesID, true);
+				else setOffsetBit(sav, SaveConst::XY_offsetDex /* + MALE_DISPLAYED_OFFSET */, speciesID, true);
+			}
+			else
+			{
+				if (isShiny) setOffsetBit(sav, SaveConst::XY_offsetDex /* + FEMALE_DISPLAYED_OFFSET */, speciesID, true);
+				else setOffsetBit(sav, SaveConst::XY_offsetDex /* + FEMALE_DISPLAYED_OFFSET */, speciesID, true);
+			}
+			isDisplayed = true;
+		}
+
+		// Lang
+		if (lang >= 0 && lang < 7)
+		{
+			setOffsetBit(sav, SaveConst::XY_offsetDex /* + LANG_OFFSET */, speciesID + lang, true);
+		}
 	}
 
 	void importToORAS(savebuffer_t sav, pkm_s* pkm)
 	{
-		bool isShiny = Pokemon::isShiny(pkm);
-		u8 formID = Pokemon::formID(pkm);
+		// TODO: Form flag/Owned flag/Encountered flag/Displayed flag
 
-		// Formdex
-		if (formID > 0)
-		{
-			s32 formdexOffset = getFormDexOffsetORAS(pkm);
-
-			if (formdexOffset >= 0)
-			{
-				formdexOffset += SaveConst::XY_offsetDex + (isShiny ? 0x38E : 0x368);
-
-				if (isShiny)
-				{
-					setOffsetBit(sav, formdexOffset, formID, true);
-				}
-				else
-				{
-					setOffsetBit(sav, formdexOffset, formID, true);
-				}
-
-				// TODO: Displayed form flag
-			}
-		}
-
-		// TODO: Owned flag/Encountered flag/Displayed flag
+		// getOffsetBit(sav, SaveConst::XY_offsetDex /* + OWNED_OFFSET */, speciesID);
 	}
 }
