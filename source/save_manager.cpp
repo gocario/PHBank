@@ -525,6 +525,7 @@ void SaveManager::loadPkmPk6(pkm_s* pkm)
 	pkm->isShiny = Pokemon::isShiny(pkm);
 	pkm->speciesID = Pokemon::speciesID(pkm);
 	pkm->itemID = Pokemon::itemID(pkm);
+	pkm->formID = Pokemon::formID(pkm);
 
 	//pkm->species = PKData::species(pkm->speciesID);
 	//pkm->item = PKData::items(pkm->itemID);

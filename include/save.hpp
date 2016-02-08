@@ -61,21 +61,24 @@ typedef u8 pk6_t;
 
 struct pkm_s
 {
-	ek6_t* ek6 = NULL; // Pointer to MainBuffer
-	pk6_t* pk6 = NULL; // Pointer to OwnBuffer
-	bool moved : 1;
-	bool modified : 1;
-	bool isShiny : 1;
+	ek6_t* ek6 = NULL;	///< Pointer to MainBuffer. (don't free)
+	pk6_t* pk6 = NULL;	///< Pointer to OwnBuffer. (do free)
+	bool moved : 1;		///< If the Pokémon has moved.
+	bool modified : 1;	///< If the Pokémon is modified.
+	bool isShiny : 1;	///< If the Pokémon is shiny.
+	unsigned: 5;
 	
-	u16 speciesID;
-	u16 itemID;
+	u16 speciesID;		///< The species of the Pokémon.
+	u16 itemID;			///< The held item of the Pokémon.
+	u8 formID;			///< The form of the Pokémon.
+	u8 gender;			///< The gender of the Pokémon.
 
-	u8* species;
-	u8* item;
+	u8* species;		///< The name of the species.
+	u8* item;			///< The name of the held item.
 	
-	// T O D O !!
+	// TODO: Add recurrent attributes!
 
-	pkm_s() : moved {false}, modified {false} {}
+	pkm_s() : moved(false), modified(false) {}
 };
 
 struct box_s
