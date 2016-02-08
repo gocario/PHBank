@@ -166,8 +166,29 @@ bool Pokemon::isCured(pkm_s* pkm)
 
 bool Pokemon::isKalosBorn(pkm_s* pkm)
 {
-	return version(pkm) >= 24;
+	return isGen6Born(pkm);
 }
+
+bool Pokemon::isGen6Born(pkm_s* pkm)
+{
+	return version(pkm) >= 24 && version(pkm) <= 29;
+}
+
+bool Pokemon::isGen5Born(pkm_s* pkm)
+{
+	return version(pkm) >= 20 && version(pkm) <= 23;
+}
+
+bool Pokemon::isGen4Born(pkm_s* pkm)
+{
+	return (version(pkm) >= 10 && version(pkm) <= 12) || (version(pkm) >= 7 && version(pkm) <= 8);
+}
+
+bool Pokemon::isGen3Born(pkm_s* pkm)
+{
+	return (version(pkm) >= 1 && version(pkm) <= 5) || version(pkm) == 15;
+}
+
 
 u8 Pokemon::level(pkm_s* pkm)
 {

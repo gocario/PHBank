@@ -32,6 +32,7 @@ struct vPkm_s {
 	u16 ivs[6];
 	u16 evs[6];
 	u8 ball;
+	u8 gen;
 };
 
 struct BoxSlot_s {

@@ -260,14 +260,26 @@ Result BoxViewer::drawTopScreen()
 			sf2d_draw_texture_part(PHBanku::texture->boxTiles, 240, 135, 57, 73, 9, 9);
 		}
 
-		if (vPkm.isKalosBorn)
-		{
-			sf2d_draw_texture_part(PHBanku::texture->boxTiles, 250, 135, 66, 73, 9, 9);
-		}
-
 		if (vPkm.isCured)
 		{
 			sf2d_draw_texture_part(PHBanku::texture->boxTiles, 260, 135, 75, 73, 9, 9);
+		}
+		else if (vPkm.isInfected)
+		{
+			sf2d_draw_texture_part(PHBanku::texture->boxTiles, 260, 135, 93, 64, 27, 9);
+		}
+
+		if (vPkm.gen > 0)
+		{
+			if (vPkm.gen == 6) // Kalos Born
+				sf2d_draw_texture_part(PHBanku::texture->boxTiles, 250, 135, 66, 73, 9, 9);
+			else if (vPkm.gen == 5) // Gen V
+				sf2d_draw_texture_part(PHBanku::texture->boxTiles, 250, 135, 84, 73, 9, 9);
+			else if (vPkm.gen == 4) // Gen IV
+				sf2d_draw_texture_part(PHBanku::texture->boxTiles, 250, 135, 93, 73, 9, 9);
+			else if (vPkm.gen == 3) // Gen III
+				sf2d_draw_texture_part(PHBanku::texture->boxTiles, 250, 135, 102, 73, 9, 9);
+
 		}
 
 	}
@@ -961,4 +973,15 @@ void BoxViewer::populateVPkmData(vPkm_s* vPkm)
 	vPkm->evs[Stat::SPE] = Pokemon::EV_SPE(vPkm->pkm);
 
 	vPkm->ball = Pokemon::ball(vPkm->pkm) - 1;
+
+	if (Pokemon::isGen6Born(vPkm->pkm))
+		vPkm->gen = 6;
+	else if (Pokemon::isGen5Born(vPkm->pkm))
+		vPkm->gen = 5;
+	else if (Pokemon::isGen4Born(vPkm->pkm))
+		vPkm->gen = 4;
+	else if (Pokemon::isGen3Born(vPkm->pkm))
+		vPkm->gen = 3;
+	else
+		vPkm->gen = 0;
 }
