@@ -185,18 +185,19 @@ namespace Pokedex
 
 	void importToXY(savebuffer_t sav, pkm_s* pkm)
 	{
-		bool isMale = Pokemon::gender(pkm) == 1; // TODO: Verify!!
 		bool isShiny = Pokemon::isShiny(pkm);
+		bool isFemale = Pokemon::gender(pkm) == 1;
+		bool isKalosBorn = Pokemon::isKalosBorn(pkm);
 		u16 speciesID = Pokemon::speciesID(pkm);
 		u8 formID = Pokemon::formID(pkm);
 		u8 lang = Pokemon::language(pkm);
 
 		bool isDisplayed = false;
 
-		isDisplayed |= getOffsetBit(sav, SaveConst::XY_offsetDex /* + MALE_DISPLAY_OFFSET */, speciesID);
-		isDisplayed |= getOffsetBit(sav, SaveConst::XY_offsetDex /* + FEMALE_DISPLAY_OFFSET */, speciesID);
-		isDisplayed |= getOffsetBit(sav, SaveConst::XY_offsetDex /* + MALE_SHINY_DISPLAY_OFFSET */, speciesID);
-		isDisplayed |= getOffsetBit(sav, SaveConst::XY_offsetDex /* + FEMALE_SHINY_DISPLAY_OFFSET */, speciesID);
+		isDisplayed |= getOffsetBit(sav, SaveConst::XY_offsetDex + 0x1E8 /* MALE_DISPLAY_OFFSET */, speciesID);
+		isDisplayed |= getOffsetBit(sav, SaveConst::XY_offsetDex + 0x248 /* FEMALE_DISPLAY_OFFSET */, speciesID);
+		isDisplayed |= getOffsetBit(sav, SaveConst::XY_offsetDex + 0x2A8 /* MALE_SHINY_DISPLAY_OFFSET */, speciesID);
+		isDisplayed |= getOffsetBit(sav, SaveConst::XY_offsetDex + 0x308 /* FEMALE_SHINY_DISPLAY_OFFSET */, speciesID);
 
 		// Formdex
 		if (formID > 0)
@@ -207,48 +208,48 @@ namespace Pokedex
 			{
 				formdexBit += formID;
 
-				isDisplayed |= getOffsetBit(sav, SaveConst::XY_offsetDex /* + FORM_DISPLAY_OFFSET */, formdexBit);
-				isDisplayed |= getOffsetBit(sav, SaveConst::XY_offsetDex /* + FORM_SHINY_DISPLAY_OFFSET */, formdexBit);
+				isDisplayed |= getOffsetBit(sav, SaveConst::XY_offsetDex + 0x398 /* FORM_DISPLAY_OFFSET */, formdexBit);
+				isDisplayed |= getOffsetBit(sav, SaveConst::XY_offsetDex + 0x3B0/* FORM_SHINY_DISPLAY_OFFSET */, formdexBit);
 
-				if (isShiny) setOffsetBit(sav, SaveConst::XY_offsetDex /* + FORM_SHINY_SEEN_OFFSET */, formdexBit, true);
-				else setOffsetBit(sav, SaveConst::XY_offsetDex /* + FORM_SEEN_OFFSET */, formdexBit, true);
+				if (isShiny) setOffsetBit(sav, SaveConst::XY_offsetDex + 0x380 /* FORM_SHINY_SEEN_OFFSET */, formdexBit, true);
+				else setOffsetBit(sav, SaveConst::XY_offsetDex + 0x368 /* FORM_SEEN_OFFSET */, formdexBit, true);
 
 				if (!isDisplayed)
 				{
-					if (isShiny) setOffsetBit(sav, SaveConst::XY_offsetDex /* + FORM_SHINY_DISPLAYED_OFFSET */, formdexBit, true);
-					else setOffsetBit(sav, SaveConst::XY_offsetDex /* + FORM_DISPLAYED_OFFSET */, formdexBit, true);
+					if (isShiny) setOffsetBit(sav, SaveConst::XY_offsetDex + 0x3B0 /* FORM_SHINY_DISPLAYED_OFFSET */, formdexBit, true);
+					else setOffsetBit(sav, SaveConst::XY_offsetDex + 0x398 /* FORM_DISPLAYED_OFFSET */, formdexBit, true);
 					isDisplayed = true;
 				}
 			}
 		}
 
 		// Owned
-		setOffsetBit(sav, SaveConst::XY_offsetDex /* + OWNED_OFFSET */, speciesID, true);
+		setOffsetBit(sav, SaveConst::XY_offsetDex + 0x008 /* OWNED_OFFSET */, speciesID, true);
 
 		// Seen
-		if (isMale)
+		if (!isFemale) // Male or Genderless
 		{
-			if (isShiny) setOffsetBit(sav, SaveConst::XY_offsetDex /* + MALE_SHINY_SEEN_OFFSET */, speciesID, true);
-			else setOffsetBit(sav, SaveConst::XY_offsetDex /* + MALE_SEEN_OFFSET */, speciesID, true);
+			if (isShiny) setOffsetBit(sav, SaveConst::XY_offsetDex + 0x128 /* MALE_SHINY_SEEN_OFFSET */, speciesID, true);
+			else setOffsetBit(sav, SaveConst::XY_offsetDex + 0x068 /* MALE_SEEN_OFFSET */, speciesID, true);
 		}
-		else
+		else // Female
 		{
-			if (isShiny) setOffsetBit(sav, SaveConst::XY_offsetDex /* + FEMALE_SHINY_SEEN_OFFSET */, speciesID, true);
-			else setOffsetBit(sav, SaveConst::XY_offsetDex /* + FEMALE_SEEN_OFFSET */, speciesID, true);
+			if (isShiny) setOffsetBit(sav, SaveConst::XY_offsetDex + 0x188 /* FEMALE_SHINY_SEEN_OFFSET */, speciesID, true);
+			else setOffsetBit(sav, SaveConst::XY_offsetDex + 0x0C8 /* FEMALE_SEEN_OFFSET */, speciesID, true);
 		}
 
 		// Displayed
 		if (!isDisplayed)
 		{
-			if (isMale)
+			if (!isFemale) // Male or Genderless
 			{
-				if (isShiny) setOffsetBit(sav, SaveConst::XY_offsetDex /* + MALE_SHINY_DISPLAYED_OFFSET */, speciesID, true);
-				else setOffsetBit(sav, SaveConst::XY_offsetDex /* + MALE_DISPLAYED_OFFSET */, speciesID, true);
+				if (isShiny) setOffsetBit(sav, SaveConst::XY_offsetDex + 0x2A8 /* MALE_SHINY_DISPLAYED_OFFSET */, speciesID, true);
+				else setOffsetBit(sav, SaveConst::XY_offsetDex + 0x1E8 /* MALE_DISPLAYED_OFFSET */, speciesID, true);
 			}
-			else
+			else // Female
 			{
-				if (isShiny) setOffsetBit(sav, SaveConst::XY_offsetDex /* + FEMALE_DISPLAYED_OFFSET */, speciesID, true);
-				else setOffsetBit(sav, SaveConst::XY_offsetDex /* + FEMALE_DISPLAYED_OFFSET */, speciesID, true);
+				if (isShiny) setOffsetBit(sav, SaveConst::XY_offsetDex + 0x308 /* FEMALE_SHINY_DISPLAYED_OFFSET */, speciesID, true);
+				else setOffsetBit(sav, SaveConst::XY_offsetDex + 0x248 /* FEMALE_DISPLAYED_OFFSET */, speciesID, true);
 			}
 			isDisplayed = true;
 		}
@@ -256,14 +257,94 @@ namespace Pokedex
 		// Lang
 		if (lang >= 0 && lang < 7)
 		{
-			setOffsetBit(sav, SaveConst::XY_offsetDex /* + LANG_OFFSET */, speciesID + lang, true);
+			setOffsetBit(sav, SaveConst::XY_offsetDex + 0x3C8 /* LANG_OFFSET */, speciesID + lang, true);
+		}
+
+		// ForeignDex
+		if (speciesID < 650 && !isKalosBorn)
+		{
+			setOffsetBit(sav, SaveConst::XY_offsetDex + 0x64C /* FOREIGN_OFFSET */, speciesID, true);
 		}
 	}
 
 	void importToORAS(savebuffer_t sav, pkm_s* pkm)
 	{
-		// TODO: Form flag/Owned flag/Encountered flag/Displayed flag
+		bool isShiny = Pokemon::isShiny(pkm);
+		bool isFemale = Pokemon::gender(pkm) == 1;
+		u16 speciesID = Pokemon::speciesID(pkm);
+		u8 formID = Pokemon::formID(pkm);
+		u8 lang = Pokemon::language(pkm);
 
-		// getOffsetBit(sav, SaveConst::XY_offsetDex /* + OWNED_OFFSET */, speciesID);
+		bool isDisplayed = false;
+
+		isDisplayed |= getOffsetBit(sav, SaveConst::ORAS_offsetDex + 0x1E8 /* MALE_DISPLAY_OFFSET */, speciesID);
+		isDisplayed |= getOffsetBit(sav, SaveConst::ORAS_offsetDex + 0x248 /* FEMALE_DISPLAY_OFFSET */, speciesID);
+		isDisplayed |= getOffsetBit(sav, SaveConst::ORAS_offsetDex + 0x2A8 /* MALE_SHINY_DISPLAY_OFFSET */, speciesID);
+		isDisplayed |= getOffsetBit(sav, SaveConst::ORAS_offsetDex + 0x308 /* FEMALE_SHINY_DISPLAY_OFFSET */, speciesID);
+
+		// Formdex
+		if (formID > 0)
+		{
+			s32 formdexBit = getFormDexOffsetORAS(pkm);
+
+			if (formdexBit >= 0)
+			{
+				formdexBit += formID;
+
+				isDisplayed |= getOffsetBit(sav, SaveConst::ORAS_offsetDex + 0x3B4 /* FORM_DISPLAY_OFFSET */, formdexBit);
+				isDisplayed |= getOffsetBit(sav, SaveConst::ORAS_offsetDex + 0x3DA /* FORM_SHINY_DISPLAY_OFFSET */, formdexBit);
+
+				if (isShiny) setOffsetBit(sav, SaveConst::ORAS_offsetDex + 0x38E /* FORM_SHINY_SEEN_OFFSET */, formdexBit, true);
+				else setOffsetBit(sav, SaveConst::ORAS_offsetDex + 0x368 /* FORM_SEEN_OFFSET */, formdexBit, true);
+
+				if (!isDisplayed)
+				{
+					if (isShiny) setOffsetBit(sav, SaveConst::ORAS_offsetDex + 0x3DA/* FORM_SHINY_DISPLAYED_OFFSET */, formdexBit, true);
+					else setOffsetBit(sav, SaveConst::ORAS_offsetDex + 0x3B4 /* FORM_DISPLAYED_OFFSET */, formdexBit, true);
+					isDisplayed = true;
+				}
+			}
+		}
+
+		// Owned
+		setOffsetBit(sav, SaveConst::ORAS_offsetDex + 0x008 /* OWNED_OFFSET */, speciesID, true);
+
+		// Seen
+		if (!isFemale) // Male or Genderless
+		{
+			if (isShiny) setOffsetBit(sav, SaveConst::ORAS_offsetDex + 0x128 /* MALE_SHINY_SEEN_OFFSET */, speciesID, true);
+			else setOffsetBit(sav, SaveConst::ORAS_offsetDex + 0x068 /* MALE_SEEN_OFFSET */, speciesID, true);
+		}
+		else // Female
+		{
+			if (isShiny) setOffsetBit(sav, SaveConst::ORAS_offsetDex + 0x188 /* FEMALE_SHINY_SEEN_OFFSET */, speciesID, true);
+			else setOffsetBit(sav, SaveConst::ORAS_offsetDex + 0x0C8 /* FEMALE_SEEN_OFFSET */, speciesID, true);
+		}
+
+		// Displayed
+		if (!isDisplayed)
+		{
+			if (!isFemale) // Male or Genderless
+			{
+				if (isShiny) setOffsetBit(sav, SaveConst::ORAS_offsetDex + 0x2A8 /* MALE_SHINY_DISPLAYED_OFFSET */, speciesID, true);
+				else setOffsetBit(sav, SaveConst::ORAS_offsetDex + 0x1E8 /* MALE_DISPLAYED_OFFSET */, speciesID, true);
+			}
+			else // Female
+			{
+				if (isShiny) setOffsetBit(sav, SaveConst::ORAS_offsetDex + 0x308 /* FEMALE_SHNY_DISPLAYED_OFFSET */, speciesID, true);
+				else setOffsetBit(sav, SaveConst::ORAS_offsetDex + 0x248 /* FEMALE_DISPLAYED_OFFSET */, speciesID, true);
+			}
+			isDisplayed = true;
+		}
+
+		// Lang
+		if (lang >= 0 && lang < 7)
+		{
+			setOffsetBit(sav, SaveConst::ORAS_offsetDex + 0x400 /* LANG_OFFSET */, speciesID + lang, true);
+		}
+
+		// DexNav
+		u16* dexNav = ((u16*)(sav + SaveConst::ORAS_offsetDex + 0x686 /* DEXNAV_OFFSET */)) + speciesID * 2;
+		if (*dexNav == 0) *dexNav = 1;
 	}
 }
