@@ -827,7 +827,12 @@ bool SaveManager::movePkm(pkm_s* src, pkm_s* dst, bool srcBanked, bool dstBanked
 	if (!isPkmEmpty(dst) && !filterPkm(dst, srcBanked, dstBanked))
 		return false;
 
-	return movePkm(src, dst);
+	movePkm(src, dst);
+
+	src->moved = dstBanked;
+	dst->moved = srcBanked;
+
+	return true;
 }
 
 // ------------------------------------
@@ -851,7 +856,11 @@ bool SaveManager::pastePkm(pkm_s* src, pkm_s* dst, bool srcBanked, bool dstBanke
 	if (!isPkmEmpty(src) && !filterPkm(src, dstBanked, srcBanked))
 		return false;
 
-	return pastePkm(src, dst);
+	pastePkm(src, dst);
+
+	dst->moved = srcBanked;
+
+	return true;
 }
 
 
