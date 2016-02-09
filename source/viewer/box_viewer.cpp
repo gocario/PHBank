@@ -58,7 +58,7 @@ void computeSlot(CursorBox_s* cursorBox)
 void computeBoxSlot(BoxSlot_s* boxSlot, CursorBox_s* cursorBox)
 // --------------------------------------------------
 {
-	// extractBoxSlot shall already called before
+	// extractBoxSlot shall already be called before.
 
 	boxSlot->rowCount = cursorBox->row - boxSlot->row;
 	boxSlot->colCount = cursorBox->col - boxSlot->col;
@@ -279,9 +279,7 @@ Result BoxViewer::drawTopScreen()
 				sf2d_draw_texture_part(PHBanku::texture->boxTiles, 250, 135, 93, 73, 9, 9);
 			else if (vPkm.gen == 3) // Gen III
 				sf2d_draw_texture_part(PHBanku::texture->boxTiles, 250, 135, 102, 73, 9, 9);
-
 		}
-
 	}
 
 	if (hasOverlayChild()) { this->child->drawTopScreen(); }
@@ -514,8 +512,11 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 
 			// TODO: Feature to Move Pokémon (multiple-grab and multiple-drop)
 			// selectMultiMovePokemon();
-
 		}
+		// else if (kUp & KEY_A)
+		// {
+		// 	selectMultiMovePokemon();
+		// }
 
 		if (kDown & KEY_Y)
 		{
@@ -685,18 +686,23 @@ void BoxViewer::drawBox(box_s* box, int16_t x, int16_t y)
 	sf2d_draw_texture_part(PHBanku::texture->boxTiles, x + 10 + 0, y, 0, 64, 16, 24);
 	sf2d_draw_texture_part(PHBanku::texture->boxTiles, x + BACKGROUND_WIDTH - 24, y, 16, 64, 16, 24);
 
-	// TODO Merge that! v
+	// if (isPkmMSelecting || isPkmMDragged)
+	// {
+	// 	sf2d_draw_rectangle(x + sSlot.col * 35, y + 30 + sSlot.row * 35, sSlot.colCount * 35, sSlot.colCount * 35, RGBA8(0x44, 0xCC, 0x66, 0xAA));
+	// }
+
+	// TODO DRY Merge that! v
 
 	// If there is a Pokémon currently selected
 	if (sPkm)
 	{
 		// Draw Pokémon icons
-		for (uint8_t i = 0; i < 30; i++)
+		for (u8 i = 0; i < 30; i++)
 		{
 			// If the Pokémon isn't the selected Pokémon
 			if (sPkm != &(box->slot[i]))
 			{
-				drawPokemon(&(box->slot[i]), x + (i % BOX_COL_PKM_COUNT) * 35, (i / BOX_COL_PKM_COUNT) * 35 + y + 30);
+				drawPokemon(&(box->slot[i]), x + (i % BOX_COL_PKM_COUNT) * 35, y + 30 + (i / BOX_COL_PKM_COUNT) * 35);
 			}
 		}
 	}
@@ -704,13 +710,13 @@ void BoxViewer::drawBox(box_s* box, int16_t x, int16_t y)
 	else
 	{
 		// Draw Pokémon icons
-		for (uint8_t i = 0; i < 30; i++)
+		for (u8 i = 0; i < 30; i++)
 		{
-			drawPokemon(&(box->slot[i]), x + (i % BOX_COL_PKM_COUNT) * 35, (i / BOX_COL_PKM_COUNT) * 35 + y + 30);
+			drawPokemon(&(box->slot[i]), x + (i % BOX_COL_PKM_COUNT) * 35, y + 30 + (i / BOX_COL_PKM_COUNT) * 35);
 		}
 	}
 	
-	// TODO Merge that! ^
+	// TODO DRY Merge that! ^
 }
 
 

@@ -8,7 +8,8 @@
 #include "viewer.hpp"
 #include "save.hpp"
 
-struct vPkm_s {
+struct vPkm_s
+{
 	pkm_s* pkm = NULL;
 	bool emptySlot : 1;
 	bool isShiny : 1;
@@ -35,26 +36,28 @@ struct vPkm_s {
 	u8 gen;
 };
 
-struct BoxSlot_s {
+struct BoxSlot_s
+{
 	bool inBank = false;
-	int16_t slot = 0;
-	int16_t inslot = 0;
-	int16_t box = 0;
-	int16_t row = 0;
-	int16_t col = 0;
-	int16_t rowCount = 0;
-	int16_t colCount = 0;
+	s16 slot = 0;
+	s16 inslot = 0;
+	s16 box = 0;
+	s16 row = 0;
+	s16 col = 0;
+	s16 rowCount = 0;
+	s16 colCount = 0;
 };
 
-struct CursorBox_s {
+struct CursorBox_s
+{
 	bool inBank = false;
-	int16_t slot = 0;
-	int16_t inslot = 0;
-	int16_t boxPC = 0;
-	int16_t boxBK = 0;
-	int16_t* box = NULL;
-	int16_t row = 0;
-	int16_t col = 0;
+	s16 slot = 0;
+	s16 inslot = 0;
+	s16 boxPC = 0;
+	s16 boxBK = 0;
+	s16* box = NULL;
+	s16 row = 0;
+	s16 col = 0;
 };
 
 enum class CursorType : u8
