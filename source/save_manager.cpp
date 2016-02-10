@@ -3,6 +3,7 @@
 #include "fs.h"
 #include "utils.h"
 #include "pkdir.h"
+#include "version.h"
 
 #include "pokemon.hpp"
 #include "pokedex.hpp"

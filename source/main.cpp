@@ -7,6 +7,7 @@
 
 #include "fs.h"
 #include "key.h"
+#include "version.h"
 #include "phbank.hpp"
 #include "box_viewer.hpp"
 
@@ -33,9 +34,15 @@ extern "C"
 	}
 }
 
+extern PrintConsole currentCopy;
+extern PrintConsole* currentConsole;
+
 PrintConsole* consoleExit(gfxScreen_t screen, PrintConsole* console)
 {
 	// TODO Future implementation!
+	currentConsole = &currentCopy;
+	gfxSetScreenFormat(screen, GSP_BGR8_OES);
+	gfxSetDoubleBuffering(screen, true);
 	gspWaitForVBlank();
 	return console;
 }
@@ -127,7 +134,9 @@ int main(int argc, char* argv[])
 		// TODO Remove when better error display!
 		consoleInit(GFX_TOP, NULL);
 		
-		printf("\nProblem happened: %li\nCan't start the viewer.\n", error);
+		printf("\nProblem happened: %li\n", error);
+		printf("PHBank version: %x\n", VERSION);
+		printf("Can't start the viewer.\n");
 		printf("Press any key to exit\n");
 		waitKey(KEY_ANY);
 	}
