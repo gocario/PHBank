@@ -168,18 +168,23 @@ namespace SaveConst
 {
 	const saveConst_t XY_size = 0x65600;
 	const saveConst_t XY_offsetTrainerCard = 0x14000;
-	const saveConst_t XY_offsetPCName = 0x4400;
+	const saveConst_t XY_offsetPCLayout = 0x4400;
+	const saveConst_t XY_offsetPCBackground = XY_offsetPCLayout + 0x41E;
 	const saveConst_t XY_offsetPC = 0x22600;
 	const saveConst_t XY_offsetDex = 0x1A400 - 0x05400;
 
 	const saveConst_t ORAS_size = 0x76000;
 	const saveConst_t ORAS_offsetTrainerCard = 0x14000;
-	const saveConst_t ORAS_offsetPCName = 0x4400;
+	const saveConst_t ORAS_offsetPCLayout = 0x4400;
+	const saveConst_t ORAS_offsetPCBackground = ORAS_offsetPCLayout + 0x41E;
 	const saveConst_t ORAS_offsetPC = 0x33000;
 	const saveConst_t ORAS_offsetDex = 0x1A400 - 0x05400;
 
 	const saveConst_t BANK_size = 0xaa100;
+	const saveConst_t BANK_offsetMagicNumber = 0x0;
+	const saveConst_t BANK_offsetVersion = 0x4;
 	const saveConst_t BANK_offsetBK = 0x100;
+	const saveConst_t BANK_offsetBKBackground = 0xAA000;
 }
 
 #endif // SAVE_HPP

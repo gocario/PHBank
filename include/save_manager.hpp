@@ -20,14 +20,16 @@ class SaveManager
 		bankbuffer_t bankbuffer;
 		savedata_s savedata;
 		bankdata_s bankdata;
-
 		
 	private:
 		saveConst_t offsetTrainerCard;
-		saveConst_t offsetPCName;
+		saveConst_t offsetPCLayout;
+		saveConst_t offsetPCBackground;
 		saveConst_t offsetPC;
 		saveConst_t offsetBK;
+		saveConst_t offsetBKBackground;
 		saveConst_t sizeSave;
+		saveConst_t sizeBank;
 
 	public:
 		SaveManager();

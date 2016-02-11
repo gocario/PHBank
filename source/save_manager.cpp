@@ -20,11 +20,14 @@
 SaveManager::SaveManager()
 // ------------------------------------
 {
-	offsetTrainerCard = 0;
-	offsetPCName = 0;
-	offsetPC = 0;
-	offsetBK = 0;
+	offsetTrainerCard = 0x0;
+	offsetPCLayout = 0x0;
+	offsetPCBackground = 0x0;
+	offsetPC = 0x0;
+	offsetBK = SaveConst::BANK_offsetBK;
+	offsetBKBackground = SaveConst::BANK_offsetBKBackground;
 	sizeSave = SaveConst::ORAS_size;
+	sizeBank = SaveConst::BANK_size;
 	// Which is greater than SaveConst::XY_size
 
 	version = Game::None;
@@ -220,7 +223,7 @@ Result SaveManager::loadBankFile()
 	
 	Result ret;
 	u32 bytesRead = 0;
-	u32 size = SaveConst::BANK_size;
+	u32 size = sizeBank;
 	char path[32];
 
 	sprintf(path, PK_BANK_FOLDER PK_BANK_FILE);
@@ -284,7 +287,7 @@ Result SaveManager::saveBankFile()
 {
 	Result ret;
 	u32 bytesWritten = 0;
-	u32 size = SaveConst::BANK_size;
+	u32 size = sizeBank;
 	char path[32];
 
 	sprintf(path, PK_BANK_FOLDER PK_BANK_FILE);
@@ -338,7 +341,7 @@ Result SaveManager::backupBankFile()
 {
 	Result ret;
 	u32 bytesWritten;
-	u32 size = SaveConst::BANK_size;
+	u32 size = sizeBank;
 	char path[40];
 
 	sprintf(path, PK_BACKUP_FOLDER PK_BANK_FILE "_%lli", osGetTime()/* - 2208988800L*/);
@@ -398,7 +401,7 @@ Result SaveManager::loadSaveData()
 		}
 
 		savedata.pc.box[iB].background = 0;
-		// savedata.pc.box[iB].background = *(savebuffer + 0x??? + 0x1 * iB);
+		savedata.pc.box[iB].background = *(savebuffer + offsetPCBackground + 0x1 * iB);
 		// TODO: Load the backgrounds of the save
 	}
 	printf(" OK\n");
@@ -446,7 +449,7 @@ Result SaveManager::loadBankData()
 			loadPkmBK(iB, iP);
 		}
 
-		bankdata.bk.box[iB].background = *(bankbuffer + 0xAA000 + 0x1 * iB);
+		bankdata.bk.box[iB].background = *(bankbuffer + offsetBKBackground + 0x1 * iB);
 	}
 	printf(" OK\n");
 
@@ -733,7 +736,8 @@ void SaveManager::setGameOffsets()
 	if (Game::is(version, Game::XY))
 	{
 		offsetTrainerCard = SaveConst::XY_offsetTrainerCard;
-		offsetPCName = SaveConst::XY_offsetPCName;
+		offsetPCLayout = SaveConst::XY_offsetPCLayout;
+		offsetPCBackground = SaveConst::XY_offsetPCBackground;
 		offsetPC = SaveConst::XY_offsetPC;
 
 		sizeSave = SaveConst::XY_size;
@@ -741,13 +745,12 @@ void SaveManager::setGameOffsets()
 	else if (Game::is(version, Game::ORAS))
 	{
 		offsetTrainerCard = SaveConst::ORAS_offsetTrainerCard;
-		offsetPCName = SaveConst::ORAS_offsetPCName;
+		offsetPCLayout = SaveConst::ORAS_offsetPCLayout;
+		offsetPCBackground = SaveConst::ORAS_offsetPCBackground;
 		offsetPC = SaveConst::ORAS_offsetPC;
 
 		sizeSave = SaveConst::ORAS_size;
 	}
-
-	offsetBK = SaveConst::BANK_offsetBK;
 }
 
 
