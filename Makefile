@@ -32,12 +32,17 @@ BUILD		:=	build
 DATA		:=	data
 SOURCES		:=	source source/viewer source/texture
 INCLUDES	:=	include include/viewer
-#ROMFS		:=	romfs
+# ROMFS		:=	romfs
 
-# NO_SMDH		:=	NO_SMDH
 APP_TITLE		:=	PHBank
 APP_DESCRIPTION	:=	Pokémon Homebrew Bank
 APP_AUTHOR		:=	Gocario
+
+# NO_SMDH			:=	NO_SMDH
+ICON 			:=	assets/icon-48px.png
+CIA_BANNER		:=	assets/banner.bnr
+CIA_RSF			:=	assets/build-cia.rsf
+
 #---------------------------------------------------------------------------------
 # options for code generation
 #---------------------------------------------------------------------------------
@@ -144,12 +149,17 @@ $(BUILD):
 #---------------------------------------------------------------------------------
 clean:
 	@echo clean ...
-	@rm -fr $(BUILD) $(TARGET).3dsx $(OUTPUT).smdh $(TARGET).elf
+	@rm -fr $(BUILD) $(TARGET).elf $(TARGET).3dsx $(OUTPUT).smdh $(TARGET).cia
 
 #---------------------------------------------------------------------------------
 run: $(BUILD)
 	@echo run ...
 	@echo TODO: add citra path
+
+#---------------------------------------------------------------------------------
+cia: $(BUILD)
+	@echo cia ...
+	@echo TODO: add makerom path
 
 #---------------------------------------------------------------------------------
 send: $(BUILD)
