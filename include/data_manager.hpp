@@ -8,9 +8,6 @@
 
 #include <3ds/types.h>
 
-#define LANG_EN 1
-#define LANG_FR 2
-
 #define PERSONAL_COUNT 826
 #define PERSONAL_LENGTH 14
 
@@ -28,7 +25,6 @@
 class DataManager
 {
 	private:
-		u8 _lang;
 		u8 _personal[PERSONAL_COUNT][PERSONAL_LENGTH];
 		u8 _abilities[DEX_ABILITIES_COUNT][DEX_ABILITIES_LENGTH];
 		u8 _items[DEX_ITEMS_COUNT][DEX_ITEMS_LENGTH];
@@ -37,12 +33,12 @@ class DataManager
 		u8 _species[DEX_SPECIES_COUNT][DEX_SPECIES_LENGTH];
 
 	public:
-		DataManager();
-		~DataManager();
+		DataManager(void);
+		~DataManager(void);
 
-		Result load();
+		Result load(void);
 
-		const char* lang();
+		const char* lang(void);
 		const u8* personal(u32 species, u32 form);
 		const u8* personal(u32 species);
 		const u8* abilities(u32 ability);

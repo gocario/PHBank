@@ -6,15 +6,15 @@
 #define LANG_H
 
 typedef enum {
-	LANG_JPN,
-	LANG_ENG,
-	LANG_FRE,
-	LANG_ITA,
-	LANG_GER,
-	LANG_SPA,
-	LANG_KOR,
+	LANG_JPN,	///< Japan
+	LANG_ENG,	///< English
+	LANG_FRE,	///< French
+	LANG_ITA,	///< Italian
+	LANG_GER,	///< German
+	LANG_SPA,	///< Spanish
+	LANG_KOR,	///< Korean
 } Lang;
 
 extern Lang userlang;
 
-#endif
+#endif // LANG_H

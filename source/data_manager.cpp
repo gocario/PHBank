@@ -1,13 +1,14 @@
 #include "data_manager.hpp"
 
 #include "pkdir.h"
+#include "lang.h"
 
 #include <stdio.h>
 #include <string.h>
 
 DataManager::DataManager(void)
 {
-	_lang = LANG_EN;
+	
 }
 
 DataManager::~DataManager(void)
@@ -17,13 +18,16 @@ DataManager::~DataManager(void)
 
 const char* DataManager::lang(void)
 {
-	switch (_lang)
+	switch (userlang)
 	{
-		case LANG_FR:
-			return "fr";
-		case LANG_EN:
-		default:
-			return "en";
+		// case LANG_JPN: return "jp";	///< Japan
+		case LANG_ENG: return "en";	///< English
+		case LANG_FRE: return "fr";	///< French
+		// case LANG_ITA: return "it";	///< Italian
+		case LANG_GER: return "de";	///< German
+		case LANG_SPA: return "es";	///< Spanish
+		// case LANG_KOR: return "kr";	///< Korean
+		default: return "";
 	}
 }
 
