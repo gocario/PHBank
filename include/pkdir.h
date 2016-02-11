@@ -16,15 +16,15 @@
  * @brief Shared folders.
  */
 #define PK_ROOT_FOLDER "/"
-#define PK_BASE_FOLDER "/pk/"
-#define PK_BACKUP_FOLDER "/pk/backup/"
-#define PK_DATA_FOLDER "/pk/data/"
-#define PK_ROMFS_FOLDER "/pk/romfs/"
+#define PK_BASE_FOLDER PK_ROOT_FOLDER "pk/"
+#define PK_BACKUP_FOLDER PK_ROOT_FOLDER "pk/backup/"
+#define PK_DATA_FOLDER PK_ROOT_FOLDER "pk/data/"
+#define PK_ROMFS_FOLDER PK_ROOT_FOLDER "pk/romfs/"
 
 /**
  * @brief Brew folders.
  */
-#define PK_BANK_FOLDER "/pk/bank/"
-#define PK_PCHEXPP_FOLDER "/pk/PCHex++/"
+#define PK_BANK_FOLDER PK_ROOT_FOLDER "pk/bank/"
+#define PK_PCHEXPP_FOLDER PK_ROOT_FOLDER "pk/PCHex++/"
 
 #endif // PKDIR_H
