@@ -40,8 +40,10 @@ APP_AUTHOR		:=	Gocario
 
 # NO_SMDH			:=	NO_SMDH
 ICON 			:=	assets/icon-48px.png
-CIA_BANNER		:=	assets/banner.bnr
 CIA_RSF			:=	assets/build-cia.rsf
+CIA_BANNER		:=	assets/banner.bnr
+CIA_BANNER_PNG	:=	assets/banner.png
+CIA_BANNER_WAV	:=	assets/banner.wav
 
 #---------------------------------------------------------------------------------
 # options for code generation
@@ -160,6 +162,9 @@ run: $(BUILD)
 cia: $(BUILD)
 	@echo cia ...
 	@echo TODO: add makerom path
+	@bannertool makebanner -o $(CIA_BANNER) -i $(CIA_BANNER_PNG) -a $(CIA_BANNER_WAV)
+	@bannertool makesmdh -o $(TARGET).smdh -i $(ICON) -s "$(APP_TITLE)" -l "$(APP_DESCRIPTION$)" -p "$(APP_AUTHOR)" -fvisible
+	@makerom -f cia -target t -exefslogo -o $(TARGET).cia -elf $(TARGET).elf -rsf $(CIA_RSF) -banner $(CIA_BANNER) -icon $(TARGET).smdh
 
 #---------------------------------------------------------------------------------
 send: $(BUILD)
