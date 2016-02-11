@@ -109,7 +109,7 @@ Result DataManager::load()
 
 	char path[32];
 
-	sprintf(path, "%spersonal", pk_dataFolder); // Add it into pkdir.h?
+	sprintf(path, PK_DATA_FOLDER "personal");
 	FILE* fp = fopen(path, "rb");
 	if (!fp) return (ret | -1);
 	
@@ -124,7 +124,7 @@ Result DataManager::loadDataFile(char* file, u8* dest, u32 lineMaxLength, u32 li
 {
 	char path[40];
 	
-	sprintf(path, "%s%s/%s_%s.txt", pk_dataFolder, lang(), file, lang());
+	sprintf(path, PK_DATA_FOLDER "%s/%s_%s.txt", lang(), file, lang());
 	FILE* fp = fopen(path, "r");
 	if (!fp) return -1;
 

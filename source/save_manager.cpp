@@ -149,9 +149,8 @@ Result SaveManager::saveFile()
 {
 	Result ret;
 
-	mkdir((char*) pk_baseFolder, 0700);
-	mkdir((char*) pk_saveFolder, 0700);
-	mkdir((char*) pk_bankFolder, 0700);
+	mkdir(PK_BASE_FOLDER, 0700);
+	mkdir(PK_BANK_FOLDER, 0700);
 
 	printf(">Saving Save to save\n");
 	ret = saveSaveFile();
@@ -171,8 +170,8 @@ Result SaveManager::backupFile()
 {
 	Result ret;
 
-	mkdir((char*) pk_baseFolder, 0700);
-	mkdir((char*) pk_backupFolder, 0700);
+	mkdir(PK_BASE_FOLDER, 0700);
+	mkdir(PK_BACKUP_FOLDER, 0700);
 
 	printf(">Backing up Save to sdmc\n");
 	ret = backupSaveFile();
@@ -197,7 +196,7 @@ Result SaveManager::loadSaveFile()
 	u32 size = sizeSave;
 	char path[32];
 
-	sprintf(path, "%s%s", pk_rootFolder, pk_saveFile);
+	sprintf(path, PK_ROOT_FOLDER PK_SAVE_FILE);
 
 	printf("Loading savefile...");
 	ret = FS_ReadFile(path, savebuffer, &saveArchive, size, &bytesRead);
@@ -224,7 +223,7 @@ Result SaveManager::loadBankFile()
 	u32 size = SaveConst::BANK_size;
 	char path[32];
 
-	sprintf(path, "%s%s", pk_bankFolder, pk_bankFile);
+	sprintf(path, PK_BANK_FOLDER PK_BANK_FILE);
 
 	printf("Loading bankfile...");
 	FILE* fp = fopen(path, "rb");
@@ -263,7 +262,7 @@ Result SaveManager::saveSaveFile()
 	u32 size = sizeSave;
 	char path[32];
 
-	sprintf(path, "%s%s", pk_rootFolder, pk_saveFile);
+	sprintf(path, PK_ROOT_FOLDER PK_SAVE_FILE);
 
 	printf("Deleting old savefile...");
 	ret = FS_DeleteFile(path, &saveArchive);
@@ -288,7 +287,7 @@ Result SaveManager::saveBankFile()
 	u32 size = SaveConst::BANK_size;
 	char path[32];
 
-	sprintf(path, "%s%s", pk_bankFolder, pk_bankFile);
+	sprintf(path, PK_BANK_FOLDER PK_BANK_FILE);
 
 	printf("Writing bankfile...");
 	FILE* fp = fopen(path, "wb");
@@ -315,7 +314,7 @@ Result SaveManager::backupSaveFile()
 	u32 size = sizeSave;
 	char path[40];
 
-	sprintf(path, "%s%s_%lli", pk_backupFolder, pk_saveFile, osGetTime()/* - 2208988800L*/);
+	sprintf(path, PK_BACKUP_FOLDER PK_SAVE_FILE "_%lli", osGetTime()/* - 2208988800L*/);
 
 	printf("Backing up savefile...");
 	FILE* fp = fopen(path, "wb");
@@ -342,7 +341,7 @@ Result SaveManager::backupBankFile()
 	u32 size = SaveConst::BANK_size;
 	char path[40];
 
-	sprintf(path, "%s%s_%lli", pk_backupFolder, pk_bankFile, osGetTime()/* - 2208988800L*/);
+	sprintf(path, PK_BACKUP_FOLDER PK_BANK_FILE "_%lli", osGetTime()/* - 2208988800L*/);
 
 	printf("Backing up bankfile...");
 	FILE* fp = fopen(path, "wb");

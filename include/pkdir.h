@@ -9,22 +9,22 @@
 /**
  * @brief Brew files.
  */
-extern const char* pk_saveFile;
-extern const char* pk_bankFile;
+#define PK_SAVE_FILE "main"
+#define PK_BANK_FILE "bank" 
 
 /**
  * @brief Shared folders.
  */
-extern const char* pk_rootFolder;
-extern const char* pk_baseFolder;
-extern const char* pk_saveFolder;
-extern const char* pk_backupFolder;
-extern const char* pk_dataFolder;
+#define PK_ROOT_FOLDER "/"
+#define PK_BASE_FOLDER "/pk/"
+#define PK_BACKUP_FOLDER "/pk/backup/"
+#define PK_DATA_FOLDER "/pk/data/"
+#define PK_ROMFS_FOLDER "/pk/romfs/"
 
 /**
  * @brief Brew folders.
  */
-extern const char* pk_bankFolder;
-extern const char* pk_hexFolder;
+#define PK_BANK_FOLDER "/pk/bank/"
+#define PK_PCHEXPP_FOLDER "/pk/PCHex++/"
 
 #endif // PKDIR_H
