@@ -29,21 +29,14 @@ enum
 extern FS_Archive saveArchive;
 
 /**
- * @brief Returns true if FS is initialized.
- * @return Whether FS is initialized.
- */
-bool FS_IsInitialized(void);
-
-/**
  * @brief Reads a file (path) to dst.
  * @param path The path of the file to read.
  * @param dst The destination buffer.
  * @param archive The archive where the file is located.
  * @param maxSize The maximum size of the file.
  * @param bytesRead The total of read bytes.
- * @return The error encountered.
  */
-Result FS_ReadFile(char* path, void* dst, FS_Archive* archive, u64 maxSize, u32* bytesRead);
+Result FS_ReadFile(const char* path, void* dst, const FS_Archive* archive, u64 maxSize, u32* bytesRead);
 
 /**
  * @brief Writes src to a file (path).
@@ -52,44 +45,54 @@ Result FS_ReadFile(char* path, void* dst, FS_Archive* archive, u64 maxSize, u32*
  * @param size The size of bytes to write.
  * @param archive The archive where the file is located.
  * @param bytesWritten The total of written bytes.
- * @return The error encountered.
  */
-Result FS_WriteFile(char* path, void* src, u64 size, FS_Archive* archive, u32* bytesWritten);
+Result FS_WriteFile(const char* path, const void* src, u64 size, const FS_Archive* archive, u32* bytesWritten);
 
 /**
  * @brief Deletes a file (path).
  * @param path The path of the file to delete.
  * @param archive The archive where the file is located.
- * @return The error encountered.
  */
-Result FS_DeleteFile(char* path, FS_Archive* archive);
+Result FS_DeleteFile(const char* path, const FS_Archive* archive);
 
 /**
  * @brief Creates a directory (path).
  * @param path The path of the directory to create.
  * @param archive The archive where the directory will be located.
- * @return The error encountered.
  */
-Result FS_CreateDirectory(char* path, FS_Archive* archive);
+Result FS_CreateDirectory(const char* path, const FS_Archive* archive);
 
 /**
  * @brief Commits an archive.
  * @param The archive to commit.
- * @return The error encountered.
  */
-Result FS_CommitArchive(FS_Archive* archive);
+Result FS_CommitArchive(const FS_Archive* archive);
+
+#ifdef __cia
 
 /**
  * @brief Initializes the filesystem service.
- * @return The error encountered.
  */
-Result FS_fsInit(void);
+Result FSCIA_Init(u64 titleid, FS_MediaType mediatype);
 
 /**
  * @brief Exits the filesystem service.
- * @return The error encountered.
  */
-Result FS_fsExit(void);
+Result FSCIA_Exit(void);
+
+#else
+
+/**
+ * @brief Initializes the filesystem service.
+ */
+Result FS_Init(void);
+
+/**
+ * @brief Exits the filesystem service.
+ */
+Result FS_Exit(void);
+
+#endif
 
 #ifdef __cplusplus
 }

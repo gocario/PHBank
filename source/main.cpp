@@ -52,7 +52,7 @@ int main(int argc, char* argv[])
 	sf2d_init();
 	sftd_init();
 
-	FS_fsInit();
+	FS_Init();
 
 	srand(osGetTime());
 
@@ -147,7 +147,7 @@ int main(int argc, char* argv[])
 	delete PHBanku::font;
 	delete PHBanku::texture;
 
-	FS_fsExit();
+	FS_Exit();
 
 	sftd_fini();
 	sf2d_fini();

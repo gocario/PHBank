@@ -49,7 +49,7 @@ class DataManager
 		const u8* HPTypes(u8 hiddenPower);
 
 	private:
-		Result loadDataFile(char* path, u8* dest, u32 lineMaxLength, u32 lineCount);
+		Result loadDataFile(const char* path, u8* dest, u32 lineMaxLength, u32 lineCount);
 		Result loadDataLines(u8* src, u8* dst, u32 lineMaxLength, u32 lineCount);
 };
 

@@ -88,7 +88,7 @@ const u8* DataManager::species(u32 species)
 		return NULL;
 }
 
-static const u8 hpTypes[16][9] = {
+static const char* hpTypes[] = {
 	"Fighting", "Flying", "Poison", "Ground",
 	"Rock", "Bug", "Ghost", "Steel", "Fire", "Water",
 	"Grass", "Electric", "Psychic", "Ice", "Dragon", "Dark"
@@ -97,7 +97,7 @@ static const u8 hpTypes[16][9] = {
 const u8* DataManager::HPTypes(u8 hiddenPower)
 {
 	if (hiddenPower < 16)
-		return hpTypes[hiddenPower];
+		return (u8*) hpTypes[hiddenPower];
 	else
 		return NULL;
 }
@@ -124,7 +124,7 @@ Result DataManager::load()
 	return ret;
 }
 
-Result DataManager::loadDataFile(char* file, u8* dest, u32 lineMaxLength, u32 lineCount)
+Result DataManager::loadDataFile(const char* file, u8* dest, u32 lineMaxLength, u32 lineCount)
 {
 	char path[40];
 	
