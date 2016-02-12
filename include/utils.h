@@ -21,7 +21,7 @@ inline void unicodeToChar(char* dst, u16* src, s16 max)
 {
 	if (!src || !dst) return;
 	u16 ii;
-	if (max > 0) *dst = 0x00;
+	// if (max > 0) *dst = 0x00;
 	for (ii = 0; *src && ii < max-1; ii++)
 		*(dst + ii) = (*(src + ii)) & 0xFF;
 	*(dst + ii) = 0x00;
