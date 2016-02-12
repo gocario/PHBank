@@ -11,6 +11,10 @@
 #include "phbank.hpp"
 #include "box_viewer.hpp"
 
+#ifdef __cia
+#include "ts.h"
+#endif
+
 /*
 extern "C"
 {
@@ -50,21 +54,29 @@ PrintConsole* consoleExit(gfxScreen_t screen, PrintConsole* console)
 }
 
 int main(int argc, char* argv[])
-{
+{	
+	Result ret = 0, error = 0;
+
 	sf2d_init();
 	sftd_init();
 
-
 #ifdef __cia
-
-	FSCIA_Init(titleEntry.titleid, titleEntry.mediatype);
-
+	if (!TS_Loop())
+	{
+		consoleInit(GFX_TOP, NULL);
+		goto eof_cia;
+	}
+	ret = FSCIA_Init(titleEntry.titleid, titleEntry.mediatype);
 #else
-
-	FS_Init();
-
+	ret = FS_Init();
 #endif
 
+	if (R_FAILED(ret))
+	{
+		printf("\n\nProblem with the Filesystem services,\nplease check the previous logs\n");
+		error |= -BIT(10);
+	}
+	
 	srand(osGetTime());
 
 	// Initialize console;
@@ -81,8 +93,6 @@ int main(int argc, char* argv[])
 	PHBanku::texture = new TextureManager();
 
 	// Results values
-
-	Result ret = 0, error = 0;
 
 	// Load managers data
 
@@ -167,17 +177,13 @@ int main(int argc, char* argv[])
 	delete PHBanku::texture;
 
 #ifdef __cia
-
 	FSCIA_Exit();
-
+eof_cia:
 	printf("\nYou can close that app now.\n");
 	printf("Pressing any key will crash the app!\n");
 	waitKey(KEY_ANY);
-
 #else
-
 	FS_Exit();
-
 #endif
 
 	sftd_fini();
