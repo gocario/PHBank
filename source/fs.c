@@ -18,7 +18,6 @@
 #define r(fmt, args ...)
 #endif
 
-static Handle fsHandle;
 static bool saveInitialized = false;
 FS_Archive saveArchive;
 
@@ -123,13 +122,31 @@ Result FS_CommitArchive(const FS_Archive* archive)
 
 #ifdef __cia
 
+static u32 lowPath[3];
+
 Result FSCIA_Init(u64 titleid, FS_MediaType mediatype)
 {
 	Result ret = 1;
 
 	debug_print("FSCIA_Init:\n");
 	
-	// TODO: Implement!
+	if (!saveInitialized)
+	{
+		lowPath[0] = mediatype;
+		lowPath[1] = titleid; /// titleid & 0xFFFFFFFF
+		lowPath[2] = titleid >> 32 // (titleid >> 32) & 0xFFFFFFFF
+
+		debug_print(" > [0]: 0x%016lx\n", lowPath[0]);
+		debug_print(" > [1]: 0x%016lx\n", lowPath[1]);
+		debug_print(" > [2]: 0x%016lx\n", lowPath[2]);
+
+		saveArchive = (FS_Archive) { ARCHIVE_USER_SAVEDATA, (FS_Path) { PATH_BINARY, 12, lowPath } };
+
+		ret = FSUSER_OpenArchive(&saveArchive);
+		r(" > FSUSER_OpenArchive: %lx\n", ret);
+
+		saveInitialized = R_SUCCEEDED(ret);
+	}
 
 	return ret;
 }
@@ -140,12 +157,23 @@ Result FSCIA_Exit(void)
 
 	debug_print("FSCIA_Exit:\n");
 
-	// TODO: Implement!
+	if (saveInitialized)
+	{
+		ret = FS_CommitArchive(&saveArchive);
+		r(" > FS_CommitArchive: %lx\n", ret);
+
+		ret = FSUSER_CloseArchive(&saveArchive);
+		r(" > FSUSER_CloseArchive: %lx\n", ret);
+
+		saveInitialized = !R_SUCCEEDED(ret);
+	}
 
 	return ret;
 }
 
 #else
+
+static Handle fsHandle;
 
 Result FS_Init(void)
 {
@@ -186,7 +214,7 @@ Result FS_Exit(void)
 	if (saveInitialized)
 	{
 		ret = FS_CommitArchive(&saveArchive);
-		debug_print(" > FS_CommitArchive: %lx\n", ret);
+		r(" > FS_CommitArchive: %lx\n", ret);
 
 		ret = FSUSER_CloseArchive(&saveArchive);
 		r(" > FSUSER_CloseArchive: %lx\n", ret);
