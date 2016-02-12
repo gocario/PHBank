@@ -13,7 +13,7 @@ extern "C" {
 
 /**
  * @brief Converts an unicode string to an ascii string.
- * @param dst The destination (u8).
+ * @param dst The destination (char).
  * @param src The source (u16).
  * @param max The max length of the string.
  */

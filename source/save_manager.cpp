@@ -467,6 +467,7 @@ void SaveManager::loadPkmPC(u16 boxId, u16 slotId)
 	loadEk6PC(pkm, BOX_SIZE * boxId + PKM_SIZE * slotId);
 	loadPk6Ek6(pkm); // Pokemon stored as Ek6
 	loadPkmPk6(pkm);
+	pkm->fromBank = false;
 }
 
 // ----------------------------------------------
@@ -479,6 +480,7 @@ void SaveManager::loadPkmBK(u16 boxId, u16 slotId)
 	loadEk6BK(pkm, BOX_SIZE * boxId + PKM_SIZE * slotId);
 	// loadPk6Ek6(pkm); // Pokemon stored as Pk6
 	loadPkmPk6(pkm);
+	pkm->fromBank = true;
 }
 
 
@@ -689,7 +691,7 @@ void SaveManager::savePkmPk6(pkm_s* pkm)
 {
 	if (!pkm || !pkm->pk6) return;
 
-	if (pkm->moved && !isPkmEmpty(pkm))
+	if (pkm->fromBank && !isPkmEmpty(pkm)) // && pkm->moved)
 	{
 		convertPkmTrainer(pkm);
 		addDex(pkm);
@@ -832,8 +834,8 @@ bool SaveManager::movePkm(pkm_s* src, pkm_s* dst, bool srcBanked, bool dstBanked
 
 	movePkm(src, dst);
 
-	src->moved = dstBanked;
-	dst->moved = srcBanked;
+	// src->moved = dstBanked;
+	// dst->moved = srcBanked;
 
 	return true;
 }
@@ -861,7 +863,7 @@ bool SaveManager::pastePkm(pkm_s* src, pkm_s* dst, bool srcBanked, bool dstBanke
 
 	pastePkm(src, dst);
 
-	dst->moved = srcBanked;
+	// dst->moved = srcBanked;
 
 	return true;
 }
@@ -916,7 +918,14 @@ bool SaveManager::filterPkm(pkm_s* pkm, bool toBank, bool fromBank)
 void SaveManager::addDex(pkm_s* pkm)
 // ------------------------------------
 {
-	// TODO Implementation!
+	if (Game::is(version, Game::XY))
+	{
+		Pokedex::importToXY(savebuffer, pkm);
+	}
+	else if (Game::is(version, Game::ORAS))
+	{
+		Pokedex::importToORAS(savebuffer, pkm);
+	}
 }
 
 

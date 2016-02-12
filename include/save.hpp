@@ -52,8 +52,9 @@ struct pkm_s
 {
 	ek6_t* ek6 = NULL;	///< Pointer to MainBuffer. (don't free)
 	pk6_t* pk6 = NULL;	///< Pointer to OwnBuffer. (do free)
+	bool fromBank : 1;	///< If the Pokémon was in the bank.
 	bool moved : 1;		///< If the Pokémon has moved.
-	bool modified : 1;	///< If the Pokémon is modified.
+	bool modified : 1;	///< If the Pokémon was modified.
 	bool isShiny : 1;	///< If the Pokémon is shiny.
 	unsigned: 5;
 	
@@ -86,39 +87,9 @@ struct bk_s
 	box_s box[BANK_BOX_COUNT];
 };
 
-
-struct PACKED dex_s
-{
-	bool owned : 1;
-	bool ownedMale : 1;
-	bool ownedFemale : 1;
-	bool ownedShinyMale : 1;
-	bool ownedShinyFemale : 1;
-	bool encounteredMale : 1;
-	bool encounteredFemale : 1;
-	bool encounteredShinyMale : 1;
-	bool encounteredShinyFemale : 1;
-	bool langJapanese : 1;
-	bool langEnglish : 1;
-	bool langFrench : 1;
-	bool langItalian : 1;
-	bool langGerman : 1;
-	bool langSpanish : 1;
-	bool langKorean : 1;
-	bool foreignXY : 1;
-	u16 dexNavCount : 15;
-};
-
-struct pokedex_s
-{
-	dex_s dexes[0x60 * 8]; // [PKM_COUNT]
-};
-
-
 struct savedata_s
 {
 	pc_s pc;
-	pokedex_s pokedex;
 	u16 TID; // 0x0
 	u16 SID; // 0x2
 	u16 TSV;
@@ -134,7 +105,6 @@ struct bankdata_s
 	u32 version;
 	bk_s bk;
 };
-
 
 typedef u8 savebuffer_t[SAVEDATA_ORAS_SIZE];
 typedef u8 bankbuffer_t[BANKDATA_PKBK_SIZE];
