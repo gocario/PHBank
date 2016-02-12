@@ -11,6 +11,7 @@
 #include "phbank.hpp"
 #include "box_viewer.hpp"
 
+/*
 extern "C"
 {
 	void __attribute__((weak)) __appInit(void)
@@ -33,6 +34,7 @@ extern "C"
 		srvExit();
 	}
 }
+*/
 
 extern PrintConsole currentCopy;
 extern PrintConsole* currentConsole;
@@ -52,7 +54,16 @@ int main(int argc, char* argv[])
 	sf2d_init();
 	sftd_init();
 
+
+#ifdef __cia
+
+	FSCIA_Init(titleEntry.titleid, titleEntry.mediatype);
+
+#else
+
 	FS_Init();
+
+#endif
 
 	srand(osGetTime());
 
@@ -125,6 +136,13 @@ int main(int argc, char* argv[])
 			
 			PHBanku::save->save();
 		}
+		else
+		{
+			// TODO Remove when better save display!
+			consoleInit(GFX_TOP, NULL);
+			printf("Exiting...\n");
+			// ^
+		}
 
 		printf("Deleting viewer...\n");
 		delete viewer;
@@ -133,6 +151,7 @@ int main(int argc, char* argv[])
 	{
 		// TODO Remove when better error display!
 		consoleInit(GFX_TOP, NULL);
+		// ^
 		
 		printf("\nProblem happened: %li\n", error);
 		printf("PHBank version: %x\n", VERSION);
@@ -147,7 +166,19 @@ int main(int argc, char* argv[])
 	delete PHBanku::font;
 	delete PHBanku::texture;
 
+#ifdef __cia
+
+	FSCIA_Exit();
+
+	printf("\nYou can close that app now.\n");
+	printf("Pressing any key will crash the app!\n");
+	waitKey(KEY_ANY);
+
+#else
+
 	FS_Exit();
+
+#endif
 
 	sftd_fini();
 	sf2d_fini();
