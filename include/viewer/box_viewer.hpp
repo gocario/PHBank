@@ -12,22 +12,19 @@ struct vPkm_s
 {
 	pkm_s* pkm = NULL;
 	bool emptySlot : 1;
-	bool isShiny : 1;
 	bool isKalosBorn : 1;
 	bool isInfected : 1;
 	bool isCured : 1;
-	bool isEgg : 1;
-	unsigned : 2;
-	u8 NKName[0x1a / 2];
-	u8 OTName[0x1a / 2];
-	u8 HTName[0x1a / 2];
+	unsigned : 4;
+	u8 NKName[0x1a];
+	u8 OTName[0x1a];
+	u8 HTName[0x1a];
 	const u8* species;
 	const u8* item;
 	const u8* nature;
 	const u8* ability;
 	const u8* moves[4];
 	const u8* hiddenPower;
-	u16 speciesID;
 	u8 level;
 	u16 stats[6];
 	u16 ivs[6];

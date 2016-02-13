@@ -185,7 +185,7 @@ Result BoxViewer::drawTopScreen()
 		x = 32;
 		y = 16 - 2;
 		// Is the Pokémon an egg?
-		if (vPkm.isEgg)
+		if (vPkm.pkm->isEggy)
 		{
 			sftd_draw_text_white(x, y, "%s", "Egg");
 		}
@@ -205,7 +205,7 @@ Result BoxViewer::drawTopScreen()
 		// sftd_draw_text_white(x, y, "Game's OT");
 		// sftd_draw_text_white(x+80, y, "%s (%lx-%lx-%lx)", PHBanku::save->savedata.OTName, PHBanku::save->savedata.TID, PHBanku::save->savedata.SID, PHBanku::save->savedata.TSV);
 		sftd_draw_text_white(x, (y += 15), "Dex No.");
-		sftd_draw_text_white(x+50, y, "%u", vPkm.speciesID);
+		sftd_draw_text_white(x+50, y, "%u", vPkm.pkm->speciesID);
 		sftd_draw_text_white(x+80, y, "%s", vPkm.species);
 		sftd_draw_text_white(x, (y += 15), "O.T.");
 		sftd_draw_text_white(x+50, y, "%s", vPkm.OTName);
@@ -255,7 +255,7 @@ Result BoxViewer::drawTopScreen()
 
 		drawPokemonScale(vPkm.pkm, 256, 48, 3.0f);
 
-		if (vPkm.isShiny)
+		if (vPkm.pkm->isShiny)
 		{
 			sf2d_draw_texture_part(PHBanku::texture->boxTiles, 240, 135, 57, 73, 9, 9);
 		}
@@ -295,7 +295,7 @@ Result BoxViewer::drawBotScreen()
 	
 	{
 		// Retrieve the current box, and the drawing offset.
-		int16_t boxShift = (cursorBox.inBank ? BK_BOX_SHIFT_USED : PC_BOX_SHIFT_USED);
+		s16 boxShift = (cursorBox.inBank ? BK_BOX_SHIFT_USED : PC_BOX_SHIFT_USED);
 
 		// Draw the current box: the background and the icons.
 		drawBox((cursorBox.inBank ? vBKBox : vPCBox), boxShift, 20);
@@ -321,7 +321,7 @@ Result BoxViewer::drawBotScreen()
 		// If a Pokémon is currently selected
 		if (sPkm)
 		{
-			uint16_t pkm_x, pkm_y;
+			u16 pkm_x, pkm_y;
 
 			// If the selected Pokémon is dragged
 			if (isPkmDragged)
@@ -387,9 +387,9 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 
 	{
 		bool boolMod = false;
-		int16_t boxMod = 0;
-		int16_t rowMod = 0;
-		int16_t colMod = 0;
+		s16 boxMod = 0;
+		s16 rowMod = 0;
+		s16 colMod = 0;
 
 		if (kDown & KEY_L) boxMod--;
 		else if (kDown & KEY_R) boxMod++;
@@ -405,7 +405,7 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 
 		if (kDown & KEY_TOUCH)
 		{
-			int16_t boxShift = (cursorBox.inBank ? BK_BOX_SHIFT_USED : PC_BOX_SHIFT_USED);
+			s16 boxShift = (cursorBox.inBank ? BK_BOX_SHIFT_USED : PC_BOX_SHIFT_USED);
 
 			// If the SwapBox buttons are touched down
 			if (touchWithin(touch->px, touch->py, boxShift + 10, 20, 16, 24)) boxMod--;
@@ -421,7 +421,8 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 			// If there is a Pokémon currently dragged
 			if (isPkmDragged)
 			{
-				int16_t boxShift = (cursorBox.inBank ? BK_BOX_SHIFT_USED : PC_BOX_SHIFT_USED);
+				s16 boxShift = (cursorBox.inBank ? BK_BOX_SHIFT_USED : PC_BOX_SHIFT_USED);
+
 				// If the SwapBox buttons are touched held once
 				if (touchWithin(touch->px, touch->py, boxShift + 10, 20, 16, 24) && !touchWithin(this->touch.px, this->touch.py, boxShift + 10, 20, 16, 24)) boxMod--;
 				else if (touchWithin(touch->px, touch->py, boxShift + 196, 20, 16, 24) && !touchWithin(this->touch.px, this->touch.py, boxShift + 196, 20, 16, 24)) boxMod++;
@@ -532,9 +533,9 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 	{
 		if (kDown & KEY_TOUCH)
 		{
-			int16_t boxShift = (cursorBox.inBank ? BK_BOX_SHIFT_USED : PC_BOX_SHIFT_USED);
-			uint16_t px = touch->px;
-			uint16_t py = touch->py;
+			s16 boxShift = (cursorBox.inBank ? BK_BOX_SHIFT_USED : PC_BOX_SHIFT_USED);
+			u16 px = touch->px;
+			u16 py = touch->py;
 
 			// If the TouchArea is within the SingleSelect CursorType button area
 			if (touchWithin(px, py, boxShift + 22, 0, 59, 16))
@@ -572,8 +573,8 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 				// If no Pokémon is currently selected and dragged
 				else
 				{
-					uint16_t oldRow = cursorBox.row;
-					uint16_t oldCol = cursorBox.col;
+					u16 oldRow = cursorBox.row;
+					u16 oldCol = cursorBox.col;
 
 					// Move the cursor to the new slot
 					cursorBox.row = ((py - 50) / 35);
@@ -597,9 +598,9 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 		{
 			touch = &(this->touch);
 
-			int16_t boxShift = (cursorBox.inBank ? BK_BOX_SHIFT_USED : PC_BOX_SHIFT_USED);
-			uint16_t px = touch->px;
-			uint16_t py = touch->py;
+			s16 boxShift = (cursorBox.inBank ? BK_BOX_SHIFT_USED : PC_BOX_SHIFT_USED);
+			u16 px = touch->px;
+			u16 py = touch->py;
 
 			// If a Pokémon is currently dragged
 			if (sPkm && isPkmDragged)
@@ -680,7 +681,6 @@ void BoxViewer::drawBox(box_s* box, int16_t x, int16_t y)
 	// Draw the box background
 	sf2d_draw_texture_part(PHBanku::texture->boxBackgrounds, x, y, ((box->background % 16) % 4) * BACKGROUND_WIDTH, ((box->background % 16) / 4) * BACKGROUND_HEIGHT, BACKGROUND_WIDTH, BACKGROUND_HEIGHT);
 	sf2d_draw_texture_part(PHBanku::texture->boxBackgrounds, x, y, ((box->background % 16) % 4) * BOX_HEADER_WIDTH, 840 + ((box->background % 16) / 4) * BOX_HEADER_HEIGHT, BOX_HEADER_WIDTH, BOX_HEADER_HEIGHT);
-	
 
 	// Draw the SwapBox buttons
 	sf2d_draw_texture_part(PHBanku::texture->boxTiles, x + 10 + 0, y, 0, 64, 16, 24);
@@ -702,7 +702,7 @@ void BoxViewer::drawBox(box_s* box, int16_t x, int16_t y)
 			// If the Pokémon isn't the selected Pokémon
 			if (sPkm != &(box->slot[i]))
 			{
-				drawPokemon(&(box->slot[i]), x + (i % BOX_COL_PKM_COUNT) * 35, y + 30 + (i / BOX_COL_PKM_COUNT) * 35);
+				drawPokemon(&box->slot[i], x + (i % BOX_COL_PKM_COUNT) * 35, y + 30 + (i / BOX_COL_PKM_COUNT) * 35);
 			}
 		}
 	}
@@ -712,7 +712,7 @@ void BoxViewer::drawBox(box_s* box, int16_t x, int16_t y)
 		// Draw Pokémon icons
 		for (u8 i = 0; i < 30; i++)
 		{
-			drawPokemon(&(box->slot[i]), x + (i % BOX_COL_PKM_COUNT) * 35, y + 30 + (i / BOX_COL_PKM_COUNT) * 35);
+			drawPokemon(&box->slot[i], x + (i % BOX_COL_PKM_COUNT) * 35, y + 30 + (i / BOX_COL_PKM_COUNT) * 35);
 		}
 	}
 	
@@ -724,14 +724,13 @@ void BoxViewer::drawBox(box_s* box, int16_t x, int16_t y)
 void BoxViewer::drawPokemon(pkm_s* pkm, int16_t x, int16_t y)
 // --------------------------------------------------
 {
+	if (pkm->speciesID == 0) return;
+
 	sf2d_texture* pkmIcons = PHBanku::texture->pkmIcons;
 
-	if (Pokemon::isEgg(pkm))
+	if (pkm->isEggy)
 	{
-		if (Pokemon::isShiny(pkm, PHBanku::save->savedata.TID, PHBanku::save->savedata.SID))
-		{
-			pkmIcons = PHBanku::texture->pkmShinyIcons;
-		}
+		if (pkm->isShiny) pkmIcons = PHBanku::texture->pkmShinyIcons;
 
 		// Draw the egg icon
 		sf2d_draw_texture_part_blend(pkmIcons, x, y, ((pkm->speciesID-1) % 25) * 40, ((pkm->speciesID-1) / 25) * 30, 40, 30, RGBA8(0xFF,0xFF,0xFF,0xAA));
@@ -739,10 +738,7 @@ void BoxViewer::drawPokemon(pkm_s* pkm, int16_t x, int16_t y)
 	}
 	else
 	{
-		if (Pokemon::isShiny(pkm))
-		{
-			pkmIcons = PHBanku::texture->pkmShinyIcons;
-		}
+		if (pkm->isShiny) pkmIcons = PHBanku::texture->pkmShinyIcons;
 
 		// Draw the Pokémon icon
 		sf2d_draw_texture_part(pkmIcons, x, y, ((pkm->speciesID-1) % 25) * 40, ((pkm->speciesID-1) / 25) * 30, 40, 30);
@@ -754,14 +750,13 @@ void BoxViewer::drawPokemon(pkm_s* pkm, int16_t x, int16_t y)
 void BoxViewer::drawPokemonScale(pkm_s* pkm, int16_t x, int16_t y, float scale)
 // --------------------------------------------------
 {
+	if (pkm->speciesID == 0) return;
+
 	sf2d_texture* pkmIcons = PHBanku::texture->pkmIcons;
 
-	if (Pokemon::isEgg(pkm))
+	if (pkm->isEggy)
 	{
-		if (Pokemon::isShiny(pkm, PHBanku::save->savedata.TID, PHBanku::save->savedata.SID))
-		{
-			pkmIcons = PHBanku::texture->pkmShinyIcons;
-		}
+		if (pkm->isShiny) pkmIcons = PHBanku::texture->pkmShinyIcons;
 
 		// Draw the egg icon
 		sf2d_draw_texture_part_scale(pkmIcons, x, y, ((pkm->speciesID-1) % 25) * 40, ((pkm->speciesID-1) / 25) * 30, 40, 30, scale, scale);
@@ -769,10 +764,7 @@ void BoxViewer::drawPokemonScale(pkm_s* pkm, int16_t x, int16_t y, float scale)
 	}
 	else
 	{
-		if (Pokemon::isShiny(pkm))
-		{
-			pkmIcons = PHBanku::texture->pkmShinyIcons;
-		}
+		if (pkm->isShiny) pkmIcons = PHBanku::texture->pkmShinyIcons;
 
 		// Draw the Pokémon icon
 		sf2d_draw_texture_part_scale(pkmIcons, x, y, ((pkm->speciesID-1) % 25) * 40, ((pkm->speciesID-1) / 25) * 30, 40, 30, scale, scale);
@@ -942,12 +934,8 @@ void BoxViewer::populateVPkmData(vPkm_s* vPkm)
 	vPkm->isKalosBorn = Pokemon::isKalosBorn(vPkm->pkm);
 	vPkm->isInfected = Pokemon::isInfected(vPkm->pkm);
 	vPkm->isCured = Pokemon::isCured(vPkm->pkm);
-	vPkm->isEgg = Pokemon::isEgg(vPkm->pkm);
-	if (vPkm->isEgg) vPkm->isShiny = Pokemon::isShiny(vPkm->pkm, PHBanku::save->savedata.TID, PHBanku::save->savedata.SID);
-	else vPkm->isShiny = Pokemon::isShiny(vPkm->pkm);
 
-	vPkm->speciesID = Pokemon::speciesID(vPkm->pkm);
-	vPkm->species = PHBanku::data->species(vPkm->speciesID);
+	vPkm->species = PHBanku::data->species(vPkm->pkm->speciesID);
 	vPkm->item = PHBanku::data->items(Pokemon::itemID(vPkm->pkm));
 	vPkm->nature = PHBanku::data->natures(Pokemon::nature(vPkm->pkm));
 	vPkm->ability = PHBanku::data->abilities(Pokemon::ability(vPkm->pkm));

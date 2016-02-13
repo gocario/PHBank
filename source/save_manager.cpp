@@ -390,22 +390,6 @@ Result SaveManager::loadSaveData()
 {
 	// memset(savedata, 0, sizeof(savedata)); // ASK Is it needed?
 
-	printf("Loading PC Boxes:");
-	for (u16 iB = 0; iB < PC_BOX_COUNT; iB++)
-	{
-		// printf("%-2u ", iB);
-		// if (iB % 0x10 == 0xf) printf("\n");
-		for (u16 iP = 0; iP < BOX_PKM_COUNT; iP++)
-		{
-			loadPkmPC(iB, iP);
-		}
-
-		savedata.pc.box[iB].background = 0;
-		savedata.pc.box[iB].background = *(savebuffer + offsetPCBackground + 0x1 * iB);
-		// TODO: Load the backgrounds of the save
-	}
-	printf(" OK\n");
-
 	if (Game::is(version, Game::XY) || Game::is(version, Game::ORAS))
 	{
 		printf("Loading Dex:");
@@ -419,8 +403,22 @@ Result SaveManager::loadSaveData()
 		savedata.OTGender = *(u8*) (savebuffer + offsetTrainerCard + 0x05);
 		unicodeToChar(savedata.OTName, (u16*) (savebuffer + offsetTrainerCard + 0x48), 0x1a);
 		printf(" OK\n");
-	}
 
+		printf("Loading PC Boxes:");
+		for (u16 iB = 0; iB < PC_BOX_COUNT; iB++)
+		{
+			// printf("%-2u ", iB);
+			// if (iB % 0x10 == 0xf) printf("\n");
+			for (u16 iP = 0; iP < BOX_PKM_COUNT; iP++)
+			{
+				loadPkmPC(iB, iP);
+			}
+
+			savedata.pc.box[iB].background = 0;
+			savedata.pc.box[iB].background = *(savebuffer + offsetPCBackground + 0x1 * iB);
+		}
+		printf(" OK\n");
+	}
 
 	return 0;
 }
@@ -527,7 +525,10 @@ void SaveManager::loadPkmPk6(pkm_s* pkm)
 	if (!pkm || !pkm->pk6) return;
 
 	pkm->moved = false;
-	pkm->isShiny = Pokemon::isShiny(pkm);
+	pkm->modified = false;
+	pkm->isEggy = Pokemon::isEgg(pkm);
+	if (pkm->isEggy) pkm->isShiny = Pokemon::isShiny(pkm, savedata.TID, savedata.SID);		
+	else pkm->isShiny = Pokemon::isShiny(pkm);
 	pkm->speciesID = Pokemon::speciesID(pkm);
 	pkm->itemID = Pokemon::itemID(pkm);
 	pkm->formID = Pokemon::formID(pkm);
@@ -691,7 +692,7 @@ void SaveManager::savePkmPk6(pkm_s* pkm)
 {
 	if (!pkm || !pkm->pk6) return;
 
-	if (pkm->fromBank && !isPkmEmpty(pkm)) // && pkm->moved)
+	if (pkm->fromBank && !isPkmEmpty(pkm))
 	{
 		convertPkmTrainer(pkm);
 		addDex(pkm);
@@ -760,7 +761,7 @@ void SaveManager::setGameOffsets()
 bool SaveManager::isPkmEmpty(pkm_s* pkm)
 // ------------------------------------
 {
-	return (Pokemon::speciesID(pkm) == 0x0);
+	return (pkm->speciesID == 0x0);
 }
 
 
@@ -893,20 +894,17 @@ bool SaveManager::filterPkm(pkm_s* pkm, bool toBank, bool fromBank)
 	bool isFiltered = true;
 	bool toGame = !toBank;
 	bool fromGame = !fromBank;
+
 	// printf("Filtering Pokémon\n");
 	if (Game::is(version, Game::XY))
 	{
-		if (toGame)
-			isFiltered &= Filter::filterToXY(pkm);
-		if (fromGame)
-			isFiltered &= Filter::filterFromXY(pkm);
+		if (toGame) isFiltered &= Filter::filterToXY(pkm);
+		if (fromGame) isFiltered &= Filter::filterFromXY(pkm);
 	}
 	else if (Game::is(version, Game::ORAS))
 	{
-		if (toGame)
-			isFiltered &= Filter::filterToORAS(pkm);
-		if (fromGame)
-			isFiltered &= Filter::filterFromORAS(pkm);
+		if (toGame) isFiltered &= Filter::filterToORAS(pkm);
+		if (fromGame) isFiltered &= Filter::filterFromORAS(pkm);
 	}
 	// printf("Filtering: %s\n", (isFiltered ? "allowed" : "forbidden"));
 
@@ -997,12 +995,12 @@ void SaveManager::convertPkmHT(pkm_s* pkm)
 	Pokemon::geo3Country(pkm, Pokemon::geo2Country(pkm));
 	Pokemon::geo2Country(pkm, Pokemon::geo1Country(pkm));
 	Pokemon::geo1Country(pkm, savedata.GEOCountry);
-	Pokemon::HT_friendship(pkm, Filter::getBaseFriendship(Pokemon::speciesID(pkm)));
+	Pokemon::HT_friendship(pkm, Filter::getBaseFriendship(pkm->speciesID));
 	Pokemon::HT_affection(pkm, 0x00);
 	Pokemon::HT_intensity(pkm, 0x01);
 	Pokemon::HT_memory(pkm, 0x04);
 	Pokemon::HT_feeling(pkm, rand() % 0xa);
-	Pokemon::HT_textVar(pkm, 0x0000);
+	Pokemon::HT_textVar(pkm, 0x00);
 	// Pokemon::fullness(pkm, pkm->fullness);
 	// Pokemon::enjoyment(pkm, pkm->enjoyment);
 
