@@ -3,11 +3,34 @@
 
 namespace Pokedex
 {
-	bool add(pkm_s* pkm)
+	/**
+	 * @brief Gets a bit of a buffer.
+	 * @param buf The buffer to extract the bit from.
+	 * @param off The offset (in byte).
+	 * @param bit The offset (in bit).
+	 */
+	static inline bool getOffsetBit(const u8* buf, u32 off, u32 bit)
 	{
-		return true;
+		return (buf[off+(bit/8)] >> (bit%8)) & 0x1;
 	}
 
+	/**
+	 * @brief Sets a bit of a buffer.
+	 * @param buf The buffer to inject the bit to.
+	 * @param off The offset (in byte).
+	 * @param bit The offset (in bit).
+	 * @param v The new value of the bit.
+	 */
+	static inline void setOffsetBit(u8* buf, u32 off, u32 bit, bool v)
+	{
+		buf[off+(bit/8)] = (buf[off+(bit/8)] & ~(0x1 << (bit%8))) | (v << (bit%8));
+	}
+
+	/**
+	 * @brief Gets the bit offset of a Pokémon form of a XY game.
+	 * @param pkm The pokémon (w/ or w/out the form).
+	 * @return The bit offset of the form, -1 if none.
+	 */
 	static s32 getFormDexOffsetXY(pkm_s* pkm)
 	{
 		s32 offset = 0;
@@ -76,6 +99,11 @@ namespace Pokedex
 		return offset;
 	}
 
+	/**
+	 * @brief Gets the bit offset of a Pokémon form of an ORAS game.
+	 * @param pkm The pokémon (w/ or w/out the form).
+	 * @return The bit offset of the form, -1 if none.
+	 */
 	static s32 getFormDexOffsetORAS(pkm_s* pkm)
 	{
 		s32 offset = 0;
@@ -173,16 +201,6 @@ namespace Pokedex
 		return offset;
 	}
 
-	static inline bool getOffsetBit(u8* buf, u32 off, u32 bit)
-	{
-		return (buf[off+(bit/8)] >> (bit%8)) & 0x1;
-	}
-
-	static inline void setOffsetBit(u8* buf, u32 off, u32 bit, bool v)
-	{
-		buf[off+(bit/8)] = (buf[off+(bit/8)] & ~(0x1 << (bit%8))) | (v << (bit%8));
-	}
-
 	void importToXY(savebuffer_t sav, pkm_s* pkm)
 	{
 		bool isShiny = Pokemon::isShiny(pkm);
@@ -227,29 +245,29 @@ namespace Pokedex
 		setOffsetBit(sav, SaveConst::XY_offsetDex + 0x008 /* OWNED_OFFSET */, speciesID, true);
 
 		// Seen
-		if (!isFemale) // Male or Genderless
-		{
-			if (isShiny) setOffsetBit(sav, SaveConst::XY_offsetDex + 0x128 /* MALE_SHINY_SEEN_OFFSET */, speciesID, true);
-			else setOffsetBit(sav, SaveConst::XY_offsetDex + 0x068 /* MALE_SEEN_OFFSET */, speciesID, true);
-		}
-		else // Female
+		if (isFemale) // Female
 		{
 			if (isShiny) setOffsetBit(sav, SaveConst::XY_offsetDex + 0x188 /* FEMALE_SHINY_SEEN_OFFSET */, speciesID, true);
 			else setOffsetBit(sav, SaveConst::XY_offsetDex + 0x0C8 /* FEMALE_SEEN_OFFSET */, speciesID, true);
+		}
+		else // Male or Genderless
+		{
+			if (isShiny) setOffsetBit(sav, SaveConst::XY_offsetDex + 0x128 /* MALE_SHINY_SEEN_OFFSET */, speciesID, true);
+			else setOffsetBit(sav, SaveConst::XY_offsetDex + 0x068 /* MALE_SEEN_OFFSET */, speciesID, true);
 		}
 
 		// Displayed
 		if (!isDisplayed)
 		{
-			if (!isFemale) // Male or Genderless
-			{
-				if (isShiny) setOffsetBit(sav, SaveConst::XY_offsetDex + 0x2A8 /* MALE_SHINY_DISPLAYED_OFFSET */, speciesID, true);
-				else setOffsetBit(sav, SaveConst::XY_offsetDex + 0x1E8 /* MALE_DISPLAYED_OFFSET */, speciesID, true);
-			}
-			else // Female
+			if (!isFemale) // Female
 			{
 				if (isShiny) setOffsetBit(sav, SaveConst::XY_offsetDex + 0x308 /* FEMALE_SHINY_DISPLAYED_OFFSET */, speciesID, true);
 				else setOffsetBit(sav, SaveConst::XY_offsetDex + 0x248 /* FEMALE_DISPLAYED_OFFSET */, speciesID, true);
+			}
+			else // Male or Genderless
+			{
+				if (isShiny) setOffsetBit(sav, SaveConst::XY_offsetDex + 0x2A8 /* MALE_SHINY_DISPLAYED_OFFSET */, speciesID, true);
+				else setOffsetBit(sav, SaveConst::XY_offsetDex + 0x1E8 /* MALE_DISPLAYED_OFFSET */, speciesID, true);
 			}
 			isDisplayed = true;
 		}
@@ -310,29 +328,29 @@ namespace Pokedex
 		setOffsetBit(sav, SaveConst::ORAS_offsetDex + 0x008 /* OWNED_OFFSET */, speciesID, true);
 
 		// Seen
-		if (!isFemale) // Male or Genderless
-		{
-			if (isShiny) setOffsetBit(sav, SaveConst::ORAS_offsetDex + 0x128 /* MALE_SHINY_SEEN_OFFSET */, speciesID, true);
-			else setOffsetBit(sav, SaveConst::ORAS_offsetDex + 0x068 /* MALE_SEEN_OFFSET */, speciesID, true);
-		}
-		else // Female
+		if (isFemale) // Female
 		{
 			if (isShiny) setOffsetBit(sav, SaveConst::ORAS_offsetDex + 0x188 /* FEMALE_SHINY_SEEN_OFFSET */, speciesID, true);
 			else setOffsetBit(sav, SaveConst::ORAS_offsetDex + 0x0C8 /* FEMALE_SEEN_OFFSET */, speciesID, true);
+		}
+		else // Male or Genderless
+		{
+			if (isShiny) setOffsetBit(sav, SaveConst::ORAS_offsetDex + 0x128 /* MALE_SHINY_SEEN_OFFSET */, speciesID, true);
+			else setOffsetBit(sav, SaveConst::ORAS_offsetDex + 0x068 /* MALE_SEEN_OFFSET */, speciesID, true);
 		}
 
 		// Displayed
 		if (!isDisplayed)
 		{
-			if (!isFemale) // Male or Genderless
-			{
-				if (isShiny) setOffsetBit(sav, SaveConst::ORAS_offsetDex + 0x2A8 /* MALE_SHINY_DISPLAYED_OFFSET */, speciesID, true);
-				else setOffsetBit(sav, SaveConst::ORAS_offsetDex + 0x1E8 /* MALE_DISPLAYED_OFFSET */, speciesID, true);
-			}
-			else // Female
+			if (isFemale) // Female
 			{
 				if (isShiny) setOffsetBit(sav, SaveConst::ORAS_offsetDex + 0x308 /* FEMALE_SHNY_DISPLAYED_OFFSET */, speciesID, true);
 				else setOffsetBit(sav, SaveConst::ORAS_offsetDex + 0x248 /* FEMALE_DISPLAYED_OFFSET */, speciesID, true);
+			}
+			else // Male or Genderless
+			{
+				if (isShiny) setOffsetBit(sav, SaveConst::ORAS_offsetDex + 0x2A8 /* MALE_SHINY_DISPLAYED_OFFSET */, speciesID, true);
+				else setOffsetBit(sav, SaveConst::ORAS_offsetDex + 0x1E8 /* MALE_DISPLAYED_OFFSET */, speciesID, true);
 			}
 			isDisplayed = true;
 		}
@@ -344,7 +362,7 @@ namespace Pokedex
 		}
 
 		// DexNav
-		u16* dexNav = ((u16*)(sav + SaveConst::ORAS_offsetDex + 0x686 /* DEXNAV_OFFSET */)) + speciesID * 2;
+		u16* dexNav = (u16*)(sav + SaveConst::ORAS_offsetDex + 0x686 /* DEXNAV_OFFSET */ + speciesID * sizeof(u16));
 		if (*dexNav == 0) *dexNav = 1;
 	}
 }
