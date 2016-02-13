@@ -222,12 +222,12 @@ namespace Pokedex
 		{
 			s32 formdexBit = getFormDexOffsetXY(pkm);
 
-			if (formdexBit >= 0)
+			if (formdexBit >= 0) // Has an entry in the formdex
 			{
 				formdexBit += formID;
 
 				isDisplayed |= getOffsetBit(sav, SaveConst::XY_offsetDex + 0x398 /* FORM_DISPLAY_OFFSET */, formdexBit);
-				isDisplayed |= getOffsetBit(sav, SaveConst::XY_offsetDex + 0x3B0/* FORM_SHINY_DISPLAY_OFFSET */, formdexBit);
+				isDisplayed |= getOffsetBit(sav, SaveConst::XY_offsetDex + 0x3B0 /* FORM_SHINY_DISPLAY_OFFSET */, formdexBit);
 
 				if (isShiny) setOffsetBit(sav, SaveConst::XY_offsetDex + 0x380 /* FORM_SHINY_SEEN_OFFSET */, formdexBit, true);
 				else setOffsetBit(sav, SaveConst::XY_offsetDex + 0x368 /* FORM_SEEN_OFFSET */, formdexBit, true);
@@ -275,7 +275,7 @@ namespace Pokedex
 		// Lang
 		if (lang >= 0 && lang < 7)
 		{
-			setOffsetBit(sav, SaveConst::XY_offsetDex + 0x3C8 /* LANG_OFFSET */, speciesID + lang, true);
+			setOffsetBit(sav, SaveConst::XY_offsetDex + 0x3C8 /* LANG_OFFSET */, speciesID * 7 + lang, true);
 		}
 
 		// ForeignDex
@@ -305,7 +305,7 @@ namespace Pokedex
 		{
 			s32 formdexBit = getFormDexOffsetORAS(pkm);
 
-			if (formdexBit >= 0)
+			if (formdexBit >= 0) // Has an entry in the formdex
 			{
 				formdexBit += formID;
 
@@ -317,7 +317,7 @@ namespace Pokedex
 
 				if (!isDisplayed)
 				{
-					if (isShiny) setOffsetBit(sav, SaveConst::ORAS_offsetDex + 0x3DA/* FORM_SHINY_DISPLAYED_OFFSET */, formdexBit, true);
+					if (isShiny) setOffsetBit(sav, SaveConst::ORAS_offsetDex + 0x3DA /* FORM_SHINY_DISPLAYED_OFFSET */, formdexBit, true);
 					else setOffsetBit(sav, SaveConst::ORAS_offsetDex + 0x3B4 /* FORM_DISPLAYED_OFFSET */, formdexBit, true);
 					isDisplayed = true;
 				}
@@ -358,7 +358,7 @@ namespace Pokedex
 		// Lang
 		if (lang >= 0 && lang < 7)
 		{
-			setOffsetBit(sav, SaveConst::ORAS_offsetDex + 0x400 /* LANG_OFFSET */, speciesID + lang, true);
+			setOffsetBit(sav, SaveConst::ORAS_offsetDex + 0x400 /* LANG_OFFSET */, speciesID * 7 + lang, true);
 		}
 
 		// DexNav
