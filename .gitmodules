@@ -1,0 +1,3 @@
+[submodule "PKBrew"]
+	path = PKBrew
+	url = git://github.com/gocario/PKBrew
