@@ -834,8 +834,8 @@ bool SaveManager::movePkm(pkm_s* src, pkm_s* dst, bool srcBanked, bool dstBanked
 
 	movePkm(src, dst);
 
-	// src->moved = dstBanked;
-	// dst->moved = srcBanked;
+	// src->moved = dstBanked || src->moved;
+	// dst->moved = srcBanked || dst->moved;
 
 	return true;
 }
@@ -863,7 +863,7 @@ bool SaveManager::pastePkm(pkm_s* src, pkm_s* dst, bool srcBanked, bool dstBanke
 
 	pastePkm(src, dst);
 
-	// dst->moved = srcBanked;
+	// dst->moved = srcBanked || dst->moved;
 
 	return true;
 }
