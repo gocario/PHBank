@@ -131,12 +131,12 @@ bool TS_Loop(void)
 		return false;
 	}
 	// If only one title, select it.
-	else if (titleCount == 1)
-	{
-		TS_Select();
-		TS_Exit();
-		return true;
-	}
+	// else if (titleCount == 1)
+	// {
+	// 	TS_Select();
+	// 	TS_Exit();
+	// 	return true;
+	// }
 
 	TS_Select();
 

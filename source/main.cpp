@@ -15,34 +15,9 @@
 #include "ts.h"
 #endif
 
-/*
-extern "C"
-{
-	void __attribute__((weak)) __appInit(void)
-	{
-		srvInit();
-		aptInit();
-		hidInit();
-
-		fsInit();
-		sdmcInit();
-	}
-
-	void __attribute__((weak)) __appExit(void)
-	{
-		sdmcExit();
-		fsExit();
-		
-		hidExit();
-		aptExit();
-		srvExit();
-	}
-}
-*/
-
 extern PrintConsole currentCopy;
 extern PrintConsole* currentConsole;
-
+/// A very bad implementation for consoleExit, only for debug.
 PrintConsole* consoleExit(gfxScreen_t screen, PrintConsole* console)
 {
 	// TODO Future implementation!
@@ -59,6 +34,21 @@ int main(int argc, char* argv[])
 
 	sf2d_init();
 	sftd_init();
+
+	// Initialize console;
+	// consoleInit(GFX_TOP, NULL);
+	// consoleInit(GFX_BOTTOM, NULL);
+
+	// Textures and loading screen first.
+
+	printf("> Loading texture manager\n");
+	PHBanku::texture = new TextureManager();
+	ret = PHBanku::texture->load();
+	if (R_FAILED(ret))
+	{
+		printf("\n\nProblem with the Texture Manager,\nplease check the previous logs\n");
+		error |= -BIT(5);
+	}
 
 #ifdef __cia
 	if (!TS_Loop())
@@ -79,32 +69,12 @@ int main(int argc, char* argv[])
 	
 	srand(osGetTime());
 
-	// Initialize console;
-	// consoleInit(GFX_TOP, NULL);
-	// consoleInit(GFX_BOTTOM, NULL);
-
 	// TODO Export the loading screen here?
 
-	// Initialize managers instance
-
-	PHBanku::save = new SaveManager();
-	PHBanku::data = new DataManager();
-	PHBanku::font = new FontManager();
-	PHBanku::texture = new TextureManager();
-
-	// Results values
-
-	// Load managers data
-
-	printf("> Loading texture manager\n");
-	ret = PHBanku::texture->load();
-	if (R_FAILED(ret))
-	{
-		printf("\n\nProblem with the Texture Manager,\nplease check the previous logs\n");
-		error |= -BIT(5);
-	}
+	// Initialize managers instance & load managers data
 
 	printf("> Loading font manager\n");
+	PHBanku::font = new FontManager();
 	ret = PHBanku::font->load();
 	if (R_FAILED(ret))
 	{
@@ -113,6 +83,7 @@ int main(int argc, char* argv[])
 	}
 
 	printf("> Loading data manager\n");
+	PHBanku::data = new DataManager();
 	ret = PHBanku::data->load();
 	if (R_FAILED(ret))
 	{
@@ -121,6 +92,7 @@ int main(int argc, char* argv[])
 	}
 
 	printf("> Loading save manager\n");
+	PHBanku::save = new SaveManager();
 	ret = PHBanku::save->load();
 	if (R_FAILED(ret))
 	{

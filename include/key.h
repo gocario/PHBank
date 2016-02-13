@@ -31,6 +31,7 @@ inline void waitKey(u32 key)
 	{
 		gspWaitForVBlank();
 		hidScanInput();
+		// TODO Change hidKeysDown to hidKeysHeld?
 		if (hidKeysDown() & key) break;
 	}
 }

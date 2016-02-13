@@ -43,7 +43,7 @@ ICON 			:=	assets/icon-48px.png
 CIA_RSF			:=	assets/build-cia.rsf
 CIA_BANNER		:=	assets/banner.bnr
 CIA_BANNER_PNG	:=	assets/banner.png
-CIA_BANNER_WAV	:=	assets/banner.wav
+CIA_BANNER_WAV	:=	assets/banner_short.wav
 
 #---------------------------------------------------------------------------------
 # options for code generation
