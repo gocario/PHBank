@@ -11,7 +11,7 @@ namespace Pokedex
 	 */
 	static inline bool getOffsetBit(const u8* buf, u32 off, u32 bit)
 	{
-		return (buf[off+(bit/8)] >> (bit%8)) & 0x1;
+		return ((buf[off+(bit/8)] >> (bit%8)) & 0x1) == 1;
 	}
 
 	/**
@@ -28,14 +28,15 @@ namespace Pokedex
 
 	/**
 	 * @brief Gets the bit offset of a Pokémon form of a XY game.
-	 * @param pkm The pokémon (w/ or w/out the form).
+	 * @param species The species of the Pokémon.
 	 * @return The bit offset of the form, -1 if none.
+	 * @see getFormDexOffsetORAS(u16)
 	 */
-	static s32 getFormDexOffsetXY(pkm_s* pkm)
+	static s32 getFormDexOffsetXY(u16 species)
 	{
 		s32 offset = 0;
 
-		switch (pkm->speciesID)
+		switch (species)
 		{
 			case 460: offset += 2; // Abomasnow
 			case 448: offset += 2; // Lucario
@@ -101,14 +102,15 @@ namespace Pokedex
 
 	/**
 	 * @brief Gets the bit offset of a Pokémon form of an ORAS game.
-	 * @param pkm The pokémon (w/ or w/out the form).
+	 * @param species The species of the Pokémon.
 	 * @return The bit offset of the form, -1 if none.
+	 * @see getFormDexOffsetXY(u16)
 	 */
-	static s32 getFormDexOffsetORAS(pkm_s* pkm)
+	static s32 getFormDexOffsetORAS(u16 species)
 	{
 		s32 offset = 0;
 
-		switch (pkm->speciesID)
+		switch (species)
 		{
 			case 676: offset += 5; // Furfrou
 			case 649: offset += 18; // Genesect
@@ -213,9 +215,10 @@ namespace Pokedex
 		bool isShiny = Pokemon::isShiny(pkm);
 		bool isFemale = Pokemon::gender(pkm) == 1;
 		bool isKalosBorn = Pokemon::isKalosBorn(pkm);
-		u16 speciesID = Pokemon::speciesID(pkm);
+		u16 speciesID = Pokemon::speciesID(pkm) - 1;
 		u8 formID = Pokemon::formID(pkm);
-		u8 lang = Pokemon::language(pkm);
+		u8 lang = Pokemon::language(pkm) - 1;
+		if (lang > 5) lang--; // { 0 ,.., 7 }
 
 		bool isDisplayed = false;
 
@@ -227,7 +230,7 @@ namespace Pokedex
 		// Formdex
 		if (formID > 0)
 		{
-			s32 formdexBit = getFormDexOffsetXY(pkm);
+			s32 formdexBit = getFormDexOffsetXY(speciesID + 1);
 
 			if (formdexBit >= 0) // Has an entry in the formdex
 			{
@@ -247,9 +250,6 @@ namespace Pokedex
 				}
 			}
 		}
-
-		// Owned
-		setOffsetBit(sav, SaveConst::XY_offsetDex + 0x008 /* OWNED_OFFSET */, speciesID, true);
 
 		// Seen
 		if (isFemale) // Female
@@ -290,15 +290,21 @@ namespace Pokedex
 		{
 			setOffsetBit(sav, SaveConst::XY_offsetDex + 0x64C /* FOREIGN_OFFSET */, speciesID, true);
 		}
+		// Owned
+		else
+		{
+			setOffsetBit(sav, SaveConst::XY_offsetDex + 0x008 /* OWNED_OFFSET */, speciesID, true);
+		}
 	}
 
 	void importToORAS(savebuffer_t sav, pkm_s* pkm)
 	{
 		bool isShiny = Pokemon::isShiny(pkm);
 		bool isFemale = Pokemon::gender(pkm) == 1;
-		u16 speciesID = Pokemon::speciesID(pkm);
+		u16 speciesID = Pokemon::speciesID(pkm) - 1;
 		u8 formID = Pokemon::formID(pkm);
-		u8 lang = Pokemon::language(pkm);
+		u8 lang = Pokemon::language(pkm) - 1;
+		if (lang > 5) lang--; // { 0 ,.., 7 }
 
 		bool isDisplayed = false;
 
@@ -310,7 +316,7 @@ namespace Pokedex
 		// Formdex
 		if (formID > 0)
 		{
-			s32 formdexBit = getFormDexOffsetORAS(pkm);
+			s32 formdexBit = getFormDexOffsetORAS(speciesID + 1);
 
 			if (formdexBit >= 0) // Has an entry in the formdex
 			{
@@ -330,9 +336,6 @@ namespace Pokedex
 				}
 			}
 		}
-
-		// Owned
-		setOffsetBit(sav, SaveConst::ORAS_offsetDex + 0x008 /* OWNED_OFFSET */, speciesID, true);
 
 		// Seen
 		if (isFemale) // Female
@@ -371,5 +374,8 @@ namespace Pokedex
 		// DexNav
 		u16* dexNav = (u16*)(sav + SaveConst::ORAS_offsetDex + 0x686 /* DEXNAV_OFFSET */ + speciesID * 2);
 		if (*dexNav == 0) *dexNav = 1;
+
+		// Owned
+		setOffsetBit(sav, SaveConst::ORAS_offsetDex + 0x008 /* OWNED_OFFSET */, speciesID, true);
 	}
 }
