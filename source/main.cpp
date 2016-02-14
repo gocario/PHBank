@@ -160,8 +160,8 @@ int main(int argc, char* argv[])
 eof_cia:
 	// printf("\nYou can close that app now.\n");
 	printf("\nThe app execution ended!\n");
-	printf("Pressing any key will crash the app.\n");
-	printf("That is normal, it's CIA related.\n");
+	printf("Pressing any key will close the app.\n");
+	printf("It may crash but that is normal.\n");
 	waitKey(KEY_ANY);
 #else
 	FS_Exit();

@@ -23,7 +23,7 @@ namespace Pokedex
 	 */
 	static inline void setOffsetBit(u8* buf, u32 off, u32 bit, bool v)
 	{
-		buf[off+(bit/8)] = (buf[off+(bit/8)] & ~(0x1 << (bit%8))) | (v << (bit%8));
+		buf[off+(bit/8)] = (buf[off+(bit/8)] & ~(0x1 << (bit%8))) | ((v?1:0) << (bit%8));
 	}
 
 	/**
