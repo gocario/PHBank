@@ -26,6 +26,8 @@ class TextureManager
 		~TextureManager(void);
 
 		Result load(void);
+		
+		void showLoadingScreen(void);
 
 	private:
 		bool loadTextures(void);

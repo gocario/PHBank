@@ -64,7 +64,11 @@ int main(int argc, char* argv[])
 		delete PHBanku::texture; //://
 		goto eof_cia;
 	}
+	
 	ret = FSCIA_Init(titleEntry.titleid, titleEntry.mediatype);
+
+	// Display the loading screen again because of ts.h
+	PHBanku::texture->showLoadingScreen();
 #else
 	ret = FS_Init();
 #endif
@@ -109,7 +113,7 @@ int main(int argc, char* argv[])
 		printf("Newing viewer...\n");
 		Viewer* viewer = new BoxViewer();
 	
-		consoleExit(GFX_TOP, NULL);
+		// consoleExit(GFX_TOP, NULL);
 
 		ViewState state = Viewer::startMainLoop(viewer);
 
@@ -154,8 +158,11 @@ int main(int argc, char* argv[])
 #ifdef __cia
 	FSCIA_Exit();
 eof_cia:
-	printf("\nYou can close that app now.\n");
-	while (true) gspWaitForVBlank();
+	// printf("\nYou can close that app now.\n");
+	printf("\nThe app execution ended!\n")
+	printf("Pressing any key will crash the app.\n");
+	printf("That is normal, it's CIA related.\n");
+	waitKey(KEY_ANY);
 #else
 	FS_Exit();
 #endif

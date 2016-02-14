@@ -75,15 +75,8 @@ Result TextureManager::load(void)
 	
 	if (!ballLoadingScreen) return -5;
 
-	sf2d_set_clear_color(RGBA8(0xF8, 0xF8, 0xF8, 0xFF));
-	sf2d_end_frame();
-	sf2d_start_frame(GFX_TOP, GFX_LEFT);
-	sf2d_end_frame();
-	sf2d_start_frame(GFX_BOTTOM, GFX_LEFT);
-		drawLoadingScreen();
-	sf2d_end_frame();
-	sf2d_swapbuffers();
-	
+	showLoadingScreen();
+
 	// threadMainLoop = true;
 	// svcGetThreadPriority(&prio, CUR_THREAD_HANDLE);
 	// loadingThread = threadCreate(loading_screen, (void*)this, STACKSIZE, prio-1, -2, false);
@@ -109,6 +102,18 @@ bool TextureManager::loadTextures()
 	printf("Loading resumeBackground: %p\n", (this->resumeBackground = sfil_load_PNG_file(ROMFS "resume_background.png", SF2D_PLACE_RAM)));
 
 	return (pkmIcons && pkmShinyIcons && itemIcons && ballIcons && types && boxTiles && boxBackgrounds && resumeBackground);
+}
+
+void showLoadingScreen(void)
+{
+	sf2d_set_clear_color(RGBA8(0xF8, 0xF8, 0xF8, 0xFF));
+	sf2d_end_frame();
+	sf2d_start_frame(GFX_TOP, GFX_LEFT);
+	sf2d_end_frame();
+	sf2d_start_frame(GFX_BOTTOM, GFX_LEFT);
+		drawLoadingScreen();
+	sf2d_end_frame();
+	sf2d_swapbuffers();
 }
 
 void TextureManager::drawLoadingPokeball(int x, int y)
