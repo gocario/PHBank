@@ -303,12 +303,6 @@ Result BoxViewer::drawBotScreen()
 		// Draw the other box: the background and the icons.
 		drawBox((cursorBox.inBank ? vPCBox : vBKBox), (cursorBox.inBank ? PC_BOX_SHIFT_UNUSED : BK_BOX_SHIFT_UNUSED), 20);
 
-		// Draw the box background and the box title
-		char boxTitle[0x18];
-		snprintf(boxTitle, 0x18, "Box %i", (cursorBox.inBank ? cursorBox.boxBK : cursorBox.boxPC) + 1);
-		int boxTitleWidth = sftd_get_text_width(PHBanku::font->font, 13, boxTitle);
-		sftd_draw_text(PHBanku::font->font, boxShift + (BACKGROUND_WIDTH - boxTitleWidth) / 2, 25, RGBA8(0x00,0x00,0x00,0xFF), 13, boxTitle);
-
 		// Draw CursorType buttons (Red|Blue|Green)
 		sf2d_draw_texture_part(PHBanku::texture->boxTiles, boxShift + 21 +   0, 0,   0, 0, 64, 32);
 		sf2d_draw_texture_part(PHBanku::texture->boxTiles, boxShift + 21 +  64, 0,  64, 0, 64, 32);
@@ -682,9 +676,16 @@ void BoxViewer::drawBox(box_s* box, int16_t x, int16_t y)
 	sf2d_draw_texture_part(PHBanku::texture->boxBackgrounds, x, y, ((box->background % 16) % 4) * BACKGROUND_WIDTH, ((box->background % 16) / 4) * BACKGROUND_HEIGHT, BACKGROUND_WIDTH, BACKGROUND_HEIGHT);
 	sf2d_draw_texture_part(PHBanku::texture->boxBackgrounds, x, y, ((box->background % 16) % 4) * BOX_HEADER_WIDTH, 840 + ((box->background % 16) / 4) * BOX_HEADER_HEIGHT, BOX_HEADER_WIDTH, BOX_HEADER_HEIGHT);
 
-	// Draw the SwapBox buttons
+	// Draw the box arrows
 	sf2d_draw_texture_part(PHBanku::texture->boxTiles, x + 10 + 0, y, 0, 64, 16, 24);
 	sf2d_draw_texture_part(PHBanku::texture->boxTiles, x + BACKGROUND_WIDTH - 24, y, 16, 64, 16, 24);
+
+	// Draw the box title
+	char boxTitle[0x1a];
+	if (box->title) snprintf(boxTitle, 0x1a, box->title);
+	else snprintf(boxTitle, 0x1a, "Box %i", box->number);
+	int boxTitleWidth = sftd_get_text_width(PHBanku::font->font, 12, boxTitle);
+	sftd_draw_text(PHBanku::font->font, x + (BACKGROUND_WIDTH - boxTitleWidth) / 2, y + 7, RGBA8(0x00,0x00,0x00,0xFF), 12, boxTitle);
 
 	// if (isPkmMSelecting || isPkmMDragged)
 	// {

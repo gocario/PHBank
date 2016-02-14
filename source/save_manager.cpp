@@ -414,8 +414,9 @@ Result SaveManager::loadSaveData()
 				loadPkmPC(iB, iP);
 			}
 
-			savedata.pc.box[iB].background = 0;
+			savedata.pc.box[iB].title = NULL; // TODO: Retrieve box's name.
 			savedata.pc.box[iB].background = *(savebuffer + offsetPCBackground + 0x1 * iB);
+			savedata.pc.box[iB].number = iB;
 		}
 		printf(" OK\n");
 	}
@@ -430,7 +431,6 @@ Result SaveManager::loadBankData()
 {
 	// memset(bankdata, 0, sizeof(bankdata)); // ASK Is it needed?
 
-	// bankdata.version = *(u32*) (bankbuffer + 0x00);
 	bankdata.magic = (bankbuffer[0x04]) |
 		(bankbuffer[0x01] << 24) |
 		(bankbuffer[0x02] << 16) |
@@ -447,7 +447,9 @@ Result SaveManager::loadBankData()
 			loadPkmBK(iB, iP);
 		}
 
+		bankdata.bk.box[iB].title = NULL; // TODO: Retrieve box's name.
 		bankdata.bk.box[iB].background = *(bankbuffer + offsetBKBackground + 0x1 * iB);
+		bankdata.bk.box[iB].number = iB;
 	}
 	printf(" OK\n");
 

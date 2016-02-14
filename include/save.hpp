@@ -55,7 +55,9 @@ struct pkm_s
 struct box_s
 {
 	pkm_s slot[BOX_PKM_COUNT];
+	char* title;
 	u8 background;
+	u8 number;
 };
 
 struct pc_s
