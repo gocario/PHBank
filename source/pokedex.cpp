@@ -1,6 +1,11 @@
 #include "pokedex.hpp"
 #include "pokemon.hpp"
 
+#include "key.h"
+
+#include <3ds.h>
+#include <stdio.h>
+
 namespace Pokedex
 {
 	/**
@@ -298,7 +303,7 @@ namespace Pokedex
 			{ printf("OWNED_OFFSET\n"); setOffsetBit(sav, SaveConst::XY_offsetDex + 0x008 /* OWNED_OFFSET */, speciesID, true); }
 		}
 
-		hidScanInputs(); if (hidKeysHeld() & KEY_L) waitKey(KEY_ANY);
+		hidScanInput(); if (hidKeysHeld() & KEY_L) waitKey(KEY_ANY);
 	}
 
 	void importToORAS(savebuffer_t sav, pkm_s* pkm)
@@ -384,6 +389,6 @@ namespace Pokedex
 		// Owned
 		{ printf("OWNED_OFFSET\n"); setOffsetBit(sav, SaveConst::ORAS_offsetDex + 0x008 /* OWNED_OFFSET */, speciesID, true); }
 
-		hidScanInputs(); if (hidKeysHeld() & KEY_L) waitKey(KEY_ANY);
+		hidScanInput(); if (hidKeysHeld() & KEY_L) waitKey(KEY_ANY);
 	}
 }
