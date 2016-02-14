@@ -73,6 +73,8 @@ Result TextureManager::load(void)
 
 	printf("Loading ballLoadingScreen: %p\n", (ballLoadingScreen = sfil_load_PNG_file(ROMFS "ball_loading_screen.png", SF2D_PLACE_RAM)));
 	
+	if (!ballLoadingScreen) return -5;
+
 	sf2d_set_clear_color(RGBA8(0xF8, 0xF8, 0xF8, 0xFF));
 	sf2d_end_frame();
 	sf2d_start_frame(GFX_TOP, GFX_LEFT);

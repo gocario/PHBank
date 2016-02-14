@@ -8,6 +8,11 @@
 
 // #define TS_DEBUG
 
+// #define r(fmt, args ...) printf(fmt, ##args)
+// #define debug_print(fmt, args ...) printf(fmt, ##args)
+#define r(fmt, args ...)
+#define debug_print(fmt, args ...)
+
 AM_TitleMediaEntry titleEntry;
 
 static u32 titleCount;
@@ -28,22 +33,26 @@ static void TS_Select(void)
  */
 static void TS_Init(void)
 {
+	Result ret;
+
+	titleCount = 0;
+	titleCurrent = 0;
+
+	debug_print("TS_Init()");
+
 	amInit();
+	debug_print(" > amInit\n");
 
-	AM_GetPokemonTitleEntryList(&titleList, &titleCount);
+	ret = AM_GetPokemonTitleEntryList(&titleList, &titleCount);
+	r(" > AM_GetPokemonTitleEntryList: %lx\n", ret);
 
-	printf("Got: %li\n", titleCount);
+	debug_print("Got: %li titles\n", titleCount);
 
-	printf("Press any key to continue!\n");
-	waitKey(KEY_ANY);
-
-	printf("Malloc'ing...\n");
 	titleIcons = (sf2d_texture**) malloc(titleCount * sizeof(sf2d_texture*));
-	printf("Malloc'd...\n");
 
 	for (u32 i = 0; i < titleCount; i++)
 	{
-		printf("Texturing %li\n", i);
+		debug_print("Texturing %li\n", i);
 		titleIcons[i] = sf2d_create_texture(48, 48, TEXFMT_RGB565, SF2D_PLACE_RAM);
 		u16* dst = (u16*)(titleIcons[i]->data + 64 * 8 * 2 * sizeof(u16));
 		u16* src = (u16*)(titleList[i].smdh->bigIconData);
@@ -55,14 +64,14 @@ static void TS_Init(void)
 		}
 	}
 
-	printf("Textured\n");
-
-	titleCurrent = 0;
+	debug_print("Textured\n");
 
 	if (titleCount > 0)
 	{
 		TS_Select();
 	}
+
+	ret++;
 }
 
 /**

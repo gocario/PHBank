@@ -35,9 +35,11 @@ int main(int argc, char* argv[])
 	sf2d_init();
 	sftd_init();
 
+	srand(osGetTime());
+
 	// Initialize console;
-	// consoleInit(GFX_TOP, NULL);
-	// consoleInit(GFX_BOTTOM, NULL);
+	// consoleInit(GFX_TOP, NULL); // TODO: Comment it!
+	// consoleInit(GFX_BOTTOM, NULL); // TODO: Comment it!
 
 	// Textures and loading screen first.
 
@@ -50,10 +52,16 @@ int main(int argc, char* argv[])
 		error |= -BIT(5);
 	}
 
+	printf("> Loading filesystem services\n");
+
 #ifdef __cia
 	if (!TS_Loop())
 	{
+		// TODO Remove when better error display!
 		consoleInit(GFX_TOP, NULL);
+		printf("Exiting...\n");
+		// ^
+		delete PHBanku::texture; //://
 		goto eof_cia;
 	}
 	ret = FSCIA_Init(titleEntry.titleid, titleEntry.mediatype);
@@ -66,10 +74,6 @@ int main(int argc, char* argv[])
 		printf("\n\nProblem with the Filesystem services,\nplease check the previous logs\n");
 		error |= -BIT(10);
 	}
-	
-	srand(osGetTime());
-
-	// TODO Export the loading screen here?
 
 	// Initialize managers instance & load managers data
 
@@ -146,14 +150,12 @@ int main(int argc, char* argv[])
 	delete PHBanku::save;
 	delete PHBanku::data;
 	delete PHBanku::font;
-	delete PHBanku::texture;
 
 #ifdef __cia
 	FSCIA_Exit();
 eof_cia:
 	printf("\nYou can close that app now.\n");
-	printf("Pressing any key will crash the app!\n");
-	waitKey(KEY_ANY);
+	while (true) gspWaitForVBlank();
 #else
 	FS_Exit();
 #endif

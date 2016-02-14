@@ -6,8 +6,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define r(format, args ...) printf(format, ##args)
-// #define r(format, args ...)
+// #define AM_DEBUG
+
+// #define debug_print(fmt, args ...) printf(fmt, ##args)
+// #define r(fmt, args ...) printf(fmt, ##args)
+#define debug_print(fmt, args ...)
+#define r(fmt, args ...)
 
 static const u32 pokemonTitleCount = 4;
 static const u64 pokemonTitleIDs[] = {
@@ -34,7 +38,7 @@ static const Result AM_GetSmdh(AM_TitleMediaEntry* title)
 	u32 bytesRead;
 	Handle fileHandle;
 
-	printf("AM_GetSmdh:\n");
+	debug_print("AM_GetSmdh:\n");
 
 	u32 archivePath[] = { title->titleid & 0xFFFFFFFF, (title->titleid >> 32) & 0xFFFFFFFF, title->mediatype, 0x00000000 };
 	u32 filePath[] = { 0x00000000, 0x00000000, 0x00000002, 0x6E6F6369, 0x00000000 };
@@ -79,7 +83,7 @@ const char* AM_GetPokemonTitleName(u64 titleID)
 
 Result AM_GetPokemonTitleEntryList(AM_TitleMediaEntry** titleList, u32* count)
 {
-	if (!titleList || !*titleList) return -1;
+	if (!titleList || !titleList) return -1;
 
 	Result ret;
 	u32 ccount = 0;
@@ -90,6 +94,8 @@ Result AM_GetPokemonTitleEntryList(AM_TitleMediaEntry** titleList, u32* count)
 	u32 pkmCount_Total = 0;
 	u64* titleIDs_SD = NULL;
 	u64* titleIDs_Card = NULL;
+
+	debug_print("AM_GetPokemonTitleEntryList:\n");
 
 	ret = AM_GetTitleCount(MEDIATYPE_SD, &count_SD);
 	r(" > AM_GetTitleCount: %lx\n", ret);
@@ -106,8 +112,8 @@ Result AM_GetPokemonTitleEntryList(AM_TitleMediaEntry** titleList, u32* count)
 	ret = AM_GetTitleIdList(MEDIATYPE_GAME_CARD, count_Card, titleIDs_Card);
 	r(" > AM_GetTitleIdList: %lx\n", ret);
 
-	printf("Count SD  : %lu\n", count_SD);
-	printf("Count Card: %lu\n", count_Card);
+	debug_print("Count SD  : %lu\n", count_SD);
+	debug_print("Count Card: %lu\n", count_Card);
 
 	for (u32 i = 0; i < count_SD; i++)
 		for (u32 ii = 0; ii < pokemonTitleCount; ii++)
@@ -122,44 +128,41 @@ Result AM_GetPokemonTitleEntryList(AM_TitleMediaEntry** titleList, u32* count)
 	pkmCount_Total = pkmCount_SD + pkmCount_Card;
 	if (count) *count = pkmCount_Total;
 
-	printf("PkmCount SD  : %lu\n", pkmCount_SD);
-	printf("PkmCount Card: %lu\n", pkmCount_Card);
-	printf("PkmCount Total: %lu\n", pkmCount_Total);
+	debug_print("PkmCount SD  : %lu\n", pkmCount_SD);
+	debug_print("PkmCount Card: %lu\n", pkmCount_Card);
+	debug_print("PkmCount Total: %lu\n", pkmCount_Total);
 
 	AM_TitleMediaEntry* titleIDs = (AM_TitleMediaEntry*) malloc(pkmCount_Total * sizeof(AM_TitleMediaEntry));
 	*titleList = titleIDs;
 
-	printf("Caring about card! (%lu/%lu done)\n", ccount, pkmCount_Total);
+	debug_print("Caring about card! (%lu/%lu done)\n", ccount, pkmCount_Total);
 	// Card first for the final list.
 	for (u32 i = 0; i < count_Card; i++)
 		for (u32 ii = 0; ii < pokemonTitleCount; ii++)
 			if (titleIDs_Card[i] == pokemonTitleIDs[ii])
 			{
-				printf("Adding title: %016llx (%lu/%lu)", pokemonTitleIDs[ii], ccount+1, pkmCount_Total);
+				debug_print("Adding title: %016llx (%lu/%lu)", pokemonTitleIDs[ii], ccount+1, pkmCount_Total);
 				titleIDs[ccount] = (AM_TitleMediaEntry) { pokemonTitleIDs[ii], NULL, MEDIATYPE_GAME_CARD };
-				printf(" Added!\n");
-				AM_GetSmdh(&(titleIDs[ccount]));
+				ret = AM_GetSmdh(&(titleIDs[ccount]));
+				r(" > AM_GetSmdh: %lx\n", ret);
 				ccount++;
 			}
 
-	printf("Caring about SD! (%lu/%lu done)\n", ccount , pkmCount_Total);
+	debug_print("Caring about SD! (%lu/%lu done)\n", ccount , pkmCount_Total);
 	// SD second for the final list.
 	for (u32 i = 0; i < count_SD; i++)
 		for (u32 ii = 0; ii < pokemonTitleCount; ii++)
 			if (titleIDs_SD[i] == pokemonTitleIDs[ii])
 			{
-				printf("Adding title: %016llx (%lu/%lu)", pokemonTitleIDs[ii], ccount+1, pkmCount_Total);
+				debug_print("Adding title: %016llx (%lu/%lu)", pokemonTitleIDs[ii], ccount+1, pkmCount_Total);
 				titleIDs[ccount] = (AM_TitleMediaEntry) { pokemonTitleIDs[ii], NULL, MEDIATYPE_SD };
-				printf(" Added!\n");
-				AM_GetSmdh(&(titleIDs[ccount]));
+				ret = AM_GetSmdh(&(titleIDs[ccount]));
+				r(" > AM_GetSmdh: %lx\n", ret);
 				ccount++;
 			}
 
-	printf("Free'ing...\n");
 	free(titleIDs_SD);
-	printf("Free'ing...\n");
 	free(titleIDs_Card);
-	printf("Free'd...\n");
 
 	return ret;
 }
@@ -167,6 +170,8 @@ Result AM_GetPokemonTitleEntryList(AM_TitleMediaEntry** titleList, u32* count)
 Result AM_FreePokemonTitleEntryList(AM_TitleMediaEntry* titleList, u32 count)
 {
 	if (!titleList) return -1;
+
+	debug_print("AM_FreePokemonTitleEntryList:\n");
 
 	for (u32 i = 0; i < count; i++)
 		free(titleList[i].smdh);
