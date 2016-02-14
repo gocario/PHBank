@@ -902,8 +902,6 @@ bool SaveManager::filterPkm(pkm_s* pkm, bool toBank, bool fromBank)
 void SaveManager::addDex(pkm_s* pkm)
 // ------------------------------------
 {
-	printf("addDex: %i, %i\n", pkm->isShiny, Pokemon::isShiny(pkm));
-
 	if (Game::is(version, Game::XY))
 	{
 		Pokedex::importToXY(savebuffer, pkm);
