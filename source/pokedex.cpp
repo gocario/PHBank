@@ -362,7 +362,7 @@ namespace Pokedex
 		}
 
 		// DexNav
-		u16* dexNav = (u16*)(sav + SaveConst::ORAS_offsetDex + 0x686 /* DEXNAV_OFFSET */ + speciesID * sizeof(u16));
+		u16* dexNav = (u16*)(sav + SaveConst::ORAS_offsetDex + 0x686 /* DEXNAV_OFFSET */ + speciesID * 2);
 		if (*dexNav == 0) *dexNav = 1;
 	}
 }

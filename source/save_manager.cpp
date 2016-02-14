@@ -661,7 +661,7 @@ void SaveManager::savePkmBK(u16 boxId, u16 slotId)
 void SaveManager::saveEk6PC(pkm_s* pkm)
 // ------------------------------------
 {
-	// if (!pkm || !pkm->ek6) return;
+	// if (!pkm || !pkm->ek6 || !pkm->pk6) return;
 
 	// Useless!!
 }
@@ -671,7 +671,7 @@ void SaveManager::saveEk6PC(pkm_s* pkm)
 void SaveManager::saveEk6BK(pkm_s* pkm)
 // ----------------------------------------------
 {
-	if (!pkm || !pkm->ek6) return;
+	if (!pkm || !pkm->ek6 || !pkm->pk6) return;
 	
 	// Pokemon stored as Pk6
 	memcpy(pkm->ek6, pkm->pk6, PKM_SIZE);
@@ -835,12 +835,7 @@ bool SaveManager::movePkm(pkm_s* src, pkm_s* dst, bool srcBanked, bool dstBanked
 	if (!isPkmEmpty(dst) && !filterPkm(dst, srcBanked, dstBanked))
 		return false;
 
-	movePkm(src, dst);
-
-	// src->moved = dstBanked || src->moved;
-	// dst->moved = srcBanked || dst->moved;
-
-	return true;
+	return movePkm(src, dst);
 }
 
 // ------------------------------------
@@ -864,11 +859,7 @@ bool SaveManager::pastePkm(pkm_s* src, pkm_s* dst, bool srcBanked, bool dstBanke
 	if (!isPkmEmpty(src) && !filterPkm(src, dstBanked, srcBanked))
 		return false;
 
-	pastePkm(src, dst);
-
-	// dst->moved = srcBanked || dst->moved;
-
-	return true;
+	return pastePkm(src, dst);
 }
 
 
