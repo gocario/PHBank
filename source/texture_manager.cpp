@@ -75,7 +75,7 @@ Result TextureManager::load(void)
 	
 	if (!ballLoadingScreen) return -5;
 
-	showLoadingScreen();
+	drawStaticLoadingScreen();
 
 	// threadMainLoop = true;
 	// svcGetThreadPriority(&prio, CUR_THREAD_HANDLE);
@@ -104,7 +104,7 @@ bool TextureManager::loadTextures()
 	return (pkmIcons && pkmShinyIcons && itemIcons && ballIcons && types && boxTiles && boxBackgrounds && resumeBackground);
 }
 
-void showLoadingScreen(void)
+void TextureManager::drawStaticLoadingScreen(void)
 {
 	sf2d_set_clear_color(RGBA8(0xF8, 0xF8, 0xF8, 0xFF));
 	sf2d_end_frame();
