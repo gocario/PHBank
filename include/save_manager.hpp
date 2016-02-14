@@ -55,8 +55,8 @@ class SaveManager
 		bool filterPkm(pkm_s* pkm, bool toBank, bool fromBank);
 
 		void addDex(pkm_s* pkm);
-		void convertPkmTrainer(pkm_s* pkm);
-		void convertPkmHT(pkm_s* pkm);
+		void tradePkm(pkm_s* pkm);
+		void tradePkmHT(pkm_s* pkm);
 
 
 		void decryptEk6(pkm_s* pkm);
@@ -95,8 +95,6 @@ class SaveManager
 		void loadEk6BK(pkm_s* pkm, u32 offsetSlot);
 		void loadPk6Ek6(pkm_s* pkm);
 		void loadPkmPk6(pkm_s* pkm);
-		// Load Pokedex (pokedex_t)
-		void loadDex(); ///< TODO
 
 		// Save Data
 		Result saveData();
@@ -110,8 +108,6 @@ class SaveManager
 		void saveEk6BK(pkm_s* pkm);
 		void savePk6Ek6(pkm_s* pkm);
 		void savePkmPk6(pkm_s* pkm);
-		// Save Pokedex (pokedex_t)
-		void saveDex(); ///< TODO
 
 };
 

@@ -220,7 +220,7 @@ Result SaveManager::loadBankFile()
 // ----------------------------------------------
 {
 	memset(bankbuffer, 0, sizeof(bankbuffer_t));
-	
+
 	Result ret;
 	u32 bytesRead = 0;
 	u32 size = sizeBank;
@@ -271,7 +271,7 @@ Result SaveManager::saveSaveFile()
 	ret = FS_DeleteFile(path, &saveArchive);
 	if (R_FAILED(ret)) printf(" ERROR\n");
 	else printf(" OK\n");
-	
+
 	printf("Writing savefile...");
 	ret = FS_WriteFile(path, savebuffer, size, &saveArchive, &bytesWritten);
 	if (R_FAILED(ret)) printf(" ERROR\n");
@@ -351,7 +351,7 @@ Result SaveManager::backupBankFile()
 	if (!fp) return -1;
 
 	bytesWritten = fwrite(bankbuffer, 1, size, fp);
-	
+
 	if (ferror(fp)) printf(" ERROR\n");
 	else printf(" OK\n");
 	printf("  Written %ld bytes\n", bytesWritten);
@@ -372,7 +372,7 @@ Result SaveManager::loadData()
 // ----------------------------------------------
 {
 	Result ret;
-	
+
 	ret = loadSaveData();
 	if (R_FAILED(ret)) return ret;
 
@@ -380,7 +380,7 @@ Result SaveManager::loadData()
 	if (R_FAILED(ret)) return ret;
 
 	loaded = true;
-	
+
 	return ret;
 }
 
@@ -392,16 +392,12 @@ Result SaveManager::loadSaveData()
 
 	if (Game::is(version, Game::XY) || Game::is(version, Game::ORAS))
 	{
-		printf("Loading Dex:");
-		loadDex();
-		printf(" OK\n");
-
 		printf("Loading Trainer Card:");
-		savedata.TID = *(u16*) (savebuffer + offsetTrainerCard + 0x00);
-		savedata.SID = *(u16*) (savebuffer + offsetTrainerCard + 0x02);
+		savedata.TID = *(u16*)(savebuffer + offsetTrainerCard + 0x00);
+		savedata.SID = *(u16*)(savebuffer + offsetTrainerCard + 0x02);
 		savedata.TSV = computeTSV(savedata.TID, savedata.SID);
-		savedata.OTGender = *(u8*) (savebuffer + offsetTrainerCard + 0x05);
-		unicodeToChar(savedata.OTName, (u16*) (savebuffer + offsetTrainerCard + 0x48), 0x1a);
+		savedata.OTGender = *(u8*)(savebuffer + offsetTrainerCard + 0x05);
+		unicodeToChar(savedata.OTName, (u16*)(savebuffer + offsetTrainerCard + 0x48), 0xC);
 		printf(" OK\n");
 
 		printf("Loading PC Boxes:");
@@ -415,7 +411,7 @@ Result SaveManager::loadSaveData()
 			}
 
 			savedata.pc.box[iB].title = NULL; // TODO: Retrieve box's name.
-			savedata.pc.box[iB].background = *(savebuffer + offsetPCBackground + 0x1 * iB);
+			savedata.pc.box[iB].background = *(u8*)(savebuffer + offsetPCBackground + 0x1 * iB);
 			savedata.pc.box[iB].number = iB;
 		}
 		printf(" OK\n");
@@ -529,7 +525,7 @@ void SaveManager::loadPkmPk6(pkm_s* pkm)
 	pkm->moved = false;
 	pkm->modified = false;
 	pkm->isEggy = Pokemon::isEgg(pkm);
-	if (pkm->isEggy) pkm->isShiny = Pokemon::isShiny(pkm, savedata.TID, savedata.SID);		
+	if (pkm->isEggy) pkm->isShiny = Pokemon::isShiny(pkm, savedata.TID, savedata.SID);
 	else pkm->isShiny = Pokemon::isShiny(pkm);
 	pkm->speciesID = Pokemon::speciesID(pkm);
 	pkm->itemID = Pokemon::itemID(pkm);
@@ -537,14 +533,6 @@ void SaveManager::loadPkmPk6(pkm_s* pkm)
 
 	//pkm->species = PKData::species(pkm->speciesID);
 	//pkm->item = PKData::items(pkm->itemID);
-}
-
-
-// ------------------------------------
-void SaveManager::loadDex()
-// ------------------------------------
-{
-	// TODO
 }
 
 
@@ -559,10 +547,10 @@ Result SaveManager::saveData()
 // ----------------------------------------------
 {
 	Result ret;
-	
+
 	ret = saveSaveData();
 	if (R_FAILED(ret)) return ret;
-	
+
 	ret = saveBankData();
 	if (R_FAILED(ret)) return ret;
 
@@ -574,28 +562,24 @@ Result SaveManager::saveData()
 Result SaveManager::saveSaveData()
 // ------------------------------------
 {
-	printf("Saving PC Boxes:");
-	for (u16 iB = 0; iB < PC_BOX_COUNT; iB++)
-	{
-		// printf("%-2u ", iB);
-		// if (iB % 0x10 == 0xf) printf("\n");
-		for (u16 iP = 0; iP < BOX_PKM_COUNT; iP++)
-		{
-			savePkmPC(iB, iP);
-		}
-	}
-	printf(" OK\n");
-
 	if (Game::is(version, Game::XY) || Game::is(version, Game::ORAS))
 	{
-		printf("Saving Dex:");
-		saveDex();
+		printf("Saving PC Boxes:");
+		for (u16 iB = 0; iB < PC_BOX_COUNT; iB++)
+		{
+			// printf("%-2u ", iB);
+			// if (iB % 0x10 == 0xf) printf("\n");
+			for (u16 iP = 0; iP < BOX_PKM_COUNT; iP++)
+			{
+				savePkmPC(iB, iP);
+			}
+		}
+		printf(" OK\n");
+
+		printf("Rewriting Checksum:");
+		rewriteSaveCHK();
 		printf(" OK\n");
 	}
-
-	printf("Rewriting Checksum:");
-	rewriteSaveCHK();
-	printf(" OK\n");
 
 	return 0;
 }
@@ -672,8 +656,8 @@ void SaveManager::saveEk6BK(pkm_s* pkm)
 // ----------------------------------------------
 {
 	if (!pkm || !pkm->ek6 || !pkm->pk6) return;
-	
-	// Pokemon stored as Pk6
+
+	// Pokémon stored as Pk6
 	memcpy(pkm->ek6, pkm->pk6, PKM_SIZE);
 }
 
@@ -684,6 +668,7 @@ void SaveManager::savePk6Ek6(pkm_s* pkm)
 {
 	if (!pkm || !pkm->ek6 || !pkm->pk6) return;
 
+	// Pokémon stored as Ek6
 	encryptPk6(pkm);
 }
 
@@ -694,20 +679,14 @@ void SaveManager::savePkmPk6(pkm_s* pkm)
 {
 	if (!pkm || !pkm->pk6) return;
 
+	// If it comes from the bank
 	if (pkm->fromBank && !isPkmEmpty(pkm))
 	{
-		convertPkmTrainer(pkm);
-		addDex(pkm);
+		if (!pkm->isEggy) addDex(pkm);
+		tradePkm(pkm);
 	}
 }
 
-
-// ------------------------------------
-void SaveManager::saveDex()
-// ------------------------------------
-{
-	// TODO
-}
 
 
 	/*--------------------------------------------------*\
@@ -763,7 +742,7 @@ void SaveManager::setGameOffsets()
 bool SaveManager::isPkmEmpty(pkm_s* pkm)
 // ------------------------------------
 {
-	return (pkm->speciesID == 0x0);
+	return pkm->speciesID == 0x0;
 }
 
 
@@ -811,14 +790,21 @@ void SaveManager::getPkm(u16 boxId, u16 slotId, pkm_s** pkm, bool inBank)
 bool SaveManager::movePkm(pkm_s* src, pkm_s* dst)
 // ------------------------------------
 {
-	pkm_s tmp;
-	tmp.pk6 = dst->pk6;
-	dst->pk6 = src->pk6;
-	src->pk6 = tmp.pk6;
+	// We keep the same ek6 pointer
+	ek6_t* srcEk6 = src->ek6;
+	ek6_t* dstEk6 = dst->ek6;
 
-	loadPkmPk6(src);
-	loadPkmPk6(dst);
+	// We copy the pokemon data
+	pkm_s tmp = *dst;
+	memcpy(&tmp, dst, sizeof(pkm_s));
+	memcpy(dst, src, sizeof(pkm_s));
+	memcpy(src, &tmp, sizeof(pkm_s));
 
+	// We restore the ek6 pointer
+	src->ek6 = srcEk6;
+	dst->ek6 = dstEk6;
+
+	// We valid the Pokémon move'd
 	src->moved = true;
 	dst->moved = true;
 
@@ -838,14 +824,21 @@ bool SaveManager::movePkm(pkm_s* src, pkm_s* dst, bool srcBanked, bool dstBanked
 	return movePkm(src, dst);
 }
 
+
 // ------------------------------------
 bool SaveManager::pastePkm(pkm_s* src, pkm_s* dst)
 // ------------------------------------
 {
-	dst->pk6 = src->pk6;
+	// We keep the same ek6 pointer
+	ek6_t* dstEk6 = dst->ek6;
 
-	loadPkmPk6(dst);
+	// We copy the pokemon data
+	memcpy(dst, src, sizeof(pkm_s));
 
+	// We restore the ek6 pointer
+	dst->ek6 = dstEk6;
+
+	// We valid the Pokémon move'd
 	dst->moved = true;
 
 	return true;
@@ -909,6 +902,8 @@ bool SaveManager::filterPkm(pkm_s* pkm, bool toBank, bool fromBank)
 void SaveManager::addDex(pkm_s* pkm)
 // ------------------------------------
 {
+	printf("addDex: %i, %i\n", pkm->isShiny, Pokemon::isShiny(pkm));
+
 	if (Game::is(version, Game::XY))
 	{
 		Pokedex::importToXY(savebuffer, pkm);
@@ -920,60 +915,67 @@ void SaveManager::addDex(pkm_s* pkm)
 }
 
 
-// ------------------------------------
-void SaveManager::convertPkmTrainer(pkm_s* pkm)
-// ------------------------------------
+void SaveManager::tradePkm(pkm_s* pkm)
 {
-	// if (!pkm->moved)
-	// {
-		if (Pokemon::isEgg(pkm))
+	if (Pokemon::isEgg(pkm))
+	{
+		// TODO: Implement
+		//	Met location
+		//	Met date
+		//	Checksum
+	}
+	else
+	{
+		u16 save_OTName[0xD];
+		u16 pkmn_OTName[0xD];
+		u16 pkmn_HTName[0xD];
+
+		memcpy(save_OTName, (savebuffer + offsetTrainerCard + 0x48), 0x18);
+		memcpy(pkmn_OTName, Pokemon::OT_name(pkm), 0x18);
+		memcpy(pkmn_HTName, Pokemon::HT_name(pkm), 0x18);
+
+		// If it's going back to OT
+		if ((Pokemon::TID(pkm) == savedata.TID) &&
+			(Pokemon::SID(pkm) == savedata.SID) &&
+			(Pokemon::OT_gender(pkm) == savedata.OTGender) &&
+			(memcmp(pkmn_HTName, save_OTName, 0x18) == 0))
 		{
-			// TODO: Implement
-			//	Met location
-			//	Met date
-			//	Checksum
+			// If it's coming back from a non-OT
+			if (Pokemon::currentHandler(pkm) == 0x01)
+			{
+				Pokemon::currentHandler(pkm, 0x00);
+				pkm->modified = true;
+			}
 		}
+		// If it's going to a non-OT
 		else
 		{
-			// If it's going back to OT
-			if (Pokemon::TID(pkm) == savedata.TID && Pokemon::SID(pkm) == savedata.SID && strcmp((char*)Pokemon::HT_name(pkm), (char*)savedata.OTName) == 0 && Pokemon::OT_gender(pkm) == savedata.OTGender)
+			// If it is from OT
+			if (Pokemon::currentHandler(pkm) == 0x00)
 			{
-				// If it's coming back from a non-OT
-				if (Pokemon::currentHandler(pkm) == 0x01)
-				{
-					Pokemon::currentHandler(pkm, 0x00);
-					pkm->modified = true;
-				}
+				Pokemon::currentHandler(pkm, 0x01);
+				tradePkmHT(pkm);
 			}
-			// If it's going to a non-OT
+			// If it is from a non-OT
 			else
 			{
-				// If it is from OT
-				if (Pokemon::currentHandler(pkm) == 0x00)
+				// If it is not the "same non-OT"
+				if (memcmp(pkmn_HTName, save_OTName, 0x18) != 0)
 				{
-					Pokemon::currentHandler(pkm, 0x01);
-					convertPkmHT(pkm);
-				}
-				// If it is from a non-OT
-				else
-				{
-					// If it is not the "same non-OT"
-					if (strcmp((char*)Pokemon::HT_name(pkm), (char*)savedata.OTName) != 0)
-					{
-						convertPkmHT(pkm);
-					}
+					tradePkmHT(pkm);
 				}
 			}
 		}
-		
+	}
+
+	if (pkm->modified)
+	{
 		Pokemon::computeChecksum(pkm);
-	// }
+	}
 }
 
 
-// ----------------------------------------------
-void SaveManager::convertPkmHT(pkm_s* pkm)
-// ----------------------------------------------
+void SaveManager::tradePkmHT(pkm_s* pkm)
 {
 	Pokemon::HT_name(pkm, (u16*)(savebuffer + offsetTrainerCard + 0x48)); // Save::OTName to Pkmn::HTName
 	Pokemon::HT_gender(pkm, savedata.OTGender);
@@ -1144,7 +1146,7 @@ u32 SaveManager::CHKOffset(u32 i)
 	else if (Game::is(version, Game::ORAS))
 	{
 		u32 _oras[] = { 0x05400, 0x05800, 0x06400, 0x06600, 0x06800, 0x06A00, 0x06C00, 0x06E00, 0x07000, 0x07200, 0x07400, 0x09600, 0x09800, 0x09E00, 0x0A400, 0x0F400, 0x14400, 0x19400, 0x19600, 0x19E00, 0x1A400, 0x1B600, 0x1BE00, 0x1C000, 0x1C200, 0x1C800, 0x1CA00, 0x1CE00, 0x1D600, 0x1D800, 0x1DA00, 0x1DC00, 0x1DE00, 0x1E000, 0x1E800, 0x1EE00, 0x1F200, 0x20E00, 0x21000, 0x21400, 0x21800, 0x22000, 0x23C00, 0x24000, 0x24800, 0x24C00, 0x25600, 0x25A00, 0x26200, 0x27000, 0x27200, 0x27400, 0x28200, 0x28A00, 0x28E00, 0x30A00, 0x38400, 0x6D000, };
-	
+
 		return _oras[i] - 0x5400;
 	}
 	else
@@ -1161,13 +1163,13 @@ u32 SaveManager::CHKLength(u32 i)
 	if (Game::is(version, Game::XY))
 	{
 		u32 _xy[] = { 0x000002C8, 0x00000B88, 0x0000002C, 0x00000038, 0x00000150, 0x00000004, 0x00000008, 0x000001C0, 0x000000BE, 0x00000024, 0x00002100, 0x00000140, 0x00000440, 0x00000574, 0x00004E28, 0x00004E28, 0x00004E28, 0x00000170, 0x0000061C, 0x00000504, 0x000006A0, 0x00000644, 0x00000104, 0x00000004, 0x00000420, 0x00000064, 0x000003F0, 0x0000070C, 0x00000180, 0x00000004, 0x0000000C, 0x00000048, 0x00000054, 0x00000644, 0x000005C8, 0x000002F8, 0x00001B40, 0x000001F4, 0x000001F0, 0x00000216, 0x00000390, 0x00001A90, 0x00000308, 0x00000618, 0x0000025C, 0x00000834, 0x00000318, 0x000007D0, 0x00000C48, 0x00000078, 0x00000200, 0x00000C84, 0x00000628, 0x00034AD0, 0x0000E058, };
-	
+
 		return _xy[i];
 	}
 	else if (Game::is(version, Game::ORAS))
 	{
 		u32 _oras[] = { 0x000002C8, 0x00000B90, 0x0000002C, 0x00000038, 0x00000150, 0x00000004, 0x00000008, 0x000001C0, 0x000000BE, 0x00000024, 0x00002100, 0x00000130, 0x00000440, 0x00000574, 0x00004E28, 0x00004E28, 0x00004E28, 0x00000170, 0x0000061C, 0x00000504, 0x000011CC, 0x00000644, 0x00000104, 0x00000004, 0x00000420, 0x00000064, 0x000003F0, 0x0000070C, 0x00000180, 0x00000004, 0x0000000C, 0x00000048, 0x00000054, 0x00000644, 0x000005C8, 0x000002F8, 0x00001B40, 0x000001F4, 0x000003E0, 0x00000216, 0x00000640, 0x00001A90, 0x00000400, 0x00000618, 0x0000025C, 0x00000834, 0x00000318, 0x000007D0, 0x00000C48, 0x00000078, 0x00000200, 0x00000C84, 0x00000628, 0x00000400, 0x00007AD0, 0x000078B0, 0x00034AD0, 0x0000E058, };
-	
+
 		return _oras[i];
 	}
 	else

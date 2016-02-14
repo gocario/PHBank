@@ -201,6 +201,13 @@ namespace Pokedex
 		return offset;
 	}
 
+	/// Regex to add printfs:
+	/// ([s]et.* /\* (.*) \*/.*;)
+	/// { printf("$2"); $1 }
+	/// Regex to remove printfs:
+	/// \{ (printf.*;) (.*;) \}
+	/// $2
+
 	void importToXY(savebuffer_t sav, pkm_s* pkm)
 	{
 		bool isShiny = Pokemon::isShiny(pkm);
@@ -344,7 +351,7 @@ namespace Pokedex
 		{
 			if (isFemale) // Female
 			{
-				if (isShiny) setOffsetBit(sav, SaveConst::ORAS_offsetDex + 0x308 /* FEMALE_SHNY_DISPLAYED_OFFSET */, speciesID, true);
+				if (isShiny) setOffsetBit(sav, SaveConst::ORAS_offsetDex + 0x308 /* FEMALE_SHINY_DISPLAYED_OFFSET */, speciesID, true);
 				else setOffsetBit(sav, SaveConst::ORAS_offsetDex + 0x248 /* FEMALE_DISPLAYED_OFFSET */, speciesID, true);
 			}
 			else // Male or Genderless

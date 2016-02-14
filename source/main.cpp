@@ -57,11 +57,11 @@ int main(int argc, char* argv[])
 #ifdef __cia
 	if (!TS_Loop())
 	{
-		// TODO Remove when better error display!
+		// TODO Remove when better exit display!
 		consoleInit(GFX_TOP, NULL);
 		printf("Exiting...\n");
 		// ^
-		delete PHBanku::texture; //://
+		delete PHBanku::texture; // :/
 		goto eof_cia;
 	}
 	
@@ -113,7 +113,7 @@ int main(int argc, char* argv[])
 		printf("Newing viewer...\n");
 		Viewer* viewer = new BoxViewer();
 	
-		// consoleExit(GFX_TOP, NULL);
+		// consoleExit(GFX_TOP, NULL); // TODO: Comment it!
 
 		ViewState state = Viewer::startMainLoop(viewer);
 
@@ -128,7 +128,7 @@ int main(int argc, char* argv[])
 		}
 		else
 		{
-			// TODO Remove when better save display!
+			// TODO Remove when better exit display!
 			consoleInit(GFX_TOP, NULL);
 			printf("Exiting...\n");
 			// ^

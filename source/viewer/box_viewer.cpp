@@ -683,7 +683,7 @@ void BoxViewer::drawBox(box_s* box, int16_t x, int16_t y)
 	// Draw the box title
 	char boxTitle[0x1a];
 	if (box->title) snprintf(boxTitle, 0x1a, box->title);
-	else snprintf(boxTitle, 0x1a, "Box %i", box->number);
+	else snprintf(boxTitle, 0x1a, "Box %i", box->number+1);
 	int boxTitleWidth = sftd_get_text_width(PHBanku::font->font, 12, boxTitle);
 	sftd_draw_text(PHBanku::font->font, x + (BACKGROUND_WIDTH - boxTitleWidth) / 2, y + 7, RGBA8(0x00,0x00,0x00,0xFF), 12, boxTitle);
 
