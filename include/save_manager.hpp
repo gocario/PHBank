@@ -22,12 +22,18 @@ class SaveManager
 		bankdata_s bankdata;
 
 	public:
+		/* PC Offsets */
 		saveConst_t offsetTrainerCard;
 		saveConst_t offsetPCLayout;
 		saveConst_t offsetPCBackground;
 		saveConst_t offsetPC;
+
+		/* BK Offsets */
 		saveConst_t offsetBK;
+		saveConst_t offsetBKLayout;
 		saveConst_t offsetBKBackground;
+
+		/* Global const */
 		saveConst_t sizeSave;
 		saveConst_t sizeBank;
 
@@ -41,6 +47,8 @@ class SaveManager
 
 		void setGame(u32 bytesRead);
 		void setGameOffsets();
+		void setBank(u32 bytesRead);
+		void setBankOffsets();
 
 		bool isPkmEmpty(pkm_s* pkm);
 		bool isSlotEmpty(u16 boxId, u16 slotId, bool inBank);

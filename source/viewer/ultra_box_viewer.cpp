@@ -72,7 +72,7 @@ Result UltraBoxViewer::initialize()
 	computeSlot(&cursorUBox);
 	selectViewBox();
 
-	boxCount = (cursorUBox.inBank ? BANK_BOX_COUNT : PC_BOX_COUNT);
+	boxCount = (cursorUBox.inBank ? PHBanku::save->bankdata.bk.boxUnlocked : PHBanku::save->savedata.pc.boxUnlocked);
 	rowCount = (boxCount / COL_COUNT) + 1;
 	colCount = (boxCount % COL_COUNT);
 
@@ -264,7 +264,7 @@ Result UltraBoxViewer::updateControls(const u32& kDown, const u32& kHeld, const 
 		{
 			this->touch = *touch;
 
-			if (boxCount == BANK_BOX_COUNT)
+			if (boxCount == PHBanku::save->savedata.pc.boxUnlocked)
 			{
 				offsetTop = originalOffsetTop + originalTouch.py - touch->py;
 				// offsetLeft = originalOffsetLeft + originalTouch.px - touch->px;

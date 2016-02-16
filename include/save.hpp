@@ -10,8 +10,6 @@
 #define BOX_ROW_PKM_COUNT (5)
 #define BOX_COL_PKM_COUNT (6)
 #define BOX_PKM_COUNT (BOX_ROW_PKM_COUNT * BOX_COL_PKM_COUNT)
-#define PC_BOX_COUNT (31) // 0x1F
-#define BANK_BOX_COUNT (100) // 0x64
 #define PKM_COUNT (721)
 
 #define PKM_SIZE (0xE8) // 232
@@ -20,7 +18,7 @@
 #define BANK_SIZE (BOX_SIZE * BANK_BOX_COUNT)
 
 #define SAVEDATA_SIZE (0x76000)
-#define BANKDATA_SIZE (0xAA100)
+#define BANKDATA_SIZE (0xAAE00)
 #define EK6_SIZE PKM_SIZE
 #define PK6_SIZE PKM_SIZE
 
@@ -62,13 +60,13 @@ struct box_s
 
 struct pc_s
 {
-	box_s box[PC_BOX_COUNT];
+	box_s box[31];
 	u8 boxUnlocked;
 };
 
 struct bk_s
 {
-	box_s box[BANK_BOX_COUNT];
+	box_s box[100];
 	u8 boxUnlocked;
 };
 
@@ -132,11 +130,12 @@ namespace SaveConst
 	const saveConst_t ORAS_offsetTrainerCard = 0x14000;
 	const saveConst_t ORAS_offsetDex = 0x1A400 - 0x05400; // 0x15000
 
-	const saveConst_t BANK_size = 0xAA100;
-	const saveConst_t BANK_offsetMagicNumber = 0x0;
-	const saveConst_t BANK_offsetVersion = 0x4;
-	const saveConst_t BANK_offsetBK = 0x100;
-	const saveConst_t BANK_offsetBKBackground = 0xAA000;
+	const saveConst_t BANK_size = 0xAAE00;
+	const saveConst_t BANK_offsetMagicNumber = 0x00;
+	const saveConst_t BANK_offsetVersion = 0x04;
+	const saveConst_t BANK_offsetOffsetBK = 0x20;
+	const saveConst_t BANK_offsetOffsetBKName = 0x24;
+	const saveConst_t BANK_offsetOffsetBKBackground = 0x26;
 }
 
 #endif // SAVE_HPP

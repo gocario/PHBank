@@ -1,4 +1,5 @@
 #include "save_manager.hpp"
+#include "bank_updater.hpp"
 
 #include "fs.h"
 #include "utils.h"
@@ -24,11 +25,10 @@ SaveManager::SaveManager()
 	offsetPCLayout = 0x0;
 	offsetPCBackground = 0x0;
 	offsetPC = 0x0;
-	offsetBK = SaveConst::BANK_offsetBK;
-	offsetBKBackground = SaveConst::BANK_offsetBKBackground;
+
 	sizeSave = SaveConst::ORAS_size;
 	sizeBank = SaveConst::BANK_size;
-	// Which is greater than SaveConst::XY_size
+	// ^ Which is greater than SaveConst::XY_size
 
 	version = Game::None;
 	loaded = false;
@@ -239,6 +239,12 @@ Result SaveManager::loadBankFile()
 		else printf(" OK\n");
 		printf("  Read %ld/%ld bytes\n", bytesRead, size);
 
+		if (!ferror(fp))
+		{
+			BankUpdater::updateBank(bankbuffer, bytesRead);
+			setBank(bytesRead);
+		}
+
 		ret = ferror(fp);
 		fclose(fp);
 	}
@@ -429,11 +435,8 @@ Result SaveManager::loadBankData()
 {
 	// memset(bankdata, 0, sizeof(bankdata)); // ASK Is it needed?
 
-	bankdata.magic = (bankbuffer[0x04]) |
-		(bankbuffer[0x01] << 24) |
-		(bankbuffer[0x02] << 16) |
-		(bankbuffer[0x03] << 8);
-	bankdata.version = *(u32*) (bankbuffer + 0x08);
+	// bankdata.magic = *(u32*)(bankbuffer);
+	bankdata.version = *(u32*)(bankbuffer + 0x4);
 
 	printf("Loading BK Boxes:");
 	bankdata.bk.boxUnlocked = 100; // ASK?
@@ -739,6 +742,26 @@ void SaveManager::setGameOffsets()
 
 		sizeSave = SaveConst::ORAS_size;
 	}
+}
+
+
+// ------------------------------------
+void SaveManager::setBank(u32 bytesRead)
+// ------------------------------------
+{
+	setBankOffsets();
+}
+
+
+// ------------------------------------
+void SaveManager::setBankOffsets()
+// ------------------------------------
+{
+	offsetBK = *(u32*)(bankbuffer + SaveConst::BANK_offsetOffsetBK);
+	offsetBKLayout = *(u32*)(bankbuffer + SaveConst::BANK_offsetOffsetBKBackground);
+	offsetBKBackground = *(u32*)(bankbuffer + SaveConst::BANK_offsetOffsetBKBackground);
+
+	sizeBank = SaveConst::BANK_size;
 }
 
 
