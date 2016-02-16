@@ -27,15 +27,13 @@ const char* DataManager::lang(void)
 {
 	switch (userlang)
 	{
-		// case LANG_JPN: return "jp";	///< Japan
-		case LANG_FRE: return "fr";	///< French
-		// case LANG_ITA: return "it";	///< Italian
-		case LANG_GER: return "de";	///< German
-		case LANG_SPA: return "es";	///< Spanish
-		// case LANG_KOR: return "kr";	///< Korean
-		case LANG_ENG:				///< English
-		case LANG_0x6:				///< 0x6
-		default: return "en";
+		// case LANGUAGE_JP: return "jp";	///< Japan
+		case LANGUAGE_FR: return "fr";	///< French
+		// case LANGUAGE_IT: return "it";	///< Italian
+		case LANGUAGE_DE: return "de";	///< German
+		case LANGUAGE_ES: return "es";	///< Spanish
+		// case LANGUAGE_KR: return "kr";	///< Korean
+		default:      return "en";	///< English
 	}
 }
 
@@ -48,7 +46,7 @@ const u8* DataManager::personal(u32 species, u32 form)
 		return _personal[species];
 	}
 	else
-		return NULL;
+		return _personal[0]; // To avoid overflow
 }
 
 const u8* DataManager::personal(u32 species)

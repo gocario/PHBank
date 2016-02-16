@@ -5,17 +5,28 @@
 #ifndef LANG_H
 #define LANG_H
 
-typedef enum {
-	LANG_JPN,	///< Japan
-	LANG_ENG,	///< English
-	LANG_FRE,	///< French
-	LANG_ITA,	///< Italian
-	LANG_GER,	///< German
-	LANG_0x6,	///< Unknow lang
-	LANG_SPA,	///< Spanish
-	LANG_KOR,	///< Korean
-} Lang;
+typedef enum
+{
+	LANGUAGE_JP,	///< Japan
+	LANGUAGE_EN,	///< English
+	LANGUAGE_FR,	///< French
+	LANGUAGE_IT,	///< Italian
+	LANGUAGE_DE,	///< German
+	LANGUAGE_x6,	///< 0x6
+	LANGUAGE_ES,	///< Spanish
+	LANGUAGE_KR,	///< Korean
+} Language;
 
-extern Lang userlang;
+extern Language userlang;
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void updateSystemLanguage(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // LANG_H
