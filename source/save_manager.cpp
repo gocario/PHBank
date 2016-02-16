@@ -39,7 +39,7 @@ SaveManager::~SaveManager()
 // ------------------------------------
 {
 	printf("Deleting PC Boxes:");
-	for (u16 iB = 0; iB < PC_BOX_COUNT; iB++)
+	for (u16 iB = 0; iB < savedata.pc.boxUnlocked; iB++)
 	{
 		for (u16 iP = 0; iP < BOX_PKM_COUNT; iP++)
 		{
@@ -55,7 +55,7 @@ SaveManager::~SaveManager()
 	printf(" OK\n");
 
 	printf("Deleting BK Boxes:");
-	for (u16 iB = 0; iB < BANK_BOX_COUNT; iB++)
+	for (u16 iB = 0; iB < bankdata.bk.boxUnlocked; iB++)
 	{
 		for (u16 iP = 0; iP < BOX_PKM_COUNT; iP++)
 		{
@@ -397,11 +397,13 @@ Result SaveManager::loadSaveData()
 		savedata.SID = *(u16*)(savebuffer + offsetTrainerCard + 0x02);
 		savedata.TSV = computeTSV(savedata.TID, savedata.SID);
 		savedata.OTGender = *(u8*)(savebuffer + offsetTrainerCard + 0x05);
-		unicodeToChar(savedata.OTName, (u16*)(savebuffer + offsetTrainerCard + 0x48), 0xC);
+		unicodeToChar(savedata.OTName, (u16*)(savebuffer + offsetTrainerCard + 0x48), 0xD);
 		printf(" OK\n");
 
 		printf("Loading PC Boxes:");
-		for (u16 iB = 0; iB < PC_BOX_COUNT; iB++)
+		savedata.pc.boxUnlocked = *(u8*)(savebuffer + 0x483E);
+		if (savedata.pc.boxUnlocked < 30) savedata.pc.boxUnlocked = 30;
+		for (u16 iB = 0; iB < savedata.pc.boxUnlocked; iB++)
 		{
 			// printf("%-2u ", iB);
 			// if (iB % 0x10 == 0xf) printf("\n");
@@ -410,7 +412,7 @@ Result SaveManager::loadSaveData()
 				loadPkmPC(iB, iP);
 			}
 
-			savedata.pc.box[iB].title = NULL; // TODO: Retrieve box's name.
+			unicodeToChar(savedata.pc.box[iB].title, (u16*)(savebuffer + offsetPCLayout + 0x22 * iB), 0x11);
 			savedata.pc.box[iB].background = *(u8*)(savebuffer + offsetPCBackground + 0x1 * iB);
 			savedata.pc.box[iB].number = iB;
 		}
@@ -434,7 +436,8 @@ Result SaveManager::loadBankData()
 	bankdata.version = *(u32*) (bankbuffer + 0x08);
 
 	printf("Loading BK Boxes:");
-	for (u16 iB = 0; iB < BANK_BOX_COUNT; iB++)
+	bankdata.bk.boxUnlocked = 100; // ASK?
+	for (u16 iB = 0; iB < bankdata.bk.boxUnlocked; iB++)
 	{
 		// printf("%-2u ", iB);
 		// if (iB % 0x10 == 0xf) printf("\n");
@@ -443,7 +446,7 @@ Result SaveManager::loadBankData()
 			loadPkmBK(iB, iP);
 		}
 
-		bankdata.bk.box[iB].title = NULL; // TODO: Retrieve box's name.
+		bankdata.bk.box[iB].title[0] = '\0'; // TODO: Retrieve box's name.
 		bankdata.bk.box[iB].background = *(bankbuffer + offsetBKBackground + 0x1 * iB);
 		bankdata.bk.box[iB].number = iB;
 	}
@@ -565,7 +568,8 @@ Result SaveManager::saveSaveData()
 	if (Game::is(version, Game::XY) || Game::is(version, Game::ORAS))
 	{
 		printf("Saving PC Boxes:");
-		for (u16 iB = 0; iB < PC_BOX_COUNT; iB++)
+		if (*(u8*)(savebuffer + 0x483E) < 30) *(u8*)(savebuffer + 0x483E) = 30;
+		for (u16 iB = 0; iB < savedata.pc.boxUnlocked; iB++)
 		{
 			// printf("%-2u ", iB);
 			// if (iB % 0x10 == 0xf) printf("\n");
@@ -592,7 +596,7 @@ Result SaveManager::saveBankData()
 	Result ret = 0;
 
 	printf("Saving BK Boxes:");
-	for (u16 iB = 0; iB < BANK_BOX_COUNT; iB++)
+	for (u16 iB = 0; iB < bankdata.bk.boxUnlocked; iB++)
 	{
 		// printf("%-2u ", iB);
 		// if (iB % 0x10 == 0xf) printf("\n");
@@ -924,9 +928,10 @@ void SaveManager::tradePkm(pkm_s* pkm)
 	}
 	else
 	{
-		u16 save_OTName[0xD];
-		u16 pkmn_OTName[0xD];
-		u16 pkmn_HTName[0xD];
+		// We do not care about the end terminator
+		u16 save_OTName[0xC];
+		u16 pkmn_OTName[0xC];
+		u16 pkmn_HTName[0xC];
 
 		memcpy(save_OTName, (savebuffer + offsetTrainerCard + 0x48), 0x18);
 		memcpy(pkmn_OTName, Pokemon::OT_name(pkm), 0x18);

@@ -6,6 +6,7 @@
 #define BOX_VIEWER_HPP
 
 #include "viewer.hpp"
+#include "phbank.hpp"
 #include "save.hpp"
 
 struct vPkm_s
@@ -92,6 +93,7 @@ class BoxViewer : public Viewer
 		void selectViewBox(uint16_t boxID, bool inBank = false);
 
 	private:
+		SaveManager* save;
 		CursorBox_s cursorBox;
 		CursorType cursorType = CursorType::SingleSelect;
 		touchPosition touch;

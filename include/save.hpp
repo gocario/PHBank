@@ -55,7 +55,7 @@ struct pkm_s
 struct box_s
 {
 	pkm_s slot[BOX_PKM_COUNT];
-	char* title;
+	char title[0x11];
 	u8 background;
 	u8 number;
 };
@@ -63,11 +63,13 @@ struct box_s
 struct pc_s
 {
 	box_s box[PC_BOX_COUNT];
+	u8 boxUnlocked;
 };
 
 struct bk_s
 {
 	box_s box[BANK_BOX_COUNT];
+	u8 boxUnlocked;
 };
 
 struct savedata_s
@@ -77,7 +79,7 @@ struct savedata_s
 	u16 SID; // 0x2
 	u16 TSV;
 	u8 OTGender; // 0x05
-	char OTName[0x1A/2]; // 0x48
+	char OTName[0xD]; // 0x48
 	u8 GEORegion; // 0x26
 	u8 GEOCountry; // 0x27
 };

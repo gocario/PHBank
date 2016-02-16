@@ -2,7 +2,6 @@
 
 #include "lang.h"
 #include "utils.h"
-#include "phbank.hpp"
 #include "pokemon.hpp"
 #include "text.hpp"
 
@@ -150,6 +149,9 @@ Result BoxViewer::initialize()
 {
 	if (hasChild()) { if (this->child->initialize() == PARENT_STEP) ; else return CHILD_STEP; }
 
+	// Use the Save Manager of PHBanku
+	save = PHBanku::save;
+
 	// Initialize the 2 boxes content
 	cursorBox.inBank = true; selectViewBox();
 	cursorBox.inBank = false; selectViewBox();
@@ -173,7 +175,7 @@ Result BoxViewer::drawTopScreen()
 	sf2d_draw_texture(PHBanku::texture->resumeBackground, 0, 0);
 
 	sftd_draw_text_white(11, 40, "Game's OT");
-	sftd_draw_text_white(91, 40, "%s (%lx-%lx-%lx)", PHBanku::save->savedata.OTName, PHBanku::save->savedata.TID, PHBanku::save->savedata.SID, PHBanku::save->savedata.TSV);
+	sftd_draw_text_white(91, 40, "%s (%lx-%lx-%lx)", save->savedata.OTName, save->savedata.TID, save->savedata.SID, save->savedata.TSV);
 
 	// If there is a current Pokémon
 	if (vPkm.pkm && !vPkm.emptySlot)
@@ -203,7 +205,7 @@ Result BoxViewer::drawTopScreen()
 		x = 11;
 		y = 42 - 2;
 		// sftd_draw_text_white(x, y, "Game's OT");
-		// sftd_draw_text_white(x+80, y, "%s (%lx-%lx-%lx)", PHBanku::save->savedata.OTName, PHBanku::save->savedata.TID, PHBanku::save->savedata.SID, PHBanku::save->savedata.TSV);
+		// sftd_draw_text_white(x+80, y, "%s (%lx-%lx-%lx)", save->savedata.OTName, save->savedata.TID, save->savedata.SID, save->savedata.TSV);
 		sftd_draw_text_white(x, (y += 15), "Dex No.");
 		sftd_draw_text_white(x+50, y, "%u", vPkm.pkm->speciesID);
 		sftd_draw_text_white(x+80, y, "%s", vPkm.species);
@@ -435,8 +437,8 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 			cursorBox.row += rowMod;
 			cursorBox.col += colMod;
 
-			if (*cursorBox.box < 0) *cursorBox.box = (cursorBox.inBank ? BANK_BOX_COUNT : PC_BOX_COUNT)-1;
-			else if (*cursorBox.box > (cursorBox.inBank ? BANK_BOX_COUNT : PC_BOX_COUNT)-1) *cursorBox.box = 0;
+			if (*cursorBox.box < 0) *cursorBox.box = (cursorBox.inBank ? save->bankdata.bk.boxUnlocked : save->savedata.pc.boxUnlocked)-1;
+			else if (*cursorBox.box > (cursorBox.inBank ? save->bankdata.bk.boxUnlocked : save->savedata.pc.boxUnlocked)-1) *cursorBox.box = 0;
 
 			if (cursorBox.row < BOX_HEADER_SELECTED) cursorBox.row = BOX_ROW_PKM_COUNT-1;
 			else if (cursorBox.row > BOX_ROW_PKM_COUNT-1) cursorBox.row = BOX_HEADER_SELECTED;
@@ -494,7 +496,7 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 			if (vPCBox && vBKBox) // TODO: Is the `if` useless?
 			{
 				// Swap the two boxes (PC|BK)
-				PHBanku::save->moveBox(cursorBox.boxPC, false, cursorBox.boxBK, true);
+				save->moveBox(cursorBox.boxPC, false, cursorBox.boxBK, true);
 			}
 		}
 	}
@@ -682,7 +684,8 @@ void BoxViewer::drawBox(box_s* box, int16_t x, int16_t y)
 
 	// Draw the box title
 	char boxTitle[0x1a];
-	if (box->title) snprintf(boxTitle, 0x1a, box->title);
+	/// TODO: Remove that if statement when complete box->title.
+	if (box->title[0] != '\0') snprintf(boxTitle, 0x1a, box->title);
 	else snprintf(boxTitle, 0x1a, "Box %i", box->number+1);
 	int boxTitleWidth = sftd_get_text_width(PHBanku::font->font, 12, boxTitle);
 	sftd_draw_text(PHBanku::font->font, x + (BACKGROUND_WIDTH - boxTitleWidth) / 2, y + 7, RGBA8(0x00,0x00,0x00,0xFF), 12, boxTitle);
@@ -808,7 +811,7 @@ void BoxViewer::selectViewBox()
 	else
 		vBox = &vPCBox;
 
-	PHBanku::save->getBox(*cursorBox.box, vBox, cursorBox.inBank);
+	save->getBox(*cursorBox.box, vBox, cursorBox.inBank);
 }
 
 
@@ -827,7 +830,7 @@ void BoxViewer::selectViewPokemon()
 	// If the cursor is in a box slot
 	else
 	{
-		PHBanku::save->getPkm(*cursorBox.box, cursorBox.inslot, &vPkm.pkm, cursorBox.inBank);
+		save->getPkm(*cursorBox.box, cursorBox.inslot, &vPkm.pkm, cursorBox.inBank);
 		populateVPkmData(&vPkm);
 	}
 }
@@ -859,7 +862,7 @@ void BoxViewer::selectMovePokemon()
 		if (sPkm != vPkm.pkm)
 		{
 			// Swap the Pokémon currenlty selected and the current Pokémon, and keep the return value (true: had moved, false: hadn't)
-			bool moved = PHBanku::save->movePkm(sPkm, vPkm.pkm, sSlot.inBank, cursorBox.inBank);
+			bool moved = save->movePkm(sPkm, vPkm.pkm, sSlot.inBank, cursorBox.inBank);
 
 			// If the Pokémon had moved
 			if (moved)
@@ -930,7 +933,7 @@ void BoxViewer::populateVPkmData(vPkm_s* vPkm)
 	unicodeToChar((char*) vPkm->OTName, Pokemon::OT_name(vPkm->pkm), 0x1a);
 	unicodeToChar((char*) vPkm->HTName, Pokemon::HT_name(vPkm->pkm), 0x1a);
 
-	vPkm->emptySlot = PHBanku::save->isPkmEmpty(vPkm->pkm);
+	vPkm->emptySlot = save->isPkmEmpty(vPkm->pkm);
 
 	vPkm->isKalosBorn = Pokemon::isKalosBorn(vPkm->pkm);
 	vPkm->isInfected = Pokemon::isInfected(vPkm->pkm);
