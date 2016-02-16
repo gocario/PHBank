@@ -28,13 +28,14 @@ const char* DataManager::lang(void)
 	switch (userlang)
 	{
 		// case LANG_JPN: return "jp";	///< Japan
-		case LANG_ENG: return "en";	///< English
 		case LANG_FRE: return "fr";	///< French
 		// case LANG_ITA: return "it";	///< Italian
 		case LANG_GER: return "de";	///< German
 		case LANG_SPA: return "es";	///< Spanish
 		// case LANG_KOR: return "kr";	///< Korean
-		default: return "";
+		case LANG_ENG:				///< English
+		case LANG_0x6:				///< 0x6
+		default: return "en";
 	}
 }
 
@@ -117,7 +118,6 @@ Result DataManager::load()
 	sprintf(path, PK_DATA_FOLDER "personal");
 	FILE* fp = fopen(path, "rb");
 	if (!fp) return (ret | -1);
-
 	fread(_personal, PERSONAL_LENGTH, PERSONAL_COUNT, fp);
 
 	fclose(fp);

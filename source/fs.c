@@ -46,8 +46,8 @@ Result FS_ReadFile(const char* path, void* dst, const FS_Archive* archive, u64 m
 		if (R_FAILED(ret) || *bytesRead < size) ret = -3;
 	}
 
-	ret = FSFILE_Close(fileHandle);
-	r(" > FSFILE_Close: %lx\n", ret);
+	FSFILE_Close(fileHandle);
+	r(" > FSFILE_Close\n");
 
 	return ret;
 }
@@ -72,8 +72,8 @@ Result FS_WriteFile(const char* path, const void* src, u64 size, const FS_Archiv
 		if (R_FAILED(ret) || *bytesWritten != size) ret = -2;
 	}
 
-	ret = FSFILE_Close(fileHandle);
-	r(" > FSFILE_Close: %lx\n", ret);
+	FSFILE_Close(fileHandle);
+	r(" > FSFILE_Close\n");
 
 	return ret;
 }
