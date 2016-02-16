@@ -207,7 +207,7 @@ Result BoxViewer::drawTopScreen()
 		// sftd_draw_text_white(x, y, "Game's OT");
 		// sftd_draw_text_white(x+80, y, "%s (%lx-%lx-%lx)", save->savedata.OTName, save->savedata.TID, save->savedata.SID, save->savedata.TSV);
 		sftd_draw_text_white(x, (y += 15), "Dex No.");
-		sftd_draw_text_white(x+50, y, "%u", vPkm.pkm->speciesID);
+		sftd_draw_text_white(x+50, y, "%03u", vPkm.pkm->speciesID);
 		sftd_draw_text_white(x+80, y, "%s", vPkm.species);
 		sftd_draw_text_white(x, (y += 15), "O.T.");
 		sftd_draw_text_white(x+50, y, "%s", vPkm.OTName);

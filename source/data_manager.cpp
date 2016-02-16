@@ -6,6 +6,13 @@
 #include <stdio.h>
 #include <string.h>
 
+static const char* hpTypes[] = {
+	"Fighting", "Flying", "Poison", "Ground",
+	"Rock", "Bug", "Ghost", "Steel", "Fire", "Water",
+	"Grass", "Electric", "Psychic", "Ice", "Dragon", "Dark",
+	"(None)"
+};
+
 DataManager::DataManager(void)
 {
 
@@ -53,7 +60,7 @@ const u8* DataManager::abilities(u32 ability)
 	if (ability < DEX_ABILITIES_COUNT)
 		return _abilities[ability];
 	else
-		return NULL;
+		return _abilities[0];
 }
 
 const u8* DataManager::items(u32 item)
@@ -61,7 +68,7 @@ const u8* DataManager::items(u32 item)
 	if (item < DEX_ITEMS_COUNT)
 		return _items[item];
 	else
-		return NULL;
+		return _items[0];
 }
 
 const u8* DataManager::moves(u32 move)
@@ -69,7 +76,7 @@ const u8* DataManager::moves(u32 move)
 	if (move < DEX_MOVES_COUNT)
 		return _moves[move];
 	else
-		return NULL;
+		return _moves[0];
 }
 
 const u8* DataManager::natures(u32 nature)
@@ -77,7 +84,7 @@ const u8* DataManager::natures(u32 nature)
 	if (nature < DEX_NATURES_COUNT)
 		return _natures[nature];
 	else
-		return NULL;
+		return (const u8*) hpTypes[16];
 }
 
 const u8* DataManager::species(u32 species)
@@ -85,31 +92,25 @@ const u8* DataManager::species(u32 species)
 	if (species < DEX_SPECIES_COUNT)
 		return _species[species];
 	else
-		return NULL;
+		return (const u8*) hpTypes[16];
 }
-
-static const char* hpTypes[] = {
-	"Fighting", "Flying", "Poison", "Ground",
-	"Rock", "Bug", "Ghost", "Steel", "Fire", "Water",
-	"Grass", "Electric", "Psychic", "Ice", "Dragon", "Dark"
-};
 
 const u8* DataManager::HPTypes(u8 hiddenPower)
 {
 	if (hiddenPower < 16)
-		return (u8*) hpTypes[hiddenPower];
+		return (const u8*) hpTypes[hiddenPower];
 	else
-		return NULL;
+		return (const u8*) hpTypes[16];
 }
 
 Result DataManager::load()
 {
 	Result ret = 0;
-	ret |= loadDataFile((char*) "abilities", (u8*)&(_abilities), DEX_ABILITIES_LENGTH, DEX_ABILITIES_COUNT);
-	ret |= loadDataFile((char*) "items", (u8*)&(_items), DEX_ITEMS_LENGTH, DEX_ITEMS_COUNT);
-	ret |= loadDataFile((char*) "moves", (u8*)&(_moves), DEX_MOVES_LENGTH, DEX_MOVES_COUNT);
-	ret |= loadDataFile((char*) "natures", (u8*)&(_natures), DEX_NATURES_LENGTH, DEX_NATURES_COUNT);
-	ret |= loadDataFile((char*) "species", (u8*)&(_species), DEX_SPECIES_LENGTH, DEX_SPECIES_COUNT);
+	ret |= loadDataFile("abilities", (u8*)&(_abilities), DEX_ABILITIES_LENGTH, DEX_ABILITIES_COUNT);
+	ret |= loadDataFile("items", (u8*)&(_items), DEX_ITEMS_LENGTH, DEX_ITEMS_COUNT);
+	ret |= loadDataFile("moves", (u8*)&(_moves), DEX_MOVES_LENGTH, DEX_MOVES_COUNT);
+	ret |= loadDataFile("natures", (u8*)&(_natures), DEX_NATURES_LENGTH, DEX_NATURES_COUNT);
+	ret |= loadDataFile("species", (u8*)&(_species), DEX_SPECIES_LENGTH, DEX_SPECIES_COUNT);
 
 	char path[32];
 
