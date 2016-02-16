@@ -40,7 +40,7 @@ struct pkm_s
 	bool isEggy : 1;	///< If the Pokémon is an egg.
 	bool isShiny : 1;	///< If the Pokémon is shiny.
 	unsigned: 3;
-	
+
 	u16 speciesID;		///< The species of the Pokémon.
 	u16 itemID;			///< The held item of the Pokémon.
 	u8 formID;			///< The form of the Pokémon.
@@ -48,7 +48,7 @@ struct pkm_s
 
 	// u8* species;		///< The name of the species.
 	// u8* item;			///< The name of the held item.
-	
+
 	// TODO: Add recurrent attributes!
 };
 

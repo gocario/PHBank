@@ -20,8 +20,8 @@ class SaveManager
 		bankbuffer_t bankbuffer;
 		savedata_s savedata;
 		bankdata_s bankdata;
-		
-	private:
+
+	public:
 		saveConst_t offsetTrainerCard;
 		saveConst_t offsetPCLayout;
 		saveConst_t offsetPCBackground;
@@ -34,7 +34,7 @@ class SaveManager
 	public:
 		SaveManager();
 		~SaveManager();
-		
+
 		Result load();
 		Result save();
 		Result backupFile();
@@ -65,7 +65,7 @@ class SaveManager
 		void rewriteSaveCHK();
 
 		u16 computeTSV(u16 TID, u16 SID);
-		
+
 		u32 LCRNG(u32 seed);
 		u32 CHKOffset(u32 i);
 		u32 CHKLength(u32 i);

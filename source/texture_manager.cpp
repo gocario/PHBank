@@ -72,7 +72,7 @@ Result TextureManager::load(void)
 	// Thread loadingThread;
 
 	printf("Loading ballLoadingScreen: %p\n", (ballLoadingScreen = sfil_load_PNG_file(ROMFS "ball_loading_screen.png", SF2D_PLACE_RAM)));
-	
+
 	if (!ballLoadingScreen) return -5;
 
 	drawStaticLoadingScreen();
@@ -162,6 +162,6 @@ void TextureManager::drawLoadingScreen()
 	// 		((i*2)/3) * 64  + rowBackball[(i*2)%3][1] - (j*2) * 8 - 16 + tick % 64
 	// 	);
 	// }
-	
+
 	drawLoadingText(300, 220);
 }

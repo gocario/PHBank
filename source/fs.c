@@ -24,7 +24,7 @@ FS_Archive saveArchive;
 Result FS_ReadFile(const char* path, void* dst, const FS_Archive* archive, u64 maxSize, u32* bytesRead)
 {
 	if (!path || !dst || !archive || !bytesRead) return -1;
-	
+
 	Result ret;
 	u64 size;
 	Handle fileHandle;
@@ -81,7 +81,7 @@ Result FS_WriteFile(const char* path, const void* src, u64 size, const FS_Archiv
 Result FS_DeleteFile(const char* path, const FS_Archive* archive)
 {
 	if (!path || !archive) return -1;
-	
+
 	Result ret;
 
 	debug_print("FS_DeleteFile:\n");
@@ -95,7 +95,7 @@ Result FS_DeleteFile(const char* path, const FS_Archive* archive)
 Result FS_CreateDirectory(const char* path, const FS_Archive* archive)
 {
 	if (!path || !archive) return -1;
-	
+
 	Result ret;
 
 	debug_print("FS_CreateDirectory:\n");
@@ -129,7 +129,7 @@ Result FSCIA_Init(u64 titleid, FS_MediaType mediatype)
 	Result ret = 1;
 
 	debug_print("FSCIA_Init:\n");
-	
+
 	if (!saveInitialized)
 	{
 		lowPath[0] = mediatype;
@@ -208,7 +208,7 @@ Result FS_Init(void)
 Result FS_Exit(void)
 {
 	Result ret = 1;
-	
+
 	debug_print("FS_Exit:\n");
 
 	if (saveInitialized)

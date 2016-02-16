@@ -18,7 +18,7 @@ Viewer::Viewer(Viewer* parent)
 {
 	this->parent = parent;
 	this->child = NULL;
-	
+
 	if (this->parent)
 	{
 		this->parent->child = this;
@@ -243,7 +243,7 @@ ViewState Viewer::startMainLoop(Viewer* viewer)
 	// sf2d_init();
 
 	viewer->initialize();
-	
+
 	u32 kDown, kHeld, kUp;
 	touchPosition touch;
 	while(viewer->isRunning() && aptMainLoop())
@@ -261,10 +261,10 @@ ViewState Viewer::startMainLoop(Viewer* viewer)
 			viewer->drawBotScreen();
 		sf2d_end_frame();
 		sf2d_swapbuffers();
-		
+
 		viewer->updateControls(kDown, kHeld, kUp, &touch);
 	}
-	
+
 	// sf2d_fini();
 	return viewer->state();
 }

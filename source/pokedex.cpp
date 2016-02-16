@@ -184,7 +184,7 @@ namespace Pokedex
 
 				// Seen
 				if (isShiny) { printf("FORM_SHINY_SEEN_FLAG\n"); setOffsetBit(sav, SaveConst::XY_offsetDex + 0x368 + 0x18*1 /* FORM_SHINY_SEEN_OFFSET */, formdexBit, true); }
-				else { printf("FORM_SEEN_FLAG\n"); setOffsetBit(sav, SaveConst::XY_offsetDex + 0x368 + 018*0 /* FORM_SEEN_OFFSET */, formdexBit, true); }
+				else { printf("FORM_SEEN_FLAG\n"); setOffsetBit(sav, SaveConst::XY_offsetDex + 0x368 + 0x18*0 /* FORM_SEEN_OFFSET */, formdexBit, true); }
 
 				if (!isDisplayed)
 				{

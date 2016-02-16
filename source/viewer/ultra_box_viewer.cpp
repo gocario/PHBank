@@ -196,7 +196,7 @@ Result UltraBoxViewer::updateControls(const u32& kDown, const u32& kHeld, const 
 			{
 				if (cursorUBox.row < rowCount -2)
 				{
-					offsetTop = (cursorUBox.row -2)  * 40;	
+					offsetTop = (cursorUBox.row -2)  * 40;
 				}
 				if (cursorUBox.row > rowCount - 3)
 				{

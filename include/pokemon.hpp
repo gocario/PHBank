@@ -55,9 +55,9 @@ namespace Pokemon
 	u16 SPD(pkm_s* pkm, u8 level);
 	u16 SPE(pkm_s* pkm, u8 level);
 	u8 HPType(pkm_s* pkm);
-		
 
-		// Region A
+
+	// Region A
 	u32 encryptionKey(pkm_s* pkm);
 	u16 sanity(pkm_s* pkm);
 	u16 checksum(pkm_s* pkm);
@@ -192,7 +192,7 @@ namespace Pokemon
 	u8 _0x3D(pkm_s* pkm);
 	u8 _0x3E(pkm_s* pkm);
 	u8 _0x3F(pkm_s* pkm);
-		
+
 	// Region B
 	u16* NK_name(pkm_s* pkm);
 	u16 move1(pkm_s* pkm);
@@ -306,7 +306,6 @@ namespace Pokemon
 	u8 RIB5(pkm_s* pkm);
 	u8 dist(pkm_s* pkm);
 	u32 IV32(pkm_s* pkm);
-
 
 
 	// Region A

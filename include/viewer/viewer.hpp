@@ -71,7 +71,7 @@ class Viewer
 		static PrintConsole console[2];
 		static ViewState startMainLoop(Viewer* viewer);
 		/*--------------------*/
-		
+
 	protected:
 		/*-- Viewer Constructors --*/
 		Viewer(Viewer* parent = NULL);

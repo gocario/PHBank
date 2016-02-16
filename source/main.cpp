@@ -29,7 +29,7 @@ PrintConsole* consoleExit(gfxScreen_t screen, PrintConsole* console)
 }
 
 int main(int argc, char* argv[])
-{	
+{
 	Result ret = 0, error = 0;
 
 	sf2d_init();
@@ -55,15 +55,9 @@ int main(int argc, char* argv[])
 	printf("> Loading filesystem services\n");
 
 #ifdef __cia
-	if (!TS_Loop())
+	while (TS_Loop())
 	{
-		// TODO Remove when better exit display!
-		consoleInit(GFX_TOP, NULL);
-		printf("Exiting...\n");
-		// ^
-		goto eof_cia;
-	}
-	
+
 	ret = FSCIA_Init(titleEntry.titleid, titleEntry.mediatype);
 
 	// Draw the static loading screen again because of ts.h
@@ -111,7 +105,7 @@ int main(int argc, char* argv[])
 	{
 		printf("Newing viewer...\n");
 		Viewer* viewer = new BoxViewer();
-	
+
 		// consoleExit(GFX_TOP, NULL); // TODO: Comment it!
 
 		ViewState state = Viewer::startMainLoop(viewer);
@@ -122,7 +116,7 @@ int main(int argc, char* argv[])
 			consoleInit(GFX_TOP, NULL);
 			printf("Saving...\n");
 			// ^
-			
+
 			PHBanku::save->save();
 		}
 		else
@@ -141,7 +135,7 @@ int main(int argc, char* argv[])
 		// TODO Remove when better error display!
 		consoleInit(GFX_TOP, NULL);
 		// ^
-		
+
 		printf("\nProblem happened: %li\n", error);
 		printf("PHBank version: %x\n", VERSION);
 		printf("Can't start the viewer.\n");
@@ -156,7 +150,13 @@ int main(int argc, char* argv[])
 
 #ifdef __cia
 	FSCIA_Exit();
-eof_cia:
+
+	} // while (TS_LOOP())
+
+	// TODO Remove when better exit display!
+	consoleInit(GFX_TOP, NULL);
+	// ^
+
 	// printf("\nYou can close that app now.\n");
 	printf("\nThe app execution ended!\n");
 	printf("Pressing any key will close the app.\n");

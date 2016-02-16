@@ -78,7 +78,7 @@ namespace Filter
 		bool isFiltered = true;
 
 		isFiltered = !(speciesID == 25 && formID > 0);
-		
+
 		// printf(" School girl %s\n", (isFiltered ? "allowed" : "forbidden"));
 		return isFiltered;
 	}

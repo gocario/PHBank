@@ -168,7 +168,7 @@ Result BoxViewer::drawTopScreen()
 // --------------------------------------------------
 {
 	if (hasRegularChild()) { if (this->child->drawTopScreen() == PARENT_STEP); else return CHILD_STEP; }
-	
+
 	// Draw the resume background
 	sf2d_draw_texture(PHBanku::texture->resumeBackground, 0, 0);
 
@@ -292,7 +292,7 @@ Result BoxViewer::drawBotScreen()
 // --------------------------------------------------
 {
 	if (hasRegularChild()) { if (this->child->drawBotScreen() == PARENT_STEP); else return CHILD_STEP; }
-	
+
 	{
 		// Retrieve the current box, and the drawing offset.
 		s16 boxShift = (cursorBox.inBank ? BK_BOX_SHIFT_USED : PC_BOX_SHIFT_USED);
@@ -369,7 +369,7 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 // --------------------------------------------------
 {
 	if (hasRegularChild() || hasOverlayChild()) { if (this->child->updateControls(kDown, kHeld, kUp, touch) == PARENT_STEP); else return CHILD_STEP; }
-	
+
 	if (kDown & KEY_START)
 	{
 		// Open the Savexit popup
@@ -434,7 +434,7 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 			*cursorBox.box += boxMod;
 			cursorBox.row += rowMod;
 			cursorBox.col += colMod;
-			
+
 			if (*cursorBox.box < 0) *cursorBox.box = (cursorBox.inBank ? BANK_BOX_COUNT : PC_BOX_COUNT)-1;
 			else if (*cursorBox.box > (cursorBox.inBank ? BANK_BOX_COUNT : PC_BOX_COUNT)-1) *cursorBox.box = 0;
 
@@ -522,7 +522,7 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 			return CHILD_STEP;
 		}
 	}
-	
+
 
 	{
 		if (kDown & KEY_TOUCH)
@@ -555,7 +555,7 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 					// Move the cursor to the new slot
 					cursorBox.row = ((py - 50) / 35);
 					cursorBox.col = ((px - boxShift) / 35);
-					
+
 					// Update the current Pokémon
 					selectViewPokemon();
 					// Move the current Pokémon (grab)
@@ -716,7 +716,7 @@ void BoxViewer::drawBox(box_s* box, int16_t x, int16_t y)
 			drawPokemon(&box->slot[i], x + (i % BOX_COL_PKM_COUNT) * 35, y + 30 + (i / BOX_COL_PKM_COUNT) * 35);
 		}
 	}
-	
+
 	// TODO DRY Merge that! ^
 }
 

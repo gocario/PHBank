@@ -20,13 +20,13 @@ class TextureManager
 		sf2d_texture* boxTiles;			///< The sheet for box sprites (cursor, button, etc).
 		sf2d_texture* boxBackgrounds;	///< The backgrounds of the box.
 		sf2d_texture* resumeBackground;	///< The resume background for top screen.
-		
+
 	public:
 		TextureManager(void);
 		~TextureManager(void);
 
 		Result load(void);
-		
+
 		void drawStaticLoadingScreen(void);
 
 	private:

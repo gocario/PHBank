@@ -49,7 +49,7 @@ Result SavexitViewer::initialize()
 // --------------------------------------------------
 {
 	if (hasChild()) { if (child->initialize() == PARENT_STEP) ; else return CHILD_STEP; }
-	
+
 	// consoleClear();
 
 	return SUCCESS_STEP;
@@ -98,7 +98,7 @@ Result SavexitViewer::updateControls(const u32& kDown, const u32& kHeld, const u
 // --------------------------------------------------
 {
 	if (hasRegularChild() || hasOverlayChild()) { if (child->updateControls(kDown, kHeld, kUp, touch) == PARENT_STEP); else return CHILD_STEP; }
-	
+
 	if (kDown & KEY_A)
 	{
 		// Return the "You have to save" code

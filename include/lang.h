@@ -11,6 +11,7 @@ typedef enum {
 	LANG_FRE,	///< French
 	LANG_ITA,	///< Italian
 	LANG_GER,	///< German
+	LANG_0x6,	///< Unknow lang
 	LANG_SPA,	///< Spanish
 	LANG_KOR,	///< Korean
 } Lang;

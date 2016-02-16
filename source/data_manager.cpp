@@ -8,7 +8,7 @@
 
 DataManager::DataManager(void)
 {
-	
+
 }
 
 DataManager::~DataManager(void)
@@ -116,7 +116,7 @@ Result DataManager::load()
 	sprintf(path, PK_DATA_FOLDER "personal");
 	FILE* fp = fopen(path, "rb");
 	if (!fp) return (ret | -1);
-	
+
 	fread(_personal, PERSONAL_LENGTH, PERSONAL_COUNT, fp);
 
 	fclose(fp);
@@ -127,7 +127,7 @@ Result DataManager::load()
 Result DataManager::loadDataFile(const char* file, u8* dest, u32 lineMaxLength, u32 lineCount)
 {
 	char path[40];
-	
+
 	sprintf(path, PK_DATA_FOLDER "%s/%s_%s.txt", lang(), file, lang());
 	FILE* fp = fopen(path, "r");
 	if (!fp) return -1;
