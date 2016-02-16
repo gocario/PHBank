@@ -39,70 +39,66 @@ namespace Pokedex
 	 */
 	static s32 getFormDexOffsetXY(u16 species)
 	{
-		s32 offset = 0;
-
 		switch (species)
 		{
-			case 460: offset += 2; // Abomasnow
-			case 448: offset += 2; // Lucario
-			case 445: offset += 2; // Garchomp
-			case 381: offset += 2; // Latios
-			case 380: offset += 2; // Latias
-			case 359: offset += 2; // Absol
-			case 354: offset += 2; // Banette
-			case 310: offset += 2; // Manetric
-			case 308: offset += 2; // Medicham
-			case 306: offset += 2; // Aggron
-			case 303: offset += 2; // Mawile
-			case 257: offset += 2; // Blaziken
-			case 248: offset += 2; // Tyranitar
-			case 229: offset += 2; // Houndoom
-			case 214: offset += 2; // Heracros
-			case 212: offset += 2; // Scizor
-			case 181: offset += 3; // Ampharos
-			case 150: offset += 2; // Mewtwo
-			case 142: offset += 2; // Aerodactyl
-			case 130: offset += 2; // Gyarados
-			case 127: offset += 2; // Pinsir
-			case 115: offset += 2; // Kangaskhan
-			case  94: offset += 2; // Gengar
-			case  65: offset += 2; // Alakazam
-			case   9: offset += 2; // Blastoise
-			case   6: offset += 3; // Charizard
-			case   3: offset += 2; // Venusaur
-			case 716: offset += 2; // Xerneas
-			case 681: offset += 4; // Aegislash
-			case 711: offset += 4; // Gourgeist
-			case 710: offset += 5; // Pumpkaboo
-			case 671: offset += 6; // Florges
-			case 670: offset += 5; // Floette
-			case 669: offset += 20; // Flabébé
-			case 666: offset += 2; // Vivillion
-			case 645: offset += 2; // Landorus
-			case 641: offset += 2; // Tornadus
-			case 642: offset += 2; // Thundurus
-			case 647: offset += 3; // Keldeo
-			case 646: offset += 2; // Kyurem
-			case 550: offset += 2; // Basculin
-			case 555: offset += 2; // Darmanitan
-			case 648: offset += 4; // Meloetta
-			case 586: offset += 4; // Sawsbuck
-			case 585: offset += 2; // Deerling
-			case 421: offset += 4; // Cherrim
-			case 351: offset += 3; // Castform
-			case 413: offset += 3; // Wormadam
-			case 412: offset += 2; // Burmy
-			case 423: offset += 2; // Gastrodon
-			case 422: offset += 6; // Shellos
-			case 479: offset += 2; // Rotom
-			case 487: offset += 2; // Giratina
-			case 492: offset += 4; // Shaymin
-			case 386: offset += 28; // Deoxys
-			case 201: offset += 0; // Unown
-			break; default: offset = -1;
+			case 460: return 185; // 2 Abomasnow
+			case 448: return 183; // 2 Lucario
+			case 445: return 181; // 2 Garchomp
+			case 381: return 179; // 2 Latios
+			case 380: return 177; // 2 Latias
+			case 359: return 175; // 2 Absol
+			case 354: return 173; // 2 Banette
+			case 310: return 171; // 2 Manetric
+			case 308: return 169; // 2 Medicham
+			case 306: return 167; // 2 Aggron
+			case 303: return 165; // 2 Mawile
+			case 257: return 163; // 2 Blaziken
+			case 248: return 161; // 2 Tyranitar
+			case 229: return 159; // 2 Houndoom
+			case 214: return 157; // 2 Heracros
+			case 212: return 155; // 2 Scizor
+			case 181: return 153; // 2 Ampharos
+			case 150: return 150; // 3 Mewtwo
+			case 142: return 148; // 2 Aerodactyl
+			case 130: return 146; // 2 Gyarados
+			case 127: return 144; // 2 Pinsir
+			case 115: return 142; // 2 Kangaskhan
+			case  94: return 140; // 2 Gengar
+			case  65: return 138; // 2 Alakazam
+			case   9: return 136; // 2 Blastoise
+			case   6: return 133; // 3 Charizard
+			case   3: return 131; // 2 Venusaur
+			case 716: return 129; // 2 Xerneas
+			case 681: return 127; // 2 Aegislash
+			case 711: return 123; // 4 Gourgeist
+			case 710: return 119; // 4 Pumpkaboo
+			case 671: return 114; // 5 Florges
+			case 670: return 108; // 6 Floette
+			case 669: return 103; // 5 Flabébé
+			case 666: return  83; // 20 Vivillion
+			case 645: return  81; // 2 Landorus
+			case 641: return  79; // 2 Tornadus
+			case 642: return  77; // 2 Thundurus
+			case 647: return  75; // 2 Keldeo
+			case 646: return  72; // 3 Kyurem
+			case 550: return  70; // 2 Basculin
+			case 555: return  68; // 2 Darmanitan
+			case 648: return  66; // 2 Meloetta
+			case 586: return  62; // 4 Sawsbuck
+			case 585: return  58; // 4 Deerling
+			case 421: return  56; // 2 Cherrim
+			case 351: return  52; // 4 Castform
+			case 413: return  49; // 3 Wormadam
+			case 412: return  46; // 3 Burmy
+			case 423: return  44; // 2 Gastrodon
+			case 422: return  42; // 2 Shellos
+			case 479: return  36; // 6 Rotom
+			case 487: return  34; // 2 Giratina
+			case 492: return  32; // 2 Shaymin
+			case 386: return  28; // 4 Deoxys
+			case 201: return   0; // 28 Unown
+			default: return -1;
 		}
-
-		return offset;
 	}
 
 	/**
@@ -113,99 +109,39 @@ namespace Pokedex
 	 */
 	static s32 getFormDexOffsetORAS(u16 species)
 	{
-		s32 offset = 0;
-
 		switch (species)
 		{
-			case 676: offset += 5; // Furfrou
-			case 649: offset += 18; // Genesect
-			case 493: offset += 2; // Arceus
-			case 383: offset += 2; // Groudon
-			case 382: offset += 2; // Kyogre
-			case 719: offset += 2; // Diancie
-			case 531: offset += 2; // Audino
-			case 475: offset += 2; // Gallade
-			case 428: offset += 2; // Lopunny
-			case 384: offset += 2; // Rayquaza
-			case 376: offset += 2; // Metagross
-			case 373: offset += 2; // Salamence
-			case 362: offset += 2; // Glalie
-			case 334: offset += 2; // Altaria
-			case 323: offset += 2; // Camerupt
-			case 319: offset += 2; // Sharpedo
-			case 302: offset += 2; // Sableye
-			case 360: offset += 2; // Swampert
-			case 254: offset += 2; // Sceptile
-			case 208: offset += 2; // Steelix
-			case  80: offset += 2; // Slowbro
-			case  18: offset += 2; // Pidgeot
-			case  15: offset += 2; // Beedrill
-			case 720: offset += 6; // Hoopa
-			case  25: offset += 2; // Pikachu
-			// case  25: offset += 1; // Hoopa
-			// case  25: offset += 5; // Cosplay Pikachu
-			// case  25: offset += 1; // Unused (Cosplay Pikachu)
-			// case  25: offset += 2; // Pikachu
-			case 460: offset += 2; // Abomasnow
-			case 448: offset += 2; // Lucario
-			case 445: offset += 2; // Garchomp
-			case 381: offset += 2; // Latios
-			case 380: offset += 2; // Latias
-			case 359: offset += 2; // Absol
-			case 354: offset += 2; // Banette
-			case 310: offset += 2; // Manetric
-			case 308: offset += 2; // Medicham
-			case 306: offset += 2; // Aggron
-			case 303: offset += 2; // Mawile
-			case 257: offset += 2; // Blaziken
-			case 248: offset += 2; // Tyranitar
-			case 229: offset += 2; // Houndoom
-			case 214: offset += 2; // Heracros
-			case 212: offset += 2; // Scizor
-			case 181: offset += 3; // Ampharos
-			case 150: offset += 2; // Mewtwo
-			case 142: offset += 2; // Aerodactyl
-			case 130: offset += 2; // Gyarados
-			case 127: offset += 2; // Pinsir
-			case 115: offset += 2; // Kangaskhan
-			case  94: offset += 2; // Gengar
-			case  65: offset += 2; // Alakazam
-			case   9: offset += 2; // Blastoise
-			case   6: offset += 3; // Charizard
-			case   3: offset += 2; // Venusaur
-			case 716: offset += 2; // Xerneas
-			case 681: offset += 4; // Aegislash
-			case 711: offset += 4; // Gourgeist
-			case 710: offset += 5; // Pumpkaboo
-			case 671: offset += 6; // Florges
-			case 670: offset += 5; // Floette
-			case 669: offset += 20; // Flabébé
-			case 666: offset += 2; // Vivillion
-			case 645: offset += 2; // Landorus
-			case 641: offset += 2; // Tornadus
-			case 642: offset += 2; // Thundurus
-			case 647: offset += 3; // Keldeo
-			case 646: offset += 2; // Kyurem
-			case 550: offset += 2; // Basculin
-			case 555: offset += 2; // Darmanitan
-			case 648: offset += 4; // Meloetta
-			case 586: offset += 4; // Sawsbuck
-			case 585: offset += 2; // Deerling
-			case 421: offset += 4; // Cherrim
-			case 351: offset += 3; // Castform
-			case 413: offset += 3; // Wormadam
-			case 412: offset += 2; // Burmy
-			case 423: offset += 2; // Gastrodon
-			case 422: offset += 6; // Shellos
-			case 479: offset += 2; // Rotom
-			case 487: offset += 2; // Giratina
-			case 492: offset += 4; // Shaymin
-			case 386: offset += 28; // Deoxys
-			case 201: offset += 0; // Unown
-			break; default: offset = -1;
+			case 676: return 259; // 10 Furfrou
+			case 649: return 254; // 5 Genesect
+			case 493: return 236; // 18 Arceus
+			case 383: return 234; // 2 Groudon
+			case 382: return 232; // 2 Kyogre
+			case 719: return 230; // 2 Diancie
+			case 531: return 228; // 2 Audino
+			case 475: return 226; // 2 Gallade
+			case 428: return 224; // 2 Lopunny
+			case 384: return 222; // 2 Rayquaza
+			case 376: return 220; // 2 Metagross
+			case 373: return 218; // 2 Salamence
+			case 362: return 216; // 2 Glalie
+			case 334: return 214; // 2 Altaria
+			case 323: return 212; // 2 Camerupt
+			case 319: return 210; // 2 Sharpedo
+			case 302: return 208; // 2 Sableye
+			case 360: return 206; // 2 Swampert
+			case 254: return 204; // 2 Sceptile
+			case 208: return 202; // 2 Steelix
+			case  80: return 200; // 2 Slowbro
+			case  18: return 198; // 2 Pidgeot
+			case  15: return 196; // 2 Beedrill
+			case 720: return 194; // 2 Hoopa
+			case  25: return 187; // 7 Pikachu
+			// case 720: return 194; // 2 Hoopa
+			// case  25: return 193; // 1 Cosplay Pikachu
+			// case  25: return 188; // 5 Unused (Cosplay Pikachu)
+			// case  25: return 187; // 1 Pikachu
+			default: return getFormDexOffsetXY(species);
 		}
-
-		return offset;
 	}
 
 	/// Regex to add printfs:

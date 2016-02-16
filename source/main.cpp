@@ -61,7 +61,6 @@ int main(int argc, char* argv[])
 		consoleInit(GFX_TOP, NULL);
 		printf("Exiting...\n");
 		// ^
-		delete PHBanku::texture; // :/
 		goto eof_cia;
 	}
 	
@@ -166,6 +165,8 @@ eof_cia:
 #else
 	FS_Exit();
 #endif
+
+	delete PHBanku::texture;
 
 	sftd_fini();
 	sf2d_fini();
