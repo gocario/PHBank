@@ -758,7 +758,7 @@ void SaveManager::setBankOffsets()
 // ------------------------------------
 {
 	offsetBK = *(u32*)(bankbuffer + SaveConst::BANK_offsetOffsetBK);
-	offsetBKLayout = *(u32*)(bankbuffer + SaveConst::BANK_offsetOffsetBKBackground);
+	offsetBKLayout = *(u32*)(bankbuffer + SaveConst::BANK_offsetOffsetBKLayout);
 	offsetBKBackground = *(u32*)(bankbuffer + SaveConst::BANK_offsetOffsetBKBackground);
 
 	sizeBank = SaveConst::BANK_size;

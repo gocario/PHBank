@@ -134,8 +134,8 @@ namespace SaveConst
 	const saveConst_t BANK_offsetMagicNumber = 0x00;
 	const saveConst_t BANK_offsetVersion = 0x04;
 	const saveConst_t BANK_offsetOffsetBK = 0x20;
-	const saveConst_t BANK_offsetOffsetBKName = 0x24;
-	const saveConst_t BANK_offsetOffsetBKBackground = 0x26;
+	const saveConst_t BANK_offsetOffsetBKLayout = 0x24;
+	const saveConst_t BANK_offsetOffsetBKBackground = 0x28;
 }
 
 #endif // SAVE_HPP
