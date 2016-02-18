@@ -104,6 +104,8 @@ const u8* DataManager::HPTypes(u8 hiddenPower)
 
 Result DataManager::load()
 {
+	updateSystemLanguage();
+
 	Result ret = 0;
 	ret |= loadDataFile("abilities", (u8*)&(_abilities), DEX_ABILITIES_LENGTH, DEX_ABILITIES_COUNT);
 	ret |= loadDataFile("items", (u8*)&(_items), DEX_ITEMS_LENGTH, DEX_ITEMS_COUNT);
@@ -117,7 +119,6 @@ Result DataManager::load()
 	FILE* fp = fopen(path, "rb");
 	if (!fp) return (ret | -1);
 	fread(_personal, PERSONAL_LENGTH, PERSONAL_COUNT, fp);
-
 	fclose(fp);
 
 	return ret;
