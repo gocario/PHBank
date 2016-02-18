@@ -17,9 +17,9 @@ struct vPkm_s
 	bool isInfected : 1;
 	bool isCured : 1;
 	unsigned : 4;
-	u8 NKName[0x1a];
-	u8 OTName[0x1a];
-	u8 HTName[0x1a];
+	u8 NKName[0xD];
+	u8 OTName[0xD];
+	u8 HTName[0xD];
 	const u8* species;
 	const u8* item;
 	const u8* nature;
