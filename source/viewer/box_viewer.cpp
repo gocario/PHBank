@@ -147,7 +147,7 @@ BoxViewer::~BoxViewer()
 Result BoxViewer::initialize()
 // --------------------------------------------------
 {
-	if (hasChild()) { if (this->child->initialize() == PARENT_STEP) ; else return CHILD_STEP; }
+	if (hasChild()) { if (this->child->initialize() == PARENT_STEP); else return CHILD_STEP; }
 
 	// Use the Save Manager of PHBanku
 	save = PHBanku::save;
@@ -189,7 +189,7 @@ Result BoxViewer::drawTopScreen()
 		// Is the Pokémon an egg?
 		if (vPkm.pkm->isEggy)
 		{
-			sftd_draw_text_white(x, y, "%s", "Egg");
+			sftd_draw_text_white(x, y, "%s", PHBanku::data->species(0));
 		}
 		else
 		{
