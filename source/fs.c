@@ -134,7 +134,7 @@ Result FSCIA_Init(u64 titleid, FS_MediaType mediatype)
 	{
 		lowPath[0] = mediatype;
 		lowPath[1] = titleid; /// titleid & 0xFFFFFFFF
-		lowPath[2] = titleid >> 32 // (titleid >> 32) & 0xFFFFFFFF
+		lowPath[2] = titleid >> 32; // (titleid >> 32) & 0xFFFFFFFF
 
 		debug_print(" > [0]: 0x%016lx\n", lowPath[0]);
 		debug_print(" > [1]: 0x%016lx\n", lowPath[1]);
