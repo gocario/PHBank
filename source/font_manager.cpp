@@ -2,7 +2,7 @@
 
 // #include "FreeSans_ttf.h"
 // #include "PokemonGB_ttf.h"
-#include "RobotoRegular_ttf.h"
+#include "Roboto_Regular_ttf.h"
 
 #include <stdio.h>
 
@@ -25,7 +25,7 @@ Result FontManager::load(void)
 
 bool FontManager::loadFonts(void)
 {
-	printf("Loading font: %p\n", (font = sftd_load_font_mem(RobotoRegular_ttf, RobotoRegular_ttf_size)));
+	printf("Loading font: %p\n", (font = sftd_load_font_mem(Roboto_Regular_ttf, Roboto_Regular_ttf_size)));
 
 	return (font);
 }
