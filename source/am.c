@@ -60,8 +60,8 @@ static const Result AM_GetSmdh(AM_TitleMediaEntry* title)
 		title->smdh = NULL;
 	}
 
-	ret = FSFILE_Close(fileHandle);
-	r(" > FSFILE_Close: %lx\n", ret);
+	FSFILE_Close(fileHandle);
+	r(" > FSFILE_Close: %lx\n");
 
 	return ret;
 }
