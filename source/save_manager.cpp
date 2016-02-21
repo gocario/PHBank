@@ -209,7 +209,9 @@ Result SaveManager::loadSaveFile()
 	printf("  Read %ld/%ld bytes\n", bytesRead, size);
 
 	if (R_SUCCEEDED(ret))
+	{
 		setGame(bytesRead);
+	}
 
 	return ret;
 }
