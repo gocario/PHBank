@@ -90,7 +90,7 @@ class BoxViewer : public Viewer
 		Result drawBotScreen() override;
 		Result updateControls(const u32& kDown = 0, const u32& kHeld = 0, const u32& kUp = 0, const touchPosition* touch = NULL) override;
 
-		void selectViewBox(uint16_t boxID, bool inBank = false);
+		void selectViewBox(uint16_t boxID, bool inBank);
 
 	private:
 		SaveManager* save;

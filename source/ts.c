@@ -31,7 +31,7 @@ static void TS_Select(void)
 /**
  * @brief Initializes the title module.
  */
-static void TS_Init(void)
+static Result TS_Init(void)
 {
 	Result ret;
 
@@ -64,6 +64,8 @@ static void TS_Init(void)
 		}
 	}
 
+	sf2d_set_clear_color(RGBA8(0x40,0x40,0x40,0xFF));
+
 	debug_print("Textured\n");
 
 	if (titleCount > 0)
@@ -71,7 +73,7 @@ static void TS_Init(void)
 		TS_Select();
 	}
 
-	ret++;
+	return ret;
 }
 
 /**
@@ -139,7 +141,7 @@ bool TS_Loop(void)
 		TS_Exit();
 		return false;
 	}
-	// If only one title, select it.
+	// If only one title, select it by default.
 	// else if (titleCount == 1)
 	// {
 	// 	TS_Select();

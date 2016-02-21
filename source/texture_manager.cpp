@@ -19,12 +19,15 @@ void loading_screen(void* arg)
 {
 	TextureManager* that = (TextureManager*) arg;
 
-	sf2d_set_clear_color(RGBA8(0xF8, 0xF8, 0xF8, 0xFF));
+	sf2d_set_clear_color(RGBA8(0xF8,0xF8,0xF8,0xFF));
 	sf2d_set_vblank_wait(false);
 	while (threadMainLoop)
 	{
+		sf2d_start_frame(GFX_TOP, GFX_LEFT);
+			that->drawLoadingTopScreen();
+		sf2d_end_frame();
 		sf2d_start_frame(GFX_BOTTOM, GFX_LEFT);
-			that->drawLoadingScreen();
+			that->drawLoadingBottomScreen();
 		sf2d_end_frame();
 		sf2d_swapbuffers();
 	}
@@ -106,14 +109,55 @@ bool TextureManager::loadTextures()
 
 void TextureManager::drawStaticLoadingScreen(void)
 {
-	sf2d_set_clear_color(RGBA8(0xF8, 0xF8, 0xF8, 0xFF));
-	sf2d_end_frame();
+	// Set the clear color to a false white.
+	sf2d_set_clear_color(RGBA8(0xF8,0xF8,0xF8,0xFF));
+
+	// Need to be called twice, probably a bug.
 	sf2d_start_frame(GFX_TOP, GFX_LEFT);
 	sf2d_end_frame();
-	sf2d_start_frame(GFX_BOTTOM, GFX_LEFT);
-		drawLoadingScreen();
+
+	// Render a blank top screen.
+	sf2d_start_frame(GFX_TOP, GFX_LEFT);
+		drawLoadingTopScreen();
 	sf2d_end_frame();
+
+	// Render the loading screen on the bottom screen.
+	sf2d_start_frame(GFX_BOTTOM, GFX_LEFT);
+		drawLoadingBottomScreen();
+	sf2d_end_frame();
+
+	// Swap the buffers
 	sf2d_swapbuffers();
+}
+
+void TextureManager::drawLoadingTopScreen()
+{
+	// TOOD: Render a loading screen here too.
+}
+
+void TextureManager::drawLoadingBottomScreen()
+{
+	u64 tick = svcGetSystemTick() / 10000000;
+
+	for (u8 i = 0; i < 17; i++) // row
+	for (u8 j = 0; j < 15; j++) // col
+	{
+		drawLoadingBackball(
+			rowBackball[i%3][0] + j * 24 - 32 + tick % 16,
+			(i/3) * 64  + rowBackball[i%3][1] - j * 8 - 16 + tick % 16
+		);
+	}
+
+	// for (u8 i = 0; i < 9; i++) // row
+	// for (u8 j = 0; j < 8; j++) // col
+	// {
+	// 	drawLoadingPokeball(
+	// 		rowBackball[(i*2)%3][0] + (j*2) * 24 - 32 + tick % 64,
+	// 		((i*2)/3) * 64  + rowBackball[(i*2)%3][1] - (j*2) * 8 - 16 + tick % 64
+	// 	);
+	// }
+
+	drawLoadingText(300, 220);
 }
 
 void TextureManager::drawLoadingPokeball(int x, int y)
@@ -139,29 +183,4 @@ void TextureManager::drawLoadingBackball(int x, int y)
 void TextureManager::drawLoadingText(int rx, int ry)
 {
 	sf2d_draw_texture_part_scale(this->ballLoadingScreen, rx - 64 * 4, ry -  8 * 4, 0, 16, 64, 8, 4.0f, 4.0f);
-}
-
-void TextureManager::drawLoadingScreen()
-{
-	u64 tick = svcGetSystemTick() / 10000000;
-
-	for (u8 i = 0; i < 17; i++) // row
-	for (u8 j = 0; j < 15; j++) // col
-	{
-		drawLoadingBackball(
-			rowBackball[i%3][0] + j * 24 - 32 + tick % 16,
-			(i/3) * 64  + rowBackball[i%3][1] - j * 8 - 16 + tick % 16
-		);
-	}
-
-	// for (u8 i = 0; i < 9; i++) // row
-	// for (u8 j = 0; j < 8; j++) // col
-	// {
-	// 	drawLoadingPokeball(
-	// 		rowBackball[(i*2)%3][0] + (j*2) * 24 - 32 + tick % 64,
-	// 		((i*2)/3) * 64  + rowBackball[(i*2)%3][1] - (j*2) * 8 - 16 + tick % 64
-	// 	);
-	// }
-
-	drawLoadingText(300, 220);
 }

@@ -91,6 +91,7 @@ void extractBoxSlot(BoxSlot_s* boxSlot, CursorBox_s* cursorBox)
 	boxSlot->col = cursorBox->col;
 }
 
+
 // --------------------------------------------------
 /// Convert BoxSlot position to CursorBox position
 void injectBoxSlot(BoxSlot_s* boxSlot, CursorBox_s* cursorBox)
@@ -294,7 +295,6 @@ Result BoxViewer::drawBotScreen()
 // --------------------------------------------------
 {
 	if (hasRegularChild()) { if (this->child->drawBotScreen() == PARENT_STEP); else return CHILD_STEP; }
-
 	{
 		// Retrieve the current box, and the drawing offset.
 		s16 boxShift = (cursorBox.inBank ? BK_BOX_SHIFT_USED : PC_BOX_SHIFT_USED);
@@ -379,7 +379,6 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 		child->initialize();
 		return CHILD_STEP;
 	}
-
 
 	{
 		bool boolMod = false;

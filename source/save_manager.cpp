@@ -691,7 +691,8 @@ void SaveManager::savePkmPk6(pkm_s* pkm)
 	// If it comes from the bank
 	if (pkm->fromBank && !isPkmEmpty(pkm))
 	{
-		if (!pkm->isEggy) addDex(pkm);
+		if (!pkm->isEggy) 
+			addDex(pkm);
 		tradePkm(pkm);
 	}
 }

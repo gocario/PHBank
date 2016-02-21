@@ -31,12 +31,13 @@ class TextureManager
 
 	private:
 		bool loadTextures(void);
+		void drawLoadingTopScreen();
+		void drawLoadingBottomScreen();
 		inline void drawLoadingPokeball(int x, int y);
 		inline void drawLoadingGreatball(int x, int y);
 		inline void drawLoadingUltraball(int x, int y);
 		inline void drawLoadingBackball(int x, int y);
 		inline void drawLoadingText(int rx, int ry);
-		inline void drawLoadingScreen();
 		friend void loading_screen(void* arg);
 		friend void load_textures(void* arg);
 };
