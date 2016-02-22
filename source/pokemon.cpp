@@ -1,6 +1,5 @@
 #include "pokemon.hpp"
-
-#include "phbank.hpp"
+#include "personal.hpp"
 
 #include <string.h>
 
@@ -193,21 +192,26 @@ bool Pokemon::isGen3Born(pkm_s* pkm)
 u8 Pokemon::level(pkm_s* pkm)
 {
 	u32 expVal = Pokemon::EXP(pkm);
-	u8 xpType = PHBanku::data->personal(Pokemon::speciesID(pkm))[0xB];
+	u8 xpType = Personal(Pokemon::speciesID(pkm)).expGrowth;
 	u8 iterLevel = 1;
-
-	while (iterLevel < 100 && expVal >= expTable[iterLevel][xpType])
-	{
-		iterLevel++;
-	}
+	while (iterLevel < 100 && expVal >= expTable[iterLevel][xpType]) iterLevel++;
 	return iterLevel;
 }
 
 u16 Pokemon::stat(u16 species, u8 IV, u8 EV, u8 nature, u8 level, u8 stat, u8 form)
 {
-	if (form && form <= PHBanku::data->personal(species)[0xC])
-		species = 721 + PHBanku::data->personal(species)[0xD] + form - 1;
-	u8 baseStat = PHBanku::data->personal(species)[stat];
+	PersonalInfo pInfo = Personal(species, form);
+	u8 baseStat;
+	switch (stat)
+	{
+		case Stat::HP: baseStat = pInfo.HP; break;
+		case Stat::ATK: baseStat = pInfo.ATK; break;
+		case Stat::DEF: baseStat = pInfo.DEF; break;
+		case Stat::SPE: baseStat = pInfo.SPE; break;
+		case Stat::SPA: baseStat = pInfo.SPA; break;
+		case Stat::SPD: baseStat = pInfo.SPD; break;
+		default: baseStat = 0;
+	}
 	u8 mult = 10;
 	u16 final;
 

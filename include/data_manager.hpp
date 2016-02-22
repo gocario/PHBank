@@ -8,9 +8,6 @@
 
 #include <3ds/types.h>
 
-#define PERSONAL_COUNT 826
-#define PERSONAL_LENGTH 14
-
 #define DEX_ABILITIES_COUNT 192
 #define DEX_ABILITIES_LENGTH 16
 #define DEX_ITEMS_COUNT 776
@@ -25,7 +22,6 @@
 class DataManager
 {
 	private:
-		u8 _personal[PERSONAL_COUNT][PERSONAL_LENGTH];
 		u8 _abilities[DEX_ABILITIES_COUNT][DEX_ABILITIES_LENGTH];
 		u8 _items[DEX_ITEMS_COUNT][DEX_ITEMS_LENGTH];
 		u8 _moves[DEX_MOVES_COUNT][DEX_MOVES_LENGTH];
@@ -39,8 +35,6 @@ class DataManager
 		Result load(void);
 
 		const char* lang(void);
-		const u8* personal(u32 species, u32 form);
-		const u8* personal(u32 species);
 		const u8* abilities(u32 ability);
 		const u8* items(u32 item);
 		const u8* moves(u32 move);
@@ -50,7 +44,7 @@ class DataManager
 
 	private:
 		Result loadDataFile(const char* path, u8* dest, u32 lineMaxLength, u32 lineCount);
-		Result loadDataLines(u8* src, u8* dst, u32 lineMaxLength, u32 lineCount);
+		Result loadDataLines(const u8* src, u8* dst, u32 lineMaxLength, u32 lineCount);
 };
 
 #endif // DATA_MANAGER_HPP
