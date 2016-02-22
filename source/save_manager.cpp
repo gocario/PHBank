@@ -6,6 +6,7 @@
 #include "pkdir.h"
 #include "version.h"
 
+#include "personal.hpp"
 #include "pokemon.hpp"
 #include "pokedex.hpp"
 #include "filter.hpp"
@@ -1019,7 +1020,7 @@ void SaveManager::tradePkmHT(pkm_s* pkm)
 	Pokemon::geo3Country(pkm, Pokemon::geo2Country(pkm));
 	Pokemon::geo2Country(pkm, Pokemon::geo1Country(pkm));
 	Pokemon::geo1Country(pkm, savedata.GEOCountry);
-	Pokemon::HT_friendship(pkm, Filter::getBaseFriendship(pkm->speciesID));
+	Pokemon::HT_friendship(pkm, Personal(pkm->speciesID).baseFriendship);
 	Pokemon::HT_affection(pkm, 0x00);
 	Pokemon::HT_intensity(pkm, 0x01);
 	Pokemon::HT_memory(pkm, 0x04);

@@ -37,9 +37,6 @@ namespace Filter
 	 * @return Wether the Pokémon runs through the filter.
 	 */
 	bool filterFromORAS(pkm_s* pkm);
-
-	// TODO Move to a PersonalManager (Pokemon?)
-	u8 getBaseFriendship(u16 speciesID);
 };
 
 #endif // FILTER_HPP
