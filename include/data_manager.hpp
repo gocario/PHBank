@@ -8,16 +8,16 @@
 
 #include <3ds/types.h>
 
-#define DEX_ABILITIES_COUNT 192
-#define DEX_ABILITIES_LENGTH 16
-#define DEX_ITEMS_COUNT 776
-#define DEX_ITEMS_LENGTH 20
-#define DEX_MOVES_COUNT 622
-#define DEX_MOVES_LENGTH 20
-#define DEX_NATURES_COUNT 25
-#define DEX_NATURES_LENGTH 10
-#define DEX_SPECIES_COUNT 722
-#define DEX_SPECIES_LENGTH 20
+#define DEX_ABILITIES_COUNT (192) // 0: None
+#define DEX_ABILITIES_LENGTH (16)
+#define DEX_ITEMS_COUNT (776) // 0: None
+#define DEX_ITEMS_LENGTH (20)
+#define DEX_MOVES_COUNT (622) // 0: None
+#define DEX_MOVES_LENGTH (20)
+#define DEX_NATURES_COUNT (25)
+#define DEX_NATURES_LENGTH (10)
+#define DEX_SPECIES_COUNT (722) // 0: Egg
+#define DEX_SPECIES_LENGTH (20)
 
 class DataManager
 {
