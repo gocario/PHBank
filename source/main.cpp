@@ -3,6 +3,7 @@
 #include <sftd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 #include "fs.h"
@@ -21,7 +22,7 @@ extern PrintConsole* currentConsole;
 PrintConsole* consoleExit(gfxScreen_t screen, PrintConsole* console)
 {
 	// TODO Future implementation!
-	currentConsole = &currentCopy;
+	memset(currentConsole, 0, sizeof(PrintConsole));
 	gfxSetScreenFormat(screen, GSP_BGR8_OES);
 	gfxSetDoubleBuffering(screen, true);
 	gspWaitForVBlank();
@@ -150,11 +151,11 @@ int main(int argc, char* argv[])
 
 #ifdef __cia
 	FSCIA_Exit();
-
+	consoleExit(GFX_TOP, NULL);
 	} // while (TS_LOOP())
 
 	// TODO Remove when better exit display!
-	consoleInit(GFX_TOP, NULL);
+	consoleInit(GFX_BOTTOM, NULL);
 	// ^
 
 	// printf("\nYou can close that app now.\n");
