@@ -1,7 +1,8 @@
 #include "data_manager.hpp"
 
-#include "pkdir.h"
 #include "lang.h"
+#include "pkdir.h"
+#include "personal.hpp"
 
 #include <stdio.h>
 #include <string.h>
@@ -10,7 +11,7 @@ static const char* hpTypes[] = {
 	"Fighting", "Flying", "Poison", "Ground",
 	"Rock", "Bug", "Ghost", "Steel", "Fire", "Water",
 	"Grass", "Electric", "Psychic", "Ice", "Dragon", "Dark",
-	"(None)"
+	"(None)" // <- Bad thing!
 };
 
 DataManager::DataManager(void)
@@ -35,23 +36,6 @@ const char* DataManager::lang(void)
 		// case LANGUAGE_KR: return "kr";	///< Korean
 		default:      return "en";	///< English
 	}
-}
-
-const u8* DataManager::personal(u32 species, u32 form)
-{
-	if (species < PERSONAL_COUNT)
-	{
-		if (form > _personal[species][0xC])
-			form = _personal[species][0xC];
-		return _personal[species];
-	}
-	else
-		return _personal[0]; // To avoid overflow
-}
-
-const u8* DataManager::personal(u32 species)
-{
-	return personal(species, 0);
 }
 
 const u8* DataManager::abilities(u32 ability)
@@ -115,10 +99,14 @@ Result DataManager::load()
 
 	char path[32];
 
-	sprintf(path, PK_DATA_FOLDER "personal");
+	sprintf(path, PK_DATA_FOLDER "personal_ao");
 	FILE* fp = fopen(path, "rb");
 	if (!fp) return (ret | -1);
-	fread(_personal, PERSONAL_LENGTH, PERSONAL_COUNT, fp);
+	u8* personal_ao = new u8[PERSONAL_AO_COUNT * PERSONAL_INFO_AO_SIZE];
+	size_t personalInfoRead = fread(personal_ao, PERSONAL_INFO_AO_SIZE, PERSONAL_AO_COUNT, fp);
+	if (personalInfoRead != PERSONAL_AO_COUNT) { delete[] personal_ao; return (ret | -1); }
+	Personal.import(personal_ao, personalInfoRead, PERSONAL_INFO_AO_SIZE);
+	delete[] personal_ao;
 	fclose(fp);
 
 	return ret;
@@ -141,7 +129,7 @@ Result DataManager::loadDataFile(const char* file, u8* dest, u32 lineMaxLength, 
 	return 0;
 }
 
-Result DataManager::loadDataLines(u8* src, u8* dst, u32 lineMaxLength, u32 lineCount)
+Result DataManager::loadDataLines(const u8* src, u8* dst, u32 lineMaxLength, u32 lineCount)
 {
 	u32 count = 0;
 	u32 lineOffset = 0;
