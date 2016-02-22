@@ -200,7 +200,7 @@ u8 Pokemon::level(pkm_s* pkm)
 
 u16 Pokemon::stat(u16 species, u8 IV, u8 EV, u8 nature, u8 level, u8 stat, u8 form)
 {
-	PersonalInfo pInfo = Personal(species, form);
+	const PersonalInfo pInfo = Personal(species, form);
 	u8 baseStat;
 	switch (stat)
 	{

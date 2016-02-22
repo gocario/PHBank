@@ -14,6 +14,7 @@ void updateSystemLanguage(void)
 	u8 language = 0;
 
 	ret = CFGU_GetConfigInfoBlk2(1, 0xA0002, &language);
+	
 	if (R_SUCCEEDED(ret))
 	{
 		switch (language)
