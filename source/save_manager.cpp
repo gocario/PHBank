@@ -952,6 +952,8 @@ void SaveManager::tradePkm(pkm_s* pkm)
 		//	Met location
 		//	Met date
 		//	Checksum
+
+		pkm->modified = true;
 	}
 	else
 	{
@@ -1007,7 +1009,8 @@ void SaveManager::tradePkm(pkm_s* pkm)
 
 void SaveManager::tradePkmHT(pkm_s* pkm)
 {
-	Pokemon::HT_name(pkm, (u16*)(savebuffer + offsetTrainerCard + 0x48)); // Save::OTName to Pkmn::HTName
+	// Save::OTName to Pkmn::HTName
+	Pokemon::HT_name(pkm, (u16*)(savebuffer + offsetTrainerCard + 0x48));
 	Pokemon::HT_gender(pkm, savedata.OTGender);
 	Pokemon::currentHandler(pkm, 0x01);
 	Pokemon::geo5Region(pkm, Pokemon::geo4Region(pkm));

@@ -166,10 +166,9 @@ namespace Pokedex
 
 		printf("\naddDexXY:\n");
 
+		speciesID--;
 		bool alreadySeen = false;
 		bool alreadyDisplayed = false;
-		speciesID--;
-
 		for (u8 i = 0; i < 4; i++)
 		{
 			alreadySeen |= getOffsetBit(sav, SaveConst::XY_offsetDex + 0x8 + 0x60 + 0x60*(i%2) + 0x60*(i/2) /* SH_SEEN_OFFSET */, speciesID);
@@ -182,32 +181,57 @@ namespace Pokedex
 			s32 formdexBit = getFormDexOffsetXY(speciesID + 1) + formID;
 
 			// Form Seen
-			// { printf("SH_FORM_SEEN_FLAG\n"); setOffsetBit(sav, SaveConst::XY_offsetDex + 0x368 + 0x18*(shiny+1) /* SH_FORM_SEEN_OFFSET */, formdexBit, true); }
+			// { printf("SH_FORM_SEEN_FLAG\n"); setOffsetBit(sav, SaveConst::XY_offsetDex + 0x368 + 0x18*(shiny) /* SH_FORM_SEEN_OFFSET */, formdexBit, true); }
 			if (isShiny) { printf("FORM_SHINY_SEEN_FLAG\n"); setOffsetBit(sav, SaveConst::XY_offsetDex + 0x368 + 0x18*1 /* FORM_SHINY_SEEN_OFFSET */, formdexBit, true); }
 			else { printf("FORM_SEEN_FLAG\n"); setOffsetBit(sav, SaveConst::XY_offsetDex + 0x368 + 0x18*0 /* FORM_SEEN_OFFSET */, formdexBit, true); }
 
 			// Form Displayed
 			if (!alreadySeen) // Not seen
 			{
-				// { printf("SH_FORM_DISPLAYED_FLAG\n"); setOffsetBit(sav, SaveConst::XY_offsetDex + 0x368 + 0x18*(shiny+3) /* SH_FORM_DISPLAYED_OFFSET */, formdexBit, true); }
+				// { printf("SH_FORM_DISPLAYED_FLAG\n"); setOffsetBit(sav, SaveConst::XY_offsetDex + 0x368 + 0x18*(shiny+2) /* SH_FORM_DISPLAYED_OFFSET */, formdexBit, true); }
 				if (isShiny) { printf("FORM_SHINY_DISPLAYED_FLAG\n"); setOffsetBit(sav, SaveConst::XY_offsetDex + 0x368 + 0x18*3 /* FORM_SHINY_DISPLAYED_OFFSET */, formdexBit, true); }
 				else { printf("FORM_DISPLAYED_FLAG\n"); setOffsetBit(sav, SaveConst::XY_offsetDex + 0x368 + 0x18*2 /* FORM_DISPLAYED_OFFSET */, formdexBit, true); }
 			}
-			else if (!alreadyDisplayed) // Seen but not displayed
+			else // Seen
 			{
+				// 'Fix' for filthy hackers..
+
 				bool alreadyFormDisplayed = false;
 				for (u8 i = 0; i < pInfo.formCount; i++)
 				{
-					// alreadyFormDisplayed |= getOffsetBit(sav, SaveConst::XY_offsetDex + 0x368 + 0x18*(shiny+3) /* SH_FORM_DISPLAYED_OFFSET */, i);
+					// alreadyFormDisplayed |= getOffsetBit(sav, SaveConst::XY_offsetDex + 0x368 + 0x18*(shiny+2) /* SH_FORM_DISPLAYED_OFFSET */, i);
 					if (isShiny) alreadyFormDisplayed |= getOffsetBit(sav, SaveConst::XY_offsetDex + 0x368 + 0x18*3 /* FORM_SHINY_DISPLAYED_OFFSET */, i);
 					else alreadyFormDisplayed |= getOffsetBit(sav, SaveConst::XY_offsetDex + 0x368 + 0x18*2 /* FORM_DISPLAYED_OFFSET */, i);
 				}
 
 				if (!alreadyFormDisplayed) // Seen but not form displayed
 				{
-					// { printf("SH_FORM_DISPLAYED_FLAG\n"); setOffsetBit(sav, SaveConst::XY_offsetDex + 0x368 + 0x18*(shiny+3) /* SH_FORM_DISPLAYED_OFFSET */, formdexBit, true); }
+					// { printf("SH_FORM_DISPLAYED_FLAG\n"); setOffsetBit(sav, SaveConst::XY_offsetDex + 0x368 + 0x18*(shiny+2) /* SH_FORM_DISPLAYED_OFFSET */, formdexBit, true); }
 					if (isShiny) { printf("FORM_SHINY_DISPLAYED_FLAG\n"); setOffsetBit(sav, SaveConst::XY_offsetDex + 0x368 + 0x18*3 /* FORM_SHINY_DISPLAYED_OFFSET */, formdexBit, true); }
 					else { printf("FORM_DISPLAYED_FLAG\n"); setOffsetBit(sav, SaveConst::XY_offsetDex + 0x368 + 0x18*2 /* FORM_DISPLAYED_OFFSET */, formdexBit, true); }
+				}
+				else // Seen and form displayed
+				{
+					alreadyFormDisplayed = false;
+					for (u8 i = 0; i < pInfo.formCount; i++)
+					for (u8 j = 0; j < 2; j++)
+					{
+						if (getOffsetBit(sav, SaveConst::XY_offsetDex + 0x368 + 0x18*(j+2) /* SH_FORM_DISPLAYED_OFFSET */, i))
+						{
+							if (!getOffsetBit(sav, SaveConst::XY_offsetDex + 0x368 + 0x18*(j) /* SH_FORM_SEEN_OFFSET */, i))
+							{
+								{ printf("~FORM_SHINY_DISPLAYED_FLAG\n"); setOffsetBit(sav, SaveConst::XY_offsetDex + 0x368 + 0x18*(j+2) /* SH_FORM_DISPLAYED_OFFSET */, i, false); }
+							}
+							else alreadyFormDisplayed = true;
+						}
+					}
+
+					if (!alreadyFormDisplayed)
+					{
+						// { printf("SH_FORM_DISPLAYED_FLAG\n"); setOffsetBit(sav, SaveConst::XY_offsetDex + 0x368 + 0x18*(shiny+2) /* SH_FORM_DISPLAYED_OFFSET */, formdexBit, true); }
+						if (isShiny) { printf("FORM_SHINY_DISPLAYED_FLAG\n"); setOffsetBit(sav, SaveConst::XY_offsetDex + 0x368 + 0x18*3 /* FORM_SHINY_DISPLAYED_OFFSET */, formdexBit, true); }
+						else { printf("FORM_DISPLAYED_FLAG\n"); setOffsetBit(sav, SaveConst::XY_offsetDex + 0x368 + 0x18*2 /* FORM_DISPLAYED_OFFSET */, formdexBit, true); }
+					}
 				}
 			}
 		}
