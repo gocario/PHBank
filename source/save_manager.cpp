@@ -933,14 +933,7 @@ bool SaveManager::filterPkm(pkm_s* pkm, bool toBank, bool fromBank)
 void SaveManager::addDex(pkm_s* pkm)
 // ------------------------------------
 {
-	if (Game::is(version, Game::XY))
-	{
-		Pokedex::importToXY(savebuffer, pkm);
-	}
-	else if (Game::is(version, Game::ORAS))
-	{
-		Pokedex::importToORAS(savebuffer, pkm);
-	}
+	Pokedex::importToGame(version, savebuffer, pkm);
 }
 
 
