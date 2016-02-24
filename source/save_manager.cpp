@@ -941,10 +941,13 @@ void SaveManager::tradePkm(pkm_s* pkm)
 {
 	if (Pokemon::isEgg(pkm))
 	{
-		// TODO: Implement
-		//	Met location
-		//	Met date
-		//	Checksum
+		time_t t_time = time(NULL);
+		struct tm* tm_time = localtime(&t_time);
+
+		Pokemon::metLocation(pkm, 0x7532); // Link Trade (Egg)
+		Pokemon::metYear(pkm, tm_time->tm_year-100);
+		Pokemon::metMonth(pkm, tm_time->tm_mon+1);
+		Pokemon::metDay(pkm, tm_time->tm_mday);
 
 		pkm->modified = true;
 	}
