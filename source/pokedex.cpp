@@ -184,109 +184,84 @@ namespace Pokedex
 		{
 			s32 formdexBit = (Game::is(version, Game::XY) ? getFormDexOffsetXY(species) : getFormDexOffsetORAS(species));
 
-			// Form Seen
-			switch (species)
+			if (formdexBit >= 0)
 			{
-				case 351: // Castform
-				case 421: // Cherrim
-				case 555: // Darmanitan
-				case 648: // Meloetta
-				case 681: // Aegislash
+				// Form Seen
+				switch (species)
 				{
-					for (u8 i = 0; i < pInfo.formCount; i++)
+					case 351: // Castform
+					case 421: // Cherrim
+					case 555: // Darmanitan
+					case 648: // Meloetta
+					case 681: // Aegislash
 					{
-						setOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*(shiny) /* SH_FORM_SEEN_OFFSET */, formdexBit + i, true);
+						for (u8 i = 0; i < pInfo.formCount; i++)
+						{
+							{ printf("SH_FORM_SEEN_FLAG\n"); setOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*(shiny) /* SH_FORM_SEEN_OFFSET */, formdexBit + i, true); }
+						}
+						break;
 					}
-					break;
-				}
-				default:
-				{
-					// { printf("SH_FORM_SEEN_FLAG\n"); setOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*(shiny) /* SH_FORM_SEEN_OFFSET */, formdexBit + formID, true); }
-					if (isShiny) { printf("FORM_SHINY_SEEN_FLAG\n"); setOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*1 /* FORM_SHINY_SEEN_OFFSET */, formdexBit + formID, true); }
-					else { printf("FORM_SEEN_FLAG\n"); setOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*0 /* FORM_SEEN_OFFSET */, formdexBit + formID, true); }
-				}
-			}
-
-			formdexBit += formID;
-
-			// Form Displayed
-			if (!alreadySeen && !alreadyDisplayed) // Not seen
-			{
-				// { printf("SH_FORM_DISPLAYED_FLAG\n"); setOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*(shiny+2) /* SH_FORM_DISPLAYED_OFFSET */, formdexBit, true); }
-				if (isShiny) { printf("FORM_SHINY_DISPLAYED_FLAG\n"); setOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*3 /* FORM_SHINY_DISPLAYED_OFFSET */, formdexBit, true); }
-				else { printf("FORM_DISPLAYED_FLAG\n"); setOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*2 /* FORM_DISPLAYED_OFFSET */, formdexBit, true); }
-			}
-			else // Seen
-			{
-				// 'Fix' for filthy hackers..
-				// Should not happens in a regular use.
-
-				bool alreadyFormDisplayed = false;
-				for (u8 i = 0; i < pInfo.formCount; i++)
-				for (u8 j = 0; j < 2; j++)
-				{
-					alreadyFormDisplayed |= getOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*(j+2) /* SH_FORM_DISPLAYED_OFFSET */, i);
+					default:
+					{
+						{ printf("SH_FORM_SEEN_FLAG\n"); setOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*(shiny) /* SH_FORM_SEEN_OFFSET */, formdexBit + formID, true); }
+					}
 				}
 
-				if (!alreadyFormDisplayed) // Seen but not form displayed
+				formdexBit += formID;
+
+				// Form Displayed
+				if (!alreadySeen && !alreadyDisplayed) // Not seen
 				{
-					// { printf("SH_FORM_DISPLAYED_FLAG\n"); setOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*(shiny+2) /* SH_FORM_DISPLAYED_OFFSET */, formdexBit, true); }
-					if (isShiny) { printf("FORM_SHINY_DISPLAYED_FLAG\n"); setOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*3 /* FORM_SHINY_DISPLAYED_OFFSET */, formdexBit, true); }
-					else { printf("FORM_DISPLAYED_FLAG\n"); setOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*2 /* FORM_DISPLAYED_OFFSET */, formdexBit, true); }
+					{ printf("SH_FORM_DISPLAYED_FLAG\n"); setOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*(shiny+2) /* SH_FORM_DISPLAYED_OFFSET */, formdexBit, true); }
 				}
-				else // Seen and form displayed
+				else // Seen
 				{
-					alreadyFormDisplayed = false;
+					// 'Fix' for filthy hackers..
+					// Should not happens in a regular use.
+
+					bool alreadyFormDisplayed = false;
 					for (u8 i = 0; i < pInfo.formCount; i++)
 					for (u8 j = 0; j < 2; j++)
 					{
-						if (getOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*(j+2) /* SH_FORM_DISPLAYED_OFFSET */, i))
-						{
-							if (!getOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*(j) /* SH_FORM_SEEN_OFFSET */, i))
-							{
-								{ printf("~FORM_DISPLAYED_FLAG\n"); setOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*(j+2) /* SH_FORM_DISPLAYED_OFFSET */, i, false); }
-							}
-							else alreadyFormDisplayed = true;
-						}
+						alreadyFormDisplayed |= getOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*(j+2) /* SH_FORM_DISPLAYED_OFFSET */, i);
 					}
 
-					if (!alreadyFormDisplayed && !alreadyDisplayed)
+					if (!alreadyFormDisplayed) // Seen but not form displayed
 					{
-						// { printf("SH_FORM_DISPLAYED_FLAG\n"); setOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*(shiny+2) /* SH_FORM_DISPLAYED_OFFSET */, formdexBit, true); }
-						if (isShiny) { printf("FORM_SHINY_DISPLAYED_FLAG\n"); setOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*3 /* FORM_SHINY_DISPLAYED_OFFSET */, formdexBit, true); }
-						else { printf("FORM_DISPLAYED_FLAG\n"); setOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*2 /* FORM_DISPLAYED_OFFSET */, formdexBit, true); }
+						{ printf("SH_FORM_DISPLAYED_FLAG\n"); setOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*(shiny+2) /* SH_FORM_DISPLAYED_OFFSET */, formdexBit, true); }
+					}
+					else // Seen and form displayed
+					{
+						alreadyFormDisplayed = false;
+						for (u8 i = 0; i < pInfo.formCount; i++)
+						for (u8 j = 0; j < 2; j++)
+						{
+							if (getOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*(j+2) /* SH_FORM_DISPLAYED_OFFSET */, i))
+							{
+								if (!getOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*(j) /* SH_FORM_SEEN_OFFSET */, i))
+								{
+									{ printf("~SH_FORM_DISPLAYED_FLAG\n"); setOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*(j+2) /* SH_FORM_DISPLAYED_OFFSET */, i, false); }
+								}
+								else alreadyFormDisplayed = true;
+							}
+						}
+
+						if (!alreadyFormDisplayed && !alreadyDisplayed)
+						{
+							{ printf("SH_FORM_DISPLAYED_FLAG\n"); setOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*(shiny+2) /* SH_FORM_DISPLAYED_OFFSET */, formdexBit, true); }
+						}
 					}
 				}
 			}
 		}
 
 		// Seen
-		// { printf("SH_SEEN_FLAG\n"); setOffsetBit(sav, SAV_offsetDex + 0x8 + 0x60 + 0x60*(gender) + 0x60*2*(shiny) /* SH_SEEN_OFFSET */, speciesID, true); }
-		if (isFemale) // Female
-		{
-			if (isShiny) { printf("FEMALE_SHINY_SEEN_FLAG\n"); setOffsetBit(sav, SAV_offsetDex + 0x8 + 0x60 + 0x60*1 + 0x60*2*1 /* FEMALE_SHINY_SEEN_OFFSET */, speciesID, true); }
-			else { printf("FEMALE_SEEN_FLAG\n"); setOffsetBit(sav, SAV_offsetDex + 0x8 + 0x60 + 0x60*1 + 0x60*2*0 /* FEMALE_SEEN_OFFSET */, speciesID, true); }
-		}
-		else // Male or Genderless
-		{
-			if (isShiny) { printf("MALE_SHINY_SEEN_FLAG\n"); setOffsetBit(sav, SAV_offsetDex + 0x8 + 0x60 + 0x60*0 + 0x60*2*1 /* MALE_SHINY_SEEN_OFFSET */, speciesID, true); }
-			else { printf("MALE_SEEN_FLAG\n"); setOffsetBit(sav, SAV_offsetDex + 0x8 + 0x60 + 0x60*0 + 0x60*2*0 /* MALE_SEEN_OFFSET */, speciesID, true); }
-		}
+		{ printf("SH_SEEN_FLAG\n"); setOffsetBit(sav, SAV_offsetDex + 0x8 + 0x60 + 0x60*(gender) + 0x60*2*(shiny) /* SH_SEEN_OFFSET */, speciesID, true); }
 
 		// Displayed
 		if (!alreadySeen)
 		{
-			// { printf("SH_DISPLAYED_FLAG\n"); setOffsetBit(sav, SAV_offsetDex + 0x8 + 0x60*5 + 0x60*(gender) + 0x60*2*(shiny) /* SH_DISPLAYED_OFFSET */, speciesID, true); }
-			if (!isFemale) // Female
-			{
-				if (isShiny) { printf("FEMALE_SHINY_DISPLAYED_FLAG\n"); setOffsetBit(sav, SAV_offsetDex + 0x8 + 0x60*5 + 0x60*1 + 0x60*2*1 /* FEMALE_SHINY_DISPLAYED_OFFSET */, speciesID, true); }
-				else { printf("FEMALE_DISPLAYED_FLAG\n"); setOffsetBit(sav, SAV_offsetDex + 0x8 + 0x60*5 + 0x60*1 + 0x60*2*0 /* FEMALE_DISPLAYED_OFFSET */, speciesID, true); }
-			}
-			else // Male or Genderless
-			{
-				if (isShiny) { printf("MALE_SHINY_DISPLAYED_FLAG\n"); setOffsetBit(sav, SAV_offsetDex + 0x8 + 0x60*5 + 0x60*0 + 0x60*2*1 /* MALE_SHINY_DISPLAYED_OFFSET */, speciesID, true); }
-				else { printf("MALE_DISPLAYED_FLAG\n"); setOffsetBit(sav, SAV_offsetDex + 0x8 + 0x60*5 + 0x60*0 + 0x60*2*0 /* MALE_DISPLAYED_OFFSET */, speciesID, true); }
-			}
+			{ printf("SH_DISPLAYED_FLAG\n"); setOffsetBit(sav, SAV_offsetDex + 0x8 + 0x60*5 + 0x60*(gender) + 0x60*2*(shiny) /* SH_DISPLAYED_OFFSET */, speciesID, true); }
 		}
 		else if (!alreadyDisplayed)
 		{
@@ -297,7 +272,7 @@ namespace Pokedex
 				{
 					if (!getOffsetBit(sav, SAV_offsetDex + 0x8 + 0x60 + 0x60*(i%2) + 0x60*2*(i/2) /* SH_SEEN_OFFSET */, i))
 					{
-						{ printf("~DISPLAYED_FLAG\n"); setOffsetBit(sav, SAV_offsetDex + 0x8 + 0x60*5 + 0x60*(i%2) + 0x60*2*(i/2) /* SH_DISPLAYED_OFFSET */, i, false); }
+						{ printf("~SH_DISPLAYED_FLAG\n"); setOffsetBit(sav, SAV_offsetDex + 0x8 + 0x60*5 + 0x60*(i%2) + 0x60*2*(i/2) /* SH_DISPLAYED_OFFSET */, i, false); }
 					}
 					else alreadyDisplayed = true;
 				}
@@ -305,17 +280,7 @@ namespace Pokedex
 
 			if (!alreadyDisplayed)
 			{
-				// { printf("SH_DISPLAYED_FLAG\n"); setOffsetBit(sav, SAV_offsetDex + 0x8 + 0x60*5 + 0x60*(gender) + 0x60*2*(shiny) /* SH_DISPLAYED_OFFSET */, speciesID, true); }
-				if (!isFemale) // Female
-				{
-					if (isShiny) { printf("FEMALE_SHINY_DISPLAYED_FLAG\n"); setOffsetBit(sav, SAV_offsetDex + 0x8 + 0x60*5 + 0x60*1 + 0x60*2*1 /* FEMALE_SHINY_DISPLAYED_OFFSET */, speciesID, true); }
-					else { printf("FEMALE_DISPLAYED_FLAG\n"); setOffsetBit(sav, SAV_offsetDex + 0x8 + 0x60*5 + 0x60*1 + 0x60*2*0 /* FEMALE_DISPLAYED_OFFSET */, speciesID, true); }
-				}
-				else // Male or Genderless
-				{
-					if (isShiny) { printf("MALE_SHINY_DISPLAYED_FLAG\n"); setOffsetBit(sav, SAV_offsetDex + 0x8 + 0x60*5 + 0x60*0 + 0x60*2*1 /* MALE_SHINY_DISPLAYED_OFFSET */, speciesID, true); }
-					else { printf("MALE_DISPLAYED_FLAG\n"); setOffsetBit(sav, SAV_offsetDex + 0x8 + 0x60*5 + 0x60*0 + 0x60*2*0 /* MALE_DISPLAYED_OFFSET */, speciesID, true); }
-				}
+				{ printf("SH_DISPLAYED_FLAG\n"); setOffsetBit(sav, SAV_offsetDex + 0x8 + 0x60*5 + 0x60*(gender) + 0x60*2*(shiny) /* SH_DISPLAYED_OFFSET */, speciesID, true); }
 			}
 		}
 
