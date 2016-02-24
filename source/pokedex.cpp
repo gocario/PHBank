@@ -42,17 +42,18 @@ namespace Pokedex
 	{
 		switch (species)
 		{
-			case 460: return 185; // 2 Abomasnow
-			case 448: return 183; // 2 Lucario
-			case 445: return 181; // 2 Garchomp
-			case 381: return 179; // 2 Latios
-			case 380: return 177; // 2 Latias
-			case 359: return 175; // 2 Absol
-			case 354: return 173; // 2 Banette
-			case 310: return 171; // 2 Manetric
-			case 308: return 169; // 2 Medicham
-			case 306: return 167; // 2 Aggron
-			case 303: return 165; // 2 Mawile
+			case 460: return 187; // 2 Abomasnow
+			case 448: return 185; // 2 Lucario
+			case 445: return 183; // 2 Garchomp
+			case 381: return 181; // 2 Latios
+			case 380: return 179; // 2 Latias
+			case 359: return 177; // 2 Absol
+			case 354: return 175; // 2 Banette
+			case 310: return 173; // 2 Manetric
+			case 308: return 171; // 2 Medicham
+			case 306: return 169; // 2 Aggron
+			case 303: return 167; // 2 Mawile
+			case 281: return 165; // 2 Gardevoir
 			case 257: return 163; // 2 Blaziken
 			case 248: return 161; // 2 Tyranitar
 			case 229: return 159; // 2 Houndoom
@@ -112,35 +113,35 @@ namespace Pokedex
 	{
 		switch (species)
 		{
-			case 676: return 259; // 10 Furfrou
-			case 649: return 254; // 5 Genesect
-			case 493: return 236; // 18 Arceus
-			case 383: return 234; // 2 Groudon
-			case 382: return 232; // 2 Kyogre
-			case 719: return 230; // 2 Diancie
-			case 531: return 228; // 2 Audino
-			case 475: return 226; // 2 Gallade
-			case 428: return 224; // 2 Lopunny
-			case 384: return 222; // 2 Rayquaza
-			case 376: return 220; // 2 Metagross
-			case 373: return 218; // 2 Salamence
-			case 362: return 216; // 2 Glalie
-			case 334: return 214; // 2 Altaria
-			case 323: return 212; // 2 Camerupt
-			case 319: return 210; // 2 Sharpedo
-			case 302: return 208; // 2 Sableye
-			case 360: return 206; // 2 Swampert
-			case 254: return 204; // 2 Sceptile
-			case 208: return 202; // 2 Steelix
-			case  80: return 200; // 2 Slowbro
-			case  18: return 198; // 2 Pidgeot
-			case  15: return 196; // 2 Beedrill
-			case 720: return 194; // 2 Hoopa
-			case  25: return 187; // 7 Pikachu
-			// case 720: return 194; // 2 Hoopa
-			// case  25: return 193; // 1 Cosplay Pikachu
-			// case  25: return 188; // 5 Unused (Cosplay Pikachu)
-			// case  25: return 187; // 1 Pikachu
+			case 676: return 261; // 10 Furfrou
+			case 649: return 256; // 5 Genesect
+			case 493: return 238; // 18 Arceus
+			case 383: return 236; // 2 Groudon
+			case 382: return 234; // 2 Kyogre
+			case 719: return 232; // 2 Diancie
+			case 531: return 230; // 2 Audino
+			case 475: return 228; // 2 Gallade
+			case 428: return 226; // 2 Lopunny
+			case 384: return 224; // 2 Rayquaza
+			case 376: return 222; // 2 Metagross
+			case 373: return 220; // 2 Salamence
+			case 362: return 218; // 2 Glalie
+			case 334: return 216; // 2 Altaria
+			case 323: return 214; // 2 Camerupt
+			case 319: return 212; // 2 Sharpedo
+			case 302: return 210; // 2 Sableye
+			case 360: return 208; // 2 Swampert
+			case 254: return 206; // 2 Sceptile
+			case 208: return 204; // 2 Steelix
+			case  80: return 202; // 2 Slowbro
+			case  18: return 200; // 2 Pidgeot
+			case  15: return 198; // 2 Beedrill
+			case 720: return 196; // 2 Hoopa
+			case  25: return 189; // 7 Pikachu
+			// case 720: return 196; // 2 Hoopa
+			// case  25: return 195; // 1 Cosplay Pikachu
+			// case  25: return 190; // 5 Unused (Cosplay Pikachu)
+			// case  25: return 189; // 1 Pikachu
 			default: return getFormDexOffsetXY(species);
 		}
 	}
@@ -159,7 +160,7 @@ namespace Pokedex
 		u32 SAV_lengthForm = (Game::is(version, Game::XY) ? 0x18 : 0x26);
 
 		bool isShiny = Pokemon::isShiny(pkm); bool shiny = isShiny;
-		bool isFemale = Pokemon::gender(pkm) == 1; bool gender = isFemale;
+		bool isFemale = Pokemon::gender(pkm) % 2; bool gender = isFemale;
 		bool isKalosBorn = Pokemon::isKalosBorn(pkm);
 		u16 speciesID = Pokemon::speciesID(pkm); u16 species = speciesID--;
 		u8 formID = Pokemon::formID(pkm);
