@@ -121,8 +121,10 @@ Result DataManager::loadDataFile(const char* file, u8* dest, u32 lineMaxLength, 
 	if (!fp) return -1;
 
 	u8* buffer = new u8[lineMaxLength * lineCount];
-	// u32*
+	// u32* buf32 = new u32[lineMaxLength * lineCount];
+	// memset(buffer, 0, lineMaxLength * lineCount);
 	fread(buffer, 1, lineMaxLength * lineCount, fp);
+	// utf8_to_utf32(buf32, buffer, lineMaxLength * lineCount);
 	loadDataLines(buffer, dest, lineMaxLength, lineCount);
 	delete[] buffer;
 
@@ -135,19 +137,19 @@ Result DataManager::loadDataLines(const u8* src, u8* dst, u32 lineMaxLength, u32
 {
 	u32 count = 0;
 	u32 lineOffset = 0;
-	u32 sourceOffset = 3;
+	u32 sourceOffset = 0; // No BOM 0 | With Bom 3
 	while (count < lineCount)
 	{
 		lineOffset = 0;
 		while (src[sourceOffset] != '\n' && src[sourceOffset] != '\0' && lineOffset < lineMaxLength)
 		{
-			*(u8*)(dst + lineMaxLength * count + lineOffset) = *(u8*)(src + sourceOffset);
+			dst[lineMaxLength * count + lineOffset] = src[sourceOffset];
 			lineOffset++;
 			sourceOffset++;
 		}
 		while (lineOffset < lineMaxLength)
 		{
-			*(u8*)(dst + lineMaxLength * count + lineOffset) = '\0';
+			dst[lineMaxLength * count + lineOffset] = '\0';
 			lineOffset++;
 		}
 		while (src[sourceOffset] == '\n' || src[sourceOffset] == '\0') sourceOffset++;
