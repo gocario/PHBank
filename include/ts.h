@@ -16,7 +16,7 @@ extern AM_TitleMediaEntry titleEntry;
 
 /**
  * @brief Starts the loop of the title selector.
- * @return Whether the title selector has select a title.
+ * @return Whether the title selector has selected a title.
  */
 bool TS_Loop(void);
 

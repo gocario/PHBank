@@ -19,10 +19,10 @@ extern "C" {
 /// Pokémon title enumeration.
 typedef enum
 {
-	POKEMON_X = 0,
-	POKEMON_Y = 1,
-	POKEMON_OR = 2,
-	POKEMON_AS = 3,
+	POKEMON_X = 0, // 24
+	POKEMON_Y = 1, // 25
+	POKEMON_OR = 2, // 27
+	POKEMON_AS = 3, // 28
 } AM_PokemonTitle;
 
 /// A simple titleid/mediatype struct with a magic smdh.
@@ -32,13 +32,6 @@ typedef struct
 	smdh_s* smdh;
 	FS_MediaType mediatype;
 } AM_TitleMediaEntry;
-
-/**
- * @brief Retrieves the Pokémon title ID.
- * @param pkmTitle The Pokémon title.
- * @return The id of the Pokémon title.
- */
-const u64 AM_GetPokemonTitleID(AM_PokemonTitle pkmTitle);
 
 /**
  * @brief Retrieves the name of a title.
@@ -51,7 +44,7 @@ const char* AM_GetPokemonTitleName(u64 titleID);
  * @brief Gets a list of Pokémon title IDs paired with its mediatype.
  * @param count Pointer to write the title count to.
  * @param titleList Buffer to write retrieved title media entries to. (it's malloc'd inside)
- * @see AM_FreePokemonTitleEntryList(AM_TitleMediaEntry*)
+ * @see AM_FreePokemonTitleEntryList(AM_TitleMediaEntry*, u32)
  */
 Result AM_GetPokemonTitleEntryList(AM_TitleMediaEntry** titleList, u32* count);
 
@@ -59,7 +52,7 @@ Result AM_GetPokemonTitleEntryList(AM_TitleMediaEntry** titleList, u32* count);
  * @brief Frees the title media entries buffer previously alocated.
  * @param count The title count.
  * @param titleList Buffer to free.
- * @see AM_GetPokemonTitleEntryList(u32, AM_TitleMediaEntry**)
+ * @see AM_GetPokemonTitleEntryList(AM_TitleMediaEntry**, u32*)
  */
 Result AM_FreePokemonTitleEntryList(AM_TitleMediaEntry* titleList, u32 count);
 

@@ -3,15 +3,18 @@
 
 #include <3ds/result.h>
 
-#include <stdio.h>
 #include <stdlib.h>
 
 // #define AM_DEBUG
 
-// #define debug_print(fmt, args ...) printf(fmt, ##args)
-// #define r(fmt, args ...) printf(fmt, ##args)
+#ifdef AM_DEBUG
+#include <stdio.h>
+#define debug_print(fmt, args ...) printf(fmt, ##args)
+#define r(fmt, args ...) printf(fmt, ##args)
+#else
 #define debug_print(fmt, args ...)
 #define r(fmt, args ...)
+#endif
 
 static const u32 pokemonTitleCount = 4;
 static const u64 pokemonTitleIDs[] = {
@@ -30,7 +33,7 @@ static const char* pokemonTitleName[] = {
 	"Not Pokemon",
 };
 
-static const Result AM_GetSmdh(AM_TitleMediaEntry* title)
+static Result AM_GetSmdh(AM_TitleMediaEntry* title)
 {
 	if (!title || title->smdh) return -1;
 
@@ -61,16 +64,9 @@ static const Result AM_GetSmdh(AM_TitleMediaEntry* title)
 	}
 
 	FSFILE_Close(fileHandle);
-	r(" > FSFILE_Close: %lx\n");
+	r(" > FSFILE_Close\n");
 
 	return ret;
-}
-
-const u64 AM_GetPokemonTitleID(AM_PokemonTitle pkmTitle)
-{
-	if (pkmTitle >= POKEMON_X && pkmTitle <= POKEMON_AS)
-		return pokemonTitleIDs[pkmTitle];
-	return pokemonTitleIDs[pokemonTitleCount];
 }
 
 const char* AM_GetPokemonTitleName(u64 titleID)
@@ -83,7 +79,7 @@ const char* AM_GetPokemonTitleName(u64 titleID)
 
 Result AM_GetPokemonTitleEntryList(AM_TitleMediaEntry** titleList, u32* count)
 {
-	if (!titleList || !titleList) return -1;
+	if (!titleList) return -1;
 
 	Result ret;
 	u32 ccount = 0;

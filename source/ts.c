@@ -2,16 +2,20 @@
 #include "key.h"
 
 #include <sf2d.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 // #define TS_DEBUG
+// #define TS_CONSOLE_DISPLAY
 
-// #define r(fmt, args ...) printf(fmt, ##args)
-// #define debug_print(fmt, args ...) printf(fmt, ##args)
-#define r(fmt, args ...)
+#ifdef TS_DEBUG
+#include <stdio.h>
+#define debug_print(fmt, args ...) printf(fmt, ##args)
+#define r(fmt, args ...) printf(fmt, ##args)
+#else
 #define debug_print(fmt, args ...)
+#define r(fmt, args ...)
+#endif
 
 AM_TitleMediaEntry titleEntry;
 
@@ -35,13 +39,12 @@ static Result TS_Init(void)
 {
 	Result ret;
 
+	debug_print("TS_Init:\n");
+
 	titleCount = 0;
 	titleCurrent = 0;
 
-	debug_print("TS_Init()");
-
 	amInit();
-	debug_print(" > amInit\n");
 
 	ret = AM_GetPokemonTitleEntryList(&titleList, &titleCount);
 	r(" > AM_GetPokemonTitleEntryList: %lx\n", ret);
@@ -108,7 +111,7 @@ static void TS_Next(void)
 	TS_Select();
 }
 
-#ifdef TS_DEBUG
+#ifdef TS_CONSOLE_DISPLAY
 /**
  * @brief Draws the title selector state.
  */
@@ -151,7 +154,7 @@ bool TS_Loop(void)
 
 	TS_Select();
 
-#ifdef TS_DEBUG
+#ifdef TS_CONSOLE_DISPLAY
 	consoleInit(GFX_BOTTOM, NULL);
 	TS_Draw();
 #endif
