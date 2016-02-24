@@ -120,9 +120,11 @@ Result DataManager::loadDataFile(const char* file, u8* dest, u32 lineMaxLength, 
 	FILE* fp = fopen(path, "r");
 	if (!fp) return -1;
 
-	u8 buffer[lineMaxLength * lineCount];
+	u8* buffer = new u8[lineMaxLength * lineCount];
+	// u32*
 	fread(buffer, 1, lineMaxLength * lineCount, fp);
 	loadDataLines(buffer, dest, lineMaxLength, lineCount);
+	delete[] buffer;
 
 	fclose(fp);
 

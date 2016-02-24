@@ -9,6 +9,7 @@
 #include "savexit_viewer.hpp"
 
 #include <stdio.h>
+#include <string.h>
 
 #define BOX_HEADER_SELECTED (-1)
 #define SLOT_NO_SELECTION (-1)
@@ -196,7 +197,7 @@ Result BoxViewer::drawTopScreen()
 		{
 			// Is the Pokémon nicknamed?
 			if (Pokemon::isNicknamed(vPkm.pkm))
-				sftd_draw_text_white(x, y, "%s", vPkm.NKName);
+				sftd_draw_wtext_white(x, y, vPkm.NKName);
 			else
 				sftd_draw_text_white(x, y, "%s", vPkm.species);
 		}
@@ -205,13 +206,11 @@ Result BoxViewer::drawTopScreen()
 
 		x = 11;
 		y = 42 - 2;
-		// sftd_draw_text_white(x, y, "Game's OT");
-		// sftd_draw_text_white(x+80, y, "%s (%lx-%lx-%lx)", save->savedata.OTName, save->savedata.TID, save->savedata.SID, save->savedata.TSV);
 		sftd_draw_text_white(x, (y += 15), "Dex No.");
 		sftd_draw_text_white(x+50, y, "%03u", vPkm.pkm->speciesID);
 		sftd_draw_text_white(x+80, y, "%s", vPkm.species);
 		sftd_draw_text_white(x, (y += 15), "O.T.");
-		sftd_draw_text_white(x+50, y, "%s", vPkm.OTName);
+		sftd_draw_wtext_white(x+50, y, vPkm.OTName);
 		sftd_draw_text_white(x, (y += 15), "Stat");
 		sftd_draw_text_white(x+90, y, "Value");
 		sftd_draw_text_white(x+128, y, "IVs");
@@ -928,9 +927,12 @@ void BoxViewer::cancelMovePokemon()
 void BoxViewer::populateVPkmData(vPkm_s* vPkm)
 // --------------------------------------------------
 {
-	unicodeToChar((char*) vPkm->NKName, Pokemon::NK_name(vPkm->pkm), 0xD);
-	unicodeToChar((char*) vPkm->OTName, Pokemon::OT_name(vPkm->pkm), 0xD);
-	unicodeToChar((char*) vPkm->HTName, Pokemon::HT_name(vPkm->pkm), 0xD);
+	memset(vPkm->NKName, 0, 0xD * sizeof(uint32_t));
+	memset(vPkm->OTName, 0, 0xD * sizeof(uint32_t));
+	memset(vPkm->HTName, 0, 0xD * sizeof(uint32_t));
+	utf16_to_utf32(vPkm->NKName, Pokemon::NK_name(vPkm->pkm), 0xD);
+	utf16_to_utf32(vPkm->OTName, Pokemon::OT_name(vPkm->pkm), 0xD);
+	utf16_to_utf32(vPkm->HTName, Pokemon::HT_name(vPkm->pkm), 0xD);
 
 	vPkm->emptySlot = save->isPkmEmpty(vPkm->pkm);
 
