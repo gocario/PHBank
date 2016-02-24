@@ -1,7 +1,7 @@
 #include "savexit_viewer.hpp"
 
 #include "phbank.hpp"
-#include "text.hpp"
+#include "text.h"
 
 #include <stdio.h>
 

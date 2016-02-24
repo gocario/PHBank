@@ -1,9 +1,9 @@
 #include "box_viewer.hpp"
 
 #include "lang.h"
+#include "text.h"
 #include "utils.h"
 #include "pokemon.hpp"
-#include "text.hpp"
 
 #include "ultra_box_viewer.hpp"
 #include "savexit_viewer.hpp"
@@ -686,8 +686,8 @@ void BoxViewer::drawBox(box_s* box, int16_t x, int16_t y)
 	/// TODO: Remove that if statement when complete box->title.
 	if (box->title[0] != '\0') snprintf(boxTitle, 0x1a, box->title);
 	else snprintf(boxTitle, 0x1a, "Box %i", box->number+1);
-	int boxTitleWidth = sftd_get_text_width(PHBanku::font->font, 12, boxTitle);
-	sftd_draw_text(PHBanku::font->font, x + (BACKGROUND_WIDTH - boxTitleWidth) / 2, y + 7, RGBA8(0x00,0x00,0x00,0xFF), 12, boxTitle);
+	int boxTitleWidth = sftd_get_text_width(font, 12, boxTitle);
+	sftd_draw_text(font, x + (BACKGROUND_WIDTH - boxTitleWidth) / 2, y + 7, RGBA8(0x00,0x00,0x00,0xFF), 12, boxTitle);
 
 	// if (isPkmMSelecting || isPkmMDragged)
 	// {

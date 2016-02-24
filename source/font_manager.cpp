@@ -1,8 +1,7 @@
 #include "font_manager.hpp"
 
-// #include "FreeSans_ttf.h"
-// #include "PokemonGB_ttf.h"
 #include "Roboto_Regular_ttf.h"
+#include "text.h"
 
 #include <stdio.h>
 
