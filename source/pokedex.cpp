@@ -53,7 +53,7 @@ namespace Pokedex
 			case 308: return 171; // 2 Medicham
 			case 306: return 169; // 2 Aggron
 			case 303: return 167; // 2 Mawile
-			case 281: return 165; // 2 Gardevoir
+			case 282: return 165; // 2 Gardevoir
 			case 257: return 163; // 2 Blaziken
 			case 248: return 161; // 2 Tyranitar
 			case 229: return 159; // 2 Houndoom
@@ -163,13 +163,13 @@ namespace Pokedex
 		bool isFemale = Pokemon::gender(pkm) % 2; bool gender = isFemale;
 		bool isKalosBorn = Pokemon::isKalosBorn(pkm);
 		u16 speciesID = Pokemon::speciesID(pkm); u16 species = speciesID--;
-		u8 formID = Pokemon::formID(pkm);
+		u8 formID = Pokemon::formID(pkm); u8 form = formID;
 		u8 lang = Pokemon::language(pkm);
 		if (lang-- > 5) lang--; // {1|2|3|4|5|.|7|8} -> {0|1|2|3|4|5|6|7}
 
 		const PersonalInfo pInfo = Personal(species, formID);
 
-		printf("\naddDex:\n");
+		printf("\naddDex: [%03u|%u]\n", species, form);
 
 		bool alreadySeen = false;
 		bool alreadyDisplayed = false;
