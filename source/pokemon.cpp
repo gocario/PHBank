@@ -386,7 +386,7 @@ u8 Pokemon::HPType(pkm_s* pkm)
 
 // Region A
 u32 Pokemon::encryptionKey(pkm_s* pkm) { return *(u32*)(pkm->pk6 + 0x00); }
-u16 Pokemon::sanity(pkm_s* pkm) { return *(u16*)(pkm->pk6 + 0x02); }
+u16 Pokemon::sanity(pkm_s* pkm) { return *(u16*)(pkm->pk6 + 0x04); }
 u16 Pokemon::checksum(pkm_s* pkm) { return *(u16*)(pkm->pk6 + 0x06); }
 u16 Pokemon::speciesID(pkm_s* pkm) { return *(u16*)(pkm->pk6 + 0x08); }
 u16 Pokemon::itemID(pkm_s* pkm) { return *(u16*)(pkm->pk6 + 0x0a); }
@@ -640,7 +640,7 @@ u32 Pokemon::IV32(pkm_s* pkm) { return *(u32*)(pkm->pk6 + 0x74); }
 
 // Region A
 void Pokemon::encryptionKey(pkm_s* pkm, u32 v) { *(u32*)(pkm->pk6 + 0x00) = v; }
-// void Pokemon::sanity(pkm_s* pkm, u16 v) { *(u16*)(pkm->pk6 + 0x02) = v; }
+void Pokemon::sanity(pkm_s* pkm, u16 v) { *(u16*)(pkm->pk6 + 0x04) = v; }
 void Pokemon::checksum(pkm_s* pkm, u16 v) { *(u16*)(pkm->pk6 + 0x06) = v; }
 void Pokemon::speciesID(pkm_s* pkm, u16 v) { *(u16*)(pkm->pk6 + 0x08) = v; }
 void Pokemon::itemID(pkm_s* pkm, u16 v) { *(u16*)(pkm->pk6 + 0x0a) = v; }
