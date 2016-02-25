@@ -37,7 +37,7 @@ inline s32 u16cmp(const u16* str1, const u16* str2, s16 max)
 {
 	if (!str1 || !str2) return 0;
 	for (u16 ii = 0; ii < max; ii++)
-		if ((str1[ii] == '\0' && str1[ii] == str2[ii]) || (str1[ii] != str2[ii]))
+		if (str1[ii] == '\0' || str2[ii] == '\0' || str1[ii] != str2[ii])
 			return str2[ii] - str1[ii];
 	return 0;
 }
