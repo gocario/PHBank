@@ -966,7 +966,7 @@ void SaveManager::tradePkm(pkm_s* pkm)
 		if ((Pokemon::TID(pkm) == savedata.TID) &&
 			(Pokemon::SID(pkm) == savedata.SID) &&
 			(Pokemon::OT_gender(pkm) == savedata.OTGender) &&
-			(memcmp(pkmn_HTName, save_OTName, 0x18) == 0))
+			(u16cmp(pkmn_OTName, save_OTName, 0x18) == 0))
 		{
 			// If it's coming back from a non-OT
 			if (Pokemon::currentHandler(pkm) == 0x01)
@@ -988,7 +988,7 @@ void SaveManager::tradePkm(pkm_s* pkm)
 			else
 			{
 				// If it is not the "same non-OT"
-				if (memcmp(pkmn_HTName, save_OTName, 0x18) != 0)
+				if (u16cmp(pkmn_HTName, save_OTName, 0x18) != 0)
 				{
 					tradePkmHT(pkm);
 				}
