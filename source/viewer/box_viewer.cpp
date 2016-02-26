@@ -305,6 +305,7 @@ Result BoxViewer::drawBotScreen()
 	{
 		// Retrieve the current box, and the drawing offset.
 		s16 boxShift = (cursorBox.inBank ? BK_BOX_SHIFT_USED : PC_BOX_SHIFT_USED);
+		s16 middleBoxShift = (cursorBox.inBank ? PC_BOX_SHIFT_UNUSED : PC_BOX_SHIFT_USED) + BACKGROUND_WIDTH;
 
 		// Draw the current box: the background and the icons.
 		drawBox((cursorBox.inBank ? vBKBox : vPCBox), boxShift, 20);
@@ -316,6 +317,9 @@ Result BoxViewer::drawBotScreen()
 		sf2d_draw_texture_part(PHBanku::texture->boxTiles, boxShift + 21 +   0, 0,   0, 0, 64, 32);
 		sf2d_draw_texture_part(PHBanku::texture->boxTiles, boxShift + 21 +  64, 0,  64, 0, 64, 32);
 		sf2d_draw_texture_part(PHBanku::texture->boxTiles, boxShift + 21 + 128, 0, 128, 0, 64, 32);
+
+		// Draw SwapBox button
+		sf2d_draw_texture_part(PHBanku::texture->boxTiles, middleBoxShift + 10, 210, 128, 32, 20, 20);
 
 		// If a Pokémon is currently selected
 		if (sPkm)
@@ -493,13 +497,10 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 			cancelMovePokemon();
 		}
 
-		if (kDown & KEY_Y && !isPkmDragged)
+		if (kDown & KEY_Y && !sPkm)
 		{
-			if (vPCBox && vBKBox) // TODO: Is the `if` useless?
-			{
-				// Swap the two boxes (PC|BK)
-				save->moveBox(cursorBox.boxPC, false, cursorBox.boxBK, true);
-			}
+			// Swap the two boxes (PC|BK)
+			save->moveBox(cursorBox.boxPC, false, cursorBox.boxBK, true);
 		}
 	}
 	else if (cursorType == CursorType::MultipleSelect)
@@ -512,10 +513,6 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 			// TODO: Feature to Move Pokémon (multiple-grab and multiple-drop)
 			// selectMultiMovePokemon();
 		}
-		// else if (kUp & KEY_A)
-		// {
-		// 	selectMultiMovePokemon();
-		// }
 
 		if (kDown & KEY_Y)
 		{
@@ -532,6 +529,7 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 		if (kDown & KEY_TOUCH)
 		{
 			s16 boxShift = (cursorBox.inBank ? BK_BOX_SHIFT_USED : PC_BOX_SHIFT_USED);
+			s16 middleBoxShift = (cursorBox.inBank ? PC_BOX_SHIFT_UNUSED : PC_BOX_SHIFT_USED) + BACKGROUND_WIDTH;
 			u16 px = touch->px;
 			u16 py = touch->py;
 
@@ -562,13 +560,14 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 
 					// Update the current Pokémon
 					selectViewPokemon();
+
 					// Move the current Pokémon (grab)
 					selectMovePokemon();
 
 					if (!vPkm.emptySlot)
 						isPkmDragged = true;
 				}
-				// If no Pokémon is currently selected and dragged
+				// If a Pokémon is currently selected and dragged
 				else
 				{
 					u16 oldRow = cursorBox.row;
@@ -580,9 +579,19 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 
 					// Update the current Pokémon
 					selectViewPokemon();
+
 					// And drop the Pokémon if one is held and it is the same current slot (mean double tap to move a held Pokémon)
 					if (isPkmHeld && oldRow == cursorBox.row && oldCol == cursorBox.col)
 						selectMovePokemon();
+				}
+			}
+			// If the TouchArea is within the SwapBox button area
+			else if (touchWithin(px, py, middleBoxShift + 10, 210, 20, 20))
+			{
+				if (!isPkmHeld && !isPkmDragged)
+				{
+					// Swap the two boxes (PC|BK)
+					save->moveBox(cursorBox.boxPC, false, cursorBox.boxBK, true);
 				}
 			}
 		}
