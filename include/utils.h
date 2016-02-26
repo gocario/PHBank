@@ -31,15 +31,33 @@ inline void unicodeToChar(char* dst, const u16* src, s16 max)
  * @param str1 The first u16 string.
  * @param str2 The second u16 string.
  * @param max The max length of the strings.
- * @return Whether the strings are different.
+ * @return The char16 difference between the strings.
  */
 inline s32 u16cmp(const u16* str1, const u16* str2, s16 max)
 {
 	if (!str1 || !str2) return 0;
 	for (u16 ii = 0; ii < max; ii++)
-		if (str1[ii] == '\0' || str2[ii] == '\0' || str1[ii] != str2[ii])
+		if (!str1[ii] || !str2[ii] || str1[ii] != str2[ii])
 			return str2[ii] - str1[ii];
 	return 0;
+}
+
+/**
+ * @brief Gets the length of a u8 string.
+ * @param str The u8 string.
+ * @param max The max length of the string.
+ * @return The length of the string.
+ */
+inline u16 u8len(const u8* str, s16 max)
+{
+	u16 i = 0, j = 0;
+	while (j < max && str[j])
+	{
+		if ((str[j] & 0xC0) != 0x80) 
+			i++;
+		j++;
+	}
+	return i;
 }
 
 #ifdef __cplusplus

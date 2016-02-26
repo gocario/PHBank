@@ -1,6 +1,7 @@
 #include "data_manager.hpp"
 
 #include "lang.h"
+#include "utils.h"
 #include "pkdir.h"
 #include "personal.hpp"
 
@@ -171,6 +172,10 @@ void DataManager::loadDataLines(const u8* src, uint32_t** data, u32 srcSize, u32
 
 		// Convert the UTF-8 string to a UTF-32 string for wstring
 		utf8_to_utf32(data[count], src + sourceOffset, lineLength);
+
+		// Clear the rest of the wstring.
+		u16 len8 = u8len(src + sourceOffset, lineLength);
+		data[count][len8] = '\0';
 
 		sourceOffset += lineLength + 1;
 		count++;
