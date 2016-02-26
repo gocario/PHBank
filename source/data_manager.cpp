@@ -4,15 +4,15 @@
 #include "pkdir.h"
 #include "personal.hpp"
 
+extern "C" {
+#include <3ds/util/utf.h>
+}
+
 #include <stdio.h>
 #include <string.h>
 
-static const char* hpTypes[] = {
-	"Fighting", "Flying", "Poison", "Ground",
-	"Rock", "Bug", "Ghost", "Steel", "Fire", "Water",
-	"Grass", "Electric", "Psychic", "Ice", "Dragon", "Dark",
-	"(None)" // <- Bad thing!
-};
+// wstring for "(None)", just a safe case
+const uint32_t wNone[] = { 0x00000028, 0x0000004E, 0x0000004F, 0x0000004E, 0x00000045, 0x00000029, 0x00000000 };
 
 DataManager::DataManager(void)
 {
@@ -21,7 +21,12 @@ DataManager::DataManager(void)
 
 DataManager::~DataManager(void)
 {
-
+	freeDataLines(wAbilities, DEX_ABILITIES_COUNT);
+	freeDataLines(wItems, DEX_ITEMS_COUNT);
+	freeDataLines(wMoves, DEX_MOVES_COUNT);
+	freeDataLines(wNatures, DEX_NATURES_COUNT);
+	freeDataLines(wSpecies, DEX_SPECIES_COUNT);
+	freeDataLines(wTypes, DEX_TYPES_COUNT);
 }
 
 const char* DataManager::lang(void)
@@ -38,52 +43,52 @@ const char* DataManager::lang(void)
 	}
 }
 
-const u8* DataManager::abilities(u32 ability)
+const uint32_t* DataManager::abilities(u32 ability)
 {
 	if (ability < DEX_ABILITIES_COUNT)
-		return _abilities[ability];
+		return wAbilities[ability];
 	else
-		return _abilities[0];
+		return wAbilities[0];
 }
 
-const u8* DataManager::items(u32 item)
+const uint32_t* DataManager::items(u32 item)
 {
 	if (item < DEX_ITEMS_COUNT)
-		return _items[item];
+		return wItems[item];
 	else
-		return _items[0];
+		return wItems[0];
 }
 
-const u8* DataManager::moves(u32 move)
+const uint32_t* DataManager::moves(u32 move)
 {
 	if (move < DEX_MOVES_COUNT)
-		return _moves[move];
+		return wMoves[move];
 	else
-		return _moves[0];
+		return wMoves[0];
 }
 
-const u8* DataManager::natures(u32 nature)
+const uint32_t* DataManager::natures(u32 nature)
 {
 	if (nature < DEX_NATURES_COUNT)
-		return _natures[nature];
+		return wNatures[nature];
 	else
-		return (const u8*) hpTypes[16];
+		return wNone;
 }
 
-const u8* DataManager::species(u32 species)
+const uint32_t* DataManager::species(u32 species)
 {
 	if (species < DEX_SPECIES_COUNT)
-		return _species[species];
+		return wSpecies[species];
 	else
-		return (const u8*) hpTypes[16];
+		return wNone;
 }
 
-const u8* DataManager::HPTypes(u8 hiddenPower)
+const uint32_t* DataManager::types(u8 type)
 {
-	if (hiddenPower < 16)
-		return (const u8*) hpTypes[hiddenPower];
+	if (type < DEX_TYPES_COUNT)
+		return wTypes[type];
 	else
-		return (const u8*) hpTypes[16];
+		return wNone;
 }
 
 Result DataManager::load()
@@ -91,69 +96,90 @@ Result DataManager::load()
 	updateSystemLanguage();
 
 	Result ret = 0;
-	ret |= loadDataFile("abilities", (u8*)&(_abilities), DEX_ABILITIES_LENGTH, DEX_ABILITIES_COUNT);
-	ret |= loadDataFile("items", (u8*)&(_items), DEX_ITEMS_LENGTH, DEX_ITEMS_COUNT);
-	ret |= loadDataFile("moves", (u8*)&(_moves), DEX_MOVES_LENGTH, DEX_MOVES_COUNT);
-	ret |= loadDataFile("natures", (u8*)&(_natures), DEX_NATURES_LENGTH, DEX_NATURES_COUNT);
-	ret |= loadDataFile("species", (u8*)&(_species), DEX_SPECIES_LENGTH, DEX_SPECIES_COUNT);
 
-	char path[32];
+	ret |= loadDataFile("abilities", wAbilities, DEX_ABILITIES_COUNT);
+	ret |= loadDataFile("items", wItems, DEX_ITEMS_COUNT);
+	ret |= loadDataFile("moves", wMoves, DEX_MOVES_COUNT);
+	ret |= loadDataFile("natures", wNatures, DEX_NATURES_COUNT);
+	ret |= loadDataFile("species", wSpecies, DEX_SPECIES_COUNT);
+	ret |= loadDataFile("types", wTypes, DEX_TYPES_COUNT);
 
-	sprintf(path, PK_DATA_FOLDER "personal_ao");
-	FILE* fp = fopen(path, "rb");
-	if (!fp) return (ret | -1);
-	u8* personal_ao = new u8[PERSONAL_AO_COUNT * PERSONAL_INFO_AO_SIZE];
-	size_t personalInfoRead = fread(personal_ao, PERSONAL_INFO_AO_SIZE, PERSONAL_AO_COUNT, fp);
-	if (personalInfoRead != PERSONAL_AO_COUNT) { delete[] personal_ao; return (ret | -1); }
-	Personal.import(personal_ao, personalInfoRead, PERSONAL_INFO_AO_SIZE);
-	delete[] personal_ao;
-	fclose(fp);
+	ret |= loadPersonal("personal_ao", true, PERSONAL_AO_COUNT, PERSONAL_INFO_AO_SIZE);
 
 	return ret;
 }
 
-Result DataManager::loadDataFile(const char* file, u8* dest, u32 lineMaxLength, u32 lineCount)
+Result DataManager::loadPersonal(const char* file, bool ao, u32 personalCount, u32 personalInfoSize)
+{
+	char path[32];
+	sprintf(path, PK_DATA_FOLDER "%s", file);
+
+	FILE* fp = fopen(path, "rb");
+	if (!fp) return -1;
+
+	u8* personal_ao = new u8[personalCount * personalInfoSize];
+
+	size_t personalInfoRead = fread(personal_ao, personalInfoSize, personalCount, fp);
+	fclose(fp);
+
+	if (personalInfoRead == personalCount)
+	{
+		Personal.import(personal_ao, personalInfoRead, personalInfoSize);
+	}
+
+	delete[] personal_ao;
+
+	return (personalInfoRead == personalCount ? 0 : -3);
+}
+
+Result DataManager::loadDataFile(const char* file, uint32_t** data, u32 lineCount)
 {
 	char path[40];
-
 	sprintf(path, PK_DATA_FOLDER "%s/%s_%s.txt", lang(), file, lang());
+
 	FILE* fp = fopen(path, "r");
 	if (!fp) return -1;
 
-	u8* buffer = new u8[lineMaxLength * lineCount];
-	// u32* buf32 = new u32[lineMaxLength * lineCount];
-	// memset(buffer, 0, lineMaxLength * lineCount);
-	fread(buffer, 1, lineMaxLength * lineCount, fp);
-	// utf8_to_utf32(buf32, buffer, lineMaxLength * lineCount);
-	loadDataLines(buffer, dest, lineMaxLength, lineCount);
-	delete[] buffer;
+	fseek(fp, 0L, SEEK_END);
+	size_t size = ftell(fp);
+	fseek(fp, 0L, SEEK_SET);
 
+	u8* buffer = new u8[size];
+
+	fread(buffer, 1, size, fp);
+	loadDataLines(buffer, data, size, lineCount);
 	fclose(fp);
+
+	delete[] buffer;
 
 	return 0;
 }
 
-Result DataManager::loadDataLines(const u8* src, u8* dst, u32 lineMaxLength, u32 lineCount)
+void DataManager::loadDataLines(const u8* src, uint32_t** data, u32 srcSize, u32 lineCount)
 {
 	u32 count = 0;
-	u32 lineOffset = 0;
-	u32 sourceOffset = 0; // No BOM 0 | With Bom 3
+	u32 lineLength;
+	u32 sourceOffset = 0; // 0: No BOM | 3: With BOM
 	while (count < lineCount)
 	{
-		lineOffset = 0;
-		while (src[sourceOffset] != '\n' && src[sourceOffset] != '\0' && lineOffset < lineMaxLength)
-		{
-			dst[lineMaxLength * count + lineOffset] = src[sourceOffset];
-			lineOffset++;
-			sourceOffset++;
-		}
-		while (lineOffset < lineMaxLength)
-		{
-			dst[lineMaxLength * count + lineOffset] = '\0';
-			lineOffset++;
-		}
-		while (src[sourceOffset] == '\n' || src[sourceOffset] == '\0') sourceOffset++;
+		// Calculate the length of the string (in UTF-8)
+		for (lineLength = 0; src[sourceOffset + lineLength] != '\n' && sourceOffset + lineLength < srcSize; lineLength++);
+
+		// Generate the wstring (+1 for null terminator)
+		data[count] = new uint32_t[lineLength+1];
+		memset(data[count], 0, (lineLength+1) * sizeof(uint32_t));
+
+		// Convert the UTF-8 string to a UTF-32 string for wstring
+		utf8_to_utf32(data[count], src + sourceOffset, lineLength);
+
+		sourceOffset += lineLength + 1;
 		count++;
 	}
-	return 0;
+}
+
+void DataManager::freeDataLines(uint32_t** data, u32 lineCount)
+{
+	for (u32 i = 0; i < lineCount; i++)
+		delete data[i];
+	// delete[] data;
 }
