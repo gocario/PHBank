@@ -191,7 +191,7 @@ Result BoxViewer::drawTopScreen()
 		// Is the Pokémon an egg?
 		if (vPkm.pkm->isEggy)
 		{
-			sftd_draw_text_white(x, y, "%s", PHBanku::data->species(0));
+			sftd_draw_wtext_white(x, y, PHBanku::data->species(0));
 		}
 		else
 		{
@@ -199,7 +199,7 @@ Result BoxViewer::drawTopScreen()
 			if (Pokemon::isNicknamed(vPkm.pkm))
 				sftd_draw_wtext_white(x, y, vPkm.NKName);
 			else
-				sftd_draw_text_white(x, y, "%s", vPkm.species);
+				sftd_draw_wtext_white(x, y, vPkm.species);
 		}
 
 		sftd_draw_text_white(x + 168, y, "Lv.%u", vPkm.level);
@@ -208,7 +208,7 @@ Result BoxViewer::drawTopScreen()
 		y = 42 - 2;
 		sftd_draw_text_white(x, (y += 15), "Dex No.");
 		sftd_draw_text_white(x+50, y, "%03u", vPkm.pkm->speciesID);
-		sftd_draw_text_white(x+80, y, "%s", vPkm.species);
+		sftd_draw_wtext_white(x+80, y, vPkm.species);
 		sftd_draw_text_white(x, (y += 15), "O.T.");
 		sftd_draw_wtext_white(x+50, y, vPkm.OTName);
 		sftd_draw_text_white(x, (y += 15), "Stat");
@@ -240,48 +240,56 @@ Result BoxViewer::drawTopScreen()
 		sftd_draw_text_white(x+130, y, "% 2u", vPkm.ivs[Stat::SPE]);
 		sftd_draw_text_white(x+160, y, "% 3u", vPkm.evs[Stat::SPE]);
 		sftd_draw_text_white(x, (y += 15), "Nature");
-		sftd_draw_text_white(x+50, y, "%s", vPkm.nature);
+		sftd_draw_wtext_white(x+50, y, vPkm.nature);
 		sftd_draw_text_white(x, (y += 15), "Ability");
-		sftd_draw_text_white(x+50, y, "%s", vPkm.ability);
+		sftd_draw_wtext_white(x+50, y, vPkm.ability);
 		sftd_draw_text_white(x, (y += 15), "Item");
-		sftd_draw_text_white(x+50, y, "%s", vPkm.item);
+		sftd_draw_wtext_white(x+50, y, vPkm.item);
 
 		x = 246;
 		y = 147 - 15 - 2;
-		sftd_draw_text_white(x, (y += 15), "Hidden Power: %s", vPkm.hiddenPower);
+		sftd_draw_text_white(x, (y += 15), "Hidden Power");
+		sftd_draw_wtext_white(x+90, y, vPkm.hpType);
 		sftd_draw_text_white(x, (y += 15), "Moves");
-		sftd_draw_text_white(x, (y += 15), " %s", vPkm.moves[0]);
-		sftd_draw_text_white(x, (y += 15), " %s", vPkm.moves[1]);
-		sftd_draw_text_white(x, (y += 15), " %s", vPkm.moves[2]);
-		sftd_draw_text_white(x, (y += 15), " %s", vPkm.moves[3]);
+		sftd_draw_wtext_white(x+10, (y += 15), vPkm.moves[0]);
+		sftd_draw_wtext_white(x+10, (y += 15), vPkm.moves[1]);
+		sftd_draw_wtext_white(x+10, (y += 15), vPkm.moves[2]);
+		sftd_draw_wtext_white(x+10, (y += 15), vPkm.moves[3]);
 
 		drawPokemonScale(vPkm.pkm, 256, 48, 3.0f);
 
 		if (vPkm.pkm->isShiny)
 		{
-			sf2d_draw_texture_part(PHBanku::texture->boxTiles, 240, 135, 57, 73, 9, 9);
+			sf2d_draw_texture_part(PHBanku::texture->boxTiles, 240, 135, 54, 64, 9, 9);
 		}
 
 		if (vPkm.isCured)
 		{
-			sf2d_draw_texture_part(PHBanku::texture->boxTiles, 260, 135, 75, 73, 9, 9);
+			sf2d_draw_texture_part(PHBanku::texture->boxTiles, 260, 135, 72, 64, 9, 9);
 		}
 		else if (vPkm.isInfected)
 		{
-			sf2d_draw_texture_part(PHBanku::texture->boxTiles, 260, 135, 93, 64, 27, 9);
+			sf2d_draw_texture_part(PHBanku::texture->boxTiles, 260, 135, 81, 64, 27, 9);
 		}
 
 		if (vPkm.gen > 0)
 		{
-			if (vPkm.gen == 6) // Kalos Born
-				sf2d_draw_texture_part(PHBanku::texture->boxTiles, 250, 135, 66, 73, 9, 9);
+			if (vPkm.gen == 6) // Kalos Born (Gen VI)
+				sf2d_draw_texture_part(PHBanku::texture->boxTiles, 250, 135, 63, 64, 9, 9);
 			else if (vPkm.gen == 5) // Gen V
-				sf2d_draw_texture_part(PHBanku::texture->boxTiles, 250, 135, 84, 73, 9, 9);
+				sf2d_draw_texture_part(PHBanku::texture->boxTiles, 250, 135, 72, 73, 9, 9);
 			else if (vPkm.gen == 4) // Gen IV
-				sf2d_draw_texture_part(PHBanku::texture->boxTiles, 250, 135, 93, 73, 9, 9);
+				sf2d_draw_texture_part(PHBanku::texture->boxTiles, 250, 135, 63, 73, 9, 9);
 			else if (vPkm.gen == 3) // Gen III
-				sf2d_draw_texture_part(PHBanku::texture->boxTiles, 250, 135, 102, 73, 9, 9);
+				sf2d_draw_texture_part(PHBanku::texture->boxTiles, 250, 135, 54, 73, 9, 9);
 		}
+
+		sf2d_draw_texture_part(PHBanku::texture->boxTiles, 290 ,135, 9*0, 64 + 9*vPkm.circle, 9, 9);
+		sf2d_draw_texture_part(PHBanku::texture->boxTiles, 300 ,135, 9*1, 64 + 9*vPkm.triangle, 9, 9);
+		sf2d_draw_texture_part(PHBanku::texture->boxTiles, 310 ,135, 9*2, 64 + 9*vPkm.square, 9, 9);
+		sf2d_draw_texture_part(PHBanku::texture->boxTiles, 320 ,135, 9*3, 64 + 9*vPkm.heart, 9, 9);
+		sf2d_draw_texture_part(PHBanku::texture->boxTiles, 330 ,135, 9*4, 64 + 9*vPkm.star, 9, 9);
+		sf2d_draw_texture_part(PHBanku::texture->boxTiles, 340 ,135, 9*5, 64 + 9*vPkm.diamond, 9, 9);
 	}
 
 	if (hasOverlayChild()) { this->child->drawTopScreen(); }
@@ -308,10 +316,6 @@ Result BoxViewer::drawBotScreen()
 		sf2d_draw_texture_part(PHBanku::texture->boxTiles, boxShift + 21 +   0, 0,   0, 0, 64, 32);
 		sf2d_draw_texture_part(PHBanku::texture->boxTiles, boxShift + 21 +  64, 0,  64, 0, 64, 32);
 		sf2d_draw_texture_part(PHBanku::texture->boxTiles, boxShift + 21 + 128, 0, 128, 0, 64, 32);
-
-		// Draw the SwapBox buttons
-		sf2d_draw_texture_part(PHBanku::texture->boxTiles, boxShift + 10 + 0, 20, 0, 64, 16, 24);
-		sf2d_draw_texture_part(PHBanku::texture->boxTiles, boxShift + BACKGROUND_WIDTH - 24, 20, 16, 64, 16, 24);
 
 		// If a Pokémon is currently selected
 		if (sPkm)
@@ -677,8 +681,8 @@ void BoxViewer::drawBox(box_s* box, int16_t x, int16_t y)
 	sf2d_draw_texture_part(PHBanku::texture->boxBackgrounds, x, y, ((box->background % 16) % 4) * BOX_HEADER_WIDTH, 840 + ((box->background % 16) / 4) * BOX_HEADER_HEIGHT, BOX_HEADER_WIDTH, BOX_HEADER_HEIGHT);
 
 	// Draw the box arrows
-	sf2d_draw_texture_part(PHBanku::texture->boxTiles, x + 10 + 0, y, 0, 64, 16, 24);
-	sf2d_draw_texture_part(PHBanku::texture->boxTiles, x + BACKGROUND_WIDTH - 24, y, 16, 64, 16, 24);
+	sf2d_draw_texture_part(PHBanku::texture->boxTiles, x + 4, y + 3, 96, 32, 16, 24);
+	sf2d_draw_texture_part(PHBanku::texture->boxTiles, x + BACKGROUND_WIDTH - 20, y + 3, 112, 32, 16, 24);
 
 	// Draw the box title
 	char boxTitle[0x1a];
@@ -940,11 +944,18 @@ void BoxViewer::populateVPkmData(vPkm_s* vPkm)
 	vPkm->isInfected = Pokemon::isInfected(vPkm->pkm);
 	vPkm->isCured = Pokemon::isCured(vPkm->pkm);
 
+	vPkm->circle = Pokemon::circle(vPkm->pkm);
+	vPkm->triangle = Pokemon::triangle(vPkm->pkm);
+	vPkm->square = Pokemon::square(vPkm->pkm);
+	vPkm->heart = Pokemon::heart(vPkm->pkm);
+	vPkm->star = Pokemon::star(vPkm->pkm);
+	vPkm->diamond = Pokemon::diamond(vPkm->pkm);
+
 	vPkm->species = PHBanku::data->species(vPkm->pkm->speciesID);
-	vPkm->item = PHBanku::data->items(Pokemon::itemID(vPkm->pkm));
+	vPkm->item = PHBanku::data->items(vPkm->pkm->itemID);
 	vPkm->nature = PHBanku::data->natures(Pokemon::nature(vPkm->pkm));
 	vPkm->ability = PHBanku::data->abilities(Pokemon::ability(vPkm->pkm));
-	vPkm->hiddenPower = PHBanku::data->HPTypes(Pokemon::HPType(vPkm->pkm));
+	vPkm->hpType = PHBanku::data->types(Pokemon::HPType(vPkm->pkm)+1);
 
 	vPkm->moves[0] = PHBanku::data->moves(Pokemon::move1(vPkm->pkm));
 	vPkm->moves[1] = PHBanku::data->moves(Pokemon::move2(vPkm->pkm));
