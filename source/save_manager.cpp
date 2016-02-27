@@ -406,7 +406,9 @@ Result SaveManager::loadSaveData()
 		savedata.SID = *(u16*)(savebuffer + offsetTrainerCard + 0x02);
 		savedata.TSV = computeTSV(savedata.TID, savedata.SID);
 		savedata.OTGender = *(u8*)(savebuffer + offsetTrainerCard + 0x05);
-		unicodeToChar(savedata.OTName, (u16*)(savebuffer + offsetTrainerCard + 0x48), 0xD);
+		memset(savedata.OTName, 0, 0xD * sizeof(uint32_t));
+		utf16_to_utf32(savedata.OTName, (u16*)(savebuffer + offsetTrainerCard + 0x48), 0xD);
+		u32fix(savedata.OTName, 0xD);
 		printf(" OK\n");
 
 		printf("Loading PC Boxes:");
@@ -422,6 +424,9 @@ Result SaveManager::loadSaveData()
 			}
 
 			unicodeToChar(savedata.pc.box[iB].title, (u16*)(savebuffer + offsetPCLayout + 0x22 * iB), 0x11);
+			// TODO: Use UTF-32
+			// memset(savedata.pc.box[iB].title, 0, 0x11 * sizeof(uint32_t));
+			// utf16_to_utf32(savedata.pc.box[iB].title, (u16*)(savebuffer + offsetPCLayout + 0x22 * iB), 0x11);
 			savedata.pc.box[iB].background = *(u8*)(savebuffer + offsetPCBackground + 0x1 * iB);
 			savedata.pc.box[iB].number = iB;
 		}
@@ -452,7 +457,10 @@ Result SaveManager::loadBankData()
 			loadPkmBK(iB, iP);
 		}
 
-		bankdata.bk.box[iB].title[0] = '\0'; // TODO: Retrieve box's name.
+		bankdata.bk.box[iB].title[0] = '\0';
+		// TODO: Retrieve box's name.
+		// memset(bankdata.bk.box[iB].title, 0, 0x11 * sizeof(uint32_t));
+		// utf16_to_utf32(bankdata.bk.box[iB].title, (u16*)(bankbuffer + offsetBKLayout + 0x22 * iB), 0x11);
 		bankdata.bk.box[iB].background = *(bankbuffer + offsetBKBackground + 0x1 * iB);
 		bankdata.bk.box[iB].number = iB;
 	}

@@ -44,9 +44,6 @@ struct pkm_s
 	u8 formID;			///< The form of the Pokémon.
 	u8 gender;			///< The gender of the Pokémon.
 
-	// u8* species;		///< The name of the species.
-	// u8* item;			///< The name of the held item.
-
 	// TODO: Add recurrent attributes!
 };
 
@@ -73,13 +70,12 @@ struct bk_s
 struct savedata_s
 {
 	pc_s pc;
-	u16 TID; // 0x0
-	u16 SID; // 0x2
-	u16 TSV;
-	u8 OTGender; // 0x05
-	char OTName[0xD]; // 0x48
-	u8 GEORegion; // 0x26
-	u8 GEOCountry; // 0x27
+	u16 TID, SID, TSV;	///< The ID of the trainer
+	u8 GEORegion;		///< The region of the trainer
+	u8 GEOCountry;		///< The country of the trainer
+	u8 OTGender;		///< The gender of the trainer
+	u16 OT_name[0xD];	///< The name of the trainer /!\ REPLACED
+	uint32_t OTName[0xD];
 };
 
 struct bankdata_s

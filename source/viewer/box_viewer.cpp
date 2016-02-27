@@ -180,7 +180,7 @@ Result BoxViewer::drawTopScreen()
 	sf2d_draw_texture(PHBanku::texture->resumeBackground, 0, 0);
 
 	sftd_draw_text_white(11, 40, "Game's OT");
-	sftd_draw_text_white(91, 40, "%s (%lx-%lx-%lx)", save->savedata.OTName, save->savedata.TID, save->savedata.SID, save->savedata.TSV);
+	sftd_draw_wtextf(font, 91, 40, RGBA8(0xFF,0xFF,0xFF,0xFF), 12, L"%S (%lx-%lx-%lx)", save->savedata.OTName, save->savedata.TID, save->savedata.SID, save->savedata.TSV);
 
 	// If there is a current Pokémon
 	if (vPkm.pkm && !vPkm.emptySlot)
@@ -218,12 +218,12 @@ Result BoxViewer::drawTopScreen()
 		sftd_draw_wtext_white(x+80, y, vPkm.species);
 		sftd_draw_text_white(x, (y += 15), "O.T.");
 		sftd_draw_wtext_white(x+50, y, vPkm.OTName);
-		sftd_draw_text_white(x, (y += 15), "Stat");
+		y += 15; // sftd_draw_text_white(x, (y += 15), "Stat");
 		sftd_draw_text_white(x+90, y, "Value");
 		sftd_draw_text_white(x+128, y, "IVs");
 		sftd_draw_text_white(x+158, y, "EVs");
 		sftd_draw_text_white(x, (y+=15), "HP");
-		sftd_draw_text_white(x+100, y, "% 3u", vPkm.stats[Stat::HP]);
+		sftd_draw_text_white(x+98, y, "% 3u", vPkm.stats[Stat::HP]);
 		sftd_draw_text_white(x+130, y, "% 2u", vPkm.ivs[Stat::HP]);
 		sftd_draw_text_white(x+160, y, "% 3u", vPkm.evs[Stat::HP]);
 		sftd_draw_text_white(x, (y+=15), "Attack");
@@ -975,6 +975,10 @@ void BoxViewer::populateVPkmData(vPkm_s* vPkm)
 	utf16_to_utf32(vPkm->NKName, Pokemon::NK_name(vPkm->pkm), 0xD);
 	utf16_to_utf32(vPkm->OTName, Pokemon::OT_name(vPkm->pkm), 0xD);
 	utf16_to_utf32(vPkm->HTName, Pokemon::HT_name(vPkm->pkm), 0xD);
+	u32fix(vPkm->NKName, 0xD);
+	u32fix(vPkm->OTName, 0xD);
+	u32fix(vPkm->HTName, 0xD);
+
 
 	vPkm->emptySlot = save->isPkmEmpty(vPkm->pkm);
 
