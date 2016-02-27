@@ -119,7 +119,7 @@ class BoxViewer : public Viewer
 		float cursorPositionShiftY = 0.5f;
 		bool cursorPositionDirY = true;
 
-		void drawBox(box_s* box, int16_t x, int16_t y);
+		void drawBox(box_s* box, int16_t x, int16_t y, bool cursor);
 		void drawPokemon(pkm_s* pkm, int16_t x, int16_t y);
 		void drawPokemonScale(pkm_s* pkm, int16_t x, int16_t y, float scale);
 
