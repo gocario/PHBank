@@ -5,6 +5,7 @@
 #include <stdarg.h>
 
 sftd_font* font;
+sftd_font* font_bold;
 
 void sftd_draw_text_pkm(u16 x, u16 y, const char* text, ...)
 {
@@ -13,8 +14,8 @@ void sftd_draw_text_pkm(u16 x, u16 y, const char* text, ...)
 	va_list args;
 	va_start(args, text);
 	vsnprintf(buffer, 256, text, args);
-	sftd_draw_text(font, x+1, y+1, RGBA8(0x00, 0x00, 0x00, 0xAF), 12, buffer);
-	sftd_draw_text(font, x, y, RGBA8(0xFF, 0xFF, 0xFF, 0xFF), 12, buffer);
+	sftd_draw_text(font, x+1, y+1, RGBA8(0x00,0x00,0x00,0xAF), 12, buffer);
+	sftd_draw_text(font, x, y, RGBA8(0xFF,0xFF,0xFF,0xFF), 12, buffer);
 	va_end(args);
 }
 
@@ -25,7 +26,7 @@ void sftd_draw_text_white(u16 x, u16 y, const char* text, ...)
 	va_list args;
 	va_start(args, text);
 	vsnprintf(buffer, 256, text, args);
-	sftd_draw_text(font, x, y, RGBA8(0xFF, 0xFF, 0xFF, 0xFF), 12, buffer);
+	sftd_draw_text(font, x, y, RGBA8(0xFF,0xFF,0xFF,0xFF), 12, buffer);
 	va_end(args);
 }
 
@@ -36,7 +37,7 @@ void sftd_draw_text_black(u16 x, u16 y, const char* text, ...)
 	va_list args;
 	va_start(args, text);
 	vsnprintf(buffer, 256, text, args);
-	sftd_draw_text(font, x, y, RGBA8(0x00, 0x00, 0x00, 0xFF), 12, buffer);
+	sftd_draw_text(font, x, y, RGBA8(0x00, 0x00,0x00,0xFF), 12, buffer);
 	va_end(args);
 }
 

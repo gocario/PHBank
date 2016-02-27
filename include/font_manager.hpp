@@ -11,9 +11,6 @@
 class FontManager
 {
 	public:
-		// sftd_font* font;
-
-	public:
 		FontManager(void);
 		~FontManager(void);
 

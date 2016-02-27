@@ -12,6 +12,7 @@ extern "C" {
 #endif
 
 extern sftd_font* font;
+extern sftd_font* font_bold;
 
 void sftd_draw_text_pkm(const u16 x, const u16 y, const char* text, ...);
 void sftd_draw_text_white(const u16 x, const u16 y, const char* text, ...);

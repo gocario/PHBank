@@ -123,33 +123,33 @@ void Pokemon::computeChecksum(pkm_s* pkm)
 u16 Pokemon::PSV(pkm_s* pkm)
 {
 	u32 _PID = Pokemon::PID(pkm);
-	return (((_PID >> 16) ^ (_PID & 0xffff)) >> 4);
+	return ((_PID >> 16) ^ (_PID & 0xffff)) >> 4;
 }
 
 u16 Pokemon::TSV(u16 _TID, u16 _SID)
 {
-	return ((_TID ^ _SID) >> 4);
+	return (_TID ^ _SID) >> 4;
 }
 
 u16 Pokemon::TSV(pkm_s* pkm)
 {
 	u16 _TID = Pokemon::TID(pkm);
 	u16 _SID = Pokemon::SID(pkm);
-	return ((_TID ^ _SID) >> 4);
+	return (_TID ^ _SID) >> 4;
 }
 
 bool Pokemon::isShiny(pkm_s* pkm, u16 _TID, u16 _SID)
 {
 	u16 _PSV = Pokemon::PSV(pkm);
 	u16 _TSV = Pokemon::TSV(_TID, _SID);
-	return (_PSV == _TSV);
+	return _PSV == _TSV;
 }
 
 bool Pokemon::isShiny(pkm_s* pkm)
 {
 	u16 _PSV = Pokemon::PSV(pkm);
 	u16 _TSV = Pokemon::TSV(pkm);
-	return (_PSV == _TSV);
+	return _PSV == _TSV;
 }
 
 
