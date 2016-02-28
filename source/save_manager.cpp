@@ -19,7 +19,7 @@
 #include <sys/dirent.h>
 
 // ------------------------------------
-SaveManager::SaveManager()
+SaveManager::SaveManager(void)
 // ------------------------------------
 {
 	offsetTrainerCard = 0x0;
@@ -36,7 +36,7 @@ SaveManager::SaveManager()
 }
 
 // ------------------------------------
-SaveManager::~SaveManager()
+SaveManager::~SaveManager(void)
 // ------------------------------------
 {
 	printf("Deleting PC Boxes:");
@@ -76,7 +76,7 @@ SaveManager::~SaveManager()
 
 
 // ----------------------------------------------
-Result SaveManager::load()
+Result SaveManager::load(void)
 // ----------------------------------------------
 {
 	Result ret;
@@ -86,22 +86,20 @@ Result SaveManager::load()
 	if (R_FAILED(ret)) return ret;
 
 	printf(">Loading...\n");
-	ret = loadData();
-	if (R_FAILED(ret)) return ret;
+	loadData();
 
 	return ret;
 }
 
 
 // ----------------------------------------------
-Result SaveManager::save()
+Result SaveManager::save(void)
 // ----------------------------------------------
 {
 	Result ret;
 
 	printf("> Writing...\n");
-	ret = saveData();
-	if (R_FAILED(ret)) return ret;
+	saveData();
 
 	printf("> Saving...\n");
 	ret = saveFile();
@@ -118,7 +116,7 @@ Result SaveManager::save()
 
 
 // ----------------------------------------------
-Result SaveManager::loadFile()
+Result SaveManager::loadFile(void)
 // ----------------------------------------------
 {
 	Result ret;
@@ -148,7 +146,7 @@ Result SaveManager::loadFile()
 
 
 // ----------------------------------------------
-Result SaveManager::saveFile()
+Result SaveManager::saveFile(void)
 // ----------------------------------------------
 {
 	Result ret;
@@ -169,7 +167,7 @@ Result SaveManager::saveFile()
 
 
 // ----------------------------------------------
-Result SaveManager::backupFile()
+Result SaveManager::backupFile(void)
 // ----------------------------------------------
 {
 	Result ret;
@@ -190,7 +188,7 @@ Result SaveManager::backupFile()
 
 
 // ----------------------------------------------
-Result SaveManager::loadSaveFile()
+Result SaveManager::loadSaveFile(void)
 // ----------------------------------------------
 {
 	memset(savebuffer, 0, sizeof(savebuffer_t));
@@ -219,7 +217,7 @@ Result SaveManager::loadSaveFile()
 
 
 // ----------------------------------------------
-Result SaveManager::loadBankFile()
+Result SaveManager::loadBankFile(void)
 // ----------------------------------------------
 {
 	memset(bankbuffer, 0, sizeof(bankbuffer_t));
@@ -266,7 +264,7 @@ Result SaveManager::loadBankFile()
 
 
 // ----------------------------------------------
-Result SaveManager::saveSaveFile()
+Result SaveManager::saveSaveFile(void)
 // ----------------------------------------------
 {
 	Result ret;
@@ -291,7 +289,7 @@ Result SaveManager::saveSaveFile()
 
 
 // ----------------------------------------------
-Result SaveManager::saveBankFile()
+Result SaveManager::saveBankFile(void)
 // ----------------------------------------------
 {
 	Result ret;
@@ -318,7 +316,7 @@ Result SaveManager::saveBankFile()
 
 
 // ----------------------------------------------
-Result SaveManager::backupSaveFile()
+Result SaveManager::backupSaveFile(void)
 // ----------------------------------------------
 {
 	Result ret;
@@ -345,7 +343,7 @@ Result SaveManager::backupSaveFile()
 
 
 // ----------------------------------------------
-Result SaveManager::backupBankFile()
+Result SaveManager::backupBankFile(void)
 // ----------------------------------------------
 {
 	Result ret;
@@ -377,28 +375,18 @@ Result SaveManager::backupBankFile()
 
 
 // ----------------------------------------------
-Result SaveManager::loadData()
+void SaveManager::loadData(void)
 // ----------------------------------------------
 {
-	Result ret;
-
-	ret = loadSaveData();
-	if (R_FAILED(ret)) return ret;
-
-	ret = loadBankData();
-	if (R_FAILED(ret)) return ret;
-
-	loaded = true;
-
-	return ret;
+	loadSaveData();
+	loadBankData();
 }
 
+
 // ------------------------------------
-Result SaveManager::loadSaveData()
+void SaveManager::loadSaveData(void)
 // ------------------------------------
 {
-	// memset(savedata, 0, sizeof(savedata)); // ASK Is it needed?
-
 	if (Game::is(version, Game::XY) || Game::is(version, Game::ORAS))
 	{
 		printf("Loading Trainer Card:");
@@ -432,19 +420,17 @@ Result SaveManager::loadSaveData()
 		}
 		printf(" OK\n");
 	}
-
-	return 0;
 }
 
 
 // ----------------------------------------------
-Result SaveManager::loadBankData()
+void SaveManager::loadBankData(void)
 // ----------------------------------------------
 {
-	// memset(bankdata, 0, sizeof(bankdata)); // ASK Is it needed?
-
-	// bankdata.magic = *(u32*)(bankbuffer);
+	printf("Loading BK Card:");
+	bankdata.magic = *bankbuffer;
 	bankdata.version = *(u32*)(bankbuffer + 0x4);
+	printf(" OK\n");
 
 	printf("Loading BK Boxes:");
 	bankdata.bk.boxUnlocked = 100; // ASK?
@@ -465,8 +451,6 @@ Result SaveManager::loadBankData()
 		bankdata.bk.box[iB].number = iB;
 	}
 	printf(" OK\n");
-
-	return 0;
 }
 
 
@@ -474,8 +458,6 @@ Result SaveManager::loadBankData()
 void SaveManager::loadPkmPC(u16 boxId, u16 slotId)
 // ------------------------------------
 {
-	// if (!loaded) return;
-
 	pkm_s* pkm = &savedata.pc.box[boxId].slot[slotId];
 	loadEk6PC(pkm, BOX_SIZE * boxId + PKM_SIZE * slotId);
 	loadPk6Ek6(pkm); // Pokemon stored as Ek6
@@ -483,12 +465,11 @@ void SaveManager::loadPkmPC(u16 boxId, u16 slotId)
 	pkm->fromBank = false;
 }
 
+
 // ----------------------------------------------
 void SaveManager::loadPkmBK(u16 boxId, u16 slotId)
 // ----------------------------------------------
 {
-	// if (!loaded) return;
-
 	pkm_s* pkm = &bankdata.bk.box[boxId].slot[slotId];
 	loadEk6BK(pkm, BOX_SIZE * boxId + PKM_SIZE * slotId);
 	// loadPk6Ek6(pkm); // Pokemon stored as Pk6
@@ -501,8 +482,6 @@ void SaveManager::loadPkmBK(u16 boxId, u16 slotId)
 void SaveManager::loadEk6PC(pkm_s* pkm, u32 offsetSlot)
 // ------------------------------------
 {
-	if (!pkm) return;
-
 	pkm->ek6 = savebuffer + offsetPC + offsetSlot;
 }
 
@@ -511,8 +490,6 @@ void SaveManager::loadEk6PC(pkm_s* pkm, u32 offsetSlot)
 void SaveManager::loadEk6BK(pkm_s* pkm, u32 offsetSlot)
 // ------------------------------------
 {
-	if (!pkm) return;
-
 	pkm->ek6 = bankbuffer + offsetBK + offsetSlot;
 
 	// Pokemon stored as Pk6
@@ -525,8 +502,6 @@ void SaveManager::loadEk6BK(pkm_s* pkm, u32 offsetSlot)
 void SaveManager::loadPk6Ek6(pkm_s* pkm)
 // ------------------------------------
 {
-	if (!pkm || !pkm->ek6) return;
-
 	pkm->pk6 = new pk6_t[PK6_SIZE];
 
 	decryptEk6(pkm);
@@ -560,23 +535,16 @@ void SaveManager::loadPkmPk6(pkm_s* pkm)
 
 
 // ----------------------------------------------
-Result SaveManager::saveData()
+void SaveManager::saveData(void)
 // ----------------------------------------------
 {
-	Result ret;
-
-	ret = saveSaveData();
-	if (R_FAILED(ret)) return ret;
-
-	ret = saveBankData();
-	if (R_FAILED(ret)) return ret;
-
-	return ret;
+	saveSaveData();
+	saveBankData();
 }
 
 
 // ------------------------------------
-Result SaveManager::saveSaveData()
+void SaveManager::saveSaveData(void)
 // ------------------------------------
 {
 	if (Game::is(version, Game::XY) || Game::is(version, Game::ORAS))
@@ -598,17 +566,13 @@ Result SaveManager::saveSaveData()
 		rewriteSaveCHK();
 		printf(" OK\n");
 	}
-
-	return 0;
 }
 
 
 // ----------------------------------------------
-Result SaveManager::saveBankData()
+void SaveManager::saveBankData(void)
 // ----------------------------------------------
 {
-	Result ret = 0;
-
 	printf("Saving BK Boxes:");
 	for (u16 iB = 0; iB < bankdata.bk.boxUnlocked; iB++)
 	{
@@ -620,8 +584,6 @@ Result SaveManager::saveBankData()
 		}
 	}
 	printf(" OK\n");
-
-	return ret;
 }
 
 
@@ -733,7 +695,7 @@ void SaveManager::setGame(u32 bytesRead)
 
 
 // ------------------------------------
-void SaveManager::setGameOffsets()
+void SaveManager::setGameOffsets(void)
 // ------------------------------------
 {
 	if (Game::is(version, Game::XY))
@@ -766,7 +728,7 @@ void SaveManager::setBank(u32 bytesRead)
 
 
 // ------------------------------------
-void SaveManager::setBankOffsets()
+void SaveManager::setBankOffsets(void)
 // ------------------------------------
 {
 	offsetBK = *(u32*)(bankbuffer + SaveConst::BANK_offsetOffsetBK);
@@ -921,6 +883,7 @@ bool SaveManager::filterPkm(pkm_s* pkm, bool toBank, bool fromBank)
 	bool fromGame = !fromBank;
 
 	// printf("Filtering Pokémon\n");
+
 	if (Game::is(version, Game::XY))
 	{
 		if (toGame) isFiltered &= Filter::filterToXY(pkm);
@@ -931,6 +894,7 @@ bool SaveManager::filterPkm(pkm_s* pkm, bool toBank, bool fromBank)
 		if (toGame) isFiltered &= Filter::filterToORAS(pkm);
 		if (fromGame) isFiltered &= Filter::filterFromORAS(pkm);
 	}
+
 	// printf("Filtering: %s\n", (isFiltered ? "allowed" : "forbidden"));
 
 	return isFiltered;
@@ -1117,7 +1081,7 @@ void SaveManager::shufflePk6(pk6_t* pk6, u8 sv)
 }
 
 // ------------------------------------
-void SaveManager::rewriteSaveCHK()
+void SaveManager::rewriteSaveCHK(void)
 // ------------------------------------
 {
 	if (Game::is(version, Game::None)) return;

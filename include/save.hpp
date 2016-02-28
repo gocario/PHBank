@@ -59,12 +59,16 @@ struct pc_s
 {
 	box_s box[31];
 	u8 boxUnlocked;
+	box_s box[31];	///< Boxes
+	u8 boxUnlocked;	///< Unlocked boxes
 };
 
 struct bk_s
 {
 	box_s box[100];
 	u8 boxUnlocked;
+	box_s box[100];	///< Boxes
+	u8 boxUnlocked;	///< Unlocked boxes
 };
 
 struct savedata_s

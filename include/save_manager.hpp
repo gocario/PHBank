@@ -38,17 +38,17 @@ class SaveManager
 		saveConst_t sizeBank;
 
 	public:
-		SaveManager();
-		~SaveManager();
+		SaveManager(void);
+		~SaveManager(void);
 
-		Result load();
-		Result save();
-		Result backupFile();
+		Result load(void);
+		Result save(void);
+		Result backupFile(void);
 
 		void setGame(u32 bytesRead);
-		void setGameOffsets();
+		void setGameOffsets(void);
 		void setBank(u32 bytesRead);
-		void setBankOffsets();
+		void setBankOffsets(void);
 
 		bool isPkmEmpty(pkm_s* pkm);
 		bool isSlotEmpty(u16 boxId, u16 slotId, bool inBank);
@@ -70,7 +70,7 @@ class SaveManager
 		void decryptEk6(pkm_s* pkm);
 		void encryptPk6(pkm_s* pkm);
 		void shufflePk6(pk6_t* pk6, u8 sv);
-		void rewriteSaveCHK();
+		void rewriteSaveCHK(void);
 
 		u16 computeTSV(u16 TID, u16 SID);
 
@@ -81,20 +81,20 @@ class SaveManager
 
 	private:
 
-		Result loadFile();
-		Result saveFile();
+		Result loadFile(void);
+		Result saveFile(void);
 
-		Result loadSaveFile();
-		Result loadBankFile();
-		Result saveSaveFile();
-		Result saveBankFile();
-		Result backupSaveFile();
-		Result backupBankFile();
+		Result loadSaveFile(void);
+		Result loadBankFile(void);
+		Result saveSaveFile(void);
+		Result saveBankFile(void);
+		Result backupSaveFile(void);
+		Result backupBankFile(void);
 
 		// Load Data
-		Result loadData();
-		Result loadSaveData();
-		Result loadBankData();
+		void loadData(void);
+		void loadSaveData(void);
+		void loadBankData(void);
 		// Load Pokemon (pkm_s)
 		//   To <- From
 		void loadPkmPC(u16 boxId, u16 slotId);
@@ -105,9 +105,9 @@ class SaveManager
 		void loadPkmPk6(pkm_s* pkm);
 
 		// Save Data
-		Result saveData();
-		Result saveSaveData();
-		Result saveBankData();
+		void saveData(void);
+		void saveSaveData(void);
+		void saveBankData(void);
 		// Save Pokemon (pkm_s)
 		//   From -> To
 		void savePkmPC(u16 boxId, u16 slotId);
