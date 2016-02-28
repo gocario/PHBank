@@ -18,7 +18,7 @@
 #define BANK_SIZE (BOX_SIZE * BANK_BOX_COUNT)
 
 #define SAVEDATA_SIZE (0x76000)
-#define BANKDATA_SIZE (0xAAE00)
+#define BANKDATA_SIZE (0xACA00)
 #define EK6_SIZE PKM_SIZE
 #define PK6_SIZE PKM_SIZE
 
@@ -118,21 +118,22 @@ namespace SaveConst
 	const saveConst_t XY_offsetPCBackground = XY_offsetPCLayout + 0x41E;
 	const saveConst_t XY_offsetPC = 0x22600;
 	const saveConst_t XY_offsetTrainerCard = 0x14000;
-	const saveConst_t XY_offsetDex = 0x1A400 - 0x05400; // 0x15000
+	const saveConst_t XY_offsetDex = 0x15000; // 0x1A400 - 0x5400
 
 	const saveConst_t ORAS_size = 0x76000;
 	const saveConst_t ORAS_offsetPCLayout = 0x4400;
 	const saveConst_t ORAS_offsetPCBackground = ORAS_offsetPCLayout + 0x41E;
 	const saveConst_t ORAS_offsetPC = 0x33000;
 	const saveConst_t ORAS_offsetTrainerCard = 0x14000;
-	const saveConst_t ORAS_offsetDex = 0x1A400 - 0x05400; // 0x15000
+	const saveConst_t ORAS_offsetDex = 0x15000; // 0x1A400 - 0x5400
 
-	const saveConst_t BANK_size = 0xAAE00;
+	const saveConst_t BANK_size = 0xACA00;
 	const saveConst_t BANK_offsetMagicNumber = 0x00;
 	const saveConst_t BANK_offsetVersion = 0x04;
 	const saveConst_t BANK_offsetOffsetBK = 0x20;
 	const saveConst_t BANK_offsetOffsetBKLayout = 0x24;
 	const saveConst_t BANK_offsetOffsetBKBackground = 0x28;
+	const saveConst_t BANK_offsetOffsetWonderBox = 0x30;
 }
 
 #endif // SAVE_HPP

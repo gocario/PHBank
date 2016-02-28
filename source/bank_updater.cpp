@@ -31,21 +31,41 @@ namespace BankUpdater
 		// Before the versioning starts
 		if (version == 0x00000000)
 		{
+			printf("\a0x00000000->0x020000B0\n");
+
 			*(u32*)(bankbuffer + 0x00) = MakeMagic('B', 'A', 'N', 'K');
 			*(u32*)(bankbuffer + 0x04) = version = 0x020000B0;
-			*(u32*)(bankbuffer + 0x20) = 0x00000100;	///< Box data offset
-			*(u32*)(bankbuffer + 0x24) = 0x000A9FC0;	///< Box name offset
-			*(u32*)(bankbuffer + 0x28) = 0x000AACF8;	///< Box background offset
-			*(u32*)(bankbuffer + 0x2C) = 0x00000000;	///< ??? offset
+			*(u32*)(bankbuffer + 0x20) = 0x00000100;	///< Box data offset (NEW)
+			*(u32*)(bankbuffer + 0x24) = 0x000A9FC0;	///< Box name offset (NEW)
+			*(u32*)(bankbuffer + 0x28) = 0x000AACF8;	///< Box background offset (NEW)
+			*(u32*)(bankbuffer + 0x2C) = 0x00000000;	///< ??? offset (NEW)
+		}
+
+		if (version == 0x020000B0)
+		{
+			printf("\a0x020000B0->0x020001B0\n");
+
+			*(u32*)(bankbuffer + 0x04) = version = 0x020001B0;
+			*(u32*)(bankbuffer + 0x30) = 0x000AAE00;	///< Wonder box data offset (NEW)
 		}
 
 		// Current version
-		if (version == 0x020000B0)
+		if (version == 0x020001B0)
 		{
+			printf("\a0x020001B0\n");
 			return true;
 		}
 
 		// It didn't reach the current version
 		return false;
 	}
+
+	/**
+	 * @brief data[@offset](#size)
+	 *
+	 * Box data[@0x00000100](#0xA9EC0)
+	 * Box name[@0x000A9FC0](#0xD48)
+	 * Box background[@0x000AACF8](#0x64)
+	 * Wonder box data[@0x000AAE00](#0x1B30)
+	 **/
 }

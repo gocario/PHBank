@@ -32,6 +32,7 @@ class SaveManager
 		saveConst_t offsetBK;
 		saveConst_t offsetBKLayout;
 		saveConst_t offsetBKBackground;
+		saveConst_t offsetWonderBox;
 
 		/* Global const */
 		saveConst_t sizeSave;

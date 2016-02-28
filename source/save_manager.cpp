@@ -242,6 +242,7 @@ Result SaveManager::loadBankFile(void)
 
 		if (!ferror(fp))
 		{
+			memset(bankbuffer + bytesRead, 0, size - bytesRead);
 			BankUpdater::updateBank(bankbuffer, bytesRead);
 			setBank(bytesRead);
 		}
@@ -404,8 +405,6 @@ void SaveManager::loadSaveData(void)
 		if (savedata.pc.boxUnlocked < 30) savedata.pc.boxUnlocked = 30;
 		for (u16 iB = 0; iB < savedata.pc.boxUnlocked; iB++)
 		{
-			// printf("%-2u ", iB);
-			// if (iB % 0x10 == 0xf) printf("\n");
 			for (u16 iP = 0; iP < BOX_PKM_COUNT; iP++)
 			{
 				loadPkmPC(iB, iP);
@@ -415,7 +414,7 @@ void SaveManager::loadSaveData(void)
 			// TODO: Use UTF-32
 			// memset(savedata.pc.box[iB].title, 0, 0x11 * sizeof(uint32_t));
 			// utf16_to_utf32(savedata.pc.box[iB].title, (u16*)(savebuffer + offsetPCLayout + 0x22 * iB), 0x11);
-			savedata.pc.box[iB].background = *(u8*)(savebuffer + offsetPCBackground + 0x1 * iB);
+			savedata.pc.box[iB].background = *(savebuffer + offsetPCBackground + 0x1 * iB);
 			savedata.pc.box[iB].number = iB;
 		}
 		printf(" OK\n");
@@ -436,8 +435,6 @@ void SaveManager::loadBankData(void)
 	bankdata.bk.boxUnlocked = 100; // ASK?
 	for (u16 iB = 0; iB < bankdata.bk.boxUnlocked; iB++)
 	{
-		// printf("%-2u ", iB);
-		// if (iB % 0x10 == 0xf) printf("\n");
 		for (u16 iP = 0; iP < BOX_PKM_COUNT; iP++)
 		{
 			loadPkmBK(iB, iP);
@@ -450,6 +447,22 @@ void SaveManager::loadBankData(void)
 		bankdata.bk.box[iB].background = *(bankbuffer + offsetBKBackground + 0x1 * iB);
 		bankdata.bk.box[iB].number = iB;
 	}
+	printf(" OK\n");
+
+	printf("Loading Wonder box:");
+	for (u16 iP = 0; iP < BOX_PKM_COUNT; iP++)
+	{
+		// loadPkmWBK(iP);
+	}
+	bankdata.bk.wbox.title[1] = 'W';
+	bankdata.bk.wbox.title[2] = 'o';
+	bankdata.bk.wbox.title[3] = 'n';
+	bankdata.bk.wbox.title[4] = 'd';
+	bankdata.bk.wbox.title[5] = 'e';
+	bankdata.bk.wbox.title[6] = 'r';
+	bankdata.bk.wbox.title[7] = '\0';
+	bankdata.bk.wbox.background = 15;
+	bankdata.bk.wbox.number = 0;
 	printf(" OK\n");
 }
 
@@ -553,12 +566,15 @@ void SaveManager::saveSaveData(void)
 		if (*(u8*)(savebuffer + 0x483E) < 30) *(u8*)(savebuffer + 0x483E) = 30;
 		for (u16 iB = 0; iB < savedata.pc.boxUnlocked; iB++)
 		{
-			// printf("%-2u ", iB);
-			// if (iB % 0x10 == 0xf) printf("\n");
 			for (u16 iP = 0; iP < BOX_PKM_COUNT; iP++)
 			{
 				savePkmPC(iB, iP);
 			}
+
+			// TODO: Save box's name.
+			// memset((u16*)(savebuffer + offsetPCLayout + 0x22 * iB), 0, 0x11 * sizeof(uint16_t));
+			// utf32_to_utf16((u16*)(savebuffer + offsetPCLayout + 0x22 * iB), savedata.pc.box[iB].title, 0x11);
+			// *(savebuffer + offsetPCBackground + 0x1 * iB) = savedata.pc.box[iB].background;
 		}
 		printf(" OK\n");
 
@@ -576,14 +592,24 @@ void SaveManager::saveBankData(void)
 	printf("Saving BK Boxes:");
 	for (u16 iB = 0; iB < bankdata.bk.boxUnlocked; iB++)
 	{
-		// printf("%-2u ", iB);
-		// if (iB % 0x10 == 0xf) printf("\n");
 		for (u16 iP = 0; iP < BOX_PKM_COUNT; iP++)
 		{
 			savePkmBK(iB, iP);
 		}
+		
+		// TODO: Save box's name.
+		// memset((u16*)(bankbuffer + offsetBKLayout + 0x22 * iB), 0, 0x11 * sizeof(uint16_t));
+		// utf32_to_utf16((u16*)(bankbuffer + offsetBKLayout + 0x22 * iB), bankdata.bk.box[iB].title, 0x11);
+		// *(bankbuffer + offsetBKBackground + 0x1 * iB) = bankdata.bk.box[iB].background;
 	}
 	printf(" OK\n");
+
+	printf("Saving Wonder box:");
+	for (u16 iP = 0; iP < BOX_PKM_COUNT; iP++)
+	{
+		// savePkmWBK(iP);
+	}
+	printf(" OK\n");	
 }
 
 
@@ -734,8 +760,20 @@ void SaveManager::setBankOffsets(void)
 	offsetBK = *(u32*)(bankbuffer + SaveConst::BANK_offsetOffsetBK);
 	offsetBKLayout = *(u32*)(bankbuffer + SaveConst::BANK_offsetOffsetBKLayout);
 	offsetBKBackground = *(u32*)(bankbuffer + SaveConst::BANK_offsetOffsetBKBackground);
+	offsetWonderBox = *(u32*)(bankbuffer + SaveConst::BANK_offsetOffsetWonderBox);
 
 	sizeBank = SaveConst::BANK_size;
+}
+
+
+// ------------------------------------
+bool SaveManager::isBadEgg(pkm_s* pkm)
+// ------------------------------------
+{
+	for (u8 i = 0; i < PK6_SIZE; i++)
+		if (pkm->pk6[i] != 0x00)
+			return true;
+	return false;
 }
 
 
@@ -743,7 +781,7 @@ void SaveManager::setBankOffsets(void)
 bool SaveManager::isPkmEmpty(pkm_s* pkm)
 // ------------------------------------
 {
-	return pkm->speciesID == 0x0;
+	return pkm->speciesID == 0x00;
 }
 
 
@@ -862,16 +900,9 @@ bool SaveManager::pastePkm(pkm_s* src, pkm_s* dst, bool srcBanked, bool dstBanke
 void SaveManager::moveBox(u16 boxId_1, bool inBank_1, u16 boxId_2, bool inBank_2)
 // ------------------------------------
 {
-	pkm_s* pkm_1 = NULL;
-	pkm_s* pkm_2 = NULL;
-
 	printf("Transfering Pokemon... [%s]%u <-> [%s]%u\n", (inBank_1 ? "BK" : "PC"), boxId_1, (inBank_2 ? "BK" : "PC"), boxId_2);
 	for (u32 i = 0; i < BOX_PKM_COUNT; i++)
-	{
-		getPkm(boxId_1, i, &pkm_1, inBank_1);
-		getPkm(boxId_2, i, &pkm_2, inBank_2);
-		movePkm(pkm_1, pkm_2);
-	}
+		movePkm(getPkm(boxId_1, i, inBank_1), getPkm(boxId_2, i, inBank_2));
 }
 
 
