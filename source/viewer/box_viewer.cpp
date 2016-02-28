@@ -511,7 +511,7 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 			save->moveBox(cursorBox.boxPC, false, cursorBox.boxBK, true);
 		}
 	}
-	else if (cursorType == CursorType::MultipleSelect)
+	else if (cursorType == CursorType::MultiSelect)
 	{
 		if (kDown & KEY_A)
 		{
@@ -553,10 +553,10 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 			{
 				selectCursorType(CursorType::QuickSelect);
 			}
-			// If the TouchArea is within the MultipleSelect CursorType button area
+			// If the TouchArea is within the MultiSelect CursorType button area
 			else if (touchWithin(px, py, boxShift + 150, 0, 59, 16))
 			{
-				selectCursorType(CursorType::MultipleSelect);
+				selectCursorType(CursorType::MultiSelect);
 			}
 			// If the TouchArea is within the Pokémon icons area of the box
 			else if (touchWithin(px, py, boxShift, PKM_BOX_SHIFT_HEIGHT, BACKGROUND_WIDTH - 10, BACKGROUND_HEIGHT - PKM_BOX_SHIFT_HEIGHT))
@@ -826,12 +826,12 @@ void BoxViewer::selectCursorType(CursorType cursorType)
 void BoxViewer::switchCursorType()
 // --------------------------------------------------
 {
-	// ... -> Single -> Quick -> Multiple -> ... //
+	// ... -> Single -> Quick -> Multi -> ... //
 	if (cursorType == CursorType::SingleSelect)
 		selectCursorType(CursorType::QuickSelect);
 	else if (cursorType == CursorType::QuickSelect)
-		selectCursorType(CursorType::MultipleSelect);
-	else if (cursorType == CursorType::MultipleSelect)
+		selectCursorType(CursorType::MultiSelect);
+	else if (cursorType == CursorType::MultiSelect)
 		selectCursorType(CursorType::SingleSelect);
 }
 

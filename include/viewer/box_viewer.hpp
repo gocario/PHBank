@@ -69,14 +69,7 @@ enum class CursorType : u8
 {
 	SingleSelect = 0,
 	QuickSelect = 1,
-	MultipleSelect = 2,
-};
-
-enum class CursorState : u8
-{
-	SelectingTarget = 0,
-	TargetFound = 1,
-	DraggingTarget = 2,
+	MultiSelect = 2,
 };
 
 
