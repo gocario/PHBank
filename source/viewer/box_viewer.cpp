@@ -41,7 +41,7 @@
 int16_t* currentBox(CursorBox_s* cursorBox)
 // --------------------------------------------------
 {
-	cursorBox->box = &(cursorBox->inBank ? cursorBox->boxBK : cursorBox->boxPC);
+	cursorBox->box = cursorBox->inBank ? &cursorBox->boxBK : &cursorBox->boxPC;
 	return cursorBox->box;
 }
 
@@ -52,8 +52,8 @@ void computeSlot(CursorBox_s* cursorBox)
 // --------------------------------------------------
 {
 	currentBox(cursorBox);
-	cursorBox->inslot = (cursorBox->row == BOX_HEADER_SELECTED ? SLOT_NO_SELECTION : cursorBox->row * BOX_COL_PKM_COUNT + cursorBox->col);
-	cursorBox->slot   = (cursorBox->row == BOX_HEADER_SELECTED ? SLOT_NO_SELECTION : *cursorBox->box * BOX_PKM_COUNT + cursorBox->inslot);
+	cursorBox->inslot = cursorBox->row == BOX_HEADER_SELECTED ? SLOT_NO_SELECTION : cursorBox->row * BOX_COL_PKM_COUNT + cursorBox->col;
+	cursorBox->slot   = cursorBox->row == BOX_HEADER_SELECTED ? SLOT_NO_SELECTION : *cursorBox->box * BOX_PKM_COUNT + cursorBox->inslot;
 }
 
 
@@ -104,7 +104,7 @@ void injectBoxSlot(BoxSlot_s* boxSlot, CursorBox_s* cursorBox)
 	cursorBox->inBank = boxSlot->inBank;
 	cursorBox->slot = boxSlot->slot;
 	cursorBox->inslot = boxSlot->inslot;
-	(boxSlot->inBank ? cursorBox->boxBK : cursorBox->boxPC) = boxSlot->box;
+	boxSlot->inBank ? cursorBox->boxBK : cursorBox->boxPC = boxSlot->box;
 	cursorBox->row = boxSlot->row;
 	cursorBox->col = boxSlot->col;
 }
@@ -311,7 +311,7 @@ Result BoxViewer::drawBotScreen()
 	if (hasRegularChild()) { if (this->child->drawBotScreen() == PARENT_STEP); else return CHILD_STEP; }
 	{
 		// Retrieve the current box, and the drawing offset.
-		s16 boxShift = (cursorBox.inBank ? BK_BOX_SHIFT_USED : PC_BOX_SHIFT_USED);
+		s16 boxShift = cursorBox.inBank ? BK_BOX_SHIFT_USED : PC_BOX_SHIFT_USED;
 		s16 middleBoxShift = (cursorBox.inBank ? PC_BOX_SHIFT_UNUSED : PC_BOX_SHIFT_USED) + BACKGROUND_WIDTH;
 
 		// Draw the current box: the background and the icons.
@@ -415,13 +415,13 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 
 		if (kDown & KEY_TOUCH)
 		{
-			s16 boxShift = (cursorBox.inBank ? BK_BOX_SHIFT_USED : PC_BOX_SHIFT_USED);
+			s16 boxShift = cursorBox.inBank ? BK_BOX_SHIFT_USED : PC_BOX_SHIFT_USED;
 
 			// If the box arrows are touched down
 			if (touchWithin(touch->px, touch->py, boxShift + 4, 18, 16, 24)) boxMod--;
 			else if (touchWithin(touch->px, touch->py, boxShift + 200, 18, 16, 24)) boxMod++;
 
-			boxShift = (cursorBox.inBank ? PC_BOX_SHIFT_UNUSED : BK_BOX_SHIFT_UNUSED);
+			boxShift = cursorBox.inBank ? PC_BOX_SHIFT_UNUSED : BK_BOX_SHIFT_UNUSED;
 
 			// If the other box (PC|BK) is touched down
 			if (touchWithin(touch->px, touch->py, boxShift, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT)) { cursorBox.inBank = !cursorBox.inBank; boolMod = bboxMod = true; }
@@ -431,13 +431,13 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 			// If there is a Pokémon currently dragged
 			if (isPkmDragged)
 			{
-				s16 boxShift = (cursorBox.inBank ? BK_BOX_SHIFT_USED : PC_BOX_SHIFT_USED);
+				s16 boxShift = cursorBox.inBank ? BK_BOX_SHIFT_USED : PC_BOX_SHIFT_USED;
 
 				// If the box arrows are touched held once
 				if (touchWithin(touch->px, touch->py, boxShift + 4, 18, 16, 24) && !touchWithin(this->touch.px, this->touch.py, boxShift + 4, 18, 16, 24)) boxMod--;
 				else if (touchWithin(touch->px, touch->py, boxShift + 200, 18, 16, 24) && !touchWithin(this->touch.px, this->touch.py, boxShift + 200, 18, 16, 24)) boxMod++;
 
-				boxShift = (cursorBox.inBank ? PC_BOX_SHIFT_UNUSED : BK_BOX_SHIFT_UNUSED);
+				boxShift = cursorBox.inBank ? PC_BOX_SHIFT_UNUSED : BK_BOX_SHIFT_UNUSED;
 
 				// If the other box (PC|BK) is touched held
 				if (touchWithin(touch->px, touch->py, boxShift, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT)) { cursorBox.inBank = !cursorBox.inBank; boolMod = bboxMod = true; }
@@ -537,7 +537,7 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 		if (bboxMod);
 		else if (kDown & KEY_TOUCH)
 		{
-			s16 boxShift = (cursorBox.inBank ? BK_BOX_SHIFT_USED : PC_BOX_SHIFT_USED);
+			s16 boxShift = cursorBox.inBank ? BK_BOX_SHIFT_USED : PC_BOX_SHIFT_USED;
 			s16 middleBoxShift = (cursorBox.inBank ? PC_BOX_SHIFT_UNUSED : PC_BOX_SHIFT_USED) + BACKGROUND_WIDTH;
 			u16 px = touch->px;
 			u16 py = touch->py;
@@ -614,7 +614,7 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 		{
 			touch = &(this->touch);
 
-			s16 boxShift = (cursorBox.inBank ? BK_BOX_SHIFT_USED : PC_BOX_SHIFT_USED);
+			s16 boxShift = cursorBox.inBank ? BK_BOX_SHIFT_USED : PC_BOX_SHIFT_USED;
 			u16 px = touch->px;
 			u16 py = touch->py;
 
@@ -1026,14 +1026,9 @@ void BoxViewer::populateVPkmData(vPkm_s* vPkm)
 
 	vPkm->ball = Pokemon::ball(vPkm->pkm) - 1;
 
-	if (Pokemon::isGen6Born(vPkm->pkm))
-		vPkm->gen = 6;
-	else if (Pokemon::isGen5Born(vPkm->pkm))
-		vPkm->gen = 5;
-	else if (Pokemon::isGen4Born(vPkm->pkm))
-		vPkm->gen = 4;
-	else if (Pokemon::isGen3Born(vPkm->pkm))
-		vPkm->gen = 3;
-	else
-		vPkm->gen = 0;
+	if (Pokemon::isGen6Born(vPkm->pkm)) vPkm->gen = 6;
+	else if (Pokemon::isGen5Born(vPkm->pkm)) vPkm->gen = 5;
+	else if (Pokemon::isGen4Born(vPkm->pkm)) vPkm->gen = 4;
+	else if (Pokemon::isGen3Born(vPkm->pkm)) vPkm->gen = 3;
+	else vPkm->gen = 0;
 }

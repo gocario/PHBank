@@ -39,7 +39,7 @@ SaveManager::SaveManager(void)
 SaveManager::~SaveManager(void)
 // ------------------------------------
 {
-	printf("Deleting PC Boxes:");
+	printf("Deleting PC Boxes: (%u)", savedata.pc.boxUnlocked);
 	for (u16 iB = 0; iB < savedata.pc.boxUnlocked; iB++)
 	{
 		for (u16 iP = 0; iP < BOX_PKM_COUNT; iP++)
@@ -55,7 +55,7 @@ SaveManager::~SaveManager(void)
 	}
 	printf(" OK\n");
 
-	printf("Deleting BK Boxes:");
+	printf("Deleting BK Boxes: (%u)", bankdata.bk.boxUnlocked);
 	for (u16 iB = 0; iB < bankdata.bk.boxUnlocked; iB++)
 	{
 		for (u16 iP = 0; iP < BOX_PKM_COUNT; iP++)
@@ -530,14 +530,10 @@ void SaveManager::loadPkmPk6(pkm_s* pkm)
 	pkm->moved = false;
 	pkm->modified = false;
 	pkm->isEggy = Pokemon::isEgg(pkm);
-	if (pkm->isEggy) pkm->isShiny = Pokemon::isShiny(pkm, savedata.TID, savedata.SID);
-	else pkm->isShiny = Pokemon::isShiny(pkm);
+	pkm->isShiny = pkm->isEggy ? Pokemon::isShiny(pkm, savedata.TID, savedata.SID) : Pokemon::isShiny(pkm);
 	pkm->speciesID = Pokemon::speciesID(pkm);
 	pkm->itemID = Pokemon::itemID(pkm);
 	pkm->formID = Pokemon::formID(pkm);
-
-	//pkm->species = PKData::species(pkm->speciesID);
-	//pkm->item = PKData::items(pkm->itemID);
 }
 
 
@@ -596,7 +592,7 @@ void SaveManager::saveBankData(void)
 		{
 			savePkmBK(iB, iP);
 		}
-		
+
 		// TODO: Save box's name.
 		// memset((u16*)(bankbuffer + offsetBKLayout + 0x22 * iB), 0, 0x11 * sizeof(uint16_t));
 		// utf32_to_utf16((u16*)(bankbuffer + offsetBKLayout + 0x22 * iB), bankdata.bk.box[iB].title, 0x11);
@@ -806,7 +802,7 @@ box_s* SaveManager::getWBox(void)
 box_s* SaveManager::getBox(u16 boxId, bool inBank)
 // ------------------------------------
 {
-	return &(inBank ? bankdata.bk.box[boxId] : savedata.pc.box[boxId]);
+	return inBank ? &bankdata.bk.box[boxId] : &savedata.pc.box[boxId];
 }
 
 
@@ -822,7 +818,7 @@ pkm_s* SaveManager::getPkm(u16 slotId, bool inBank)
 pkm_s* SaveManager::getPkm(u16 boxId, u16 slotId, bool inBank)
 // ------------------------------------
 {
-	return &(inBank ? bankdata.bk.box[boxId] : savedata.pc.box[boxId]).slot[slotId];
+	return inBank ? &bankdata.bk.box[boxId].slot[slotId] : &savedata.pc.box[boxId].slot[slotId];
 }
 
 
@@ -856,10 +852,8 @@ bool SaveManager::movePkm(pkm_s* src, pkm_s* dst)
 bool SaveManager::movePkm(pkm_s* src, pkm_s* dst, bool srcBanked, bool dstBanked)
 // ------------------------------------
 {
-	if (!isPkmEmpty(src) && !filterPkm(src, dstBanked, srcBanked))
-		return false;
-	if (!isPkmEmpty(dst) && !filterPkm(dst, srcBanked, dstBanked))
-		return false;
+	if (!isPkmEmpty(src) && !filterPkm(src, dstBanked, srcBanked)) return false;
+	if (!isPkmEmpty(dst) && !filterPkm(dst, srcBanked, dstBanked)) return false;
 
 	return movePkm(src, dst);
 }
@@ -889,8 +883,7 @@ bool SaveManager::pastePkm(pkm_s* src, pkm_s* dst)
 bool SaveManager::pastePkm(pkm_s* src, pkm_s* dst, bool srcBanked, bool dstBanked)
 // ------------------------------------
 {
-	if (!isPkmEmpty(src) && !filterPkm(src, dstBanked, srcBanked))
-		return false;
+	if (!isPkmEmpty(src) && !filterPkm(src, dstBanked, srcBanked)) return false;
 
 	return pastePkm(src, dst);
 }
@@ -914,7 +907,7 @@ bool SaveManager::filterPkm(pkm_s* pkm, bool toBank, bool fromBank)
 	bool toGame = !toBank;
 	bool fromGame = !fromBank;
 
-	// printf("Filtering Pokémon\n");
+	// printf("Filtering Pokémon %03u\n", pkm->speciesID);
 
 	if (Game::is(version, Game::XY))
 	{
@@ -1187,13 +1180,13 @@ u32 SaveManager::CHKLength(u32 i)
 {
 	if (Game::is(version, Game::XY))
 	{
-		u32 _xy[] = { 0x000002C8, 0x00000B88, 0x0000002C, 0x00000038, 0x00000150, 0x00000004, 0x00000008, 0x000001C0, 0x000000BE, 0x00000024, 0x00002100, 0x00000140, 0x00000440, 0x00000574, 0x00004E28, 0x00004E28, 0x00004E28, 0x00000170, 0x0000061C, 0x00000504, 0x000006A0, 0x00000644, 0x00000104, 0x00000004, 0x00000420, 0x00000064, 0x000003F0, 0x0000070C, 0x00000180, 0x00000004, 0x0000000C, 0x00000048, 0x00000054, 0x00000644, 0x000005C8, 0x000002F8, 0x00001B40, 0x000001F4, 0x000001F0, 0x00000216, 0x00000390, 0x00001A90, 0x00000308, 0x00000618, 0x0000025C, 0x00000834, 0x00000318, 0x000007D0, 0x00000C48, 0x00000078, 0x00000200, 0x00000C84, 0x00000628, 0x00034AD0, 0x0000E058, };
+		u32 _xy[] = { 0x002C8, 0x00B88, 0x0002C, 0x00038, 0x00150, 0x00004, 0x00008, 0x001C0, 0x000BE, 0x00024, 0x02100, 0x00140, 0x00440, 0x00574, 0x04E28, 0x04E28, 0x04E28, 0x00170, 0x0061C, 0x00504, 0x006A0, 0x00644, 0x00104, 0x00004, 0x00420, 0x00064, 0x003F0, 0x0070C, 0x00180, 0x00004, 0x0000C, 0x00048, 0x00054, 0x00644, 0x005C8, 0x002F8, 0x01B40, 0x001F4, 0x001F0, 0x00216, 0x00390, 0x01A90, 0x00308, 0x00618, 0x0025C, 0x00834, 0x00318, 0x007D0, 0x00C48, 0x00078, 0x00200, 0x00C84, 0x00628, 0x34AD0, 0x0E058, };
 
 		return _xy[i];
 	}
 	else if (Game::is(version, Game::ORAS))
 	{
-		u32 _oras[] = { 0x000002C8, 0x00000B90, 0x0000002C, 0x00000038, 0x00000150, 0x00000004, 0x00000008, 0x000001C0, 0x000000BE, 0x00000024, 0x00002100, 0x00000130, 0x00000440, 0x00000574, 0x00004E28, 0x00004E28, 0x00004E28, 0x00000170, 0x0000061C, 0x00000504, 0x000011CC, 0x00000644, 0x00000104, 0x00000004, 0x00000420, 0x00000064, 0x000003F0, 0x0000070C, 0x00000180, 0x00000004, 0x0000000C, 0x00000048, 0x00000054, 0x00000644, 0x000005C8, 0x000002F8, 0x00001B40, 0x000001F4, 0x000003E0, 0x00000216, 0x00000640, 0x00001A90, 0x00000400, 0x00000618, 0x0000025C, 0x00000834, 0x00000318, 0x000007D0, 0x00000C48, 0x00000078, 0x00000200, 0x00000C84, 0x00000628, 0x00000400, 0x00007AD0, 0x000078B0, 0x00034AD0, 0x0000E058, };
+		u32 _oras[] = { 0x002C8, 0x00B90, 0x0002C, 0x00038, 0x00150, 0x00004, 0x00008, 0x001C0, 0x000BE, 0x00024, 0x02100, 0x00130, 0x00440, 0x00574, 0x04E28, 0x04E28, 0x04E28, 0x00170, 0x0061C, 0x00504, 0x011CC, 0x00644, 0x00104, 0x00004, 0x00420, 0x00064, 0x003F0, 0x0070C, 0x00180, 0x00004, 0x0000C, 0x00048, 0x00054, 0x00644, 0x005C8, 0x002F8, 0x01B40, 0x001F4, 0x003E0, 0x00216, 0x00640, 0x01A90, 0x00400, 0x00618, 0x0025C, 0x00834, 0x00318, 0x007D0, 0x00C48, 0x00078, 0x00200, 0x00C84, 0x00628, 0x00400, 0x07AD0, 0x078B0, 0x34AD0, 0x0E058, };
 
 		return _oras[i];
 	}

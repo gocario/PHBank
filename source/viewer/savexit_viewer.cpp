@@ -1,7 +1,7 @@
 #include "savexit_viewer.hpp"
 
-#include "phbank.hpp"
 #include "text.h"
+#include "phbank.hpp"
 
 #include <stdio.h>
 
@@ -103,8 +103,6 @@ Result SavexitViewer::updateControls(const u32& kDown, const u32& kHeld, const u
 	{
 		// Return the "You have to save" code
 		parent->setState(ViewState::Saving);
-			consoleInit(GFX_TOP, NULL);
-			printf("Saving asked...\n");
 		close();
 		return CHILD_STEP;
 	}
