@@ -317,7 +317,7 @@ bool UltraBoxViewer::selectViewBox()
 
 	if (cursorUBox.slot != -1)
 	{
-		PHBanku::save->getBox(cursorUBox.slot, &vBox, cursorUBox.inBank);
+		vBox = PHBanku::save->getBox(cursorUBox.slot, cursorUBox.inBank);
 		printf("View Box: [@%p]\n", vBox);
 		return true;
 	}

@@ -57,16 +57,13 @@ struct box_s
 
 struct pc_s
 {
-	box_s box[31];
-	u8 boxUnlocked;
 	box_s box[31];	///< Boxes
 	u8 boxUnlocked;	///< Unlocked boxes
 };
 
 struct bk_s
 {
-	box_s box[100];
-	u8 boxUnlocked;
+	box_s wbox;		///< Wonderbox
 	box_s box[100];	///< Boxes
 	u8 boxUnlocked;	///< Unlocked boxes
 };
@@ -99,11 +96,11 @@ namespace Game
 	enum gameVersion_e
 	{
 		None = 0,
-		X = 1 << 0,
-		Y = 1 << 1,
+		X = 1 << 0,	// 24
+		Y = 1 << 1, // 25
 		XY = X | Y,
-		OR = 1 << 2,
-		AS = 1 << 3,
+		OR = 1 << 2, // 26
+		AS = 1 << 3, // 27
 		ORAS = OR | AS,
 	};
 

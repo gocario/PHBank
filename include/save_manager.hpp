@@ -50,11 +50,13 @@ class SaveManager
 		void setBank(u32 bytesRead);
 		void setBankOffsets(void);
 
+		bool isBadEgg(pkm_s* pkm);
 		bool isPkmEmpty(pkm_s* pkm);
 		bool isSlotEmpty(u16 boxId, u16 slotId, bool inBank);
-		void getBox(u16 boxId, box_s** box, bool inBank);
-		void getPkm(u16 slotId, pkm_s** pkm, bool inBank);
-		void getPkm(u16 boxId, u16 slotId, pkm_s** pkm, bool inBank);
+		box_s* getWBox(void);
+		box_s* getBox(u16 boxId, bool inBank);
+		pkm_s* getPkm(u16 slotId, bool inBank);
+		pkm_s* getPkm(u16 boxId, u16 slotId, bool inBank);
 		bool movePkm(pkm_s* src, pkm_s* dst);
 		bool movePkm(pkm_s* src, pkm_s* dst, bool srcBanked, bool dstBanked);
 		bool pastePkm(pkm_s* src, pkm_s* dst);
@@ -71,8 +73,6 @@ class SaveManager
 		void encryptPk6(pkm_s* pkm);
 		void shufflePk6(pk6_t* pk6, u8 sv);
 		void rewriteSaveCHK(void);
-
-		u16 computeTSV(u16 TID, u16 SID);
 
 		u32 LCRNG(u32 seed);
 		u32 CHKOffset(u32 i);

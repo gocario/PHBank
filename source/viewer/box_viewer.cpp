@@ -849,7 +849,7 @@ void BoxViewer::selectViewBox()
 	else
 		vBox = &vPCBox;
 
-	save->getBox(*cursorBox.box, vBox, cursorBox.inBank);
+	*vBox = save->getBox(*cursorBox.box, cursorBox.inBank);
 }
 
 
@@ -868,7 +868,7 @@ void BoxViewer::selectViewPokemon()
 	// If the cursor is in a box slot
 	else
 	{
-		save->getPkm(*cursorBox.box, cursorBox.inslot, &vPkm.pkm, cursorBox.inBank);
+		vPkm.pkm = save->getPkm(*cursorBox.box, cursorBox.inslot, cursorBox.inBank);
 		populateVPkmData(&vPkm);
 	}
 }

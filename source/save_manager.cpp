@@ -392,7 +392,7 @@ void SaveManager::loadSaveData(void)
 		printf("Loading Trainer Card:");
 		savedata.TID = *(u16*)(savebuffer + offsetTrainerCard + 0x00);
 		savedata.SID = *(u16*)(savebuffer + offsetTrainerCard + 0x02);
-		savedata.TSV = computeTSV(savedata.TID, savedata.SID);
+		savedata.TSV = (savedata.TID ^ savedata.SID) >> 4;
 		savedata.OTGender = *(u8*)(savebuffer + offsetTrainerCard + 0x05);
 		memset(savedata.OTName, 0, 0xD * sizeof(uint32_t));
 		utf16_to_utf32(savedata.OTName, (u16*)(savebuffer + offsetTrainerCard + 0x48), 0xD);
@@ -751,39 +751,40 @@ bool SaveManager::isPkmEmpty(pkm_s* pkm)
 bool SaveManager::isSlotEmpty(u16 boxId, u16 slotId, bool inBank)
 // ------------------------------------
 {
-	pkm_s* pkm = NULL;
-	getPkm(boxId, slotId, &pkm, inBank);
+	pkm_s* pkm = getPkm(boxId, slotId, inBank);
 	return isPkmEmpty(pkm);
 }
 
 
 // ------------------------------------
-void SaveManager::getBox(u16 boxId, box_s** box, bool inBank)
+box_s* SaveManager::getWBox(void)
 // ------------------------------------
 {
-	if (inBank)
-		*box = &bankdata.bk.box[boxId];
-	else
-		*box = &savedata.pc.box[boxId];
+	return &bankdata.bk.wbox;
 }
 
 
 // ------------------------------------
-void SaveManager::getPkm(u16 slotId, pkm_s** pkm, bool inBank)
+box_s* SaveManager::getBox(u16 boxId, bool inBank)
 // ------------------------------------
 {
-	getPkm(slotId / BOX_PKM_COUNT, slotId % BOX_PKM_COUNT, pkm, inBank);
+	return &(inBank ? bankdata.bk.box[boxId] : savedata.pc.box[boxId]);
 }
 
 
 // ------------------------------------
-void SaveManager::getPkm(u16 boxId, u16 slotId, pkm_s** pkm, bool inBank)
+pkm_s* SaveManager::getPkm(u16 slotId, bool inBank)
 // ------------------------------------
 {
-	if (inBank)
-		*pkm = &bankdata.bk.box[boxId].slot[slotId];
-	else
-		*pkm = &savedata.pc.box[boxId].slot[slotId];
+	return getPkm(slotId / BOX_PKM_COUNT, slotId % BOX_PKM_COUNT, inBank);
+}
+
+
+// ------------------------------------
+pkm_s* SaveManager::getPkm(u16 boxId, u16 slotId, bool inBank)
+// ------------------------------------
+{
+	return &(inBank ? bankdata.bk.box[boxId] : savedata.pc.box[boxId]).slot[slotId];
 }
 
 
@@ -1113,14 +1114,6 @@ void SaveManager::rewriteSaveCHK(void)
 	}
 
 	delete[] tmp;
-}
-
-
-// ------------------------------------
-u16 SaveManager::computeTSV(u16 TID, u16 SID)
-// ------------------------------------
-{
-	return ((TID ^ SID) >> 4);
 }
 
 
