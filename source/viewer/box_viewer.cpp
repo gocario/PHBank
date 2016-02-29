@@ -104,7 +104,7 @@ void injectBoxSlot(BoxSlot_s* boxSlot, CursorBox_s* cursorBox)
 	cursorBox->inBank = boxSlot->inBank;
 	cursorBox->slot = boxSlot->slot;
 	cursorBox->inslot = boxSlot->inslot;
-	boxSlot->inBank ? cursorBox->boxBK : cursorBox->boxPC = boxSlot->box;
+	(boxSlot->inBank ? cursorBox->boxBK : cursorBox->boxPC) = boxSlot->box;
 	cursorBox->row = boxSlot->row;
 	cursorBox->col = boxSlot->col;
 }
@@ -185,6 +185,7 @@ Result BoxViewer::drawTopScreen()
 	// If there is a current Pokémon
 	if (vPkm.pkm && !vPkm.emptySlot)
 	{
+		{
 		uint32_t x, y;
 
 		sf2d_draw_texture_part(PHBanku::texture->ballIcons, 5, 5, (vPkm.ball % BALL_ROW_COUNT) * BALL_SIZE, (vPkm.ball / BALL_ROW_COUNT) * BALL_SIZE, BALL_SIZE, BALL_SIZE);
@@ -296,6 +297,7 @@ Result BoxViewer::drawTopScreen()
 		sf2d_draw_texture_part(PHBanku::texture->boxTiles, 320 ,135, 9*3, 64 + 9*vPkm.heart, 9, 9);
 		sf2d_draw_texture_part(PHBanku::texture->boxTiles, 330 ,135, 9*4, 64 + 9*vPkm.star, 9, 9);
 		sf2d_draw_texture_part(PHBanku::texture->boxTiles, 340 ,135, 9*5, 64 + 9*vPkm.diamond, 9, 9);
+		}
 	}
 
 	if (hasOverlayChild()) { this->child->drawTopScreen(); }
@@ -308,6 +310,7 @@ Result BoxViewer::drawBotScreen()
 // --------------------------------------------------
 {
 	if (hasRegularChild()) { if (this->child->drawBotScreen() == PARENT_STEP); else return CHILD_STEP; }
+
 	{
 		// Retrieve the current box, and the drawing offset.
 		s16 boxShift = cursorBox.inBank ? BK_BOX_SHIFT_USED : PC_BOX_SHIFT_USED;
@@ -450,9 +453,17 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 			cursorBox.row += rowMod;
 			cursorBox.col += colMod;
 
-			if (*cursorBox.box < 0) *cursorBox.box = (cursorBox.inBank ? save->bankdata.bk.boxUnlocked : save->savedata.pc.boxUnlocked)-1;
-			else if (*cursorBox.box > (cursorBox.inBank ? save->bankdata.bk.boxUnlocked : save->savedata.pc.boxUnlocked)-1) *cursorBox.box = 0;
-
+			if (save->bankdata.bk.wboxUnlocked)
+			{
+				if (*cursorBox.box < 0) *cursorBox.box = (cursorBox.inBank ? save->bankdata.bk.boxUnlocked+1 : save->savedata.pc.boxUnlocked)-1;
+				else if (*cursorBox.box > (cursorBox.inBank ? save->bankdata.bk.boxUnlocked+1 : save->savedata.pc.boxUnlocked)-1) *cursorBox.box = 0;
+			}
+			else
+			{
+				if (*cursorBox.box < 0) *cursorBox.box = (cursorBox.inBank ? save->bankdata.bk.boxUnlocked : save->savedata.pc.boxUnlocked)-1;
+				else if (*cursorBox.box > (cursorBox.inBank ? save->bankdata.bk.boxUnlocked : save->savedata.pc.boxUnlocked)-1) *cursorBox.box = 0;
+			}
+			
 			if (cursorBox.row < BOX_HEADER_SELECTED) cursorBox.row = BOX_ROW_PKM_COUNT-1;
 			else if (cursorBox.row > BOX_ROW_PKM_COUNT-1) cursorBox.row = BOX_HEADER_SELECTED;
 
@@ -659,7 +670,7 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 
 
 // --------------------------------------------------
-void BoxViewer::selectViewBox(uint16_t boxID, bool inBank)
+void BoxViewer::selectViewBox(uint16_t boxId, bool inBank)
 // --------------------------------------------------
 {
 	// Change a box ID and update both displayed boxes (PC|BK)
@@ -667,11 +678,7 @@ void BoxViewer::selectViewBox(uint16_t boxID, bool inBank)
 	bool BK = cursorBox.inBank;
 	cursorBox.inBank = inBank;
 
-	if (inBank)
-		cursorBox.boxBK = boxID;
-	else
-		cursorBox.boxPC = boxID;
-
+	(inBank ? cursorBox.boxBK : cursorBox.boxPC) = boxId;
 	selectViewBox();
 
 	cursorBox.inBank = BK;
@@ -719,12 +726,7 @@ void BoxViewer::drawBox(box_s* box, int16_t x, int16_t y, bool cursor)
 	int boxTitleWidth = sftd_get_text_width(font, 12, boxTitle);
 	sftd_draw_text(font, x + (BACKGROUND_WIDTH - boxTitleWidth) / 2, y + 21, RGBA8(0x22,0x22,0x22,0xFF), 12, boxTitle);
 
-	// if (isPkmMDragged)
-	// {
-	// 	sf2d_draw_rectangle(x + sSlot.col * 35, y + 30 + sSlot.row * 35, sSlot.colCount * 35, sSlot.colCount * 35, RGBA8(0x44,0xCC,0x66,0xAA));
-	// }
-
-	// TODO: DRY
+	// TODO: v DRY v
 
 	// If there is a Pokémon currently selected
 	if (sPkm)
@@ -814,6 +816,14 @@ void BoxViewer::drawPokemonScale(pkm_s* pkm, int16_t x, int16_t y, float scale)
 
 
 // --------------------------------------------------
+bool BoxViewer::isWonderBox(u16 boxId, bool inBank)
+// --------------------------------------------------
+{
+	return save->bankdata.bk.wboxUnlocked && inBank ? boxId == save->bankdata.bk.boxUnlocked : false;
+}
+
+
+// --------------------------------------------------
 void BoxViewer::selectCursorType(CursorType cursorType)
 // --------------------------------------------------
 {
@@ -842,13 +852,15 @@ void BoxViewer::selectViewBox()
 	// Compute the current cursor slot
 	computeSlot(&cursorBox);
 
-	box_s** vBox = NULL;
-	if (cursorBox.inBank)
-		vBox = &vBKBox;
+	// Wonder box
+	if (isWonderBox(*cursorBox.box, cursorBox.inBank))
+	{
+		vBKBox = save->getWBox();
+	}
 	else
-		vBox = &vPCBox;
-
-	*vBox = save->getBox(*cursorBox.box, cursorBox.inBank);
+	{
+		(cursorBox.inBank ? vBKBox : vPCBox) = save->getBox(*cursorBox.box, cursorBox.inBank);
+	}
 }
 
 
@@ -867,7 +879,16 @@ void BoxViewer::selectViewPokemon()
 	// If the cursor is in a box slot
 	else
 	{
-		vPkm.pkm = save->getPkm(*cursorBox.box, cursorBox.inslot, cursorBox.inBank);
+		// Wonder box
+		if (isWonderBox(*cursorBox.box, cursorBox.inBank))
+		{
+			vPkm.pkm = save->getWPkm(cursorBox.inslot);
+		}
+		else
+		{
+			vPkm.pkm = save->getPkm(*cursorBox.box, cursorBox.inslot, cursorBox.inBank);
+		}
+
 		populateVPkmData(&vPkm);
 	}
 }
@@ -878,7 +899,7 @@ void BoxViewer::selectMovePokemon()
 // --------------------------------------------------
 {
 	computeSlot(&cursorBox);
-	// selectViewPokemon();
+	// Compute the current cursor slot
 
 	// If no Pokémon is currently selected
 	if (!sPkm)
@@ -889,7 +910,12 @@ void BoxViewer::selectMovePokemon()
 			// Select the current Pokémon
 			sPkm = vPkm.pkm;
 			extractBoxSlot(&sSlot, &cursorBox);
-			if (!isPkmDragged) isPkmHeld = true;
+
+			// If the buttons are used.
+			if (!isPkmDragged)
+			{
+				isPkmHeld = true;
+			}
 		}
 	}
 	// Else if there is a current Pokémon
@@ -924,29 +950,10 @@ void BoxViewer::selectMovePokemon()
 void BoxViewer::selectMultiMovePokemon()
 // --------------------------------------------------
 {
+	// Compute the current cursor slot
 	computeSlot(&cursorBox);
 
-	// If no Pokémon is currently selected
-	if (!sPkm)
-	{
-		sPkm = vPkm.pkm;
-		extractBoxSlot(&sSlot, &cursorBox);
-		isPkmMSelecting = true;
-	}
-	// If a Pokémon is currently selected for the multi selection
-	else if (isPkmMSelecting)
-	{
-		// TODO Stuff here!
-
-		computeBoxSlot(&sSlot, &cursorBox);
-		injectBoxSlot(&sSlot, &cursorBox);
-		isPkmMSelecting = false;
-		isPkmMDragged = true;
-	}
-	else if (isPkmMDragged)
-	{
-		// TODO Stuff here!
-	}
+	// TODO: Stuff here!
 }
 
 
@@ -955,12 +962,11 @@ void BoxViewer::cancelMovePokemon()
 // --------------------------------------------------
 {
 	// Reset the selection
-
-	sPkm = NULL;
 	isPkmHeld = false;
 	isPkmDragged = false;
-	isPkmMDragged = false;
-	isPkmMSelecting = false;
+
+	// Reset the selected
+	sPkm = NULL;
 }
 
 
@@ -977,7 +983,6 @@ void BoxViewer::populateVPkmData(vPkm_s* vPkm)
 	u32fix(vPkm->NKName, 0xD);
 	u32fix(vPkm->OTName, 0xD);
 	u32fix(vPkm->HTName, 0xD);
-
 
 	vPkm->emptySlot = save->isPkmEmpty(vPkm->pkm);
 

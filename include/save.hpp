@@ -63,9 +63,10 @@ struct pc_s
 
 struct bk_s
 {
-	box_s wbox;		///< Wonderbox
-	box_s box[100];	///< Boxes
-	u8 boxUnlocked;	///< Unlocked boxes
+	box_s wbox;			///< Wonderbox
+	box_s box[100];		///< Boxes
+	u8 boxUnlocked;		///< Unlocked boxes
+	bool wboxUnlocked;	///< Wonder box unlocked
 };
 
 struct savedata_s

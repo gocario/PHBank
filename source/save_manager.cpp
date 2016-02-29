@@ -450,6 +450,7 @@ void SaveManager::loadBankData(void)
 	printf(" OK\n");
 
 	printf("Loading Wonder box:");
+	bankdata.bk.wboxUnlocked = false; // TODO: Toggle it if Pokémon in.
 	for (u16 iP = 0; iP < BOX_PKM_COUNT; iP++)
 	{
 		// loadPkmWBK(iP);
@@ -785,8 +786,7 @@ bool SaveManager::isPkmEmpty(pkm_s* pkm)
 bool SaveManager::isSlotEmpty(u16 boxId, u16 slotId, bool inBank)
 // ------------------------------------
 {
-	pkm_s* pkm = getPkm(boxId, slotId, inBank);
-	return isPkmEmpty(pkm);
+	return isPkmEmpty(getPkm(boxId, slotId, inBank));
 }
 
 
@@ -794,6 +794,8 @@ bool SaveManager::isSlotEmpty(u16 boxId, u16 slotId, bool inBank)
 box_s* SaveManager::getWBox(void)
 // ------------------------------------
 {
+	// printf("getWBox(): %p\n", &bankdata.bk.wbox);
+	
 	return &bankdata.bk.wbox;
 }
 
@@ -802,7 +804,20 @@ box_s* SaveManager::getWBox(void)
 box_s* SaveManager::getBox(u16 boxId, bool inBank)
 // ------------------------------------
 {
+	// printf("getBox(%u,true): %p\n", boxId, &bankdata.bk.box[boxId]);
+	// printf("getBox(%u,false): %p\n", boxId, &savedata.pc.box[boxId]);
+
 	return inBank ? &bankdata.bk.box[boxId] : &savedata.pc.box[boxId];
+}
+
+
+// ------------------------------------
+pkm_s* SaveManager::getWPkm(u16 slotId)
+// ------------------------------------
+{
+	// printf("getWPkm(%u): %p\n", slotId, &bankdata.bk.wbox.slot[slotId]);
+
+	return &bankdata.bk.wbox.slot[slotId];
 }
 
 
@@ -818,6 +833,9 @@ pkm_s* SaveManager::getPkm(u16 slotId, bool inBank)
 pkm_s* SaveManager::getPkm(u16 boxId, u16 slotId, bool inBank)
 // ------------------------------------
 {
+	// printf("getPkm(%u,%u,true): %p\n", boxId, slotId, &bankdata.bk.box[boxId].slot[slotId]);
+	// printf("getPkm(%u,%u,false): %p\n", boxId, slotId, &savedata.pc.box[boxId].slot[slotId]);
+
 	return inBank ? &bankdata.bk.box[boxId].slot[slotId] : &savedata.pc.box[boxId].slot[slotId];
 }
 

@@ -90,17 +90,15 @@ class BoxViewer : public Viewer
 		Result drawBotScreen() override;
 		Result updateControls(const u32& kDown = 0, const u32& kHeld = 0, const u32& kUp = 0, const touchPosition* touch = NULL) override;
 
-		void selectViewBox(uint16_t boxID, bool inBank);
+		void selectViewBox(uint16_t boxId, bool inBank);
 
 	private:
 		SaveManager* save;
 		CursorBox_s cursorBox;
 		CursorType cursorType = CursorType::SingleSelect;
 		touchPosition touch;
-		bool isPkmHeld = false;
-		bool isPkmDragged = false;
-		bool isPkmMDragged = false;
-		bool isPkmMSelecting = false;
+		bool isPkmHeld = false;			///< Is a Pokémon held using the buttons?
+		bool isPkmDragged = false;		///< Is a Pokémon dragged using the stylus?
 		BoxSlot_s sSlot;
 		pkm_s* sPkm = NULL;
 		vPkm_s vPkm;
@@ -115,6 +113,8 @@ class BoxViewer : public Viewer
 		void drawBox(box_s* box, int16_t x, int16_t y, bool cursor);
 		void drawPokemon(pkm_s* pkm, int16_t x, int16_t y);
 		void drawPokemonScale(pkm_s* pkm, int16_t x, int16_t y, float scale);
+
+		bool isWonderBox(u16 boxId, bool inBank);
 
 		void selectCursorType(CursorType cursorType);
 		void switchCursorType();

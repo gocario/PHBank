@@ -56,6 +56,7 @@ class SaveManager
 		bool isSlotEmpty(u16 boxId, u16 slotId, bool inBank);
 		box_s* getWBox(void);
 		box_s* getBox(u16 boxId, bool inBank);
+		pkm_s* getWPkm(u16 slotId);
 		pkm_s* getPkm(u16 slotId, bool inBank);
 		pkm_s* getPkm(u16 boxId, u16 slotId, bool inBank);
 		bool movePkm(pkm_s* src, pkm_s* dst);
