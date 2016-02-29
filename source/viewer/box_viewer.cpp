@@ -862,25 +862,24 @@ void BoxViewer::drawPokemon(pkm_s* pkm, int16_t x, int16_t y, bool shadow)
 	// Draw the shadow
 	if (shadow)
 	{
-		sf2d_draw_texture_part_blend(pkmIcons, x+4, y+4, ((pkm->speciesID) % 25) * 40, ((pkm->speciesID) / 25) * 30, 40, 30, RGBA8(0x00,0x00,0x00,0x55));
+		sf2d_draw_texture_part_blend(pkmIcons, x+4, y+4, (pkm->speciesID % 25) * 40, (pkm->speciesID / 25) * 30, 40, 30, RGBA8(0x00,0x00,0x00,0x55));
 	}
 
 	if (pkm->isEggy)
 	{
 		// Draw the egg+Pokémon icon
-		sf2d_draw_texture_part_blend(pkmIcons, x, y, ((pkm->speciesID) % 25) * 40, ((pkm->speciesID) / 25) * 30, 40, 30, RGBA8(0xFF,0xFF,0xFF,0xAA));
-		sf2d_draw_texture_part_blend(pkmIcons, x, y, ((EGG_ID) % 25) * 40, ((EGG_ID) / 25) * 30, 40, 30, RGBA8(0xFF,0xFF,0xFF,0xAA));
+		sf2d_draw_texture_part_blend(pkmIcons, x, y, (pkm->speciesID % 25) * 40, (pkm->speciesID / 25) * 30, 40, 30, RGBA8(0xFF,0xFF,0xFF,0xAA));
+		sf2d_draw_texture_part_blend(pkmIcons, x, y, (EGG_ID % 25) * 40, (EGG_ID / 25) * 30, 40, 30, RGBA8(0xFF,0xFF,0xFF,0xAA));
 	}
 	else
 	{
 		// Draw the Pokémon icon
-		sf2d_draw_texture_part(pkmIcons, x, y, ((pkm->speciesID) % 25) * 40, ((pkm->speciesID) / 25) * 30, 40, 30);
+		sf2d_draw_texture_part(pkmIcons, x, y, (pkm->speciesID % 25) * 40, (pkm->speciesID / 25) * 30, 40, 30);
 
 		// Draw the item
 		if (pkm->itemID > 0)
 		{
-			// TODO: Draw the item
-			sf2d_draw_rectangle(x, y, 16, 16, RGBA8(0xDD,0x88,0x22,0xAA));
+			sf2d_draw_texture_part(PHBanku::texture->boxTiles, x + 23, y + 21, 48, 82, 12, 12);
 		}
 	}
 
@@ -888,7 +887,7 @@ void BoxViewer::drawPokemon(pkm_s* pkm, int16_t x, int16_t y, bool shadow)
 	if (pkm->checked)
 	{
 		// TODO: Draw a check mark
-		sf2d_draw_rectangle(x, y, 40, 30, RGBA8(0x55,0xAA,0x88,0xAA));
+		sf2d_draw_rectangle(x + 3, y + 22, 8, 8, RGBA8(0x55,0xAA,0x88,0xAA));
 	}
 }
 
@@ -904,24 +903,25 @@ void BoxViewer::drawPokemonScale(pkm_s* pkm, int16_t x, int16_t y, float scale)
 
 	// Draw the shadow
 	{
-		sf2d_draw_texture_part_scale_blend(pkmIcons, x+2*scale, y+2*scale, ((pkm->speciesID) % 25) * 40, ((pkm->speciesID) / 25) * 30, 40, 30, scale, scale, RGBA8(0x00,0x00,0x00,0x55));
+		sf2d_draw_texture_part_scale_blend(pkmIcons, x + 2 * scale, y + 2 * scale, (pkm->speciesID % 25) * 40, (pkm->speciesID / 25) * 30, 40, 30, scale, scale, RGBA8(0x00,0x00,0x00,0x55));
 	}
 
 	if (pkm->isEggy)
 	{
 		// Draw the egg+Pokémon icon
-		sf2d_draw_texture_part_scale(pkmIcons, x, y, ((pkm->speciesID) % 25) * 40, ((pkm->speciesID) / 25) * 30, 40, 30, scale, scale);
-		sf2d_draw_texture_part(pkmIcons, x, y + 30 * (scale - 1), ((EGG_ID) % 25) * 40, ((EGG_ID) / 25) * 30, 40, 30);
+		sf2d_draw_texture_part_scale(pkmIcons, x, y, (pkm->speciesID % 25) * 40, (pkm->speciesID / 25) * 30, 40, 30, scale, scale);
+		sf2d_draw_texture_part(pkmIcons, x, y + 30 * (scale - 0.5f), (EGG_ID % 25) * 40, (EGG_ID / 25) * 30, 40, 30);
 	}
 	else
 	{
 		// Draw the Pokémon icon
-		sf2d_draw_texture_part_scale(pkmIcons, x, y, ((pkm->speciesID) % 25) * 40, ((pkm->speciesID) / 25) * 30, 40, 30, scale, scale);
+		sf2d_draw_texture_part_scale(pkmIcons, x, y, (pkm->speciesID % 25) * 40, (pkm->speciesID / 25) * 30, 40, 30, scale, scale);
 	
 		// Draw the item
 		if (pkm->itemID > 0)
 		{
 			// TODO: Draw item
+			sf2d_draw_texture_part(PHBanku::texture->itemIcons, x + 5, y + 30 * (scale - 0.5f), (pkm->itemID % 34) * 30, (pkm->itemID / 34) * 30, 30, 30);
 		}
 	}
 }
@@ -933,19 +933,19 @@ void BoxViewer::drawCursorButton(int16_t x, int16_t y)
 {
 	if (!sPkm && sPkmCount == 0)
 	{
-		sf2d_draw_texture_part(PHBanku::texture->boxTiles, x + 21 +   0, y,   0, 0, 64, 32);
-		sf2d_draw_texture_part(PHBanku::texture->boxTiles, x + 21 +  64, y,  64, 0, 64, 32);
-		sf2d_draw_texture_part(PHBanku::texture->boxTiles, x + 21 + 128, y, 128, 0, 64, 32);
+		sf2d_draw_texture_part(PHBanku::texture->boxTiles, x + 21 +   0, y,   0, 0, 50, 32);
+		sf2d_draw_texture_part(PHBanku::texture->boxTiles, x + 21 +  64, y,  64, 0, 50, 32);
+		sf2d_draw_texture_part(PHBanku::texture->boxTiles, x + 21 + 128, y, 128, 0, 50, 32);
 	}
 	else
 	{
-		sf2d_draw_texture_part_blend(PHBanku::texture->boxTiles, x + 21 +   0, y,   0, 0, 64, 32, RGBA8(0xCC,0xCC,0xCC,0xAA));
-		sf2d_draw_texture_part_blend(PHBanku::texture->boxTiles, x + 21 +  64, y,  64, 0, 64, 32, RGBA8(0xCC,0xCC,0xCC,0xAA));
+		sf2d_draw_texture_part_blend(PHBanku::texture->boxTiles, x + 21 +   0, y,   0, 0, 50, 32, RGBA8(0xCC,0xCC,0xCC,0xAA));
+		sf2d_draw_texture_part_blend(PHBanku::texture->boxTiles, x + 21 +  64, y,  64, 0, 50, 32, RGBA8(0xCC,0xCC,0xCC,0xAA));
 
 		if (cursorType == CursorType::MultiSelect)
 			sf2d_draw_texture_part(PHBanku::texture->boxTiles, x + 21 + 128, y, 128, 0, 64, 32);
 		else
-			sf2d_draw_texture_part_blend(PHBanku::texture->boxTiles, x + 21 + 128, y, 128, 0, 64, 32, RGBA8(0xCC,0xCC,0xCC,0xAA));
+			sf2d_draw_texture_part_blend(PHBanku::texture->boxTiles, x + 21 + 128, y, 128, 0, 50, 32, RGBA8(0xCC,0xCC,0xCC,0xAA));
 	}
 }
 
