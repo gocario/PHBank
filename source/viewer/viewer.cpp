@@ -210,7 +210,7 @@ void Viewer::setState(ViewState vState)
 
 
 // --------------------------------------------------
-bool Viewer::touchWithin(u16 px, u16 py, s16 x, s16 y, s16 w, s16 h)
+bool Viewer::touchWithin(s16 px, s16 py, s16 x, s16 y, s16 w, s16 h)
 // --------------------------------------------------
 {
 	return (px >= x && py >= y) && (px <= x + w && py <= y + h);

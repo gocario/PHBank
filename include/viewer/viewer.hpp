@@ -64,7 +64,7 @@ class Viewer
 		/*--------------------*/
 
 		/*-- Utils --*/
-		bool touchWithin(u16 px, u16 py, s16 x, s16 y, s16 w, s16 h);
+		bool touchWithin(s16 px, s16 py, s16 x, s16 y, s16 w, s16 h);
 		/*-----------*/
 
 		/*-- Viewer Starter --*/

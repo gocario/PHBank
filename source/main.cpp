@@ -137,7 +137,7 @@ int main(int argc, char* argv[])
 		consoleInit(GFX_TOP, NULL);
 		// ^
 
-		printf("\nProblem happened: %li\n", error);
+		printf("\nProblem happened: %lx\n", error);
 		printf("PHBank version: %x\n", VERSION);
 		printf("Can't start the viewer.\n");
 		printf("Press any key to exit\n");

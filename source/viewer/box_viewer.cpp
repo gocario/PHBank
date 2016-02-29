@@ -19,7 +19,8 @@
 
 #define PKM_WIDTH (35) // Real: 40
 #define PKM_HEIGHT (33) // Real: 30
-#define PKM_BOX_SHIFT_HEIGHT (45)
+#define PKM_BOX_MARGIN_TOP (45)
+#define PKM_BOX_MARGIN_RIGHT (11) // Real: 10
 #define BOX_HEADER_WIDTH (220)
 #define BOX_HEADER_HEIGHT (32)
 #define BACKGROUND_WIDTH (220)
@@ -31,7 +32,8 @@
 #define BK_BOX_SHIFT_UNUSED (PC_BOX_SHIFT_USED + BACKGROUND_WIDTH + BACKGROUND_SHIFT)
 #define PC_BOX_SHIFT_UNUSED (BK_BOX_SHIFT_USED - BACKGROUND_WIDTH - BACKGROUND_SHIFT)
 
-#define EGG_ID (PKM_COUNT)
+#define UNKNOWN_ID (0) // 0
+#define EGG_ID (722) // PKM_COUNT + 1
 
 #define BALL_ROW_COUNT (5)
 #define BALL_SIZE (32)
@@ -163,8 +165,9 @@ Result BoxViewer::initialize()
 
 	// Initialize the current Pokémon
 	selectViewPokemon();
+	cancelMovePokemon();
 
-	sf2d_set_clear_color(RGBA8(0x40,0x40,0x40,0xFF));
+	sf2d_set_clear_color(RGBA8(0x00,0x00,0x00,0xFF));
 
 	return PARENT_STEP;
 }
@@ -180,7 +183,7 @@ Result BoxViewer::drawTopScreen()
 	sf2d_draw_texture(PHBanku::texture->resumeBackground, 0, 0);
 
 	sftd_draw_text_white(11, 40, "Game's OT");
-	sftd_draw_wtextf_white(91, 40, L"%S (%lx-%lx-%lx)", save->savedata.OTName, save->savedata.TID, save->savedata.SID, save->savedata.TSV);
+	sftd_draw_wtextf_white(91, 40, L"%S (%lu-%lu-%lu)", save->savedata.OTName, save->savedata.TID, save->savedata.SID, save->savedata.TSV);
 
 	// If there is a current Pokémon
 	if (vPkm.pkm && !vPkm.emptySlot)
@@ -347,18 +350,23 @@ Result BoxViewer::drawBotScreen()
 				if (cursorBox.inslot == SLOT_NO_SELECTION)
 				{
 					// Draw the Pokémon icon on the box title
-					pkm_x = boxShift + BACKGROUND_WIDTH / 2 - PKM_WIDTH / 2;
+					pkm_x = boxShift + (BACKGROUND_WIDTH - PKM_WIDTH) / 2;
 					pkm_y = 10;
 				}
 				else
 				{
 					// Draw the Pokémon icon on the current slot a bit shifted
-					pkm_x = boxShift + 10 + (cursorBox.inslot % 6) * PKM_WIDTH;
-					pkm_y = PKM_BOX_SHIFT_HEIGHT - 12 + (cursorBox.inslot / 6) * PKM_HEIGHT;
+					pkm_x = boxShift + cursorBox.col * PKM_WIDTH;
+					pkm_y = PKM_BOX_MARGIN_TOP - 12 + cursorBox.row * PKM_HEIGHT;
 				}
 			}
 
-			drawPokemon(sPkm, pkm_x, pkm_y);
+			drawPokemon(sPkm, pkm_x, pkm_y, true);
+
+			if (!isPkmDragged)
+			{
+				sf2d_draw_texture_part(PHBanku::texture->boxTiles, pkm_x + 20, pkm_y - 11, (u8) cursorType * 32, 32, 32, 32);
+			}
 		}
 		else
 		{
@@ -371,7 +379,16 @@ Result BoxViewer::drawBotScreen()
 			else
 			{
 				// Draw the cursor icon on the current slot a bit shifted
-				sf2d_draw_texture_part(PHBanku::texture->boxTiles, boxShift + 16 + (cursorBox.inslot % 6) * PKM_WIDTH + cursorPositionOffY / 2, 28 + (cursorBox.inslot / 6) * PKM_HEIGHT - cursorPositionOffY, (u8) cursorType * 32, 32, 32, 32);
+				sf2d_draw_texture_part(PHBanku::texture->boxTiles, boxShift + 16 + (cursorBox.inslot % 6) * PKM_WIDTH + cursorPositionOffY / 2, PKM_BOX_MARGIN_TOP - 7 + (cursorBox.inslot / 6) * PKM_HEIGHT - cursorPositionOffY, (u8) cursorType * 32, 32, 32, 32);
+			}
+		}
+
+		if (sPkmCount > 0)
+		{
+			// Draw the selected Pokémon
+			for (u8 i = 0; i < 10 && i < sPkmCount; i++)
+			{
+				drawPokemon(sPkms[i], middleBoxShift, 20*i, false);
 			}
 		}
 	}
@@ -430,20 +447,16 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 		}
 		else if (kHeld & KEY_TOUCH)
 		{
-			// If there is a Pokémon currently dragged
-			if (isPkmDragged)
-			{
-				s16 boxShift = cursorBox.inBank ? BK_BOX_SHIFT_USED : PC_BOX_SHIFT_USED;
+			s16 boxShift = cursorBox.inBank ? BK_BOX_SHIFT_USED : PC_BOX_SHIFT_USED;
 
-				// If the box arrows are touched held once
-				if (touchWithin(touch->px, touch->py, boxShift + 4, 18, 16, 24) && !touchWithin(this->touch.px, this->touch.py, boxShift + 4, 18, 16, 24)) boxMod--;
-				else if (touchWithin(touch->px, touch->py, boxShift + 200, 18, 16, 24) && !touchWithin(this->touch.px, this->touch.py, boxShift + 200, 18, 16, 24)) boxMod++;
+			// If the box arrows are touched held once
+			if (touchWithin(touch->px, touch->py, boxShift + 4, 18, 16, 24) && !touchWithin(this->touch.px, this->touch.py, boxShift + 4, 18, 16, 24)) boxMod--;
+			else if (touchWithin(touch->px, touch->py, boxShift + 200, 18, 16, 24) && !touchWithin(this->touch.px, this->touch.py, boxShift + 200, 18, 16, 24)) boxMod++;
 
-				boxShift = cursorBox.inBank ? PC_BOX_SHIFT_UNUSED : BK_BOX_SHIFT_UNUSED;
+			boxShift = cursorBox.inBank ? PC_BOX_SHIFT_UNUSED : BK_BOX_SHIFT_UNUSED;
 
-				// If the other box (PC|BK) is touched held
-				if (touchWithin(touch->px, touch->py, boxShift, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT)) { cursorBox.inBank = !cursorBox.inBank; boolMod = bboxMod = true; }
-			}
+			// If the other box (PC|BK) is touched held
+			if (touchWithin(touch->px, touch->py, boxShift, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT)) { cursorBox.inBank = !cursorBox.inBank; boolMod = bboxMod = true; }
 		}
 
 		if (boxMod || rowMod || colMod)
@@ -525,11 +538,33 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 	{
 		if (kDown & KEY_A)
 		{
-			// Move a Pokémon (grab and drop)
-			selectMovePokemon();
+			// Toggle a Pokémon (check & move)
+			selectMultiMovePokemon(true);
 
-			// TODO: Feature to Move Pokémon (multiple-grab and multiple-drop)
-			// selectMultiMovePokemon();
+			if (vPkm.pkm)
+			{
+				checkToggle = vPkm.pkm->checked;
+			}
+		}
+		else if (kHeld & KEY_A)
+		{
+			if (vPkm.pkm && vPkm.pkm->checked != checkToggle)
+			{
+				// Toggle a Pokémon (check & move)
+				selectMultiMovePokemon(true);
+			}
+		}
+
+		if (kDown & KEY_B)
+		{
+			// Cancel the checked
+			cancelMovePokemon();
+		}
+
+		if (kDown & KEY_X)
+		{
+			// Move the checked Pokémon to the current box
+			selectMultiMovePokemon(false);
 		}
 
 		if (kDown & KEY_Y)
@@ -544,7 +579,7 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 
 
 	{
-		if (bboxMod);
+		if (bboxMod); // Cancel seletion if the (PC|BK) changed
 		else if (kDown & KEY_TOUCH)
 		{
 			s16 boxShift = cursorBox.inBank ? BK_BOX_SHIFT_USED : PC_BOX_SHIFT_USED;
@@ -553,39 +588,75 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 			u16 py = touch->py;
 			this->touch = *touch;
 
-			// If the TouchArea is within the SingleSelect CursorType button area
-			if (touchWithin(px, py, boxShift + 22, 0, 59, 16))
+			if (!sPkm && sPkmCount == 0)
 			{
-				selectCursorType(CursorType::SingleSelect);
+				// If the TouchArea is within the SingleSelect CursorType button area
+				if (touchWithin(px, py, boxShift + 22, 0, 59, 16))
+				{
+					selectCursorType(CursorType::SingleSelect);
+				}
+				// If the TouchArea is within the QuickSelect CursorType button area
+				else if (touchWithin(px, py, boxShift + 86, 0, 59, 16))
+				{
+					selectCursorType(CursorType::QuickSelect);
+				}
+				// If the TouchArea is within the MultiSelect CursorType button area
+				else if (touchWithin(px, py, boxShift + 150, 0, 59, 16))
+				{
+					selectCursorType(CursorType::MultiSelect);
+				}
+				// If the TouchArea is within the SwapBox button area
+				else if (touchWithin(px, py, middleBoxShift + 10, 215, 20, 20))
+				{
+					// Swap the two boxes (PC|BK)
+					save->moveBox(cursorBox.boxPC, false, cursorBox.boxBK, true);
+				}
 			}
-			// If the TouchArea is within the QuickSelect CursorType button area
-			else if (touchWithin(px, py, boxShift + 86, 0, 59, 16))
+			else
 			{
-				selectCursorType(CursorType::QuickSelect);
+				if (cursorType == CursorType::MultiSelect)
+				{
+					// If the TouchArea is within the MultiSelect CursorType button area
+					if (touchWithin(px, py, boxShift + 150, 0, 59, 16))
+					{
+						cancelMovePokemon();
+					}
+				}
 			}
-			// If the TouchArea is within the MultiSelect CursorType button area
-			else if (touchWithin(px, py, boxShift + 150, 0, 59, 16))
-			{
-				selectCursorType(CursorType::MultiSelect);
-			}
+
 			// If the TouchArea is within the Pokémon icons area of the box
-			else if (touchWithin(px, py, boxShift, PKM_BOX_SHIFT_HEIGHT, BACKGROUND_WIDTH - 10, BACKGROUND_HEIGHT - PKM_BOX_SHIFT_HEIGHT))
+			if (touchWithin(px, py, boxShift, PKM_BOX_MARGIN_TOP, BACKGROUND_WIDTH - PKM_BOX_MARGIN_RIGHT, BACKGROUND_HEIGHT - PKM_BOX_MARGIN_TOP))
 			{
 				// If no Pokémon is currently selected or dragged
 				if (!sPkm && !isPkmDragged)
 				{
 					// Move the cursor to the new slot
-					cursorBox.row = (py - PKM_BOX_SHIFT_HEIGHT) / PKM_HEIGHT;
+					cursorBox.row = (py - PKM_BOX_MARGIN_TOP) / PKM_HEIGHT;
 					cursorBox.col = (px - boxShift) / PKM_WIDTH;
 
 					// Update the current Pokémon
 					selectViewPokemon();
 
-					// Move the current Pokémon (grab)
-					selectMovePokemon();
+					if (cursorType == CursorType::MultiSelect)
+					{
+						// Select the current Pokémon (check)
+						selectMultiMovePokemon(true);
 
-					if (!vPkm.emptySlot)
-						isPkmDragged = true;
+						if (vPkm.pkm)
+						{
+							checkToggle = vPkm.pkm->checked;
+						}
+					}
+					else
+					{
+						// Move the current Pokémon (grab)
+						selectMovePokemon();
+
+						if (!vPkm.emptySlot)
+						{
+							isPkmDragged = true;
+						}
+					}
 				}
 				// If a Pokémon is currently selected and dragged
 				else
@@ -594,7 +665,7 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 					u16 oldCol = cursorBox.col;
 
 					// Move the cursor to the new slot
-					cursorBox.row = (py - PKM_BOX_SHIFT_HEIGHT) / PKM_HEIGHT;
+					cursorBox.row = (py - PKM_BOX_MARGIN_TOP) / PKM_HEIGHT;
 					cursorBox.col = (px - boxShift) / PKM_WIDTH;
 
 					// Update the current Pokémon
@@ -602,23 +673,48 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 
 					// And drop the Pokémon if one is held and it is the same current slot (mean double tap to move a held Pokémon)
 					if (isPkmHeld && oldRow == cursorBox.row && oldCol == cursorBox.col)
+					{
 						selectMovePokemon();
-				}
-			}
-			// If the TouchArea is within the SwapBox button area
-			else if (touchWithin(px, py, middleBoxShift + 10, 215, 20, 20))
-			{
-				if (!isPkmHeld && !isPkmDragged)
-				{
-					// Swap the two boxes (PC|BK)
-					save->moveBox(cursorBox.boxPC, false, cursorBox.boxBK, true);
+					}
 				}
 			}
 		}
 		else if (kHeld & KEY_TOUCH)
 		{
-			// Keep the last touched held position
-			this->touch = *touch;
+			if (cursorType == CursorType::MultiSelect)
+			{
+				s16 boxShift = cursorBox.inBank ? BK_BOX_SHIFT_USED : PC_BOX_SHIFT_USED;
+				u16 px = touch->px;
+				u16 py = touch->py;
+
+				// If the TouchArea is within the Pokémon icons area of the box
+				if (touchWithin(px, py, boxShift, PKM_BOX_MARGIN_TOP, BACKGROUND_WIDTH - PKM_BOX_MARGIN_RIGHT, BACKGROUND_HEIGHT - PKM_BOX_MARGIN_TOP))
+				{
+					s16 row = (py - PKM_BOX_MARGIN_TOP) / PKM_HEIGHT;
+					s16 col = (px - boxShift) / PKM_WIDTH;
+
+					// If the touch position is not the same slot as before.
+					if (cursorBox.row != row || cursorBox.col != col)
+					{
+						// Move the cursor to the new slot
+						cursorBox.row = row;
+						cursorBox.col = col;
+
+						// Update the current Pokémon
+						selectViewPokemon();
+
+						// If it has to be toggled.
+						if (vPkm.pkm->checked != checkToggle)
+						{
+							// Select the current Pokémon (check)
+							selectMultiMovePokemon(true);
+						}
+					}
+				}
+			}
+
+			// Keep the last touched position
+			this->touch = *touch;	
 		}
 		else if (kUp & KEY_TOUCH)
 		{
@@ -632,14 +728,15 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 			if (sPkm && isPkmDragged)
 			{
 				// If the TouchArea is within the Pokémon icons area of the box
-				if (touchWithin(px, py, boxShift, 50, BACKGROUND_WIDTH, BACKGROUND_HEIGHT))
+				if (touchWithin(px, py, boxShift, PKM_BOX_MARGIN_TOP, BACKGROUND_WIDTH - PKM_BOX_MARGIN_RIGHT, BACKGROUND_HEIGHT - PKM_BOX_MARGIN_TOP))
 				{
 					// Move the cursor to the new slot
-					cursorBox.row = (py - PKM_BOX_SHIFT_HEIGHT) / PKM_HEIGHT;
+					cursorBox.row = (py - PKM_BOX_MARGIN_TOP) / PKM_HEIGHT;
 					cursorBox.col = (px - boxShift) / PKM_WIDTH;
 
 					// Update the current Pokémon
 					selectViewPokemon();
+
 					// Move the dragged Pokémon (drop)
 					selectMovePokemon();
 				}
@@ -706,9 +803,7 @@ void BoxViewer::drawBox(box_s* box, int16_t x, int16_t y, bool cursor)
 	if (cursor)
 	{
 		// Draw CursorType buttons (Red|Blue|Green)
-		sf2d_draw_texture_part(PHBanku::texture->boxTiles, x + 21 +   0, y,   0, 0, 64, 32);
-		sf2d_draw_texture_part(PHBanku::texture->boxTiles, x + 21 +  64, y,  64, 0, 64, 32);
-		sf2d_draw_texture_part(PHBanku::texture->boxTiles, x + 21 + 128, y, 128, 0, 64, 32);
+		drawCursorButton(x, y);
 	}
 
 	// Draw the box header
@@ -732,12 +827,12 @@ void BoxViewer::drawBox(box_s* box, int16_t x, int16_t y, bool cursor)
 	if (sPkm)
 	{
 		// Draw Pokémon icons
-		for (u8 i = 0; i < 30; i++)
+		for (u8 i = 0; i < BOX_PKM_COUNT; i++)
 		{
 			// If the Pokémon isn't the selected Pokémon
 			if (sPkm != &(box->slot[i]))
 			{
-				drawPokemon(&box->slot[i], x + (i % BOX_COL_PKM_COUNT) * PKM_WIDTH, y + PKM_BOX_SHIFT_HEIGHT + (i / BOX_COL_PKM_COUNT) * PKM_HEIGHT);
+				drawPokemon(&box->slot[i], x + (i % BOX_COL_PKM_COUNT) * PKM_WIDTH, y + PKM_BOX_MARGIN_TOP + (i / BOX_COL_PKM_COUNT) * PKM_HEIGHT, false);
 			}
 		}
 	}
@@ -745,42 +840,55 @@ void BoxViewer::drawBox(box_s* box, int16_t x, int16_t y, bool cursor)
 	else
 	{
 		// Draw Pokémon icons
-		for (u8 i = 0; i < 30; i++)
+		for (u8 i = 0; i < BOX_PKM_COUNT; i++)
 		{
-			drawPokemon(&box->slot[i], x + (i % BOX_COL_PKM_COUNT) * PKM_WIDTH, y + PKM_BOX_SHIFT_HEIGHT + (i / BOX_COL_PKM_COUNT) * PKM_HEIGHT);
+			drawPokemon(&box->slot[i], x + (i % BOX_COL_PKM_COUNT) * PKM_WIDTH, y + PKM_BOX_MARGIN_TOP + (i / BOX_COL_PKM_COUNT) * PKM_HEIGHT, false);
 		}
 	}
 }
 
 
 // --------------------------------------------------
-void BoxViewer::drawPokemon(pkm_s* pkm, int16_t x, int16_t y)
+void BoxViewer::drawPokemon(pkm_s* pkm, int16_t x, int16_t y, bool shadow)
 // --------------------------------------------------
 {
 	if (pkm->speciesID == 0) return;
 
-	// sf2d_draw_rectangle(x, y, PKM_WIDTH, PKM_HEIGHT, RGBA8(0x55,0xAA,0x88,0xAA));
+	// sf2d_draw_rectangle(x, y, PKM_WIDTH, PKM_HEIGHT, RGBA8(0x00,0x00,0x00,0x22));
 
 	sf2d_texture* pkmIcons = PHBanku::texture->pkmIcons;
+	if (pkm->isShiny) pkmIcons = PHBanku::texture->pkmShinyIcons;
+
+	// Draw the shadow
+	if (shadow)
+	{
+		sf2d_draw_texture_part_blend(pkmIcons, x+4, y+4, ((pkm->speciesID) % 25) * 40, ((pkm->speciesID) / 25) * 30, 40, 30, RGBA8(0x00,0x00,0x00,0x55));
+	}
 
 	if (pkm->isEggy)
 	{
-		if (pkm->isShiny) pkmIcons = PHBanku::texture->pkmShinyIcons;
-
-		// Draw the egg icon
-		sf2d_draw_texture_part_blend(pkmIcons, x, y, ((pkm->speciesID-1) % 25) * 40, ((pkm->speciesID-1) / 25) * 30, 40, 30, RGBA8(0xFF,0xFF,0xFF,0xAA));
+		// Draw the egg+Pokémon icon
+		sf2d_draw_texture_part_blend(pkmIcons, x, y, ((pkm->speciesID) % 25) * 40, ((pkm->speciesID) / 25) * 30, 40, 30, RGBA8(0xFF,0xFF,0xFF,0xAA));
 		sf2d_draw_texture_part_blend(pkmIcons, x, y, ((EGG_ID) % 25) * 40, ((EGG_ID) / 25) * 30, 40, 30, RGBA8(0xFF,0xFF,0xFF,0xAA));
-
-		// TODO: Draw item
 	}
 	else
 	{
-		if (pkm->isShiny) pkmIcons = PHBanku::texture->pkmShinyIcons;
-
 		// Draw the Pokémon icon
-		sf2d_draw_texture_part(pkmIcons, x, y, ((pkm->speciesID-1) % 25) * 40, ((pkm->speciesID-1) / 25) * 30, 40, 30);
+		sf2d_draw_texture_part(pkmIcons, x, y, ((pkm->speciesID) % 25) * 40, ((pkm->speciesID) / 25) * 30, 40, 30);
 
-		// TODO: Draw item
+		// Draw the item
+		if (pkm->itemID > 0)
+		{
+			// TODO: Draw the item
+			sf2d_draw_rectangle(x, y, 16, 16, RGBA8(0xDD,0x88,0x22,0xAA));
+		}
+	}
+
+	// Draw the checkbox
+	if (pkm->checked)
+	{
+		// TODO: Draw a check mark
+		sf2d_draw_rectangle(x, y, 40, 30, RGBA8(0x55,0xAA,0x88,0xAA));
 	}
 }
 
@@ -792,25 +900,52 @@ void BoxViewer::drawPokemonScale(pkm_s* pkm, int16_t x, int16_t y, float scale)
 	if (pkm->speciesID == 0) return;
 
 	sf2d_texture* pkmIcons = PHBanku::texture->pkmIcons;
+	if (pkm->isShiny) pkmIcons = PHBanku::texture->pkmShinyIcons;
+
+	// Draw the shadow
+	{
+		sf2d_draw_texture_part_scale_blend(pkmIcons, x+2*scale, y+2*scale, ((pkm->speciesID) % 25) * 40, ((pkm->speciesID) / 25) * 30, 40, 30, scale, scale, RGBA8(0x00,0x00,0x00,0x55));
+	}
 
 	if (pkm->isEggy)
 	{
-		if (pkm->isShiny) pkmIcons = PHBanku::texture->pkmShinyIcons;
-
-		// Draw the egg icon
-		sf2d_draw_texture_part_scale(pkmIcons, x, y, ((pkm->speciesID-1) % 25) * 40, ((pkm->speciesID-1) / 25) * 30, 40, 30, scale, scale);
+		// Draw the egg+Pokémon icon
+		sf2d_draw_texture_part_scale(pkmIcons, x, y, ((pkm->speciesID) % 25) * 40, ((pkm->speciesID) / 25) * 30, 40, 30, scale, scale);
 		sf2d_draw_texture_part(pkmIcons, x, y + 30 * (scale - 1), ((EGG_ID) % 25) * 40, ((EGG_ID) / 25) * 30, 40, 30);
-	
-		// TODO: Draw item
 	}
 	else
 	{
-		if (pkm->isShiny) pkmIcons = PHBanku::texture->pkmShinyIcons;
-
 		// Draw the Pokémon icon
-		sf2d_draw_texture_part_scale(pkmIcons, x, y, ((pkm->speciesID-1) % 25) * 40, ((pkm->speciesID-1) / 25) * 30, 40, 30, scale, scale);
+		sf2d_draw_texture_part_scale(pkmIcons, x, y, ((pkm->speciesID) % 25) * 40, ((pkm->speciesID) / 25) * 30, 40, 30, scale, scale);
 	
-		// TODO: Draw item
+		// Draw the item
+		if (pkm->itemID > 0)
+		{
+			// TODO: Draw item
+		}
+	}
+}
+
+
+// --------------------------------------------------
+void BoxViewer::drawCursorButton(int16_t x, int16_t y)
+// --------------------------------------------------
+{
+	if (!sPkm && sPkmCount == 0)
+	{
+		sf2d_draw_texture_part(PHBanku::texture->boxTiles, x + 21 +   0, y,   0, 0, 64, 32);
+		sf2d_draw_texture_part(PHBanku::texture->boxTiles, x + 21 +  64, y,  64, 0, 64, 32);
+		sf2d_draw_texture_part(PHBanku::texture->boxTiles, x + 21 + 128, y, 128, 0, 64, 32);
+	}
+	else
+	{
+		sf2d_draw_texture_part_blend(PHBanku::texture->boxTiles, x + 21 +   0, y,   0, 0, 64, 32, RGBA8(0xCC,0xCC,0xCC,0xAA));
+		sf2d_draw_texture_part_blend(PHBanku::texture->boxTiles, x + 21 +  64, y,  64, 0, 64, 32, RGBA8(0xCC,0xCC,0xCC,0xAA));
+
+		if (cursorType == CursorType::MultiSelect)
+			sf2d_draw_texture_part(PHBanku::texture->boxTiles, x + 21 + 128, y, 128, 0, 64, 32);
+		else
+			sf2d_draw_texture_part_blend(PHBanku::texture->boxTiles, x + 21 + 128, y, 128, 0, 64, 32, RGBA8(0xCC,0xCC,0xCC,0xAA));
 	}
 }
 
@@ -828,6 +963,7 @@ void BoxViewer::selectCursorType(CursorType cursorType)
 // --------------------------------------------------
 {
 	this->cursorType = cursorType;
+	cancelMovePokemon();
 }
 
 
@@ -898,8 +1034,8 @@ void BoxViewer::selectViewPokemon()
 void BoxViewer::selectMovePokemon()
 // --------------------------------------------------
 {
-	computeSlot(&cursorBox);
 	// Compute the current cursor slot
+	computeSlot(&cursorBox);
 
 	// If no Pokémon is currently selected
 	if (!sPkm)
@@ -947,13 +1083,66 @@ void BoxViewer::selectMovePokemon()
 
 
 // --------------------------------------------------
-void BoxViewer::selectMultiMovePokemon()
+void BoxViewer::selectMultiMovePokemon(bool check)
 // --------------------------------------------------
 {
 	// Compute the current cursor slot
 	computeSlot(&cursorBox);
 
-	// TODO: Stuff here!
+	if (check)
+	{
+		// If there is a real Pokémon to check
+		if (vPkm.pkm && !vPkm.emptySlot)
+		{
+			// If the Pokémon is already checked, uncheck it
+			if (vPkm.pkm->checked)
+			{
+				u8 i;
+				sPkmCount--;
+				vPkm.pkm->checked = false;
+				for (i = 0; sPkms[i] != vPkm.pkm; i++);
+				for (; i < sPkmCount; i++) sPkms[i] = sPkms[i+1];
+			}
+			// If there is enough place in the checked list
+			else if (sPkmCount < BOX_PKM_COUNT)
+			{
+				vPkm.pkm->checked = true;
+				sPkms[sPkmCount] = vPkm.pkm;
+				sPkmBanked[sPkmCount] = cursorBox.inBank;
+				sPkmCount++;
+			}
+		}
+	}
+	else
+	{
+		u8 vPkmCount = 0;
+		box_s* box = (cursorBox.inBank ? vBKBox : vPCBox);
+		
+		// Count the free slots
+		for (u8 i = 0; i < BOX_PKM_COUNT; i++)
+		{
+			if (save->isPkmEmpty(&box->slot[i]))
+			{
+				vPkmCount++;
+			}
+		}
+
+		// If there is enough free slot
+		if (vPkmCount >= sPkmCount)
+		{
+			// Move the checked Pokémon to the current box
+			for (u8 i = 0, ii = 0; ii < sPkmCount; ii++)
+			{
+				// Find the next empty slot
+				for (; !save->isPkmEmpty(&box->slot[i]) && i < BOX_PKM_COUNT; i++);
+				save->movePkm(sPkms[ii], &box->slot[i], sPkmBanked[ii], cursorBox.inBank);
+				box->slot[i].checked = false;
+				i++;
+			}
+
+			cancelMovePokemon();
+		}
+	}
 }
 
 
@@ -967,6 +1156,13 @@ void BoxViewer::cancelMovePokemon()
 
 	// Reset the selected
 	sPkm = NULL;
+	for (u8 ii = 0; ii < BOX_PKM_COUNT; ii++)
+	{
+		if (sPkms[ii]) sPkms[ii]->checked = false;
+		sPkmBanked[ii] = false;
+		sPkms[ii] = NULL;
+	}
+	sPkmCount = 0;
 }
 
 

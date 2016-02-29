@@ -97,10 +97,14 @@ class BoxViewer : public Viewer
 		CursorBox_s cursorBox;
 		CursorType cursorType = CursorType::SingleSelect;
 		touchPosition touch;
-		bool isPkmHeld = false;			///< Is a Pokémon held using the buttons?
-		bool isPkmDragged = false;		///< Is a Pokémon dragged using the stylus?
+		bool isPkmHeld = false;		///< Is a Pokémon held using the buttons?
+		bool isPkmDragged = false;	///< Is a Pokémon dragged using the stylus?
+		bool checkToggle;			///< How to toggle the checked Pokémon?
 		BoxSlot_s sSlot;
 		pkm_s* sPkm = NULL;
+		pkm_s* sPkms[BOX_PKM_COUNT];
+		bool sPkmBanked[BOX_PKM_COUNT];
+		u8 sPkmCount;
 		vPkm_s vPkm;
 		box_s* vPCBox = NULL;
 		box_s* vBKBox = NULL;
@@ -111,8 +115,9 @@ class BoxViewer : public Viewer
 		bool cursorPositionDirY = true;
 
 		void drawBox(box_s* box, int16_t x, int16_t y, bool cursor);
-		void drawPokemon(pkm_s* pkm, int16_t x, int16_t y);
+		void drawPokemon(pkm_s* pkm, int16_t x, int16_t y, bool shadow);
 		void drawPokemonScale(pkm_s* pkm, int16_t x, int16_t y, float scale);
+		void drawCursorButton(int16_t x, int16_t y);
 
 		bool isWonderBox(u16 boxId, bool inBank);
 
@@ -121,7 +126,7 @@ class BoxViewer : public Viewer
 		void selectViewBox();
 		void selectViewPokemon();
 		void selectMovePokemon();
-		void selectMultiMovePokemon();
+		void selectMultiMovePokemon(bool check);
 		void cancelMovePokemon();
 		void populateVPkmData(vPkm_s* vPkm);
 };

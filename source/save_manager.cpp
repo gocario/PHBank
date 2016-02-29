@@ -528,6 +528,7 @@ void SaveManager::loadPkmPk6(pkm_s* pkm)
 {
 	if (!pkm || !pkm->pk6) return;
 
+	pkm->checked = false;
 	pkm->moved = false;
 	pkm->modified = false;
 	pkm->isEggy = Pokemon::isEgg(pkm);
@@ -795,7 +796,7 @@ box_s* SaveManager::getWBox(void)
 // ------------------------------------
 {
 	// printf("getWBox(): %p\n", &bankdata.bk.wbox);
-	
+
 	return &bankdata.bk.wbox;
 }
 

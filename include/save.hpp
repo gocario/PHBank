@@ -33,11 +33,12 @@ struct pkm_s
 	ek6_t* ek6 = NULL;	///< Pointer to MainBuffer. (don't free)
 	pk6_t* pk6 = NULL;	///< Pointer to OwnBuffer. (do free)
 	bool fromBank : 1;	///< If the Pokémon was in the bank.
+	bool checked : 1;	///< If the Pokémon has been checked for multi-select.
 	bool moved : 1;		///< If the Pokémon has moved.
 	bool modified : 1;	///< If the Pokémon was modified.
 	bool isEggy : 1;	///< If the Pokémon is an egg.
 	bool isShiny : 1;	///< If the Pokémon is shiny.
-	unsigned: 3;
+	unsigned: 2;
 
 	u16 speciesID;		///< The species of the Pokémon.
 	u16 itemID;			///< The held item of the Pokémon.
