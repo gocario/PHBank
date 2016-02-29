@@ -21,6 +21,9 @@ void sftd_draw_text_black(const u16 x, const u16 y, const char* text, ...);
 void sftd_draw_wtext_pkm(uint16_t x, uint16_t y, const uint32_t* text);
 void sftd_draw_wtext_white(uint16_t x, uint16_t y, const uint32_t* text);
 void sftd_draw_wtext_black(uint16_t x, uint16_t y, const uint32_t* text);
+void sftd_draw_wtextf_pkm(uint16_t x, uint16_t y, const wchar_t* text, ...);
+void sftd_draw_wtextf_white(uint16_t x, uint16_t y, const wchar_t* text, ...);
+void sftd_draw_wtextf_black(uint16_t x, uint16_t y, const wchar_t* text, ...);
 
 #ifdef __cplusplus
 }

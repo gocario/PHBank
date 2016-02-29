@@ -180,7 +180,7 @@ Result BoxViewer::drawTopScreen()
 	sf2d_draw_texture(PHBanku::texture->resumeBackground, 0, 0);
 
 	sftd_draw_text_white(11, 40, "Game's OT");
-	sftd_draw_wtextf(font, 91, 40, RGBA8(0xFF,0xFF,0xFF,0xFF), 12, L"%S (%lx-%lx-%lx)", save->savedata.OTName, save->savedata.TID, save->savedata.SID, save->savedata.TSV);
+	sftd_draw_wtextf_white(91, 40, L"%S (%lx-%lx-%lx)", save->savedata.OTName, save->savedata.TID, save->savedata.SID, save->savedata.TSV);
 
 	// If there is a current Pokémon
 	if (vPkm.pkm && !vPkm.emptySlot)
@@ -227,23 +227,23 @@ Result BoxViewer::drawTopScreen()
 		sftd_draw_text_white(x+130, y, "% 2u", vPkm.ivs[Stat::HP]);
 		sftd_draw_text_white(x+160, y, "% 3u", vPkm.evs[Stat::HP]);
 		sftd_draw_text_white(x, (y+=15), "Attack");
-		sftd_draw_text_white(x+100, y, "% 3u", vPkm.stats[Stat::ATK]);
+		sftd_draw_text_white(x+98, y, "% 3u", vPkm.stats[Stat::ATK]);
 		sftd_draw_text_white(x+130, y, "% 2u", vPkm.ivs[Stat::ATK]);
 		sftd_draw_text_white(x+160, y, "% 3u", vPkm.evs[Stat::ATK]);
 		sftd_draw_text_white(x, (y+=15), "Defense");
-		sftd_draw_text_white(x+100, y, "% 3u", vPkm.stats[Stat::DEF]);
+		sftd_draw_text_white(x+98, y, "% 3u", vPkm.stats[Stat::DEF]);
 		sftd_draw_text_white(x+130, y, "% 2u", vPkm.ivs[Stat::DEF]);
 		sftd_draw_text_white(x+160, y, "% 3u", vPkm.evs[Stat::DEF]);
 		sftd_draw_text_white(x, (y+=15), "Sp.Attack");
-		sftd_draw_text_white(x+100, y, "% 3u", vPkm.stats[Stat::SPA]);
+		sftd_draw_text_white(x+98, y, "% 3u", vPkm.stats[Stat::SPA]);
 		sftd_draw_text_white(x+130, y, "% 2u", vPkm.ivs[Stat::SPA]);
 		sftd_draw_text_white(x+160, y, "% 3u", vPkm.evs[Stat::SPA]);
 		sftd_draw_text_white(x, (y+=15), "Sp.Defense");
-		sftd_draw_text_white(x+100, y, "% 3u", vPkm.stats[Stat::SPD]);
+		sftd_draw_text_white(x+98, y, "% 3u", vPkm.stats[Stat::SPD]);
 		sftd_draw_text_white(x+130, y, "% 2u", vPkm.ivs[Stat::SPD]);
 		sftd_draw_text_white(x+160, y, "% 3u", vPkm.evs[Stat::SPD]);
 		sftd_draw_text_white(x, (y+=15), "Speed");
-		sftd_draw_text_white(x+100, y, "% 3u", vPkm.stats[Stat::SPE]);
+		sftd_draw_text_white(x+98, y, "% 3u", vPkm.stats[Stat::SPE]);
 		sftd_draw_text_white(x+130, y, "% 2u", vPkm.ivs[Stat::SPE]);
 		sftd_draw_text_white(x+160, y, "% 3u", vPkm.evs[Stat::SPE]);
 		sftd_draw_text_white(x, (y += 15), "Nature");
@@ -255,8 +255,7 @@ Result BoxViewer::drawTopScreen()
 
 		x = 246;
 		y = 147 - 15 - 2;
-		sftd_draw_text_white(x, (y += 15), "Hidden Power");
-		sftd_draw_wtext_white(x+90, y, vPkm.hpType);
+		sftd_draw_wtextf_white(x, (y += 15), L"Hidden Power   %S", vPkm.hpType);
 		sftd_draw_text_white(x, (y += 15), "Moves");
 		sftd_draw_wtext_white(x+10, (y += 15), vPkm.moves[0]);
 		sftd_draw_wtext_white(x+10, (y += 15), vPkm.moves[1]);
