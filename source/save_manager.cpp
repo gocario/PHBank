@@ -405,9 +405,14 @@ void SaveManager::loadSaveData(void)
 		if (savedata.pc.boxUnlocked < 30) savedata.pc.boxUnlocked = 30;
 		for (u16 iB = 0; iB < savedata.pc.boxUnlocked; iB++)
 		{
+			savedata.pc.box[iB].count = 0;
+
 			for (u16 iP = 0; iP < BOX_PKM_COUNT; iP++)
 			{
 				loadPkmPC(iB, iP);
+
+				if (!isSlotEmpty(iB, iP, false))
+					savedata.pc.box[iB].count++;
 			}
 
 			unicodeToChar(savedata.pc.box[iB].title, (u16*)(savebuffer + offsetPCLayout + 0x22 * iB), 0x11);
@@ -435,9 +440,14 @@ void SaveManager::loadBankData(void)
 	bankdata.bk.boxUnlocked = 100; // ASK?
 	for (u16 iB = 0; iB < bankdata.bk.boxUnlocked; iB++)
 	{
+		bankdata.bk.box[iB].count = 0;
+
 		for (u16 iP = 0; iP < BOX_PKM_COUNT; iP++)
 		{
 			loadPkmBK(iB, iP);
+
+			if (!isSlotEmpty(iB, iP, true))
+				bankdata.bk.box[iB].count++;
 		}
 
 		bankdata.bk.box[iB].title[0] = '\0';

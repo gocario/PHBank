@@ -50,10 +50,12 @@ struct pkm_s
 
 struct box_s
 {
-	pkm_s slot[BOX_PKM_COUNT];
-	char title[0x11];
-	u8 background;
-	u8 number;
+	pkm_s slot[BOX_PKM_COUNT];	///< The slots of the box.
+	char title[0x11];			///< The title of the box.
+	u8 background;				///< The background id of the box.
+	u8 number;					///< The number (id) of the box.
+	u16 count; 					///< The count of Pokémon (static).
+	// TODO: Make that variable runtime dynamic!
 };
 
 struct pc_s

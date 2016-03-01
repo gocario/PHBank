@@ -135,7 +135,7 @@ Result UltraBoxViewer::drawBotScreen()
 	// TODO: REMOVE THIS SHIT OMAGAWD, IT'S HORRIBLE
 	sf2d_draw_rectangle(0, 224, 320, 16, RGBA8(0xFF, 0xFF, 0xFF, 0xFF));
 
-	sftd_draw_text_black(8, 225, "Box: %i", cursorUBox.slot+1);
+	sftd_draw_text_black(8, 225, "Box: %i (%u/%u)", cursorUBox.slot+1, vBox->count, BOX_PKM_COUNT);
 
 	if (hasOverlayChild()) { child->drawBotScreen(); }
 	return SUCCESS_STEP;
