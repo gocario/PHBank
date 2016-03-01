@@ -579,7 +579,7 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 
 
 	{
-		if (bboxMod); // Cancel seletion if the (PC|BK) changed
+		if (bboxMod); // Cancel selection if the (PC|BK) changed
 		else if (kDown & KEY_TOUCH)
 		{
 			s16 boxShift = cursorBox.inBank ? BK_BOX_SHIFT_USED : PC_BOX_SHIFT_USED;
@@ -620,6 +620,12 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 					if (touchWithin(px, py, boxShift + 150, 0, 59, 16))
 					{
 						cancelMovePokemon();
+					}
+					// If the TouchArea is within the MiddleArea
+					else if (touchWithin(px, py, middleBoxShift, 0, BACKGROUND_SHIFT, BACKGROUND_HEIGHT))
+					{
+						// Trigger the end of the selection
+						selectMultiMovePokemon(false)
 					}
 				}
 			}
