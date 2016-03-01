@@ -101,22 +101,22 @@ Result Viewer::updateControls(const u32& kDown, const u32& kHeld, const u32& kUp
 
 
 // --------------------------------------------------
-bool Viewer::hasParent() { return (this->parent); }
+bool Viewer::hasParent() { return this->parent; }
 // --------------------------------------------------
 
 
 // --------------------------------------------------
-bool Viewer::hasChild() { return (this->child); }
+bool Viewer::hasChild() { return this->child; }
 // --------------------------------------------------
 
 
 // --------------------------------------------------
-bool Viewer::isParent() { return (this->child); }
+bool Viewer::isParent() { return this->child; }
 // --------------------------------------------------
 
 
 // --------------------------------------------------
-bool Viewer::isChild() { return (this->parent); }
+bool Viewer::isChild() { return this->parent; }
 // --------------------------------------------------
 
 
@@ -124,7 +124,7 @@ bool Viewer::isChild() { return (this->parent); }
 bool Viewer::hasRegularChild()
 // --------------------------------------------------
 {
-	return (this->hasChild()) && (child->isRegular());
+	return this->hasChild() && child->isRegular();
 }
 
 
@@ -132,7 +132,7 @@ bool Viewer::hasRegularChild()
 bool Viewer::hasOverlayChild()
 // --------------------------------------------------
 {
-	return (this->hasChild()) && (child->isOverlay());
+	return this->hasChild() && child->isOverlay();
 }
 
 
@@ -145,7 +145,7 @@ bool Viewer::hasOverlayChild()
 bool Viewer::isRegular()
 // --------------------------------------------------
 {
-	return (vType == ViewType::Regular);
+	return vType == ViewType::Regular;
 }
 
 
@@ -153,7 +153,7 @@ bool Viewer::isRegular()
 bool Viewer::isOverlay()
 // --------------------------------------------------
 {
-	return (vType == ViewType::Overlay);
+	return vType == ViewType::Overlay;
 }
 
 
@@ -174,7 +174,7 @@ void Viewer::setType(ViewType vType)
 bool Viewer::isRunning()
 // --------------------------------------------------
 {
-	return (vState == ViewState::Running) || (vState == ViewState::Continuing);
+	return vState == ViewState::Running || vState == ViewState::Continuing;
 }
 
 

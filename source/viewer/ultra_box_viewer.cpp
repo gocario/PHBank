@@ -1,16 +1,18 @@
 #include "ultra_box_viewer.hpp"
 
-#include "phbank.hpp"
+#include "text.h"
 
 #include "box_viewer.hpp"
 
 #include <stdio.h>
 
-#define SCREEN_WIDTH 320
-#define SCREEN_HEIGHT 240
+#define SCREEN_WIDTH (320)
+#define SCREEN_HEIGHT (240)
 
-#define ROW_COUNT 5
-#define COL_COUNT 8
+#define ROW_COUNT (7)
+#define COL_COUNT (10)
+#define BOX_WIDTH (32) // Real: 64
+#define BOX_HEIGHT (32) // Real: 64
 
 
 // --------------------------------------------------
@@ -64,10 +66,9 @@ UltraBoxViewer::~UltraBoxViewer()
 Result UltraBoxViewer::initialize()
 // --------------------------------------------------
 {
-	if (hasChild()) { if (child->initialize() == PARENT_STEP) ; else return CHILD_STEP; }
-	// Viewer::initialize(); // Not useful here!
+	if (hasChild()) { if (child->initialize() == PARENT_STEP); else return CHILD_STEP; }
 
-	// consoleClear();
+	consoleClear();
 	printf("Initialize();\n");
 	computeSlot(&cursorUBox);
 	selectViewBox();
@@ -87,7 +88,6 @@ Result UltraBoxViewer::drawTopScreen()
 // --------------------------------------------------
 {
 	if (hasRegularChild()) { if (child->drawTopScreen() == PARENT_STEP); else return CHILD_STEP; }
-	// Viewer::drawTopScreen(); // Not useful here!
 
 	printf("\x1B[28;0HSlot: %-2i Row: %-2i Col: %-2i", cursorUBox.slot + 1, cursorUBox.row + 1, cursorUBox.col + 1);
 
@@ -119,23 +119,23 @@ Result UltraBoxViewer::drawBotScreen()
 	{
 		for (uint16_t col = 0; col < currentColCount(row); col++)
 		{
+			// Draw the box icon
+			sf2d_draw_texture_part_scale(PHBanku::texture->boxTiles, col * BOX_WIDTH, row * BOX_HEIGHT - offsetTop, 0, 128, 64, 64, 0.5f, 0.5f);
+
 			// If the current box is the box currently selected
 			if (row == cursorUBox.row && col == cursorUBox.col)
 			{
 				// Draw the selected box icon
-				sf2d_draw_rectangle(col * 40, row * 40 - offsetTop, 40, 40, RGBA8(0x00, 0x7F, 0xFF, 0xFF));
-			}
-			else
-			{
-				// Draw the normal box icon
-				sf2d_draw_rectangle(col * 40, row * 40 - offsetTop, 40, 40, ((col % 2 == 0 && row % 2 == 1) || (col % 2 == 1 && row % 2 == 0) ? RGBA8(0xFF, 0x00, 0x00, 0xFF) : RGBA8(0x00, 0xFF, 0x00, 0xFF)));
+				sf2d_draw_rectangle(col * BOX_WIDTH, row * BOX_HEIGHT - offsetTop, BOX_WIDTH, BOX_HEIGHT, RGBA8(0x55,0xAA,0x88,0xAA));
 			}
 		}
 	}
 
 	// Draw the bottom-bar
 	// TODO: REMOVE THIS SHIT OMAGAWD, IT'S HORRIBLE
-	sf2d_draw_rectangle(0, 5 * 40, 320, 40, RGBA8(0xFF, 0xFF, 0xFF, 0xFF));
+	sf2d_draw_rectangle(0, 224, 320, 16, RGBA8(0xFF, 0xFF, 0xFF, 0xFF));
+
+	sftd_draw_text_black(8, 225, "Box: %i", cursorUBox.slot+1);
 
 	if (hasOverlayChild()) { child->drawBotScreen(); }
 	return SUCCESS_STEP;
@@ -148,9 +148,9 @@ Result UltraBoxViewer::updateControls(const u32& kDown, const u32& kHeld, const 
 {
 	if (hasRegularChild() || hasOverlayChild()) { if (child->updateControls(kDown, kHeld, kUp, touch) == PARENT_STEP); else return CHILD_STEP; }
 
-	if (kDown & KEY_B)
+	if (kDown & KEY_START)
 	{
-		// Close the viewer
+		// Savexit viewer
 		closeViewer(false);
 		return PARENT_STEP;
 	}
@@ -159,17 +159,23 @@ Result UltraBoxViewer::updateControls(const u32& kDown, const u32& kHeld, const 
 	{
 		// Close the viewer and update the box of the main viewer
 		closeViewer(true);
-		return PARENT_STEP;
+		return CHILD_STEP;
 	}
 
+	if (kDown & KEY_B)
+	{
+		// Close the viewer
+		closeViewer(false);
+		return CHILD_STEP;
+	}
 
 	{
 		bool boolMod = false;
 		int16_t rowMod = 0;
 		int16_t colMod = 0;
 
-		if (kDown & KEY_UP) { rowMod--; offsetTop -= 40; }
-		else if (kDown & KEY_DOWN) { rowMod++; offsetTop += 40; }
+		if (kDown & KEY_UP) rowMod--;
+		else if (kDown & KEY_DOWN) rowMod++;
 
 		if (kDown & KEY_LEFT) colMod--;
 		else if (kDown & KEY_RIGHT) colMod++;
@@ -179,34 +185,46 @@ Result UltraBoxViewer::updateControls(const u32& kDown, const u32& kHeld, const 
 			cursorUBox.row += rowMod;
 			cursorUBox.col += colMod;
 
-			if (cursorUBox.row < 0) { if (cursorUBox.col > colCount-1) cursorUBox.row = rowCount-2; else cursorUBox.row = rowCount-1; }
-			else if (cursorUBox.row > rowCount-1) { cursorUBox.row = 0; }
-			else if (cursorUBox.row > rowCount-2) { if (cursorUBox.col > colCount-1) if (colMod) cursorUBox.row = rowCount-1; else cursorUBox.row = 0; else cursorUBox.row = rowCount-1; }
+			if (rowCount < 6) // in pc
+			{
+				if (cursorUBox.row < 0) { if (cursorUBox.col > colCount-1) cursorUBox.row = rowCount-2; else cursorUBox.row = rowCount-1; }
+				else if (cursorUBox.row > rowCount-1) { cursorUBox.row = 0; }
+				else if (cursorUBox.row > rowCount-2) { if (cursorUBox.col > colCount-1) if (colMod) cursorUBox.row = rowCount-1; else cursorUBox.row = 0; else cursorUBox.row = rowCount-1; }
 
+				offsetTop = 0;
+			}
+			else // if in bank
+			{
+				if (cursorUBox.row < 0)
+				{
+					cursorUBox.row = rowCount + (cursorUBox.col > colCount-1 ? -2 : -1);
+					offsetTop = (rowCount > ROW_COUNT ? cursorUBox.row+1 - ROW_COUNT : 0) * BOX_HEIGHT;
+				}
+
+				if (cursorUBox.row > rowCount-1)
+				{
+					cursorUBox.row = 0;
+					offsetTop = 0;
+				}
+
+				if (cursorUBox.row > rowCount-2)
+				{
+					cursorUBox.row = (cursorUBox.col > colCount-1 && !colMod ? 0 : rowCount-1);
+				}
+
+				if (offsetTop >= cursorUBox.row * BOX_HEIGHT)
+				{
+					offsetTop = (cursorUBox.row + (cursorUBox.row > 0 ? -1 : 0)) * BOX_HEIGHT;
+				}
+
+				else if (cursorUBox.row > ROW_COUNT-2 && rowMod > 0 && offsetTop + (ROW_COUNT-2) * BOX_HEIGHT < cursorUBox.row * BOX_HEIGHT)
+				{
+					offsetTop = (cursorUBox.row + (cursorUBox.row < rowCount-1 ? 1 : 0) - ROW_COUNT) * BOX_HEIGHT;
+				}
+			}
 
 			if (cursorUBox.col < 0) cursorUBox.col = currentColCount(cursorUBox.row)-1;
 			else if (cursorUBox.col > currentColCount(cursorUBox.row)-1) cursorUBox.col = 0;
-
-
-			if (rowCount < 6)
-			{
-				offsetTop = 0;
-			}
-			else
-			{
-				if (cursorUBox.row < rowCount -2)
-				{
-					offsetTop = (cursorUBox.row -2)  * 40;
-				}
-				if (cursorUBox.row > rowCount - 3)
-				{
-					offsetTop = (rowCount - 5) * 40;
-				}
-				if (cursorUBox.row < 2)
-				{
-					offsetTop = 0;
-				}
-			}
 
 			boolMod = true;
 		}
@@ -218,32 +236,32 @@ Result UltraBoxViewer::updateControls(const u32& kDown, const u32& kHeld, const 
 		}
 	}
 
-
 	{
 		if (kDown & KEY_TOUCH)
 		{
-			this->originalTouch.py = touch->py;
+			originalTouch.py = touch->py;
 			originalOffsetTop = offsetTop;
-			// this->originalTouch.px = touch->px;
+			// originalTouch.px = touch->px;
 			// originalOffsetLeft = offsetLeft;
 
 			uint16_t px = touch->px;
 			uint16_t py = touch->py;
 
-			// if (touchWithin(px, py, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT))
+			// if (touchWithin(px, py, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT - 40))
 			// {
-				printf("\x1B[1;20H{%3u, %3u}", ((py + offsetTop) / 40), ((px + offsetLeft) / 40));
+				printf("\x1B[1;20H{%3u, %3u}", ((py + offsetTop) / BOX_WIDTH), ((px + offsetLeft) / BOX_HEIGHT));
 
 				uint16_t oldRow = cursorUBox.row;
 				uint16_t oldCol = cursorUBox.col;
 
-				cursorUBox.row = ((py + offsetTop) / 40);
-				cursorUBox.col = ((px + offsetLeft) / 40);
+				cursorUBox.row = ((py + offsetTop) / BOX_WIDTH);
+				cursorUBox.col = ((px + offsetLeft) / BOX_HEIGHT);
 
+				// If we click on the selected box
 				if (cursorUBox.row == oldRow && cursorUBox.col == oldCol)
 				{
 					closeViewer(true);
-					return PARENT_STEP;
+					return CHILD_STEP;
 				}
 				else if (cursorUBox.row < 0 || cursorUBox.row > (rowCount-1) || cursorUBox.col < 0 || cursorUBox.col > (currentColCount(cursorUBox.row)-1))
 				{
@@ -258,28 +276,30 @@ Result UltraBoxViewer::updateControls(const u32& kDown, const u32& kHeld, const 
 				}
 
 				printf("\x1B[2;20H{%3u, %3u}", cursorUBox.row, cursorUBox.col);
+
+				printf("\x1B[15;20H");
 			// }
 		}
 		else if (kHeld & KEY_TOUCH)
 		{
 			this->touch = *touch;
 
-			if (boxCount == PHBanku::save->savedata.pc.boxUnlocked)
+			if (boxCount == PHBanku::save->bankdata.bk.boxUnlocked)
 			{
 				offsetTop = originalOffsetTop + originalTouch.py - touch->py;
 				// offsetLeft = originalOffsetLeft + originalTouch.px - touch->px;
 
 				if (offsetTop < 0)
 					offsetTop = 0;
-				else if (offsetTop + 40 * 5 > 40 * (rowCount+1) - marginBottom)
-					offsetTop = 40 * (rowCount+1) - (40 * 5) - marginBottom;
+				else if (offsetTop + ROW_COUNT * BOX_HEIGHT > (rowCount-1) * BOX_HEIGHT)
+					offsetTop = (rowCount-1) * BOX_HEIGHT - ROW_COUNT * BOX_HEIGHT;
 			}
 		}
-		else if (kUp & KEY_TOUCH)
-		{
-			touch = &(this->touch);
-			printf("\x1B[3;20H{%3u, %3u} ", touch->px, touch->py);
-		}
+	}
+
+	if (kDown & KEY_Y)
+	{
+		printf("OffsetTop = %i (%i)\n", offsetTop, cursorUBox.row);
 	}
 
 	return SUCCESS_STEP;
@@ -321,6 +341,7 @@ bool UltraBoxViewer::selectViewBox()
 		printf("View Box: [@%p]\n", vBox);
 		return true;
 	}
+
 	return false;
 }
 
@@ -352,7 +373,5 @@ ViewState UltraBoxViewer::closeViewer(bool save)
 {
 	if (save) selectMoveBox();
 	this->setState(ViewState::Exiting);
-	// parent->setLStateView(StateView::Exiting);
-	// consoleClear();
 	return close();
 }

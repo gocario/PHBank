@@ -72,11 +72,9 @@ enum class CursorType : u8
 	MultiSelect = 2,
 };
 
-
 void computeSlot(CursorBox_s* cursorBox);
 void extractBoxSlot(CursorBox_s* cursorBox, BoxSlot_s* boxSlot);
 void injectBoxSlot(CursorBox_s* cursorBox, BoxSlot_s* boxSlot);
-
 
 class BoxViewer : public Viewer
 {
@@ -99,6 +97,7 @@ class BoxViewer : public Viewer
 		touchPosition touch;
 		bool isPkmHeld = false;		///< Is a Pokémon held using the buttons?
 		bool isPkmDragged = false;	///< Is a Pokémon dragged using the stylus?
+		bool isPkmChecking = false;	///< Is there Pokémon being (un)checked?
 		bool checkToggle;			///< How to toggle the checked Pokémon?
 		BoxSlot_s sSlot;
 		pkm_s* sPkm = NULL;

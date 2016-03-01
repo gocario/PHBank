@@ -6,7 +6,7 @@
 #define ULTRA_BOX_VIEWER_HPP
 
 #include "viewer.hpp"
-
+#include "phbank.hpp"
 #include "save.hpp"
 
 struct CursorUBox_s
@@ -34,8 +34,6 @@ class UltraBoxViewer : public Viewer
 		bool selectViewBox(uint16_t boxID, bool inBank);
 
 	protected:
-		sf2d_texture* tiles = NULL;
-
 		CursorUBox_s cursorUBox;
 		touchPosition touch;
 		touchPosition originalTouch;

@@ -389,7 +389,7 @@ Result BoxViewer::drawBotScreen()
 			// Draw the selected Pokémon
 			for (u8 i = 0; i < 10 && i < sPkmCount; i++)
 			{
-				drawPokemon(sPkms[i], middleBoxShift, 20*i, false);
+				drawPokemon(sPkms[i], middleBoxShift, 20 * i, false);
 			}
 		}
 	}
@@ -404,6 +404,9 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 // --------------------------------------------------
 {
 	if (hasRegularChild() || hasOverlayChild()) { if (this->child->updateControls(kDown, kHeld, kUp, touch) == PARENT_STEP); else return CHILD_STEP; }
+
+	// TODO: Detect if mediatype and the cartridge has been removed!
+	// Result FSUSER_CardSlotIsInserted(bool* inserted)
 
 	if (kDown & KEY_START)
 	{
@@ -448,16 +451,19 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 		}
 		else if (kHeld & KEY_TOUCH)
 		{
-			s16 boxShift = cursorBox.inBank ? BK_BOX_SHIFT_USED : PC_BOX_SHIFT_USED;
+			if (sPkm || isPkmChecking)
+			{
+				s16 boxShift = cursorBox.inBank ? BK_BOX_SHIFT_USED : PC_BOX_SHIFT_USED;
 
-			// If the box arrows are touched held once
-			if (touchWithin(touch->px, touch->py, boxShift + 4, 18, 16, 24) && !touchWithin(this->touch.px, this->touch.py, boxShift + 4, 18, 16, 24)) boxMod--;
-			else if (touchWithin(touch->px, touch->py, boxShift + 200, 18, 16, 24) && !touchWithin(this->touch.px, this->touch.py, boxShift + 200, 18, 16, 24)) boxMod++;
+				// If the box arrows are touched held once
+				if (touchWithin(touch->px, touch->py, boxShift + 4, 18, 16, 24) && !touchWithin(this->touch.px, this->touch.py, boxShift + 4, 18, 16, 24)) boxMod--;
+				else if (touchWithin(touch->px, touch->py, boxShift + 200, 18, 16, 24) && !touchWithin(this->touch.px, this->touch.py, boxShift + 200, 18, 16, 24)) boxMod++;
 
-			boxShift = cursorBox.inBank ? PC_BOX_SHIFT_UNUSED : BK_BOX_SHIFT_UNUSED;
+				boxShift = cursorBox.inBank ? PC_BOX_SHIFT_UNUSED : BK_BOX_SHIFT_UNUSED;
 
-			// If the other box (PC|BK) is touched held
-			if (touchWithin(touch->px, touch->py, boxShift, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT)) { cursorBox.inBank = !cursorBox.inBank; boolMod = bboxMod = true; }
+				// If the other box (PC|BK) is touched held
+				if (touchWithin(touch->px, touch->py, boxShift, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT)) { cursorBox.inBank = !cursorBox.inBank; boolMod = bboxMod = true; }
+			}
 		}
 
 		if (boxMod || rowMod || colMod)
@@ -545,6 +551,7 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 			if (vPkm.pkm)
 			{
 				checkToggle = vPkm.pkm->checked;
+				isPkmChecking = true;
 			}
 		}
 		else if (kHeld & KEY_A)
@@ -577,7 +584,6 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 			return CHILD_STEP;
 		}
 	}
-
 
 	{
 		if (bboxMod); // Cancel selection if the (PC|BK) changed
@@ -652,6 +658,7 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 						if (vPkm.pkm)
 						{
 							checkToggle = vPkm.pkm->checked;
+							isPkmChecking = true;
 						}
 					}
 					else
@@ -762,6 +769,8 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 
 				isPkmDragged = false;
 			}
+
+			isPkmChecking = false;
 		}
 	}
 
@@ -1160,6 +1169,7 @@ void BoxViewer::cancelMovePokemon()
 	// Reset the selection
 	isPkmHeld = false;
 	isPkmDragged = false;
+	isPkmChecking = false;
 
 	// Reset the selected
 	sPkm = NULL;
