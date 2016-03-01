@@ -16,13 +16,12 @@
 #include "ts.h"
 #endif
 
-extern PrintConsole currentCopy;
 extern PrintConsole* currentConsole;
 /// A very bad implementation for consoleExit, only for debug.
 PrintConsole* consoleExit(gfxScreen_t screen, PrintConsole* console)
 {
 	// TODO Future implementation!
-	memset(currentConsole, 0, sizeof(PrintConsole));
+	*currentConsole = *consoleGetDefault();
 	gfxSetScreenFormat(screen, GSP_BGR8_OES);
 	gfxSetDoubleBuffering(screen, true);
 	gspWaitForVBlank();
@@ -49,7 +48,7 @@ int main(int argc, char* argv[])
 	ret = PHBanku::texture->load();
 	if (R_FAILED(ret))
 	{
-		printf("\n\nProblem with the Texture Manager,\nplease check the previous logs\n");
+		printf("\n\nProblem with the Texture Manager: %lx,\n", ret);
 		error |= -BIT(5);
 	}
 
@@ -59,17 +58,17 @@ int main(int argc, char* argv[])
 	while (TS_Loop())
 	{
 
-	ret = FSCIA_Init(titleEntry.titleid, titleEntry.mediatype);
-
 	// Draw the static loading screen again because of ts.h
 	PHBanku::texture->drawStaticLoadingScreen();
+
+	ret = FSCIA_Init(titleEntry.titleid, titleEntry.mediatype);
 #else
 	ret = FS_Init();
 #endif
 
 	if (R_FAILED(ret))
 	{
-		printf("\n\nProblem with the Filesystem services,\nplease check the previous logs\n");
+		printf("\n\nProblem with the Filesystem services : %lx,\n", ret);
 		error |= -BIT(10);
 	}
 
@@ -80,7 +79,7 @@ int main(int argc, char* argv[])
 	ret = PHBanku::font->load();
 	if (R_FAILED(ret))
 	{
-		printf("\n\nProblem with the Font Manager,\nplease check the previous logs\n");
+		printf("\n\nProblem with the Font Manager: %lx,\n", ret);
 		error |= -BIT(4);
 	}
 
@@ -89,7 +88,7 @@ int main(int argc, char* argv[])
 	ret = PHBanku::data->load();
 	if (R_FAILED(ret))
 	{
-		printf("\n\nProblem with the Data Manager,\nplease check the previous logs\n");
+		printf("\n\nProblem with the Data Manager: %lx,\n", ret);
 		error |= -BIT(3);
 	}
 
@@ -98,7 +97,7 @@ int main(int argc, char* argv[])
 	ret = PHBanku::save->load();
 	if (R_FAILED(ret))
 	{
-		printf("\n\nProblem with the Save Manager,\nplease check the previous logs\n");
+		printf("\n\nProblem with the Save Manager: %lx,\n", ret);
 		error |= -BIT(2);
 	}
 

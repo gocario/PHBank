@@ -5,14 +5,20 @@
 namespace BankUpdater
 {
 	/// DEBUG_FUNCTION
-	inline void write(u8* buf, u32 off, u32 count)
+	static inline void write(u8* buf, u32 off, u32 count)
 	{
+		printf("[@0x%lu](%lu):\n", off, count);
 		for (u32 i = 0; i < count; i++)
 		{
 			printf("%02x ", buf[off+i]);
-			if (i % 0xF == 0) printf("\n");
+			if (i % 0x10 == 0xF) printf("\n");
 		}
 		printf("\n");
+	}
+
+	static inline uint32_t MakeMagic(char a, char b, char c, char d)
+	{
+		return (a | b << 8 | c << 16 | d << 24);
 	}
 
 	bool updateBank(bankbuffer_t bankbuffer, u32 bytesRead)
@@ -34,6 +40,8 @@ namespace BankUpdater
 			printf("\a0x00000000->0x020000B0\n");
 
 			*(u32*)(bankbuffer + 0x00) = MakeMagic('B', 'A', 'N', 'K');
+			printf("\e"); // It is really needed else it will freeze
+
 			*(u32*)(bankbuffer + 0x04) = version = 0x020000B0;
 			*(u32*)(bankbuffer + 0x20) = 0x00000100;	///< Box data offset (NEW)
 			*(u32*)(bankbuffer + 0x24) = 0x000A9FC0;	///< Box name offset (NEW)

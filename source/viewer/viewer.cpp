@@ -240,8 +240,6 @@ PrintConsole Viewer::console[2];
 ViewState Viewer::startMainLoop(Viewer* viewer)
 // --------------------------------------------------
 {
-	// sf2d_init();
-
 	viewer->initialize();
 
 	u32 kDown, kHeld, kUp;
@@ -265,6 +263,5 @@ ViewState Viewer::startMainLoop(Viewer* viewer)
 		viewer->updateControls(kDown, kHeld, kUp, &touch);
 	}
 
-	// sf2d_fini();
 	return viewer->state();
 }

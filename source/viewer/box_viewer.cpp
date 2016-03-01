@@ -167,6 +167,7 @@ Result BoxViewer::initialize()
 	selectViewPokemon();
 	cancelMovePokemon();
 
+	// Change the clear color of sf2d (not useful)
 	sf2d_set_clear_color(RGBA8(0x00,0x00,0x00,0xFF));
 
 	return PARENT_STEP;
@@ -875,7 +876,7 @@ void BoxViewer::drawPokemon(pkm_s* pkm, int16_t x, int16_t y, bool shadow)
 	{
 		// Draw the egg+Pokémon icon
 		sf2d_draw_texture_part_blend(pkmIcons, x, y, (pkm->speciesID % 25) * 40, (pkm->speciesID / 25) * 30, 40, 30, RGBA8(0xFF,0xFF,0xFF,0xAA));
-		sf2d_draw_texture_part_blend(pkmIcons, x, y, (EGG_ID % 25) * 40, (EGG_ID / 25) * 30, 40, 30, RGBA8(0xFF,0xFF,0xFF,0xAA));
+		sf2d_draw_texture_part_blend(pkmIcons, x, y, (EGG_ID % 25) * 40, (EGG_ID / 25) * 30, 40, 30, RGBA8(0xFF,0xFF,0xFF,0x88));
 	}
 	else
 	{

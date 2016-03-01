@@ -88,11 +88,6 @@ struct bankdata_s
 	bk_s bk;
 };
 
-static inline uint32_t MakeMagic(char a, char b, char c, char d)
-{
-	return a | b << 8 | c << 16 | d << 24;
-}
-
 namespace Game
 {
 	enum gameVersion_e
