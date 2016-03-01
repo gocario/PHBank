@@ -625,7 +625,7 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 					else if (touchWithin(px, py, middleBoxShift, 0, BACKGROUND_SHIFT, BACKGROUND_HEIGHT))
 					{
 						// Trigger the end of the selection
-						selectMultiMovePokemon(false)
+						selectMultiMovePokemon(false);
 					}
 				}
 			}
