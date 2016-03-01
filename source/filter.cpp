@@ -74,6 +74,7 @@ namespace Filter
 			isFiltered = false;
 
 		// printf(" School girl %s\n", (isFiltered ? "allowed" : "forbidden"));
+
 		return isFiltered;
 	}
 
@@ -89,6 +90,8 @@ namespace Filter
 		isFiltered &= Filter::filterAbilityORASExclusiv(Pokemon::ability(pkm));
 		// isFiltered &= Filter::filterSchoolGirlPikachu(Pokemon::speciesID(pkm), Pokemon::formID(pkm));
 
+		// printf("To XY %s\n", (isFiltered ? "allowed" : "forbidden"));
+
 		return isFiltered;
 	}
 
@@ -96,12 +99,16 @@ namespace Filter
 	{
 		bool isFiltered = true;
 
+		// printf("From XY %s\n", (isFiltered ? "allowed" : "forbidden"));
+
 		return isFiltered;
 	}
 
 	bool filterToORAS(pkm_s* pkm)
 	{
 		bool isFiltered = true;
+
+		// printf("To ORAS %s\n", (isFiltered ? "allowed" : "forbidden"));
 
 		return isFiltered;
 	}
@@ -111,6 +118,8 @@ namespace Filter
 		bool isFiltered = true;
 
 		isFiltered &= Filter::filterSchoolGirlPikachu(Pokemon::speciesID(pkm), Pokemon::formID(pkm));
+
+		// printf("From ORAS %s\n", (isFiltered ? "allowed" : "forbidden"));
 
 		return isFiltered;
 	}

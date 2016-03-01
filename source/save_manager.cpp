@@ -924,7 +924,7 @@ void SaveManager::moveBox(u16 boxId_1, bool inBank_1, u16 boxId_2, bool inBank_2
 {
 	printf("Transfering Pokemon... [%s]%u <-> [%s]%u\n", (inBank_1 ? "BK" : "PC"), boxId_1, (inBank_2 ? "BK" : "PC"), boxId_2);
 	for (u32 i = 0; i < BOX_PKM_COUNT; i++)
-		movePkm(getPkm(boxId_1, i, inBank_1), getPkm(boxId_2, i, inBank_2));
+		movePkm(getPkm(boxId_1, i, inBank_1), getPkm(boxId_2, i, inBank_2), inBank_1, inBank_2);
 }
 
 
@@ -940,13 +940,13 @@ bool SaveManager::filterPkm(pkm_s* pkm, bool toBank, bool fromBank)
 
 	if (Game::is(version, Game::XY))
 	{
-		if (toGame) isFiltered &= Filter::filterToXY(pkm);
-		if (fromGame) isFiltered &= Filter::filterFromXY(pkm);
+		if (toGame && fromBank) isFiltered &= Filter::filterToXY(pkm);
+		if (fromGame && toBank) isFiltered &= Filter::filterFromXY(pkm);
 	}
 	else if (Game::is(version, Game::ORAS))
 	{
-		if (toGame) isFiltered &= Filter::filterToORAS(pkm);
-		if (fromGame) isFiltered &= Filter::filterFromORAS(pkm);
+		if (toGame && fromBank) isFiltered &= Filter::filterToORAS(pkm);
+		if (fromGame && toBank) isFiltered &= Filter::filterFromORAS(pkm);
 	}
 
 	// printf("Filtering: %s\n", (isFiltered ? "allowed" : "forbidden"));
