@@ -210,11 +210,11 @@ namespace Pokedex
 				formdexBit += formID;
 
 				// Form Displayed
-				if (!alreadySeen && !alreadyDisplayed) // Not seen
+				if (!alreadySeen && !alreadyDisplayed) // Not seen nor displayed
 				{
 					{ printf("SH_FORM_DISPLAYED_FLAG\n"); setOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*(shiny+2) /* SH_FORM_DISPLAYED_OFFSET */, formdexBit, true); }
 				}
-				else // Seen
+				else // Already seen or displayed
 				{
 					// 'Fix' for filthy hackers..
 					// Should not happens in a regular use.
@@ -259,29 +259,9 @@ namespace Pokedex
 		{ printf("SH_SEEN_FLAG\n"); setOffsetBit(sav, SAV_offsetDex + 0x8 + 0x60 + 0x60*(gender) + 0x60*2*(shiny) /* SH_SEEN_OFFSET */, speciesID, true); }
 
 		// Displayed
-		if (!alreadySeen)
+		if (!alreadyDisplayed)
 		{
 			{ printf("SH_DISPLAYED_FLAG\n"); setOffsetBit(sav, SAV_offsetDex + 0x8 + 0x60*5 + 0x60*(gender) + 0x60*2*(shiny) /* SH_DISPLAYED_OFFSET */, speciesID, true); }
-		}
-		else if (!alreadyDisplayed)
-		{
-			alreadyDisplayed = false;
-			for (u8 i = 0; i < 4; i++)
-			{
-				if (getOffsetBit(sav, SAV_offsetDex + 0x8 + 0x60*5 + 0x60*(i%2) + 0x60*2*(i/2) /* SH_DISPLAYED_OFFSET */, i))
-				{
-					if (!getOffsetBit(sav, SAV_offsetDex + 0x8 + 0x60 + 0x60*(i%2) + 0x60*2*(i/2) /* SH_SEEN_OFFSET */, i))
-					{
-						{ printf("~SH_DISPLAYED_FLAG\n"); setOffsetBit(sav, SAV_offsetDex + 0x8 + 0x60*5 + 0x60*(i%2) + 0x60*2*(i/2) /* SH_DISPLAYED_OFFSET */, i, false); }
-					}
-					else alreadyDisplayed = true;
-				}
-			}
-
-			if (!alreadyDisplayed)
-			{
-				{ printf("SH_DISPLAYED_FLAG\n"); setOffsetBit(sav, SAV_offsetDex + 0x8 + 0x60*5 + 0x60*(gender) + 0x60*2*(shiny) /* SH_DISPLAYED_OFFSET */, speciesID, true); }
-			}
 		}
 
 		// Lang
@@ -291,7 +271,7 @@ namespace Pokedex
 		}
 
 		// Foreign
-		if (Game::is(version, Game::XY) && !isKalosBorn && speciesID < 649)
+		if (Game::is(version, Game::XY) && !isKalosBorn && species < 650)
 		{
 			{ printf("FOREIGN_FLAG\n"); setOffsetBit(sav, SAV_offsetDex + 0x64C /* FOREIGN_OFFSET */, speciesID, true); }
 		}
