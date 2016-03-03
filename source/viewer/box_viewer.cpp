@@ -387,9 +387,9 @@ Result BoxViewer::drawBotScreen()
 		if (sPkmCount > 0)
 		{
 			// Draw the selected Pokémon
-			for (u8 i = 0; i < 10 && i < sPkmCount; i++)
+			for (u8 i = 0; i < 19 && i < sPkmCount; i++)
 			{
-				drawPokemon(sPkms[i], middleBoxShift, 20 * i, false);
+				drawPokemon(sPkms[i], middleBoxShift, 10 * i, false);
 			}
 		}
 	}
@@ -903,7 +903,7 @@ void BoxViewer::drawPokemon(pkm_s* pkm, int16_t x, int16_t y, bool shadow)
 	if (pkm->checked)
 	{
 		// TODO: Draw a check mark
-		sf2d_draw_rectangle(x + 3, y + 22, 8, 8, RGBA8(0x55,0xAA,0x88,0xAA));
+		sf2d_draw_texture_part(PHBanku::texture->boxTiles, x + 3, y + 22, 96, 56, 8, 8);
 	}
 }
 
