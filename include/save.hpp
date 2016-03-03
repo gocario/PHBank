@@ -11,11 +11,11 @@
 #define BOX_COL_PKM_COUNT (6)
 #define BOX_PKM_COUNT (BOX_ROW_PKM_COUNT * BOX_COL_PKM_COUNT)
 #define PKM_COUNT (721)
+#define PC_BOX_COUNT (31)
+#define BK_BOX_COUNT (100)
 
 #define PKM_SIZE (0xE8) // 232
 #define BOX_SIZE (PKM_SIZE * BOX_PKM_COUNT)
-#define PC_SIZE (BOX_SIZE * PC_BOX_COUNT)
-#define BANK_SIZE (BOX_SIZE * BANK_BOX_COUNT)
 
 #define SAVEDATA_SIZE (0x76000)
 #define BANKDATA_SIZE (0xACA00)
@@ -60,16 +60,16 @@ struct box_s
 
 struct pc_s
 {
-	box_s box[31];	///< Boxes
-	u8 boxUnlocked;	///< Unlocked boxes
+	box_s box[PC_BOX_COUNT];	///< Boxes
+	u8 boxUnlocked;				///< Unlocked boxes
 };
 
 struct bk_s
 {
-	box_s wbox;			///< Wonderbox
-	box_s box[100];		///< Boxes
-	u8 boxUnlocked;		///< Unlocked boxes
-	bool wboxUnlocked;	///< Wonder box unlocked
+	box_s wbox;					///< Wonderbox
+	box_s box[BK_BOX_COUNT];	///< Boxes
+	u8 boxUnlocked;				///< Unlocked boxes
+	bool wboxUnlocked;			///< Wonder box unlocked
 };
 
 struct savedata_s
@@ -79,7 +79,7 @@ struct savedata_s
 	u8 GEORegion;		///< The region of the trainer
 	u8 GEOCountry;		///< The country of the trainer
 	u8 OTGender;		///< The gender of the trainer
-	u16 OT_name[0xD];	///< The name of the trainer /!\ REPLACED
+	u16 OT_name[0xD];	///< The name of the trainer /!\ MODIFIED
 	uint32_t OTName[0xD];
 };
 

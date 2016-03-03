@@ -437,7 +437,7 @@ void SaveManager::loadBankData(void)
 	printf(" OK\n");
 
 	printf("Loading BK Boxes:");
-	bankdata.bk.boxUnlocked = 100; // ASK?
+	bankdata.bk.boxUnlocked = BK_BOX_COUNT;
 	for (u16 iB = 0; iB < bankdata.bk.boxUnlocked; iB++)
 	{
 		bankdata.bk.box[iB].count = 0;
@@ -967,32 +967,32 @@ void SaveManager::tradePkm(pkm_s* pkm)
 {
 	if (Pokemon::isEgg(pkm))
 	{
-		time_t t_time = time(NULL);
-		struct tm* tm_time = localtime(&t_time);
+		// If it's not going back to OT
+		if ((Pokemon::TID(pkm) == savedata.TID) &&
+			(Pokemon::SID(pkm) == savedata.SID) &&
+			(Pokemon::OT_gender(pkm) == savedata.OTGender) &&
+			(u16cmp(Pokemon::OT_name(pkm), (u16*)(savebuffer + offsetTrainerCard + 0x48), 0x18) == 0));
+		else
+		{
+			time_t t_time = time(NULL);
+			struct tm* tm_time = localtime(&t_time);
 
-		Pokemon::metLocation(pkm, 0x7532); // Link Trade (Egg)
-		Pokemon::metYear(pkm, tm_time->tm_year-100);
-		Pokemon::metMonth(pkm, tm_time->tm_mon+1);
-		Pokemon::metDay(pkm, tm_time->tm_mday);
+			Pokemon::metLocation(pkm, 0x7532); // Link Trade (Egg)
+			Pokemon::metLocation(pkm, 0x7532); // Link Trade (Egg)
+			Pokemon::metYear(pkm, tm_time->tm_year-100);
+			Pokemon::metMonth(pkm, tm_time->tm_mon+1);
+			Pokemon::metDay(pkm, tm_time->tm_mday);
 
-		pkm->modified = true;
+			pkm->modified = true;
+		}
 	}
 	else
 	{
-		// We do not care about the end terminator
-		u16 save_OTName[0xC];
-		u16 pkmn_OTName[0xC];
-		u16 pkmn_HTName[0xC];
-
-		memcpy(save_OTName, (savebuffer + offsetTrainerCard + 0x48), 0x18);
-		memcpy(pkmn_OTName, Pokemon::OT_name(pkm), 0x18);
-		memcpy(pkmn_HTName, Pokemon::HT_name(pkm), 0x18);
-
 		// If it's going back to OT
 		if ((Pokemon::TID(pkm) == savedata.TID) &&
 			(Pokemon::SID(pkm) == savedata.SID) &&
 			(Pokemon::OT_gender(pkm) == savedata.OTGender) &&
-			(u16cmp(pkmn_OTName, save_OTName, 0x18) == 0))
+			(u16cmp(Pokemon::OT_name(pkm), (u16*)(savebuffer + offsetTrainerCard + 0x48), 0x18) == 0))
 		{
 			// If it's coming back from a non-OT
 			if (Pokemon::currentHandler(pkm) == 0x01)
@@ -1014,7 +1014,7 @@ void SaveManager::tradePkm(pkm_s* pkm)
 			else
 			{
 				// If it is not the "same non-OT"
-				if (u16cmp(pkmn_HTName, save_OTName, 0x18) != 0)
+				if (u16cmp(Pokemon::HT_name(pkm), (u16*)(savebuffer + offsetTrainerCard + 0x48), 0x18) != 0)
 				{
 					tradePkmHT(pkm);
 				}
