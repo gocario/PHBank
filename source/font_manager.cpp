@@ -1,6 +1,6 @@
 #include "font_manager.hpp"
 
-#include "Roboto_Regular_ttf.h"
+#include "NotoSans_Regular_ttf.h"
 #include "text.h"
 
 #include <stdio.h>
@@ -24,7 +24,7 @@ Result FontManager::load(void)
 
 bool FontManager::loadFonts(void)
 {
-	printf("Loading font: %p\n", (font = sftd_load_font_mem(Roboto_Regular_ttf, Roboto_Regular_ttf_size)));
+	printf("Loading font: %p\n", (font = sftd_load_font_mem(NotoSans_Regular_ttf, NotoSans_Regular_ttf_size)));
 
 	return (font);
 }

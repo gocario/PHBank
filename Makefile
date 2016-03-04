@@ -30,7 +30,7 @@ include $(DEVKITARM)/3ds_rules
 TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
 DATA		:=	data
-SOURCES		:=	source source/viewer source/texture
+SOURCES		:=	source source/viewer
 INCLUDES	:=	include include/viewer
 # ROMFS		:=	romfs
 
@@ -38,12 +38,12 @@ APP_TITLE		:=	PHBank
 APP_DESCRIPTION	:=	Pokémon Homebrew Bank
 APP_AUTHOR		:=	Gocario
 
-# NO_SMDH			:=	NO_SMDH
+NO_SMDH			:=	NO_SMDH
 ICON 			:=	assets/icon-48px.png
 CIA_RSF			:=	assets/build-cia.rsf
 CIA_BANNER		:=	assets/banner.bnr
 CIA_BANNER_PNG	:=	assets/banner.png
-CIA_BANNER_WAV	:=	assets/banner_short.wav
+CIA_BANNER_WAV	:=	assets/banner_shorter.cwav
 
 #---------------------------------------------------------------------------------
 # options for code generation
