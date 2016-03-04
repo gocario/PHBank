@@ -156,8 +156,9 @@ Result BoxViewer::initialize()
 {
 	if (hasChild()) { if (this->child->initialize() == PARENT_STEP); else return CHILD_STEP; }
 
-	// Use the Save Manager of PHBanku
+	// Use the Save&Data Manager of PHBanku
 	save = PHBanku::save;
+	data = PHBanku::data;
 
 	// Initialize the 2 boxes content
 	cursorBox.inBank = true; selectViewBox();
@@ -183,7 +184,7 @@ Result BoxViewer::drawTopScreen()
 	// Draw the resume background
 	sf2d_draw_texture(PHBanku::texture->resumeBackground, 0, 0);
 
-	sftd_draw_text_white(11, 40, "Game's OT");
+	sftd_draw_wtext_white(11, 40, data->text(BankText::GameTrainer));
 	sftd_draw_wtextf_white(91, 40, L"%S (%lu-%lu-%lu)", save->savedata.OTName, save->savedata.TID, save->savedata.SID, save->savedata.TSV);
 
 	// If there is a current Pokémon
@@ -199,7 +200,7 @@ Result BoxViewer::drawTopScreen()
 		// Is the Pokémon an egg?
 		if (vPkm.pkm->isEggy)
 		{
-			sftd_draw_wtext_white(x, y, PHBanku::data->species(0));
+			sftd_draw_wtext_white(x, y, data->species(0));
 		}
 		else
 		{
@@ -214,54 +215,54 @@ Result BoxViewer::drawTopScreen()
 			}
 		}
 
-		sftd_draw_text_white(x + 168, y, "Lv.%u", vPkm.level);
+		sftd_draw_wtextf_white(x + 168, y, L"%S%u", data->text(BankText::Level), vPkm.level);
 
 		x = 11;
 		y = 42 - 2;
-		sftd_draw_text_white(x, (y += 15), "Dex No.");
+		sftd_draw_wtext_white(x, (y += 15), data->text(BankText::DexNo));
 		sftd_draw_text_white(x+50, y, "%03u", vPkm.pkm->speciesID);
 		sftd_draw_wtext_white(x+80, y, vPkm.species);
-		sftd_draw_text_white(x, (y += 15), "O.T.");
+		sftd_draw_wtext_white(x, (y += 15), data->text(BankText::OriginalTrainer));
 		sftd_draw_wtext_white(x+50, y, vPkm.OTName);
 		y += 15; // sftd_draw_text_white(x, (y += 15), "Stat");
-		sftd_draw_text_white(x+90, y, "Value");
-		sftd_draw_text_white(x+128, y, "IVs");
-		sftd_draw_text_white(x+158, y, "EVs");
-		sftd_draw_text_white(x, (y+=15), "HP");
+		sftd_draw_wtext_white(x+90, y, data->text(BankText::Value));
+		sftd_draw_wtext_white(x+128, y, data->text(BankText::IV));
+		sftd_draw_wtext_white(x+158, y, data->text(BankText::EV));
+		sftd_draw_wtext_white(x, (y+=15), data->text(BankText::HitPoint));
 		sftd_draw_text_white(x+98, y, "% 3u", vPkm.stats[Stat::HP]);
 		sftd_draw_text_white(x+130, y, "% 2u", vPkm.ivs[Stat::HP]);
 		sftd_draw_text_white(x+160, y, "% 3u", vPkm.evs[Stat::HP]);
-		sftd_draw_text_white(x, (y+=15), "Attack");
+		sftd_draw_wtext_white(x, (y+=15), data->text(BankText::Attack));
 		sftd_draw_text_white(x+98, y, "% 3u", vPkm.stats[Stat::ATK]);
 		sftd_draw_text_white(x+130, y, "% 2u", vPkm.ivs[Stat::ATK]);
 		sftd_draw_text_white(x+160, y, "% 3u", vPkm.evs[Stat::ATK]);
-		sftd_draw_text_white(x, (y+=15), "Defense");
+		sftd_draw_wtext_white(x, (y+=15), data->text(BankText::Defense));
 		sftd_draw_text_white(x+98, y, "% 3u", vPkm.stats[Stat::DEF]);
 		sftd_draw_text_white(x+130, y, "% 2u", vPkm.ivs[Stat::DEF]);
 		sftd_draw_text_white(x+160, y, "% 3u", vPkm.evs[Stat::DEF]);
-		sftd_draw_text_white(x, (y+=15), "Sp.Attack");
+		sftd_draw_wtext_white(x, (y+=15), data->text(BankText::SpAttack));
 		sftd_draw_text_white(x+98, y, "% 3u", vPkm.stats[Stat::SPA]);
 		sftd_draw_text_white(x+130, y, "% 2u", vPkm.ivs[Stat::SPA]);
 		sftd_draw_text_white(x+160, y, "% 3u", vPkm.evs[Stat::SPA]);
-		sftd_draw_text_white(x, (y+=15), "Sp.Defense");
+		sftd_draw_wtext_white(x, (y+=15), data->text(BankText::SpDefense));
 		sftd_draw_text_white(x+98, y, "% 3u", vPkm.stats[Stat::SPD]);
 		sftd_draw_text_white(x+130, y, "% 2u", vPkm.ivs[Stat::SPD]);
 		sftd_draw_text_white(x+160, y, "% 3u", vPkm.evs[Stat::SPD]);
-		sftd_draw_text_white(x, (y+=15), "Speed");
+		sftd_draw_wtext_white(x, (y+=15), data->text(BankText::Speed));
 		sftd_draw_text_white(x+98, y, "% 3u", vPkm.stats[Stat::SPE]);
 		sftd_draw_text_white(x+130, y, "% 2u", vPkm.ivs[Stat::SPE]);
 		sftd_draw_text_white(x+160, y, "% 3u", vPkm.evs[Stat::SPE]);
-		sftd_draw_text_white(x, (y += 15), "Nature");
+		sftd_draw_wtext_white(x, (y += 15), data->text(BankText::Nature));
 		sftd_draw_wtext_white(x+50, y, vPkm.nature);
-		sftd_draw_text_white(x, (y += 15), "Ability");
+		sftd_draw_wtext_white(x, (y += 15), data->text(BankText::Ability));
 		sftd_draw_wtext_white(x+50, y, vPkm.ability);
-		sftd_draw_text_white(x, (y += 15), "Item");
+		sftd_draw_wtext_white(x, (y += 15), data->text(BankText::Item));
 		sftd_draw_wtext_white(x+50, y, vPkm.item);
 
 		x = 246;
 		y = 147 - 15 - 2;
-		sftd_draw_wtextf_white(x, (y += 15), L"Hidden Power   %S", vPkm.hpType);
-		sftd_draw_text_white(x, (y += 15), "Moves");
+		sftd_draw_wtextf_white(x, (y += 15), L"%S   %S", data->text(BankText::HiddenPower), vPkm.hpType);
+		sftd_draw_wtext_white(x, (y += 15), data->text(BankText::Moves));
 		sftd_draw_wtext_white(x+10, (y += 15), vPkm.moves[0]);
 		sftd_draw_wtext_white(x+10, (y += 15), vPkm.moves[1]);
 		sftd_draw_wtext_white(x+10, (y += 15), vPkm.moves[2]);
@@ -831,7 +832,8 @@ void BoxViewer::drawBox(box_s* box, int16_t x, int16_t y, bool cursor)
 
 	// Draw the box title
 	char boxTitle[0x1a];
-	/// TODO: Remove that if statement when complete box->title.
+	// TODO: Remove that if statement when complete box->title.
+	// TODO: Wait for sftd_get_wtext_wdith.
 	if (box->title[0] != '\0') snprintf(boxTitle, 0x1a, box->title);
 	else snprintf(boxTitle, 0x1a, "Box %i", box->number+1);
 	int boxTitleWidth = sftd_get_text_width(font, 12, boxTitle);
@@ -1210,16 +1212,16 @@ void BoxViewer::populateVPkmData(vPkm_s* vPkm)
 	vPkm->star = Pokemon::star(vPkm->pkm);
 	vPkm->diamond = Pokemon::diamond(vPkm->pkm);
 
-	vPkm->species = PHBanku::data->species(vPkm->pkm->speciesID);
-	vPkm->item = PHBanku::data->items(vPkm->pkm->itemID);
-	vPkm->nature = PHBanku::data->natures(Pokemon::nature(vPkm->pkm));
-	vPkm->ability = PHBanku::data->abilities(Pokemon::ability(vPkm->pkm));
-	vPkm->hpType = PHBanku::data->types(Pokemon::HPType(vPkm->pkm)+1);
+	vPkm->species = data->species(vPkm->pkm->speciesID);
+	vPkm->item = data->items(vPkm->pkm->itemID);
+	vPkm->nature = data->natures(Pokemon::nature(vPkm->pkm));
+	vPkm->ability = data->abilities(Pokemon::ability(vPkm->pkm));
+	vPkm->hpType = data->types(Pokemon::HPType(vPkm->pkm)+1);
 
-	vPkm->moves[0] = PHBanku::data->moves(Pokemon::move1(vPkm->pkm));
-	vPkm->moves[1] = PHBanku::data->moves(Pokemon::move2(vPkm->pkm));
-	vPkm->moves[2] = PHBanku::data->moves(Pokemon::move3(vPkm->pkm));
-	vPkm->moves[3] = PHBanku::data->moves(Pokemon::move4(vPkm->pkm));
+	vPkm->moves[0] = data->moves(Pokemon::move1(vPkm->pkm));
+	vPkm->moves[1] = data->moves(Pokemon::move2(vPkm->pkm));
+	vPkm->moves[2] = data->moves(Pokemon::move3(vPkm->pkm));
+	vPkm->moves[3] = data->moves(Pokemon::move4(vPkm->pkm));
 
 	vPkm->level = Pokemon::level(vPkm->pkm);
 	vPkm->stats[Stat::HP] = Pokemon::HP(vPkm->pkm);

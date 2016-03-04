@@ -50,8 +50,6 @@ Result SavexitViewer::initialize()
 {
 	if (hasChild()) { if (child->initialize() == PARENT_STEP) ; else return CHILD_STEP; }
 
-	// consoleClear();
-
 	return SUCCESS_STEP;
 }
 
@@ -68,11 +66,11 @@ Result SavexitViewer::drawTopScreen()
 
 	x = 88;
 	y = 67;
-	sftd_draw_text_pkm(x, (y+=15), "You are about to exit PHBank");
-	sftd_draw_text_pkm(x, (y+=15), "  A - Save and exit");
-	sftd_draw_text_pkm(x, (y+=15), "  X - Exit without saving");
-	sftd_draw_text_pkm(x, (y+=15), "  Y - Backup the save");
-	sftd_draw_text_pkm(x, (y+=15), "  B - Return to PHBank");
+	sftd_draw_wtext_pkm(x, (y+=15), PHBanku::data->text(BankText::ExitMessage));
+	sftd_draw_wtextf_pkm(x, (y+=15), L"  A - %S", PHBanku::data->text(BankText::SaveExit));
+	sftd_draw_wtextf_pkm(x, (y+=15), L"  X - %S", PHBanku::data->text(BankText::Exit));
+	sftd_draw_wtextf_pkm(x, (y+=15), L"  Y - %S", PHBanku::data->text(BankText::Backup));
+	sftd_draw_wtextf_pkm(x, (y+=15), L"  B - %S", PHBanku::data->text(BankText::Return));
 
 	if (hasOverlayChild()) { child->drawTopScreen(); }
 	return SUCCESS_STEP;

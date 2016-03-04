@@ -8,6 +8,7 @@
 
 #include <3ds/types.h>
 
+#define BANK_TEXT_COUNT (29) // 0: Blank
 #define DEX_ABILITIES_COUNT (192) // 0: None
 #define DEX_ITEMS_COUNT (776) // 0: None
 #define DEX_MOVES_COUNT (622) // 0: None
@@ -15,9 +16,43 @@
 #define DEX_SPECIES_COUNT (722) // 0: Egg
 #define DEX_TYPES_COUNT (18) // 0: Normal
 
+enum class BankText : u8
+{
+	Blank = 0,
+	BOX_VIEWER = 1,
+	GameTrainer = 2,
+	Level = 3,
+	DexNo = 4,
+	OriginalTrainer = 5,
+	Stat = 6,
+	Value = 7,
+	IV = 8,
+	EV = 9,
+	HitPoint = 10,
+	Attack = 11,
+	Defense = 12,
+	SpAttack = 13,
+	SpDefense = 14,
+	Speed = 15,
+	Nature = 16,
+	Ability = 17,
+	Item = 18,
+	HiddenPower = 19,
+	Moves = 20,
+	Box = 21,
+
+	SAVEXIT_VIEWER = 23,
+	ExitMessage = 24,
+	SaveExit = 25,
+	Exit = 26,
+	Backup = 27,
+	Return = 28,
+};
+
 class DataManager
 {
 	private:
+		uint32_t* wText[BANK_TEXT_COUNT];
 		uint32_t* wAbilities[DEX_ABILITIES_COUNT];
 		uint32_t* wItems[DEX_ITEMS_COUNT];
 		uint32_t* wMoves[DEX_MOVES_COUNT];
@@ -32,6 +67,7 @@ class DataManager
 		Result load(void);
 
 		const char* lang(void);
+		const uint32_t* text(BankText text);
 		const uint32_t* abilities(u32 ability);
 		const uint32_t* items(u32 item);
 		const uint32_t* moves(u32 move);

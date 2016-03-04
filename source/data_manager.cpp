@@ -22,6 +22,7 @@ DataManager::DataManager(void)
 
 DataManager::~DataManager(void)
 {
+	freeDataLines(wText, BANK_TEXT_COUNT);
 	freeDataLines(wAbilities, DEX_ABILITIES_COUNT);
 	freeDataLines(wItems, DEX_ITEMS_COUNT);
 	freeDataLines(wMoves, DEX_MOVES_COUNT);
@@ -36,12 +37,20 @@ const char* DataManager::lang(void)
 	{
 		// case LANGUAGE_JP: return "jp";	///< Japan
 		case LANGUAGE_FR: return "fr";	///< French
-		// case LANGUAGE_IT: return "it";	///< Italian
+		case LANGUAGE_IT: return "it";	///< Italian
 		case LANGUAGE_DE: return "de";	///< German
 		case LANGUAGE_ES: return "es";	///< Spanish
 		// case LANGUAGE_KR: return "kr";	///< Korean
 		default:      return "en";	///< English
 	}
+}
+
+const uint32_t* DataManager::text(BankText text)
+{
+	if ((u8) text < BANK_TEXT_COUNT)
+		return wText[(u8) text];
+	else
+		return wText[0];
 }
 
 const uint32_t* DataManager::abilities(u32 ability)
@@ -98,6 +107,7 @@ Result DataManager::load()
 
 	Result ret = 0;
 
+	ret |= loadDataFile("bank_text", wText, BANK_TEXT_COUNT);
 	ret |= loadDataFile("abilities", wAbilities, DEX_ABILITIES_COUNT);
 	ret |= loadDataFile("items", wItems, DEX_ITEMS_COUNT);
 	ret |= loadDataFile("moves", wMoves, DEX_MOVES_COUNT);

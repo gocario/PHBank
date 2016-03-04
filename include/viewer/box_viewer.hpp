@@ -92,6 +92,7 @@ class BoxViewer : public Viewer
 
 	private:
 		SaveManager* save;
+		DataManager* data;
 		CursorBox_s cursorBox;
 		CursorType cursorType = CursorType::SingleSelect;
 		touchPosition touch;
