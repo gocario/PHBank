@@ -974,17 +974,17 @@ void SaveManager::tradePkm(pkm_s* pkm)
 			(u16cmp(Pokemon::OT_name(pkm), (u16*)(savebuffer + offsetTrainerCard + 0x48), 0x18) == 0));
 		else
 		{
-			time_t t_time = time(NULL);
-			struct tm* tm_time = localtime(&t_time);
-
-			Pokemon::metLocation(pkm, 0x7532); // Link Trade (Egg)
-			Pokemon::metLocation(pkm, 0x7532); // Link Trade (Egg)
-			Pokemon::metYear(pkm, tm_time->tm_year-100);
-			Pokemon::metMonth(pkm, tm_time->tm_mon+1);
-			Pokemon::metDay(pkm, tm_time->tm_mday);
-
-			pkm->modified = true;
+			Pokemon::metLocation(pkm, 0x7532); // a Link Trade (Egg)
 		}
+
+		time_t t_time = time(NULL);
+		struct tm* tm_time = localtime(&t_time);
+
+		Pokemon::metYear(pkm, tm_time->tm_year-100);
+		Pokemon::metMonth(pkm, tm_time->tm_mon+1);
+		Pokemon::metDay(pkm, tm_time->tm_mday);
+		
+		pkm->modified = true;
 	}
 	else
 	{

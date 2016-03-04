@@ -28,7 +28,7 @@ PrintConsole* consoleExit(gfxScreen_t screen, PrintConsole* console)
 	return console;
 }
 
-int main(int argc, char* argv[])
+int main(void)
 {
 	Result ret = 0, error = 0;
 
@@ -41,21 +41,37 @@ int main(int argc, char* argv[])
 	// consoleInit(GFX_TOP, NULL); // TODO: Comment it!
 	// consoleInit(GFX_BOTTOM, NULL); // TODO: Comment it!
 
-	// Textures and loading screen first.
-
 	printf("> Loading texture manager\n");
 	PHBanku::texture = new TextureManager();
 	ret = PHBanku::texture->load();
 	if (R_FAILED(ret))
 	{
 		printf("\n\nProblem with the Texture Manager: %lx,\n", ret);
-		error |= -BIT(5);
+		error |= BIT(5);
+	}
+
+	printf("> Loading font manager\n");
+	PHBanku::font = new FontManager();
+	ret = PHBanku::font->load();
+	if (R_FAILED(ret))
+	{
+		printf("\n\nProblem with the Font Manager: %lx,\n", ret);
+		error |= BIT(4);
+	}
+
+	printf("> Loading data manager\n");
+	PHBanku::data = new DataManager();
+	ret = PHBanku::data->load();
+	if (R_FAILED(ret))
+	{
+		printf("\n\nProblem with the Data Manager: %lx,\n", ret);
+		error |= BIT(3);
 	}
 
 	printf("> Loading filesystem services\n");
 
 #ifdef __cia
-	while (TS_Loop())
+	while (!error && TS_Loop())
 	{
 
 	// Draw the static loading screen again because of ts.h
@@ -69,28 +85,10 @@ int main(int argc, char* argv[])
 	if (R_FAILED(ret))
 	{
 		printf("\n\nProblem with the Filesystem services : %lx,\n", ret);
-		error |= -BIT(10);
+		error |= BIT(7);
 	}
 
 	// Initialize managers instance & load managers data
-
-	printf("> Loading font manager\n");
-	PHBanku::font = new FontManager();
-	ret = PHBanku::font->load();
-	if (R_FAILED(ret))
-	{
-		printf("\n\nProblem with the Font Manager: %lx,\n", ret);
-		error |= -BIT(4);
-	}
-
-	printf("> Loading data manager\n");
-	PHBanku::data = new DataManager();
-	ret = PHBanku::data->load();
-	if (R_FAILED(ret))
-	{
-		printf("\n\nProblem with the Data Manager: %lx,\n", ret);
-		error |= -BIT(3);
-	}
 
 	printf("> Loading save manager\n");
 	PHBanku::save = new SaveManager();
@@ -98,10 +96,10 @@ int main(int argc, char* argv[])
 	if (R_FAILED(ret))
 	{
 		printf("\n\nProblem with the Save Manager: %lx,\n", ret);
-		error |= -BIT(2);
+		error |= BIT(2);
 	}
 
-	if (R_SUCCEEDED(error) || error == -1)
+	if (!error)
 	{
 		printf("Newing viewer...\n");
 		Viewer* viewer = new BoxViewer();
@@ -130,42 +128,48 @@ int main(int argc, char* argv[])
 		printf("Deleting viewer...\n");
 		delete viewer;
 	}
-	else
+
+	printf("Deleting Save Manager...\n");
+	delete PHBanku::save;
+
+#ifdef __cia
+	FSCIA_Exit();
+	consoleExit(GFX_TOP, NULL);
+	break;
+	} // while (TS_LOOP())
+
+	if (!error)
+	{
+		// TODO Remove when better exit display!
+		consoleInit(GFX_BOTTOM, NULL);
+		// ^
+
+		// printf("\nYou can close that app now.\n");
+		printf("\nThe app execution ended!\n");
+		printf("Pressing any key will close the app.\n");
+		printf("It may crash but that is normal.\n");
+		waitKey(KEY_ANY);
+	}
+#else
+	FS_Exit();
+#endif
+
+	if (error)
 	{
 		// TODO Remove when better error display!
 		consoleInit(GFX_TOP, NULL);
 		// ^
 
 		printf("\nProblem happened: %lx\n", error);
-		printf("PHBank version: %x\n", VERSION);
+		printf("PHBank version: %08x\n", VERSION);
 		printf("Can't start the viewer.\n");
 		printf("Press any key to exit\n");
 		waitKey(KEY_ANY);
 	}
 
 	printf("Deleting Managers...\n");
-	delete PHBanku::save;
 	delete PHBanku::data;
 	delete PHBanku::font;
-
-#ifdef __cia
-	FSCIA_Exit();
-	consoleExit(GFX_TOP, NULL);
-	} // while (TS_LOOP())
-
-	// TODO Remove when better exit display!
-	consoleInit(GFX_BOTTOM, NULL);
-	// ^
-
-	// printf("\nYou can close that app now.\n");
-	printf("\nThe app execution ended!\n");
-	printf("Pressing any key will close the app.\n");
-	printf("It may crash but that is normal.\n");
-	waitKey(KEY_ANY);
-#else
-	FS_Exit();
-#endif
-
 	delete PHBanku::texture;
 
 	sftd_fini();

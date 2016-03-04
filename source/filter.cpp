@@ -65,7 +65,6 @@ namespace Filter
 		return isFiltered;
 	}
 
-
 	static bool filterSchoolGirlPikachu(u16 speciesID, u16 formID)
 	{
 		bool isFiltered = true;
