@@ -253,11 +253,11 @@ Result BoxViewer::drawTopScreen()
 		sftd_draw_text_white(x+130, y, "% 2u", vPkm.ivs[Stat::SPE]);
 		sftd_draw_text_white(x+160, y, "% 3u", vPkm.evs[Stat::SPE]);
 		sftd_draw_wtext_white(x, (y += 15), data->text(BankText::Nature));
-		sftd_draw_wtext_white(x+50, y, vPkm.nature);
+		sftd_draw_wtext_white(x+70, y, vPkm.nature);
 		sftd_draw_wtext_white(x, (y += 15), data->text(BankText::Ability));
-		sftd_draw_wtext_white(x+50, y, vPkm.ability);
+		sftd_draw_wtext_white(x+70, y, vPkm.ability);
 		sftd_draw_wtext_white(x, (y += 15), data->text(BankText::Item));
-		sftd_draw_wtext_white(x+50, y, vPkm.item);
+		sftd_draw_wtext_white(x+70, y, vPkm.item);
 
 		x = 246;
 		y = 147 - 15 - 2;
