@@ -144,11 +144,8 @@ int main(void)
 		consoleInit(GFX_BOTTOM, NULL);
 		// ^
 
-		// printf("\nYou can close that app now.\n");
 		printf("\nThe app execution ended!\n");
-		printf("Pressing any key will close the app.\n");
 		printf("It may crash but that is normal.\n");
-		waitKey(KEY_ANY);
 	}
 #else
 	FS_Exit();
