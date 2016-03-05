@@ -16,15 +16,6 @@ extern "C" {
 
 #include "smdh.h"
 
-/// Pokémon title enumeration.
-typedef enum
-{
-	POKEMON_X = 0, // 24
-	POKEMON_Y = 1, // 25
-	POKEMON_OR = 2, // 27
-	POKEMON_AS = 3, // 28
-} AM_PokemonTitle;
-
 /// A simple titleid/mediatype struct with a magic smdh.
 typedef struct
 {

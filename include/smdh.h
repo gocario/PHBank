@@ -1,14 +1,9 @@
 #pragma once
 /**
  * @file smdh.h
- * @brief From 3ds_hb_menu, modified a bit
  */
 #ifndef SMDH_H
 #define SMDH_H
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #include <3ds/types.h>
 
@@ -49,19 +44,5 @@ typedef struct
 	u8 smallIconData[0x480];
 	u16 bigIconData[0x900];
 } smdh_s;
-
-/**
- * @brief Extracts some data from a smdh.
- * @param smdh The smdh where data shall be extracted.
- * @param name [out] The english name of the smdh.
- * @param desc [out] The english description of the smdh.
- * @param auth [out] The author of the smdh.
- * @param iconData [out] The big icon data as RGB8.
- */
-Result smdhExtractData(smdh_s* smdh, char* name, char* desc, char* auth, u8* iconData);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // SMDH_H
