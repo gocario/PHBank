@@ -113,9 +113,9 @@ static void TS_Next(void)
 
 #ifdef TS_CONSOLE_DISPLAY
 /**
- * @brief Draws the title selector state.
+ * @brief Prints the title selector state in the console.
  */
-static void TS_Draw(void)
+static void TS_Print(void)
 {
 	// Draw stuff here!
 	consoleClear();
@@ -156,7 +156,7 @@ bool TS_Loop(void)
 
 #ifdef TS_CONSOLE_DISPLAY
 	consoleInit(GFX_BOTTOM, NULL);
-	TS_Draw();
+	TS_Print();
 #endif
 
 	bool tsReturn = false;
