@@ -145,7 +145,7 @@ int main(void)
 		// ^
 
 		printf("\nThe app execution ended!\n");
-		printf("It may crash but that is normal.\n");
+		printf("Thanks for being awesome!\n");
 	}
 #else
 	FS_Exit();

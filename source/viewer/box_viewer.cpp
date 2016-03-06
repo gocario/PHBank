@@ -8,8 +8,10 @@
 #include "ultra_box_viewer.hpp"
 #include "savexit_viewer.hpp"
 
+#include <sftd.h>
 #include <stdio.h>
 #include <string.h>
+#include <wchar.h>
 
 #define BOX_HEADER_SELECTED (-1)
 #define SLOT_NO_SELECTION (-1)
@@ -831,13 +833,13 @@ void BoxViewer::drawBox(box_s* box, int16_t x, int16_t y, bool cursor)
 	sf2d_draw_texture_part(PHBanku::texture->boxTiles, x + 200, y + 18, 112, 32, 16, 24);
 
 	// Draw the box title
-	char boxTitle[0x1a];
+	wchar_t boxTitle[0x1a];
 	// TODO: Remove that if statement when complete box->title.
 	// TODO: Wait for sftd_get_wtext_wdith.
-	if (box->title[0] != '\0') snprintf(boxTitle, 0x1a, box->title);
-	else snprintf(boxTitle, 0x1a, "Box %i", box->number+1);
-	int boxTitleWidth = sftd_get_text_width(font, 12, boxTitle);
-	sftd_draw_text(font, x + (BACKGROUND_WIDTH - boxTitleWidth) / 2, y + 21, RGBA8(0x22,0x22,0x22,0xFF), 12, boxTitle);
+	if (box->title[0] != '\0') swprintf(boxTitle, 0x1a, (wchar_t*) box->title);
+	else swprintf(boxTitle, 0x1a, L"Box %i", box->number+1);
+	int boxTitleWidth = sftd_get_wtext_width(font, 12, boxTitle);
+	sftd_draw_wtext(font, x + (BACKGROUND_WIDTH - boxTitleWidth) / 2, y + 21, RGBA8(0x22,0x22,0x22,0xFF), 12, boxTitle);
 
 	// TODO: v DRY v
 

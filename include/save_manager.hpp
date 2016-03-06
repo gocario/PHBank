@@ -99,10 +99,12 @@ class SaveManager
 		void loadBankData(void);
 		// Load Pokemon (pkm_s)
 		//   To <- From
-		void loadPkmPC(u16 boxId, u16 slotId);
-		void loadPkmBK(u16 boxId, u16 slotId);
+		pkm_s* loadPkmPC(u16 boxId, u16 slotId);
+		pkm_s* loadPkmBK(u16 boxId, u16 slotId);
+		pkm_s* loadPkmWBK(u16 slotId);
 		void loadEk6PC(pkm_s* pkm, u32 offsetSlot);
 		void loadEk6BK(pkm_s* pkm, u32 offsetSlot);
+		void loadEk6WBK(pkm_s* pkm, u32 offsetSlot);
 		void loadPk6Ek6(pkm_s* pkm);
 		void loadPkmPk6(pkm_s* pkm);
 

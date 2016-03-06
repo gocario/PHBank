@@ -415,10 +415,8 @@ void SaveManager::loadSaveData(void)
 					savedata.pc.box[iB].count++;
 			}
 
-			unicodeToChar(savedata.pc.box[iB].title, (u16*)(savebuffer + offsetPCLayout + 0x22 * iB), 0x11);
-			// TODO: Use UTF-32
-			// memset(savedata.pc.box[iB].title, 0, 0x11 * sizeof(uint32_t));
-			// utf16_to_utf32(savedata.pc.box[iB].title, (u16*)(savebuffer + offsetPCLayout + 0x22 * iB), 0x11);
+			memset(savedata.pc.box[iB].title, 0, 0x11 * sizeof(uint32_t));
+			utf16_to_utf32(savedata.pc.box[iB].title, (u16*)(savebuffer + offsetPCLayout + 0x22 * iB), 0x11);
 			savedata.pc.box[iB].background = *(savebuffer + offsetPCBackground + 0x1 * iB);
 			savedata.pc.box[iB].number = iB;
 		}
@@ -450,28 +448,34 @@ void SaveManager::loadBankData(void)
 				bankdata.bk.box[iB].count++;
 		}
 
-		bankdata.bk.box[iB].title[0] = '\0';
-		// TODO: Retrieve box's name.
-		// memset(bankdata.bk.box[iB].title, 0, 0x11 * sizeof(uint32_t));
-		// utf16_to_utf32(bankdata.bk.box[iB].title, (u16*)(bankbuffer + offsetBKLayout + 0x22 * iB), 0x11);
+		memset(bankdata.bk.box[iB].title, 0, 0x11 * sizeof(uint32_t));
+		utf16_to_utf32(bankdata.bk.box[iB].title, (u16*)(bankbuffer + offsetBKLayout + 0x22 * iB), 0x11);
 		bankdata.bk.box[iB].background = *(bankbuffer + offsetBKBackground + 0x1 * iB);
 		bankdata.bk.box[iB].number = iB;
 	}
 	printf(" OK\n");
 
 	printf("Loading Wonder box:");
-	bankdata.bk.wboxUnlocked = false; // TODO: Toggle it if Pokémon in.
+	bankdata.bk.wboxUnlocked = false;
 	for (u16 iP = 0; iP < BOX_PKM_COUNT; iP++)
 	{
-		// loadPkmWBK(iP);
+		pkm_s* pkm = loadPkmWBK(iP);
+
+		// TODO: Toggle it if Pokémon in.
+		// if (!isPkmEmpty(pkm))
+		// 	bankdata.bk.wboxUnlocked = true;
 	}
-	bankdata.bk.wbox.title[1] = 'W';
-	bankdata.bk.wbox.title[2] = 'o';
-	bankdata.bk.wbox.title[3] = 'n';
-	bankdata.bk.wbox.title[4] = 'd';
-	bankdata.bk.wbox.title[5] = 'e';
-	bankdata.bk.wbox.title[6] = 'r';
-	bankdata.bk.wbox.title[7] = '\0';
+	bankdata.bk.wbox.title[0] = 'W';
+	bankdata.bk.wbox.title[1] = 'o';
+	bankdata.bk.wbox.title[2] = 'n';
+	bankdata.bk.wbox.title[3] = 'd';
+	bankdata.bk.wbox.title[4] = 'e';
+	bankdata.bk.wbox.title[5] = 'r';
+	bankdata.bk.wbox.title[6] = ' ';
+	bankdata.bk.wbox.title[7] = 'B';
+	bankdata.bk.wbox.title[8] = 'o';
+	bankdata.bk.wbox.title[9] = 'x';
+	bankdata.bk.wbox.title[10] = '\0';
 	bankdata.bk.wbox.background = 15;
 	bankdata.bk.wbox.number = 0;
 	printf(" OK\n");
@@ -479,7 +483,7 @@ void SaveManager::loadBankData(void)
 
 
 // ------------------------------------
-void SaveManager::loadPkmPC(u16 boxId, u16 slotId)
+pkm_s* SaveManager::loadPkmPC(u16 boxId, u16 slotId)
 // ------------------------------------
 {
 	pkm_s* pkm = &savedata.pc.box[boxId].slot[slotId];
@@ -487,11 +491,12 @@ void SaveManager::loadPkmPC(u16 boxId, u16 slotId)
 	loadPk6Ek6(pkm); // Pokemon stored as Ek6
 	loadPkmPk6(pkm);
 	pkm->fromBank = false;
+	return pkm;
 }
 
 
 // ----------------------------------------------
-void SaveManager::loadPkmBK(u16 boxId, u16 slotId)
+pkm_s* SaveManager::loadPkmBK(u16 boxId, u16 slotId)
 // ----------------------------------------------
 {
 	pkm_s* pkm = &bankdata.bk.box[boxId].slot[slotId];
@@ -499,6 +504,20 @@ void SaveManager::loadPkmBK(u16 boxId, u16 slotId)
 	// loadPk6Ek6(pkm); // Pokemon stored as Pk6
 	loadPkmPk6(pkm);
 	pkm->fromBank = true;
+	return pkm;
+}
+
+
+// ----------------------------------------------
+pkm_s* SaveManager::loadPkmWBK(u16 slotId)
+// ----------------------------------------------
+{
+	pkm_s* pkm = &bankdata.bk.wbox.slot[slotId];
+	loadEk6BK(pkm, PKM_SIZE * slotId);
+	// loadPk6Ek6(pkm); // Pokemon stored as Pk6
+	loadPkmPk6(pkm);
+	pkm->fromBank = true;
+	return pkm;
 }
 
 
@@ -515,7 +534,17 @@ void SaveManager::loadEk6BK(pkm_s* pkm, u32 offsetSlot)
 // ------------------------------------
 {
 	pkm->ek6 = bankbuffer + offsetBK + offsetSlot;
+	// Pokemon stored as Pk6
+	pkm->pk6 = new pk6_t[PK6_SIZE];
+	memcpy(pkm->pk6, pkm->ek6, PKM_SIZE);
+}
 
+
+// ------------------------------------
+void SaveManager::loadEk6WBK(pkm_s* pkm, u32 offsetSlot)
+// ------------------------------------
+{
+	pkm->ek6 = bankbuffer + offsetWonderBox + offsetSlot;
 	// Pokemon stored as Pk6
 	pkm->pk6 = new pk6_t[PK6_SIZE];
 	memcpy(pkm->pk6, pkm->ek6, PKM_SIZE);
@@ -579,10 +608,9 @@ void SaveManager::saveSaveData(void)
 				savePkmPC(iB, iP);
 			}
 
-			// TODO: Save box's name.
-			// memset((u16*)(savebuffer + offsetPCLayout + 0x22 * iB), 0, 0x11 * sizeof(uint16_t));
-			// utf32_to_utf16((u16*)(savebuffer + offsetPCLayout + 0x22 * iB), savedata.pc.box[iB].title, 0x11);
-			// *(savebuffer + offsetPCBackground + 0x1 * iB) = savedata.pc.box[iB].background;
+			memset((u16*)(savebuffer + offsetPCLayout + 0x22 * iB), 0, 0x11 * sizeof(uint16_t));
+			utf32_to_utf16((u16*)(savebuffer + offsetPCLayout + 0x22 * iB), savedata.pc.box[iB].title, 0x11);
+			*(savebuffer + offsetPCBackground + 0x1 * iB) = savedata.pc.box[iB].background;
 		}
 		printf(" OK\n");
 
@@ -605,10 +633,9 @@ void SaveManager::saveBankData(void)
 			savePkmBK(iB, iP);
 		}
 
-		// TODO: Save box's name.
-		// memset((u16*)(bankbuffer + offsetBKLayout + 0x22 * iB), 0, 0x11 * sizeof(uint16_t));
-		// utf32_to_utf16((u16*)(bankbuffer + offsetBKLayout + 0x22 * iB), bankdata.bk.box[iB].title, 0x11);
-		// *(bankbuffer + offsetBKBackground + 0x1 * iB) = bankdata.bk.box[iB].background;
+		memset((u16*)(bankbuffer + offsetBKLayout + 0x22 * iB), 0, 0x11 * sizeof(uint16_t));
+		utf32_to_utf16((u16*)(bankbuffer + offsetBKLayout + 0x22 * iB), bankdata.bk.box[iB].title, 0x11);
+		*(bankbuffer + offsetBKBackground + 0x1 * iB) = bankdata.bk.box[iB].background;
 	}
 	printf(" OK\n");
 
