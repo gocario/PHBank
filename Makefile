@@ -41,6 +41,7 @@ APP_AUTHOR		:=	Gocario
 NO_SMDH			:=	NO_SMDH
 ICON 			:=	assets/icon-48px.png
 CIA_RSF			:=	assets/build-cia.rsf
+CIA_SMDH		:=	assets/icon.smdh
 CIA_BANNER		:=	assets/banner.bnr
 CIA_BANNER_PNG	:=	assets/banner.png
 CIA_BANNER_WAV	:=	assets/banner_shorter.cwav
@@ -160,14 +161,16 @@ run: $(BUILD)
 
 #---------------------------------------------------------------------------------
 3dsx: $(BUILD)
-	@echo 3dsx ...
+	@echo built ... $(TARGET).cia
 	
 #---------------------------------------------------------------------------------
 cia: $(BUILD)
-	@echo cia ...
-	@bannertool makebanner -o $(CIA_BANNER) -i $(CIA_BANNER_PNG) -a $(CIA_BANNER_WAV)
-	@bannertool makesmdh -o $(TARGET).smdh -i $(ICON) -s "$(APP_TITLE)" -l "$(APP_DESCRIPTION)" -p "$(APP_AUTHOR)" -fvisible
-	@makerom -f cia -target t -exefslogo -o $(TARGET).cia -elf $(TARGET).elf -rsf $(CIA_RSF) -banner $(CIA_BANNER) -icon $(TARGET).smdh
+	@bannertool makebanner -o $(CIA_BANNER) -i $(CIA_BANNER_PNG) -ca $(CIA_BANNER_WAV)
+	@echo built ... $(CIA_BANNER)
+	@bannertool makesmdh -o $(CIA_SMDH) -i $(ICON) -s "$(APP_TITLE)" -l "$(APP_DESCRIPTION)" -p "$(APP_AUTHOR)" -fvisible
+	@echo built ... $(TARGET).smdh
+	@makerom -f cia -target t -exefslogo -o $(TARGET).cia -elf $(TARGET).elf -rsf $(CIA_RSF) -banner $(CIA_BANNER) -icon $(CIA_SMDH)
+	@echo built ... $(TARGET).cia
 
 #---------------------------------------------------------------------------------
 send: $(BUILD)
