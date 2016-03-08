@@ -65,6 +65,16 @@ struct CursorBox_s
 	s16 col = 0;
 };
 
+struct HeldTick_s
+{
+	u64 KEY_RIGHT = 0;
+	u64 KEY_LEFT = 0;
+	u64 KEY_UP = 0;
+	u64 KEY_DOWN = 0;
+	u64 KEY_R = 0;
+	u64 KEY_L = 0;
+};
+
 enum class CursorType : u8
 {
 	SingleSelect = 0,
@@ -96,6 +106,7 @@ class BoxViewer : public Viewer
 		CursorBox_s cursorBox;
 		CursorType cursorType = CursorType::SingleSelect;
 		touchPosition touch;
+		HeldTick_s heldTick;
 		bool isPkmHeld = false;		///< Is a Pokémon held using the buttons?
 		bool isPkmDragged = false;	///< Is a Pokémon dragged using the stylus?
 		bool isPkmChecking = false;	///< Is there Pokémon being (un)checked?

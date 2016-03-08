@@ -40,6 +40,8 @@
 #define BALL_ROW_COUNT (5)
 #define BALL_SIZE (32)
 
+#define HELD_TICK (32000000)
+
 // --------------------------------------------------
 /// Compute the current box pointer of the cursor
 int16_t* currentBox(CursorBox_s* cursorBox)
@@ -427,14 +429,80 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 		s16 rowMod = 0;
 		s16 colMod = 0;
 
-		if (kDown & KEY_L) boxMod--;
-		else if (kDown & KEY_R) boxMod++;
+		if (kDown & KEY_L)
+		{
+			boxMod--;
+			heldTick.KEY_L = svcGetSystemTick() + HELD_TICK * 2;
+		}
+		else if (kHeld & KEY_L && heldTick.KEY_L + HELD_TICK < svcGetSystemTick())
+		{
+			boxMod--;
+			heldTick.KEY_L = svcGetSystemTick();
+		}
+		if (kDown & KEY_R)
+		{
+			boxMod++;
+			heldTick.KEY_R = svcGetSystemTick() + HELD_TICK * 2;
+		}
+		else if (kHeld & KEY_R && heldTick.KEY_R + HELD_TICK < svcGetSystemTick())
+		{
+			boxMod++;
+			heldTick.KEY_R = svcGetSystemTick();
+		}
 
-		if (kDown & KEY_UP) rowMod--;
-		else if (kDown & KEY_DOWN) rowMod++;
+		if (kDown & KEY_UP)
+		{
+			rowMod--;
+			heldTick.KEY_UP = svcGetSystemTick() + HELD_TICK * 2;
+		}
+		else if (kHeld & KEY_UP && heldTick.KEY_UP + HELD_TICK < svcGetSystemTick())
+		{
+			rowMod--;
+			heldTick.KEY_UP = svcGetSystemTick();
+		}
+		if (kDown & KEY_DOWN)
+		{
+			rowMod++;
+			heldTick.KEY_DOWN = svcGetSystemTick() + HELD_TICK * 2;
+		}
+		else if (kHeld & KEY_DOWN && heldTick.KEY_DOWN + HELD_TICK < svcGetSystemTick())
+		{
+			rowMod++;
+			heldTick.KEY_DOWN = svcGetSystemTick();
+		}
 
-		if (kDown & KEY_LEFT) { if (cursorBox.row == BOX_HEADER_SELECTED) boxMod--; else colMod--; }
-		else if (kDown & KEY_RIGHT) { if (cursorBox.row == BOX_HEADER_SELECTED) boxMod++; else colMod++; }
+		if (kDown & KEY_LEFT)
+		{
+			if (cursorBox.row == BOX_HEADER_SELECTED)
+				boxMod--;
+			else
+				colMod--; 
+			heldTick.KEY_LEFT = svcGetSystemTick() + HELD_TICK * 2;
+		}
+		else if (kHeld & KEY_LEFT && heldTick.KEY_LEFT + HELD_TICK < svcGetSystemTick())
+		{
+			if (cursorBox.row == BOX_HEADER_SELECTED)
+				boxMod--;
+			else
+				colMod--; 
+			heldTick.KEY_LEFT = svcGetSystemTick();
+		}
+		if (kDown & KEY_RIGHT)
+		{
+			if (cursorBox.row == BOX_HEADER_SELECTED)
+				boxMod++;
+			else
+				colMod++;
+			heldTick.KEY_RIGHT = svcGetSystemTick() + HELD_TICK * 2;
+		}
+		else if (kHeld & KEY_RIGHT && heldTick.KEY_RIGHT + HELD_TICK < svcGetSystemTick())
+		{
+			if (cursorBox.row == BOX_HEADER_SELECTED)
+				boxMod++;
+			else
+				colMod++;
+			heldTick.KEY_RIGHT = svcGetSystemTick();
+		}
 
 		if (kDown & KEY_ZL) { cursorBox.inBank = false; boolMod = true; }
 		else if (kDown & KEY_ZR) { cursorBox.inBank = true; boolMod = true; }
