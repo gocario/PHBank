@@ -10,7 +10,7 @@
  * @brief Brew files.
  */
 #define PK_SAVE_FILE "main"
-#define PK_BANK_FILE "bank" 
+#define PK_BANK_FILE "bank"
 
 /**
  * @brief Shared folders.

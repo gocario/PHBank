@@ -34,7 +34,7 @@ namespace BankUpdater
 		// If the version is already the current
 		if (version == VERSION) return true;
 
-		// Before the versioning starts
+		// Before the versioning starts or blank file
 		if (version == 0x00000000)
 		{
 			printf("\a0x00000000->0x020000B0\n");

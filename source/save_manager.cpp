@@ -243,8 +243,6 @@ Result SaveManager::loadBankFile(void)
 		if (!ferror(fp))
 		{
 			memset(bankbuffer + bytesRead, 0, size - bytesRead);
-			BankUpdater::updateBank(bankbuffer, bytesRead);
-			setBank(bytesRead);
 		}
 
 		ret = ferror(fp);
@@ -254,10 +252,17 @@ Result SaveManager::loadBankFile(void)
 	{
 		printf(" Creating...");
 		memset(bankbuffer, 0, size);
+		bytesRead = size;
 
 		printf(" OK\n  Created %ld bytes\n", size);
 
 		ret = 0;
+	}
+
+	if (R_SUCCEEDED(ret))
+	{
+		BankUpdater::updateBank(bankbuffer, bytesRead);
+		setBank(bytesRead);
 	}
 
 	return ret;
@@ -461,9 +466,9 @@ void SaveManager::loadBankData(void)
 	{
 		pkm_s* pkm = loadPkmWBK(iP);
 
-		// TODO: Toggle it if Pokémon in.
-		// if (!isPkmEmpty(pkm))
-		// 	bankdata.bk.wboxUnlocked = true;
+		// If the wbox contains a Pokémon, unlock it.
+		if (!isPkmEmpty(pkm));
+		// 	bankdata.bk.wboxUnlocked = true; // TODO: Uncomment when working wbox!
 	}
 	bankdata.bk.wbox.title[0] = 'W';
 	bankdata.bk.wbox.title[1] = 'o';
