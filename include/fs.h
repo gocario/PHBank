@@ -56,13 +56,6 @@ Result FS_WriteFile(const char* path, const void* src, u64 size, const FS_Archiv
 Result FS_DeleteFile(const char* path, const FS_Archive* archive);
 
 /**
- * @brief Creates a directory (path).
- * @param path The path of the directory to create.
- * @param archive The archive where the directory will be located.
- */
-Result FS_CreateDirectory(const char* path, const FS_Archive* archive);
-
-/**
  * @brief Commits an archive.
  * @param The archive to commit.
  */

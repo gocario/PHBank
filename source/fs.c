@@ -92,20 +92,6 @@ Result FS_DeleteFile(const char* path, const FS_Archive* archive)
 	return ret;
 }
 
-Result FS_CreateDirectory(const char* path, const FS_Archive* archive)
-{
-	if (!path || !archive) return -1;
-
-	Result ret;
-
-	debug_print("FS_CreateDirectory:\n");
-
-	ret = FSUSER_CreateDirectory(*archive, fsMakePath(PATH_ASCII, path), FS_ATTRIBUTE_DIRECTORY);
-	r(" > FSUSER_CreateDirectory: %lx\n", ret);
-
-	return ret;
-}
-
 Result FS_CommitArchive(const FS_Archive* archive)
 {
 	if (!archive) return -1;
