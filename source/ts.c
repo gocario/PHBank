@@ -200,7 +200,7 @@ bool TS_Loop(void)
 
 			if (titleCount > 0)
 			{
-				sf2d_draw_texture_scale(titleIcons[titleCurrent], 248, 160, -2.0f, -2.0f);
+				sf2d_draw_texture_scale(titleIcons[titleCurrent], 152, 160, 2.0f, -2.0f);
 
 				// sf2d_draw_texture_scale(titleIcons[titleCurrent], 152, 64, 2.0f, 2.0f);
 
@@ -212,7 +212,7 @@ bool TS_Loop(void)
 
 			if (titleCurrent > 0)
 			{
-				sf2d_draw_texture_scale(titleIcons[titleCurrent-1], 112, 144, -1.0f, -1.0f);
+				sf2d_draw_texture_scale(titleIcons[titleCurrent-1], 64, 144, 1.0f, -1.0f);
 
 				// sf2d_draw_texture(titleIcons[titleCurrent-1], 64, 96);
 
@@ -223,7 +223,7 @@ bool TS_Loop(void)
 			}
 			else if (titleCurrent < titleCount-1)
 			{
-				sf2d_draw_texture_scale(titleIcons[titleCount-1], 112, 144, -1.0f, -1.0f);
+				sf2d_draw_texture_scale(titleIcons[titleCount-1], 64, 144, 1.0f, -1.0f);
 
 				if (titleList[titleCount-1].mediatype == MEDIATYPE_GAME_CARD)
 				{
@@ -233,7 +233,7 @@ bool TS_Loop(void)
 
 			if (titleCurrent < titleCount-1)
 			{
-				sf2d_draw_texture_scale(titleIcons[titleCurrent+1], 336, 144, -1.0f, -1.0f);
+				sf2d_draw_texture_scale(titleIcons[titleCurrent+1], 288, 144, 1.0f, -1.0f);
 
 				// sf2d_draw_texture(titleIcons[titleCurrent+1], 288, 96);
 
@@ -244,7 +244,7 @@ bool TS_Loop(void)
 			}
 			else if (titleCurrent > 0)
 			{
-				sf2d_draw_texture_scale(titleIcons[0], 336, 144, -1.0f, -1.0f);
+				sf2d_draw_texture_scale(titleIcons[0], 288, 144, 1.0f, -1.0f);
 
 				if (titleList[0].mediatype == MEDIATYPE_GAME_CARD)
 				{

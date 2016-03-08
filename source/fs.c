@@ -205,7 +205,7 @@ Result FS_Exit(void)
 		ret = FSUSER_CloseArchive(&saveArchive);
 		r(" > FSUSER_CloseArchive: %lx\n", ret);
 
-		saveInitialized = R_SUCCEEDED(ret);
+		saveInitialized = !R_SUCCEEDED(ret);
 	}
 
 	fsEndUseSession();
