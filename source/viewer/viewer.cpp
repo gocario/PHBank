@@ -250,7 +250,8 @@ ViewState Viewer::startMainLoop(Viewer* viewer)
 		kDown = hidKeysDown();
 		kHeld = hidKeysHeld();
 		kUp = hidKeysUp();
-		hidTouchRead(&touch);
+		if ((kDown | kHeld) & KEY_TOUCH)
+			hidTouchRead(&touch);
 
 		sf2d_start_frame(GFX_TOP, GFX_LEFT);
 			viewer->drawTopScreen();
