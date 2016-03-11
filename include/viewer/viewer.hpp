@@ -68,7 +68,6 @@ class Viewer
 		/*-----------*/
 
 		/*-- Viewer Starter --*/
-		static PrintConsole console[2];
 		static ViewState startMainLoop(Viewer* viewer);
 		/*--------------------*/
 

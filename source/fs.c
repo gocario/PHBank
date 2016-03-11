@@ -131,7 +131,11 @@ Result FSCIA_Init(u64 titleid, FS_MediaType mediatype)
 		ret = FSUSER_OpenArchive(&saveArchive);
 		r(" > FSUSER_OpenArchive: %lx\n", ret);
 
-		saveInitialized = R_SUCCEEDED(ret);
+		saveInitialized = R_SUCCEEDED(ret); // true
+	}
+	else
+	{
+		debug_print(" > Save already initialized\n");
 	}
 
 	return ret;
@@ -151,7 +155,11 @@ Result FSCIA_Exit(void)
 		ret = FSUSER_CloseArchive(&saveArchive);
 		r(" > FSUSER_CloseArchive: %lx\n", ret);
 
-		saveInitialized = !R_SUCCEEDED(ret);
+		saveInitialized = !R_SUCCEEDED(ret); // false
+	}
+	else
+	{
+		debug_print(" > Save not initialized\n");
 	}
 
 	return ret;
@@ -185,7 +193,11 @@ Result FS_Init(void)
 		ret = FSUSER_OpenArchive(&saveArchive);
 		r(" > FSUSER_OpenArchive: %lx\n", ret);
 
-		saveInitialized = R_SUCCEEDED(ret);
+		saveInitialized = R_SUCCEEDED(ret); // true
+	}
+	else
+	{
+		debug_print(" > Save already initialized\n");
 	}
 
 	return ret;
@@ -205,7 +217,11 @@ Result FS_Exit(void)
 		ret = FSUSER_CloseArchive(&saveArchive);
 		r(" > FSUSER_CloseArchive: %lx\n", ret);
 
-		saveInitialized = !R_SUCCEEDED(ret);
+		saveInitialized = !R_SUCCEEDED(ret); // false
+	}
+	else
+	{
+		debug_print(" > Save not initialized\n");
 	}
 
 	fsEndUseSession();

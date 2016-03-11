@@ -6,7 +6,6 @@
 #include <string.h>
 
 // #define TS_DEBUG
-// #define TS_CONSOLE_DISPLAY
 
 #ifdef TS_DEBUG
 #include <stdio.h>
@@ -29,7 +28,11 @@ static sf2d_texture** titleIcons;
  */
 static void TS_Select(void)
 {
+	debug_print("TS_Select:\n");
+
 	titleEntry = titleList[titleCurrent];
+
+	debug_print("Selected: %s\n[0x%014llx]\n", AM_GetPokemonTitleName(titleEntry.titleid), titleEntry.titleid);
 }
 
 /**
@@ -111,29 +114,6 @@ static void TS_Next(void)
 	TS_Select();
 }
 
-#ifdef TS_CONSOLE_DISPLAY
-/**
- * @brief Prints the title selector state in the console.
- */
-static void TS_Print(void)
-{
-	// Draw stuff here!
-	consoleClear();
-
-	printf("Title Selector:\n\n");
-
-	for (u32 i = 0; i < titleCount; i++)
-	{
-		if (i == titleCurrent)
-			printf(" > ");
-		else
-			printf("   ");
-
-		printf("%s [%u]\n", AM_GetPokemonTitleName(titleList[i].titleid), titleList[i].mediatype);
-	}
-}
-#endif
-
 bool TS_Loop(void)
 {
 	TS_Init();
@@ -152,13 +132,6 @@ bool TS_Loop(void)
 	// 	return true;
 	// }
 
-	TS_Select();
-
-#ifdef TS_CONSOLE_DISPLAY
-	consoleInit(GFX_BOTTOM, NULL);
-	TS_Print();
-#endif
-
 	bool tsReturn = false;
 
 	while (aptMainLoop())
@@ -166,6 +139,7 @@ bool TS_Loop(void)
 		hidScanInput();
 
 		u32 kState = hidKeysDown();
+
 		if (kState & (KEY_UP | KEY_LEFT))
 		{
 			TS_Prev();
@@ -187,6 +161,9 @@ bool TS_Loop(void)
 			break;
 		}
 
+#ifdef TS_DEBUG
+		gspWaitForVBlank();
+#else
 		sf2d_start_frame(GFX_TOP, GFX_LEFT);
 		{
 			// sf2d_draw_rectangle(151, 63, titleIcons[titleCurrent]->width*2+2, titleIcons[titleCurrent]->height*2+2, RGBA8(0xFF,0xAA,0x55,0xFF));
@@ -256,6 +233,7 @@ bool TS_Loop(void)
 		sf2d_start_frame(GFX_BOTTOM, GFX_LEFT);
 		sf2d_end_frame();
 		sf2d_swapbuffers();
+#endif
 	}
 
 	TS_Exit();

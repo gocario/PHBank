@@ -2,8 +2,6 @@
 #include "pokemon.hpp"
 #include "personal.hpp"
 
-#include "key.h"
-
 #include <3ds.h>
 #include <stdio.h>
 
@@ -287,7 +285,5 @@ namespace Pokedex
 			u16* dexNav = (u16*)(sav + SAV_offsetDex + 0x686 /* DEXNAV_OFFSET */ + speciesID * 2);
 			if (*dexNav == 0) { printf("DEXNAV_SET\n"); *dexNav = 1; }
 		}
-
-		hidScanInput(); if (hidKeysHeld() & KEY_L) waitKey(KEY_ANY);
 	}
 }

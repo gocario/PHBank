@@ -27,9 +27,8 @@ SaveManager::SaveManager(void)
 	offsetPCBackground = 0x0;
 	offsetPC = 0x0;
 
-	sizeSave = SaveConst::ORAS_size;
+	sizeSave = SaveConst::ORAS_size; // > SaveConst::XY_size
 	sizeBank = SaveConst::BANK_size;
-	// ^ Which is greater than SaveConst::XY_size
 
 	version = Game::None;
 	loaded = false;

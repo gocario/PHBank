@@ -37,7 +37,6 @@ int main(void)
 
 	srand(osGetTime());
 
-	// Initialize console;
 	// consoleInit(GFX_TOP, NULL); // TODO: Comment it!
 	// consoleInit(GFX_BOTTOM, NULL); // TODO: Comment it!
 
@@ -46,7 +45,7 @@ int main(void)
 	ret = PHBanku::texture->load();
 	if (R_FAILED(ret))
 	{
-		printf("\n\nProblem with the Texture Manager: %lx,\n", ret);
+		// Graphics
 		error |= BIT(5);
 	}
 
@@ -55,7 +54,7 @@ int main(void)
 	ret = PHBanku::font->load();
 	if (R_FAILED(ret))
 	{
-		printf("\n\nProblem with the Font Manager: %lx,\n", ret);
+		// Font
 		error |= BIT(4);
 	}
 
@@ -64,47 +63,48 @@ int main(void)
 	ret = PHBanku::data->load();
 	if (R_FAILED(ret))
 	{
-		printf("\n\nProblem with the Data Manager: %lx,\n", ret);
+		// Data
 		error |= BIT(3);
 	}
 
-	printf("> Loading filesystem services\n");
-
 #ifdef __cia
+	printf("> Starting title selector\n");
 	while (!error && TS_Loop())
 	{
 
 	// Draw the static loading screen again because of ts.h
 	PHBanku::texture->drawStaticLoadingScreen();
 
+	printf("> Loading filesystem services\n");
 	ret = FSCIA_Init(titleEntry.titleid, titleEntry.mediatype);
-#else
-	ret = FS_Init();
-#endif
-
 	if (R_FAILED(ret))
 	{
-		printf("\n\nProblem with the Filesystem services : %lx,\n", ret);
+		// Filesystem
 		error |= BIT(7);
 	}
-
-	// Initialize managers instance & load managers data
+#else // __3dsx
+	printf("> Loading filesystem services\n");
+	ret = FS_Init();
+	if (R_FAILED(ret))
+	{
+		// Filesystem
+		error |= BIT(7);
+	}
+#endif
 
 	printf("> Loading save manager\n");
 	PHBanku::save = new SaveManager();
 	ret = PHBanku::save->load();
 	if (R_FAILED(ret))
 	{
-		printf("\n\nProblem with the Save Manager: %lx,\n", ret);
+		// Save
 		error |= BIT(2);
 	}
 
 	if (!error)
 	{
-		printf("Newing viewer...\n");
+		printf("> Starting box viewer...\n");
 		Viewer* viewer = new BoxViewer();
-
-		// consoleExit(GFX_TOP, NULL); // TODO: Comment it!
 
 		ViewState state = Viewer::startMainLoop(viewer);
 
@@ -125,17 +125,15 @@ int main(void)
 			// ^
 		}
 
-		printf("Deleting viewer...\n");
 		delete viewer;
 	}
 
-	printf("Deleting Save Manager...\n");
 	delete PHBanku::save;
 
 #ifdef __cia
 	FSCIA_Exit();
 	consoleExit(GFX_TOP, NULL);
-	break;
+	break; // TODO Remove! The app crash itself after the 2nd ts, unknown cause.
 	} // while (TS_LOOP())
 
 	if (!error)
@@ -157,14 +155,13 @@ int main(void)
 		consoleInit(GFX_TOP, NULL);
 		// ^
 
-		printf("\nProblem happened: %lx\n", error);
+		printf("\nProblem happened: 0x%lx\n", error);
 		printf("PHBank version: %08x\n", VERSION);
 		printf("Can't start the viewer.\n");
 		printf("Press any key to exit\n");
 		waitKey(KEY_ANY);
 	}
 
-	printf("Deleting Managers...\n");
 	delete PHBanku::data;
 	delete PHBanku::font;
 	delete PHBanku::texture;
