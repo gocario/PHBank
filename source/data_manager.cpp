@@ -149,7 +149,12 @@ Result DataManager::loadDataFile(const char* file, uint32_t** data, u32 lineCoun
 	sprintf(path, PK_DATA_FOLDER "%s/%s_%s.txt", lang(), file, lang());
 
 	FILE* fp = fopen(path, "r");
-	if (!fp) return -1;
+	if (!fp)
+	{
+		sprintf(path, PK_DATA_FOLDER "en/%s_en.txt", file);
+		fp = fopen(path, "r");
+		if (!fp) return -1;
+	}
 
 	fseek(fp, 0L, SEEK_END);
 	size_t size = ftell(fp);
@@ -158,8 +163,9 @@ Result DataManager::loadDataFile(const char* file, uint32_t** data, u32 lineCoun
 	u8* buffer = new u8[size];
 
 	fread(buffer, 1, size, fp);
-	loadDataLines(buffer, data, size, lineCount);
 	fclose(fp);
+	
+	loadDataLines(buffer, data, size, lineCount);
 
 	delete[] buffer;
 
