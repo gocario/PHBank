@@ -90,6 +90,8 @@ Result TextureManager::load(void)
 	// threadJoin(loadingThread, U64_MAX);
 	// threadFree(loadingThread);
 
+	sf2d_texture_set_params(this->boxTiles, GPU_TEXTURE_MAG_FILTER(GPU_LINEAR) | GPU_TEXTURE_MIN_FILTER(GPU_LINEAR));
+
 	return ret;
 }
 
