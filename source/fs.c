@@ -21,7 +21,7 @@
 static bool saveInitialized = false;
 FS_Archive saveArchive;
 
-Result FS_ReadFile(const char* path, void* dst, const FS_Archive* archive, u64 maxSize, u32* bytesRead)
+Result FS_ReadFile(const char* path, void* dst, u64 maxSize, const FS_Archive* archive, u32* bytesRead)
 {
 	if (!path || !dst || !archive || !bytesRead) return -1;
 

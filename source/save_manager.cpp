@@ -199,7 +199,7 @@ Result SaveManager::loadSaveFile(void)
 	sprintf(path, PK_ROOT_FOLDER PK_SAVE_FILE);
 
 	printf("Loading savefile...");
-	ret = FS_ReadFile(path, savebuffer, &saveArchive, size, &bytesRead);
+	ret = FS_ReadFile(path, savebuffer, size, &saveArchive, &bytesRead);
 
 	if (R_FAILED(ret)) printf(" ERROR\n");
 	else printf(" OK\n");
