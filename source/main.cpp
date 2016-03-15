@@ -3,8 +3,6 @@
 #include <sftd.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <time.h>
 
 #include "fs.h"
 #include "key.h"

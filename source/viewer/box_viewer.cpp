@@ -554,7 +554,7 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 				if (*cursorBox.box < 0) *cursorBox.box = (cursorBox.inBank ? save->bankdata.bk.boxUnlocked : save->savedata.pc.boxUnlocked)-1;
 				else if (*cursorBox.box > (cursorBox.inBank ? save->bankdata.bk.boxUnlocked : save->savedata.pc.boxUnlocked)-1) *cursorBox.box = 0;
 			}
-			
+
 			if (cursorBox.row < BOX_HEADER_SELECTED) cursorBox.row = BOX_ROW_PKM_COUNT-1;
 			else if (cursorBox.row > BOX_ROW_PKM_COUNT-1) cursorBox.row = BOX_HEADER_SELECTED;
 
@@ -799,7 +799,7 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 			}
 
 			// Keep the last touched position
-			this->touch = *touch;	
+			this->touch = *touch;
 		}
 		else if (kUp & KEY_TOUCH)
 		{
@@ -1004,7 +1004,7 @@ void BoxViewer::drawPokemonScale(pkm_s* pkm, int16_t x, int16_t y, float scale)
 	{
 		// Draw the Pokémon icon
 		sf2d_draw_texture_part_scale(pkmIcons, x, y, (pkm->speciesID % 25) * 40, (pkm->speciesID / 25) * 30, 40, 30, scale, scale);
-	
+
 		// Draw the item
 		if (pkm->itemID > 0)
 		{
@@ -1155,7 +1155,7 @@ void BoxViewer::selectMovePokemon()
 			if (moved)
 			{
 				// Cancel the selection
-				cancelMovePokemon();	
+				cancelMovePokemon();
 			}
 
 			// And populate the Pokémon data
@@ -1205,7 +1205,7 @@ void BoxViewer::selectMultiMovePokemon(bool check)
 	{
 		u8 vPkmCount = 0;
 		box_s* box = (cursorBox.inBank ? vBKBox : vPCBox);
-		
+
 		// Count the free slots
 		for (u8 i = 0; i < BOX_PKM_COUNT; i++)
 		{

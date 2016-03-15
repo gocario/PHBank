@@ -135,7 +135,7 @@ Result UltraBoxViewer::drawBotScreen()
 	// TODO: REMOVE THIS SHIT OMAGAWD, IT'S HORRIBLE
 	sf2d_draw_rectangle(0, 224, 320, 16, RGBA8(0xFF, 0xFF, 0xFF, 0xFF));
 
-	sftd_draw_text_black(8, 225, "Box: %i (%u/%u)", cursorUBox.slot+1, vBox->count, BOX_PKM_COUNT);
+	sftd_draw_wtextf_black(8, 225, L"%S (%u/%u)", vBox->title, vBox->count, BOX_PKM_COUNT);
 
 	if (hasOverlayChild()) { child->drawBotScreen(); }
 	return SUCCESS_STEP;
@@ -337,6 +337,7 @@ bool UltraBoxViewer::selectViewBox()
 
 	if (cursorUBox.slot != -1)
 	{
+		PHBanku::save->countBox(cursorUBox.slot, cursorUBox.inBank);
 		vBox = PHBanku::save->getBox(cursorUBox.slot, cursorUBox.inBank);
 		printf("View Box: [@%p]\n", vBox);
 		return true;
@@ -355,6 +356,7 @@ bool UltraBoxViewer::selectMoveBox()
 		((BoxViewer*) parent)->selectViewBox(cursorUBox.slot, cursorUBox.inBank);
 		return true;
 	}
+
 	return false;
 }
 

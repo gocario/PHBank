@@ -6,14 +6,11 @@
 #ifndef SAVE_MANAGER_HPP
 #define SAVE_MANAGER_HPP
 
-#include <3ds/services/fs.h>
-
 #include "save.hpp"
 
 class SaveManager
 {
 	public:
-		bool loaded;
 		GameVersion version;
 
 		savebuffer_t savebuffer;
@@ -51,9 +48,9 @@ class SaveManager
 		void setBank(u32 bytesRead);
 		void setBankOffsets(void);
 
-		bool isBadEgg(pkm_s* pkm);
 		bool isPkmEmpty(pkm_s* pkm);
 		bool isSlotEmpty(u16 boxId, u16 slotId, bool inBank);
+		box_s* countBox(u16 boxId, bool inBank);
 		box_s* getWBox(void);
 		box_s* getBox(u16 boxId, bool inBank);
 		pkm_s* getWPkm(u16 slotId);

@@ -164,7 +164,7 @@ Result DataManager::loadDataFile(const char* file, uint32_t** data, u32 lineCoun
 
 	fread(buffer, 1, size, fp);
 	fclose(fp);
-	
+
 	loadDataLines(buffer, data, size, lineCount);
 
 	delete[] buffer;

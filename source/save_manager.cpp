@@ -12,7 +12,6 @@
 #include "filter.hpp"
 
 #include <3ds.h>
-#include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -31,8 +30,8 @@ SaveManager::SaveManager(void)
 	sizeBank = SaveConst::BANK_size;
 
 	version = Game::None;
-	loaded = false;
 }
+
 
 // ------------------------------------
 SaveManager::~SaveManager(void)
@@ -413,9 +412,7 @@ void SaveManager::loadSaveData(void)
 
 			for (u16 iP = 0; iP < BOX_PKM_COUNT; iP++)
 			{
-				loadPkmPC(iB, iP);
-
-				if (!isSlotEmpty(iB, iP, false))
+				if (!isPkmEmpty(loadPkmPC(iB, iP)))
 					savedata.pc.box[iB].count++;
 			}
 
@@ -446,9 +443,7 @@ void SaveManager::loadBankData(void)
 
 		for (u16 iP = 0; iP < BOX_PKM_COUNT; iP++)
 		{
-			loadPkmBK(iB, iP);
-
-			if (!isSlotEmpty(iB, iP, true))
+			if (!isPkmEmpty(loadPkmBK(iB, iP)))
 				bankdata.bk.box[iB].count++;
 		}
 
@@ -648,7 +643,7 @@ void SaveManager::saveBankData(void)
 	{
 		// savePkmWBK(iP);
 	}
-	printf(" OK\n");	
+	printf(" OK\n");
 }
 
 
@@ -656,8 +651,6 @@ void SaveManager::saveBankData(void)
 void SaveManager::savePkmPC(u16 boxId, u16 slotId)
 // ------------------------------------
 {
-	// if (!loaded) return;
-
 	pkm_s* pkm = &savedata.pc.box[boxId].slot[slotId];
 
 	if (pkm->moved)
@@ -673,8 +666,6 @@ void SaveManager::savePkmPC(u16 boxId, u16 slotId)
 void SaveManager::savePkmBK(u16 boxId, u16 slotId)
 // ----------------------------------------------
 {
-	// if (!loaded) return;
-
 	pkm_s* pkm = &bankdata.bk.box[boxId].slot[slotId];
 
 	if (pkm->moved)
@@ -806,17 +797,6 @@ void SaveManager::setBankOffsets(void)
 
 
 // ------------------------------------
-bool SaveManager::isBadEgg(pkm_s* pkm)
-// ------------------------------------
-{
-	for (u8 i = 0; i < PK6_SIZE; i++)
-		if (pkm->pk6[i] != 0x00)
-			return true;
-	return false;
-}
-
-
-// ------------------------------------
 bool SaveManager::isPkmEmpty(pkm_s* pkm)
 // ------------------------------------
 {
@@ -829,6 +809,21 @@ bool SaveManager::isSlotEmpty(u16 boxId, u16 slotId, bool inBank)
 // ------------------------------------
 {
 	return isPkmEmpty(getPkm(boxId, slotId, inBank));
+}
+
+
+// ------------------------------------
+box_s* SaveManager::countBox(u16 boxId, bool inBank)
+// ------------------------------------
+{
+	box_s* box = inBank ? &bankdata.bk.box[boxId] : &savedata.pc.box[boxId];
+	box->count = 0;
+
+	for (u16 i = 0; i < BOX_PKM_COUNT; i++)
+		if (!isPkmEmpty(&box->slot[i]))
+			box->count++;
+
+	return box;
 }
 
 
@@ -994,7 +989,9 @@ void SaveManager::addDex(pkm_s* pkm)
 }
 
 
+// ------------------------------------
 void SaveManager::tradePkm(pkm_s* pkm)
+// ------------------------------------
 {
 	if (Pokemon::isEgg(pkm))
 	{
@@ -1014,7 +1011,7 @@ void SaveManager::tradePkm(pkm_s* pkm)
 		Pokemon::metYear(pkm, tm_time->tm_year-100);
 		Pokemon::metMonth(pkm, tm_time->tm_mon+1);
 		Pokemon::metDay(pkm, tm_time->tm_mday);
-		
+
 		pkm->modified = true;
 	}
 	else
@@ -1060,7 +1057,9 @@ void SaveManager::tradePkm(pkm_s* pkm)
 }
 
 
+// ------------------------------------
 void SaveManager::tradePkmHT(pkm_s* pkm)
+// ------------------------------------
 {
 	// Save::OTName to Pkmn::HTName
 	Pokemon::HT_name(pkm, (u16*)(savebuffer + offsetTrainerCard + 0x48));
@@ -1164,6 +1163,7 @@ void SaveManager::shufflePk6(pk6_t* pk6, u8 sv)
 
 	delete[] cpk6;
 }
+
 
 // ------------------------------------
 void SaveManager::rewriteSaveCHK(void)
