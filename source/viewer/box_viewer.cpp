@@ -189,12 +189,12 @@ Result BoxViewer::drawTopScreen()
 	sf2d_draw_texture(PHBanku::texture->resumeBackground, 0, 0);
 
 	sftd_draw_wtext_white(11, 40, data->text(BankText::GameTrainer));
-	sftd_draw_wtextf_white(91, 40, L"%S (%lu-%lu-%lu)", save->savedata.OTName, save->savedata.TID, save->savedata.SID, save->savedata.TSV);
 
 	// If there is a current Pokémon
 	if (vPkm.pkm && !vPkm.emptySlot)
 	{
-		{
+		sftd_draw_wtextf_white(91, 40, L"%S (%lu/%lu)", save->savedata.OTName, save->savedata.TSV, vPkm.PSV);
+
 		uint32_t x, y;
 
 		sf2d_draw_texture_part(PHBanku::texture->ballIcons, 5, 5, (vPkm.ball % BALL_ROW_COUNT) * BALL_SIZE, (vPkm.ball / BALL_ROW_COUNT) * BALL_SIZE, BALL_SIZE, BALL_SIZE);
@@ -288,7 +288,7 @@ Result BoxViewer::drawTopScreen()
 			sf2d_draw_texture_part(PHBanku::texture->boxTiles, 260, 135, 81, 64, 27, 9);
 		}
 
-		if (vPkm.gen > 0)
+		if (vPkm.gen > 2)
 		{
 			if (vPkm.gen == 6) // Kalos Born (Gen VI)
 				sf2d_draw_texture_part(PHBanku::texture->boxTiles, 250, 135, 63, 64, 9, 9);
@@ -306,7 +306,10 @@ Result BoxViewer::drawTopScreen()
 		sf2d_draw_texture_part(PHBanku::texture->boxTiles, 320 ,135, 9*3, 64 + 9*vPkm.heart, 9, 9);
 		sf2d_draw_texture_part(PHBanku::texture->boxTiles, 330 ,135, 9*4, 64 + 9*vPkm.star, 9, 9);
 		sf2d_draw_texture_part(PHBanku::texture->boxTiles, 340 ,135, 9*5, 64 + 9*vPkm.diamond, 9, 9);
-		}
+	}
+	else
+	{
+		sftd_draw_wtextf_white(91, 40, L"%S (%lu)", save->savedata.OTName, save->savedata.TSV);
 	}
 
 	if (hasOverlayChild()) { this->child->drawTopScreen(); }
@@ -1293,6 +1296,7 @@ void BoxViewer::populateVPkmData(vPkm_s* vPkm)
 	vPkm->moves[2] = data->moves(Pokemon::move3(vPkm->pkm));
 	vPkm->moves[3] = data->moves(Pokemon::move4(vPkm->pkm));
 
+	vPkm->PSV = Pokemon::PSV(vPkm->pkm);
 	vPkm->level = Pokemon::level(vPkm->pkm);
 	vPkm->stats[Stat::HP] = Pokemon::HP(vPkm->pkm);
 	vPkm->stats[Stat::ATK] = Pokemon::ATK(vPkm->pkm);

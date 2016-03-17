@@ -33,6 +33,7 @@ struct vPkm_s
 	const uint32_t* nature;
 	const uint32_t* species;
 	const uint32_t* hpType;
+	u16 PSV;
 	u8 level;
 	u16 stats[6];
 	u16 ivs[6];
