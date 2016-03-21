@@ -55,7 +55,7 @@ CFLAGS	:=	-g -Wall -O2 -mword-relocations \
 			-fomit-frame-pointer -ffunction-sections \
 			$(ARCH)
 
-CFLAGS	+=	$(INCLUDE) -DARM11 -D_3DS
+CFLAGS	+=	$(INCLUDE) -DARM11 -D_3DS -D__cia
 
 CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++11
 
@@ -165,10 +165,10 @@ run: $(BUILD)
 	
 #---------------------------------------------------------------------------------
 cia: $(BUILD)
-	@bannertool makebanner -o $(CIA_BANNER) -i $(CIA_BANNER_PNG) -ca $(CIA_BANNER_WAV)
-	@echo built ... $(CIA_BANNER)
-	@bannertool makesmdh -o $(CIA_SMDH) -i $(ICON) -s "$(APP_TITLE)" -l "$(APP_DESCRIPTION)" -p "$(APP_AUTHOR)" -fvisible
-	@echo built ... $(TARGET).smdh
+#	@bannertool makebanner -o $(CIA_BANNER) -i $(CIA_BANNER_PNG) -ca $(CIA_BANNER_WAV)
+#	@echo built ... $(CIA_BANNER)
+#	@bannertool makesmdh -o $(CIA_SMDH) -i $(ICON) -s "$(APP_TITLE)" -l "$(APP_DESCRIPTION)" -p "$(APP_AUTHOR)" -fvisible
+#	@echo built ... $(TARGET).smdh
 	@makerom -f cia -target t -exefslogo -o $(TARGET).cia -elf $(TARGET).elf -rsf $(CIA_RSF) -banner $(CIA_BANNER) -icon $(CIA_SMDH)
 	@echo built ... $(TARGET).cia
 
