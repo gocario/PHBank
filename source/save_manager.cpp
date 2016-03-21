@@ -400,7 +400,7 @@ void SaveManager::loadSaveData(void)
 		savedata.OTGender = *(u8*)(savebuffer + offsetTrainerCard + 0x05);
 		memset(savedata.OTName, 0, 0xD * sizeof(uint32_t));
 		utf16_to_utf32(savedata.OTName, (u16*)(savebuffer + offsetTrainerCard + 0x48), 0xD);
-		u32fix(savedata.OTName, 0xD);
+		str32nfix(savedata.OTName, 0xD);
 		printf(" OK\n");
 
 		printf("Loading PC Boxes:");
@@ -999,7 +999,7 @@ void SaveManager::tradePkm(pkm_s* pkm)
 		if ((Pokemon::TID(pkm) == savedata.TID) &&
 			(Pokemon::SID(pkm) == savedata.SID) &&
 			(Pokemon::OT_gender(pkm) == savedata.OTGender) &&
-			(u16cmp(Pokemon::OT_name(pkm), (u16*)(savebuffer + offsetTrainerCard + 0x48), 0x18) == 0));
+			(str16ncmp(Pokemon::OT_name(pkm), (u16*)(savebuffer + offsetTrainerCard + 0x48), 0x18) == 0));
 		else
 		{
 			Pokemon::metLocation(pkm, 0x7532); // a Link Trade (Egg)
@@ -1020,7 +1020,7 @@ void SaveManager::tradePkm(pkm_s* pkm)
 		if ((Pokemon::TID(pkm) == savedata.TID) &&
 			(Pokemon::SID(pkm) == savedata.SID) &&
 			(Pokemon::OT_gender(pkm) == savedata.OTGender) &&
-			(u16cmp(Pokemon::OT_name(pkm), (u16*)(savebuffer + offsetTrainerCard + 0x48), 0x18) == 0))
+			(str16ncmp(Pokemon::OT_name(pkm), (u16*)(savebuffer + offsetTrainerCard + 0x48), 0x18) == 0))
 		{
 			// If it's coming back from a non-OT
 			if (Pokemon::currentHandler(pkm) == 0x01)
@@ -1042,7 +1042,7 @@ void SaveManager::tradePkm(pkm_s* pkm)
 			else
 			{
 				// If it is not the "same non-OT"
-				if (u16cmp(Pokemon::HT_name(pkm), (u16*)(savebuffer + offsetTrainerCard + 0x48), 0x18) != 0)
+				if (str16ncmp(Pokemon::HT_name(pkm), (u16*)(savebuffer + offsetTrainerCard + 0x48), 0x18) != 0)
 				{
 					tradePkmHT(pkm);
 				}

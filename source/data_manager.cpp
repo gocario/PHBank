@@ -190,7 +190,7 @@ void DataManager::loadDataLines(const u8* src, uint32_t** data, u32 srcSize, u32
 		utf8_to_utf32(data[count], src + sourceOffset, lineLength);
 
 		// Clear the rest of the wstring.
-		u16 len8 = u8len(src + sourceOffset, lineLength);
+		u16 len8 = str8nlen(src + sourceOffset, lineLength);
 		data[count][len8] = '\0';
 
 		sourceOffset += lineLength + 1;

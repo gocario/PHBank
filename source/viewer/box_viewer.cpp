@@ -1268,9 +1268,9 @@ void BoxViewer::populateVPkmData(vPkm_s* vPkm)
 	utf16_to_utf32(vPkm->NKName, Pokemon::NK_name(vPkm->pkm), 0xD);
 	utf16_to_utf32(vPkm->OTName, Pokemon::OT_name(vPkm->pkm), 0xD);
 	utf16_to_utf32(vPkm->HTName, Pokemon::HT_name(vPkm->pkm), 0xD);
-	u32fix(vPkm->NKName, 0xD);
-	u32fix(vPkm->OTName, 0xD);
-	u32fix(vPkm->HTName, 0xD);
+	str32nfix(vPkm->NKName, 0xD);
+	str32nfix(vPkm->OTName, 0xD);
+	str32nfix(vPkm->HTName, 0xD);
 
 	vPkm->emptySlot = save->isPkmEmpty(vPkm->pkm);
 
