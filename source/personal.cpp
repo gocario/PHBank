@@ -16,14 +16,15 @@ static void PersonalInfo_Import(PersonalInfo* pInfo, const u8* buf)
 	pInfo->types[0] = buf[0x6];
 	pInfo->types[1] = buf[0x7];
 
-	pInfo->items[0] = *(u16*)(buf+0xc);
-	pInfo->items[1] = *(u16*)(buf+0xe);
+	pInfo->items[0] = *(u16*)(buf+0xC);
+	pInfo->items[1] = *(u16*)(buf+0xE);
 	pInfo->items[2] = *(u16*)(buf+0x10);
 	pInfo->gender = buf[0x12];
 	pInfo->baseFriendship = buf[0x14];
 	pInfo->expGrowth = buf[0x15];
 
-	pInfo->formStats = *(u16*)(buf+0x1c);
+	pInfo->formStats = *(u16*)(buf+0x1C);
+	pInfo->formSprite = *(u16*)(buf+0x1E);
 	pInfo->formCount = buf[0x20];
 	pInfo->color = buf[0x21];
 

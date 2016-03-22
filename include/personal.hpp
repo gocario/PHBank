@@ -21,6 +21,7 @@ struct PersonalInfo
 	uint8_t baseFriendship;
 	uint8_t expGrowth;
 	uint16_t formStats;
+	uint16_t formSprite;
 	uint8_t formCount;
 	uint8_t color;
 };

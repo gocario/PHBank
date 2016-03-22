@@ -27,6 +27,7 @@ struct vPkm_s
 	uint32_t NKName[0xD];
 	uint32_t OTName[0xD];
 	uint32_t HTName[0xD];
+	sf2d_texture* icon;
 	const uint32_t* ability;
 	const uint32_t* item;
 	const uint32_t* moves[4];
@@ -129,6 +130,7 @@ class BoxViewer : public Viewer
 		void drawBox(box_s* box, int16_t x, int16_t y, bool cursor);
 		void drawPokemon(pkm_s* pkm, int16_t x, int16_t y, bool shadow);
 		void drawPokemonScale(pkm_s* pkm, int16_t x, int16_t y, float scale);
+		void drawViewPokemon(vPkm_s* vPkm, int16_t x, int16_t y);
 		void drawCursorButton(int16_t x, int16_t y);
 
 		bool isWonderBox(u16 boxId, bool inBank);

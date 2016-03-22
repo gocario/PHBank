@@ -3,11 +3,14 @@
 #include "lang.h"
 #include "text.h"
 #include "utils.h"
+#include "pkdir.h"
 #include "pokemon.hpp"
+#include "personal.hpp"
 
 #include "ultra_box_viewer.hpp"
 #include "savexit_viewer.hpp"
 
+#include <sfil.h>
 #include <sftd.h>
 #include <stdio.h>
 #include <string.h>
@@ -140,7 +143,7 @@ BoxViewer::BoxViewer(ViewType vType, Viewer* parent) : Viewer(vType, parent) { }
 BoxViewer::~BoxViewer()
 // --------------------------------------------------
 {
-
+	if (vPkm.icon) sf2d_free_texture(vPkm.icon);
 }
 
 
@@ -272,7 +275,7 @@ Result BoxViewer::drawTopScreen()
 		sftd_draw_wtext_white(x+10, (y += 15), vPkm.moves[2]);
 		sftd_draw_wtext_white(x+10, (y += 15), vPkm.moves[3]);
 
-		drawPokemonScale(vPkm.pkm, 256, 36, 3.0f);
+		drawViewPokemon(&vPkm, 256, 36);
 
 		if (vPkm.pkm->isShiny)
 		{
@@ -947,25 +950,37 @@ void BoxViewer::drawPokemon(pkm_s* pkm, int16_t x, int16_t y, bool shadow)
 
 	// sf2d_draw_rectangle(x, y, PKM_WIDTH, PKM_HEIGHT, RGBA8(0x00,0x00,0x00,0x22));
 
+	u16 widthCount = 25;
+	u16 sprite = pkm->speciesID;
 	sf2d_texture* pkmIcons = PHBanku::texture->pkmIcons;
-	if (pkm->isShiny) pkmIcons = PHBanku::texture->pkmShinyIcons;
+
+	// If a particular form and the species isn't Scatterbug/Spewpa (that is ugly tho)
+	if (pkm->formID > 0 && pkm->speciesID != 664 && pkm->speciesID != 665)
+	{
+		if (pkm->isShiny) pkmIcons = PHBanku::texture->pkmShinyFormIcons;
+		else pkmIcons = PHBanku::texture->pkmFormIcons;
+
+		widthCount = 12;
+		sprite = Personal(pkm->speciesID).formSprite + pkm->formID - 1;
+	}
+	else if (pkm->isShiny) pkmIcons = PHBanku::texture->pkmShinyIcons;
 
 	// Draw the shadow
 	if (shadow)
 	{
-		sf2d_draw_texture_part_blend(pkmIcons, x+4, y+4, (pkm->speciesID % 25) * 40, (pkm->speciesID / 25) * 30, 40, 30, RGBA8(0x00,0x00,0x00,0x55));
+		sf2d_draw_texture_part_blend(pkmIcons, x+4, y+4, (sprite % widthCount) * 40, (sprite / widthCount) * 30, 40, 30, RGBA8(0x00,0x00,0x00,0x55));
 	}
 
 	if (pkm->isEggy)
 	{
 		// Draw the egg+Pokémon icon
-		sf2d_draw_texture_part_blend(pkmIcons, x, y, (pkm->speciesID % 25) * 40, (pkm->speciesID / 25) * 30, 40, 30, RGBA8(0xFF,0xFF,0xFF,0xAA));
-		sf2d_draw_texture_part_blend(pkmIcons, x, y, (EGG_ID % 25) * 40, (EGG_ID / 25) * 30, 40, 30, RGBA8(0xFF,0xFF,0xFF,0x88));
+		sf2d_draw_texture_part_blend(pkmIcons, x, y, (sprite % widthCount) * 40, (sprite / widthCount) * 30, 40, 30, RGBA8(0xFF,0xFF,0xFF,0xAA));
+		sf2d_draw_texture_part_blend(pkmIcons, x, y, (EGG_ID % widthCount) * 40, (EGG_ID / widthCount) * 30, 40, 30, RGBA8(0xFF,0xFF,0xFF,0x88));
 	}
 	else
 	{
 		// Draw the Pokémon icon
-		sf2d_draw_texture_part(pkmIcons, x, y, (pkm->speciesID % 25) * 40, (pkm->speciesID / 25) * 30, 40, 30);
+		sf2d_draw_texture_part(pkmIcons, x, y, (sprite % widthCount) * 40, (sprite / widthCount) * 30, 40, 30);
 
 		// Draw the item
 		if (pkm->itemID > 0)
@@ -977,7 +992,6 @@ void BoxViewer::drawPokemon(pkm_s* pkm, int16_t x, int16_t y, bool shadow)
 	// Draw the checkbox
 	if (pkm->checked)
 	{
-		// TODO: Draw a check mark
 		sf2d_draw_texture_part(PHBanku::texture->boxTiles, x + 3, y + 22, 96, 56, 8, 8);
 	}
 }
@@ -988,6 +1002,8 @@ void BoxViewer::drawPokemonScale(pkm_s* pkm, int16_t x, int16_t y, float scale)
 // --------------------------------------------------
 {
 	if (pkm->speciesID == 0) return;
+
+	// TODO: Draw the Pokémon's form
 
 	sf2d_texture* pkmIcons = PHBanku::texture->pkmIcons;
 	if (pkm->isShiny) pkmIcons = PHBanku::texture->pkmShinyIcons;
@@ -1000,6 +1016,7 @@ void BoxViewer::drawPokemonScale(pkm_s* pkm, int16_t x, int16_t y, float scale)
 	if (pkm->isEggy)
 	{
 		// Draw the egg+Pokémon icon
+		// TODO: Enhance the egg display
 		sf2d_draw_texture_part_scale(pkmIcons, x, y, (pkm->speciesID % 25) * 40, (pkm->speciesID / 25) * 30, 40, 30, scale, scale);
 		sf2d_draw_texture_part(pkmIcons, x, y + 30 * (scale - 0.5f), (EGG_ID % 25) * 40, (EGG_ID / 25) * 30, 40, 30);
 	}
@@ -1011,12 +1028,39 @@ void BoxViewer::drawPokemonScale(pkm_s* pkm, int16_t x, int16_t y, float scale)
 		// Draw the item
 		if (pkm->itemID > 0)
 		{
-			// TODO: Draw item
+			// TODO: Enhance the item display
 			sf2d_draw_texture_part(PHBanku::texture->itemIcons, x + 5, y + 30 * (scale - 0.5f), (pkm->itemID % 34) * 30, (pkm->itemID / 34) * 30, 30, 30);
 		}
 	}
 }
 
+// --------------------------------------------------
+void BoxViewer::drawViewPokemon(vPkm_s* vPkm, int16_t x, int16_t y)
+// --------------------------------------------------
+{
+	if (!vPkm->pkm || vPkm->pkm->speciesID == 0) return;
+
+	if (vPkm->icon)
+	{
+		// TODO: Draw the Pokémon's form
+
+		sf2d_draw_texture_blend(vPkm->icon, x + 18, y + 2, RGBA8(0x00,0x00,0x00,0x55));
+		sf2d_draw_texture(vPkm->icon, x + 16, y);
+
+		if (vPkm->pkm->isEggy)
+		{
+			sf2d_draw_texture_part(vPkm->pkm->isShiny ? PHBanku::texture->pkmShinyIcons : PHBanku::texture->pkmIcons, x, y + 75, (EGG_ID % 25) * 40, (EGG_ID / 25) * 30, 40, 30);
+		}
+		else if (vPkm->pkm->itemID > 0)
+		{
+			sf2d_draw_texture_part(PHBanku::texture->itemIcons, x + 5, y + 75, (vPkm->pkm->itemID % 34) * 30, (vPkm->pkm->itemID / 34) * 30, 30, 30);
+		}
+	}
+	else
+	{
+		drawPokemonScale(vPkm->pkm, x, y, 3.0f);
+	}
+}
 
 // --------------------------------------------------
 void BoxViewer::drawCursorButton(int16_t x, int16_t y)
@@ -1257,11 +1301,39 @@ void BoxViewer::cancelMovePokemon()
 	sPkmCount = 0;
 }
 
+// --------------------------------------------------
+static void _loadVPkmIcon(void* arg)
+// --------------------------------------------------
+{
+	vPkm_s* vPkm = (vPkm_s*) arg;
+	char path[0x40];
+	snprintf(path, 0x40, PK_ROMFS_FOLDER "pokemon_sprites/%03u%s.png", vPkm->pkm->speciesID, vPkm->pkm->isShiny ? "s" : "");
+	vPkm->icon = sfil_load_PNG_file(path, SF2D_PLACE_RAM);
+}
+
+// --------------------------------------------------
+static void loadVPkmIconAsync(vPkm_s* vPkm)
+// --------------------------------------------------
+{
+	s32 prio = 0;
+	svcGetThreadPriority(&prio, CUR_THREAD_HANDLE);
+	threadCreate(_loadVPkmIcon, (void*) vPkm, 4*1024, prio-1, -2, true);
+}
 
 // --------------------------------------------------
 void BoxViewer::populateVPkmData(vPkm_s* vPkm)
 // --------------------------------------------------
 {
+	if (vPkm->icon)
+	{
+		sf2d_free_texture(vPkm->icon);
+		vPkm->icon = NULL;
+	}
+	
+	vPkm->emptySlot = save->isPkmEmpty(vPkm->pkm);
+	
+	if (!vPkm->emptySlot) loadVPkmIconAsync(vPkm);
+	
 	memset(vPkm->NKName, 0, 0xD * sizeof(uint32_t));
 	memset(vPkm->OTName, 0, 0xD * sizeof(uint32_t));
 	memset(vPkm->HTName, 0, 0xD * sizeof(uint32_t));
@@ -1272,7 +1344,6 @@ void BoxViewer::populateVPkmData(vPkm_s* vPkm)
 	str32nfix(vPkm->OTName, 0xD);
 	str32nfix(vPkm->HTName, 0xD);
 
-	vPkm->emptySlot = save->isPkmEmpty(vPkm->pkm);
 
 	vPkm->isKalosBorn = Pokemon::isKalosBorn(vPkm->pkm);
 	vPkm->isInfected = Pokemon::isInfected(vPkm->pkm);

@@ -5,9 +5,7 @@
 
 #define ROMFS "/pk/romfs/"
 
-#define STACKSIZE (4*1024)
-
-static volatile bool threadMainLoop;
+static bool threadMainLoop;
 
 static const int rowBackball[4][2] = {
 	{24,   0},
@@ -15,7 +13,7 @@ static const int rowBackball[4][2] = {
 	{ 8, +48},
 };
 
-void loading_screen(void* arg)
+void _loadingScreen(void* arg)
 {
 	TextureManager* that = (TextureManager*) arg;
 
@@ -34,7 +32,7 @@ void loading_screen(void* arg)
 	sf2d_set_vblank_wait(true);
 }
 
-void load_textures(void* arg)
+void _loadTextures(void* arg)
 {
 	TextureManager* that = (TextureManager*) arg;
 
@@ -48,6 +46,8 @@ TextureManager::TextureManager(void)
 	ballLoadingScreen = NULL;
 	pkmIcons = NULL;
 	pkmShinyIcons = NULL;
+	pkmFormIcons = NULL;
+	pkmShinyFormIcons = NULL;
 	itemIcons = NULL;
 	ballIcons = NULL;
 	types = NULL;
@@ -61,6 +61,8 @@ TextureManager::~TextureManager(void)
 	sf2d_free_texture(ballLoadingScreen);
 	sf2d_free_texture(pkmIcons);
 	sf2d_free_texture(pkmShinyIcons);
+	sf2d_free_texture(pkmFormIcons);
+	sf2d_free_texture(pkmShinyFormIcons);
 	sf2d_free_texture(itemIcons);
 	sf2d_free_texture(ballIcons);
 	sf2d_free_texture(types);
@@ -71,26 +73,22 @@ TextureManager::~TextureManager(void)
 
 Result TextureManager::load(void)
 {
-	// s32 prio = 0;
-	// Thread loadingThread;
-
 	printf("Loading ballLoadingScreen: %p\n", (ballLoadingScreen = sfil_load_PNG_file(ROMFS "ball_loading_screen.png", SF2D_PLACE_RAM)));
 
 	if (!ballLoadingScreen) return -5;
 
 	drawStaticLoadingScreen();
 
+	// s32 prio = 0;
 	// threadMainLoop = true;
 	// svcGetThreadPriority(&prio, CUR_THREAD_HANDLE);
-	// loadingThread = threadCreate(loading_screen, (void*)this, STACKSIZE, prio-1, -2, false);
+	// threadCreate(_loadingScreen, (void*) this, 4*1024, prio-1, -2, true);
 
 	Result ret = (loadTextures() ? 0 : -5);
 
-	// threadMainLoop = false;
-	// threadJoin(loadingThread, U64_MAX);
-	// threadFree(loadingThread);
-
 	sf2d_texture_set_params(this->boxTiles, GPU_TEXTURE_MAG_FILTER(GPU_LINEAR) | GPU_TEXTURE_MIN_FILTER(GPU_LINEAR));
+
+	// threadMainLoop = false;
 
 	return ret;
 }
@@ -99,6 +97,8 @@ bool TextureManager::loadTextures()
 {
 	printf("Loading pkmIcons: %p\n", (this->pkmIcons = sfil_load_PNG_file(ROMFS "pokemon_icons_spritesheet.png", SF2D_PLACE_RAM)));
 	printf("Loading pkmShinyIcons: %p\n", (this->pkmShinyIcons = sfil_load_PNG_file(ROMFS "pokemon_shiny_icons_spritesheet.png", SF2D_PLACE_RAM)));
+	printf("Loading pkmFormIcons: %p\n", (this->pkmFormIcons = sfil_load_PNG_file(ROMFS "pokemon_form_icons_spritesheet.png", SF2D_PLACE_RAM)));
+	printf("Loading pkmShinyFormIcons: %p\n", (this->pkmShinyFormIcons = sfil_load_PNG_file(ROMFS "pokemon_shiny_form_icons_spritesheet.png", SF2D_PLACE_RAM)));
 	printf("Loading itemIcons: %p\n", (this->itemIcons = sfil_load_PNG_file(ROMFS "item_icons_spritesheet.png", SF2D_PLACE_RAM)));
 	printf("Loading ballIcons: %p\n", (this->ballIcons = sfil_load_PNG_file(ROMFS "ball_icons_spritesheet.png", SF2D_PLACE_RAM)));
 	printf("Loading types: %p\n", (this->types = sfil_load_PNG_file(ROMFS "types_lang.png", SF2D_PLACE_RAM)));
@@ -106,7 +106,7 @@ bool TextureManager::loadTextures()
 	printf("Loading boxBackgrounds: %p\n", (this->boxBackgrounds = sfil_load_PNG_file(ROMFS "box_backgrounds.png", SF2D_PLACE_RAM)));
 	printf("Loading resumeBackground: %p\n", (this->resumeBackground = sfil_load_PNG_file(ROMFS "resume_background.png", SF2D_PLACE_RAM)));
 
-	return (pkmIcons && pkmShinyIcons && itemIcons && ballIcons && types && boxTiles && boxBackgrounds && resumeBackground);
+	return (pkmIcons && pkmShinyIcons && pkmFormIcons && pkmShinyFormIcons && itemIcons && ballIcons && types && boxTiles && boxBackgrounds && resumeBackground);
 }
 
 void TextureManager::drawStaticLoadingScreen(void)
