@@ -199,6 +199,22 @@ namespace Pokedex
 						}
 						break;
 					}
+					case  25: // Pikacha
+					{
+						{ printf("SH_FORM_SEEN_FLAG\n"); setOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*(shiny) /* SH_FORM_SEEN_OFFSET */, formdexBit, true); }
+						{ printf("SH_FORM_SEEN_FLAG\n"); setOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*(shiny) /* SH_FORM_SEEN_OFFSET */, formdexBit + 6, true); }
+						break;
+					}
+					// TODO: Handle Mega forms
+					// case XXX: // Mega
+					// {
+					// 	if (formID > 0)
+					// 	{
+					// 		{ printf("SH_FORM_SEEN_FLAG\n"); setOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*(shiny) /* SH_FORM_SEEN_OFFSET */, formdexBit, true); }
+					// 	}
+					// 	{ printf("SH_FORM_SEEN_FLAG\n"); setOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*(shiny) /* SH_FORM_SEEN_OFFSET */, formdexBit + formID, true); }
+					// 	break;
+					// }
 					default:
 					{
 						{ printf("SH_FORM_SEEN_FLAG\n"); setOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*(shiny) /* SH_FORM_SEEN_OFFSET */, formdexBit + formID, true); }
