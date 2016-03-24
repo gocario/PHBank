@@ -118,7 +118,6 @@ class SaveManager
 		void saveEk6BK(pkm_s* pkm);
 		void savePk6Ek6(pkm_s* pkm);
 		void savePkmPk6(pkm_s* pkm);
-
 };
 
 #endif // SAVE_MANAGER_HPP

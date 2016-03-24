@@ -180,7 +180,7 @@ namespace Pokedex
 		// Formdex
 		if (pInfo.formCount > 0)
 		{
-			s32 formdexBit = (Game::is(version, Game::XY) ? getFormDexOffsetXY(species) : getFormDexOffsetORAS(species));
+			s32 formdexBit = Game::is(version, Game::XY) ? getFormDexOffsetXY(species) : getFormDexOffsetORAS(species);
 
 			if (formdexBit >= 0)
 			{

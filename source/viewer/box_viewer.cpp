@@ -194,8 +194,10 @@ Result BoxViewer::drawTopScreen()
 	sftd_draw_wtext_white(11, 40, data->text(BankText::GameTrainer));
 
 	// If there is a current Pokémon
-	if (vPkm.pkm && !vPkm.emptySlot)
+	if ((vPkm.pkm && !vPkm.emptySlot) || sPkm)
 	{
+		pkm_s* pkm = !vPkm.emptySlot ? vPkm.pkm : sPkm;
+
 		sftd_draw_wtextf_white(91, 40, L"%S (%lu/%lu)", save->savedata.OTName, save->savedata.TSV, vPkm.PSV);
 
 		uint32_t x, y;
@@ -205,14 +207,14 @@ Result BoxViewer::drawTopScreen()
 		x = 32;
 		y = 16 - 2;
 		// Is the Pokémon an egg?
-		if (vPkm.pkm->isEggy)
+		if (pkm->isEggy)
 		{
 			sftd_draw_wtext_white(x, y, data->species(0));
 		}
 		else
 		{
 			// Is the Pokémon nicknamed?
-			if (Pokemon::isNicknamed(vPkm.pkm))
+			if (Pokemon::isNicknamed(pkm))
 			{
 				sftd_draw_wtext_white(x, y, vPkm.NKName);
 			}
@@ -227,7 +229,7 @@ Result BoxViewer::drawTopScreen()
 		x = 11;
 		y = 42 - 2;
 		sftd_draw_wtext_white(x, (y += 15), data->text(BankText::DexNo));
-		sftd_draw_text_white(x+50, y, "%03u", vPkm.pkm->speciesID);
+		sftd_draw_text_white(x+50, y, "%03u", pkm->speciesID);
 		sftd_draw_wtext_white(x+80, y, vPkm.species);
 		sftd_draw_wtext_white(x, (y += 15), data->text(BankText::OriginalTrainer));
 		sftd_draw_wtext_white(x+50, y, vPkm.OTName);
@@ -277,7 +279,7 @@ Result BoxViewer::drawTopScreen()
 
 		drawViewPokemon(&vPkm, 256, 36);
 
-		if (vPkm.pkm->isShiny)
+		if (pkm->isShiny)
 		{
 			sf2d_draw_texture_part(PHBanku::texture->boxTiles, 240, 135, 54, 64, 9, 9);
 		}
@@ -596,6 +598,15 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 		{
 			// Drop a Pokémon
 			cancelMovePokemon();
+		}
+
+		if (kDown & KEY_Y)
+		{
+			// Open the UltraBox viewer
+			UltraBoxViewer* ultraBoxViewer = new UltraBoxViewer(ViewType::Regular, this);
+			ultraBoxViewer->selectViewBox(*cursorBox.box, cursorBox.inBank);
+			child->initialize();
+			return CHILD_STEP;
 		}
 	}
 	else if (cursorType == CursorType::QuickSelect)
@@ -1486,6 +1497,15 @@ void BoxViewer::populateVPkmData(vPkm_s* vPkm)
 	vPkm->emptySlot = save->isPkmEmpty(vPkm->pkm);
 	
 	if (!vPkm->emptySlot) loadVPkmIconAsync(vPkm);
+	else if (sPkm)
+	{
+		pkm_s* pkm = vPkm->pkm;
+		vPkm->pkm = sPkm;
+		populateVPkmData(vPkm);
+		vPkm->pkm = pkm;
+		vPkm->emptySlot = true;
+		return;
+	}
 	
 	memset(vPkm->NKName, 0, 0xD * sizeof(uint32_t));
 	memset(vPkm->OTName, 0, 0xD * sizeof(uint32_t));

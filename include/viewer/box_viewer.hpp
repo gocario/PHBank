@@ -9,6 +9,7 @@
 #include "phbank.hpp"
 #include "save.hpp"
 
+/// Structure containing the data displayed on top screen
 struct vPkm_s
 {
 	pkm_s* pkm = NULL;
@@ -43,6 +44,7 @@ struct vPkm_s
 	u8 gen;
 };
 
+// TODO: Reformat like PHBankGB
 struct BoxSlot_s
 {
 	bool inBank = false;
@@ -55,6 +57,7 @@ struct BoxSlot_s
 	s16 colCount = 0;
 };
 
+// TODO: Reformat like PHBankGB
 struct CursorBox_s
 {
 	bool inBank = false;

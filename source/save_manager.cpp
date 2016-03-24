@@ -91,7 +91,7 @@ Result SaveManager::load(void)
 	printf(">Loading...\n");
 	loadData();
 
-	return ret;
+	return 0;
 }
 
 
@@ -108,7 +108,7 @@ Result SaveManager::save(void)
 	ret = saveFile();
 	if (R_FAILED(ret)) return ret;
 
-	return ret;
+	return 0;
 }
 
 
@@ -180,7 +180,7 @@ Result SaveManager::backupFile(void)
 
 	printf(">Backing up Save to sdmc\n");
 	ret = backupSaveFile();
-	// if (R_FAILED(ret)) return ret; // ASK Uncomment this?
+	// if (R_FAILED(ret)) return ret;
 
 	printf(">Backing up Bank to sdmc\n");
 	ret = backupBankFile();
@@ -194,7 +194,7 @@ Result SaveManager::backupFile(void)
 Result SaveManager::loadSaveFile(void)
 // ----------------------------------------------
 {
-	memset(savebuffer, 0, sizeof(savebuffer_t));
+	// memset(savebuffer, 0, sizeof(savebuffer_t));
 
 	Result ret;
 	u32 bytesRead = 0;
@@ -223,7 +223,7 @@ Result SaveManager::loadSaveFile(void)
 Result SaveManager::loadBankFile(void)
 // ----------------------------------------------
 {
-	memset(bankbuffer, 0, sizeof(bankbuffer_t));
+	// memset(bankbuffer, 0, sizeof(bankbuffer_t));
 
 	Result ret;
 	u32 bytesRead = 0;
@@ -422,7 +422,7 @@ void SaveManager::loadSaveData(void)
 			}
 
 			memset(savedata.pc.box[iB].title, 0, 0x11 * sizeof(uint32_t));
-			utf16_to_utf32(savedata.pc.box[iB].title, (u16*)(savebuffer + offsetPCLayout + 0x22 * iB), 0x11);
+			utf16_to_utf32(savedata.pc.box[iB].title, (u16*)(savebuffer + offsetPCLayout + 0x22 * iB), 0x10);
 			savedata.pc.box[iB].background = *(savebuffer + offsetPCBackground + 0x1 * iB);
 			savedata.pc.box[iB].number = iB;
 		}
@@ -453,7 +453,7 @@ void SaveManager::loadBankData(void)
 		}
 
 		memset(bankdata.bk.box[iB].title, 0, 0x11 * sizeof(uint32_t));
-		utf16_to_utf32(bankdata.bk.box[iB].title, (u16*)(bankbuffer + offsetBKLayout + 0x22 * iB), 0x11);
+		utf16_to_utf32(bankdata.bk.box[iB].title, (u16*)(bankbuffer + offsetBKLayout + 0x22 * iB), 0x10);
 		bankdata.bk.box[iB].background = *(bankbuffer + offsetBKBackground + 0x1 * iB);
 		bankdata.bk.box[iB].number = iB;
 	}
@@ -613,7 +613,7 @@ void SaveManager::saveSaveData(void)
 			}
 
 			memset((u16*)(savebuffer + offsetPCLayout + 0x22 * iB), 0, 0x11 * sizeof(uint16_t));
-			utf32_to_utf16((u16*)(savebuffer + offsetPCLayout + 0x22 * iB), savedata.pc.box[iB].title, 0x11);
+			utf32_to_utf16((u16*)(savebuffer + offsetPCLayout + 0x22 * iB), savedata.pc.box[iB].title, 0x10);
 			*(savebuffer + offsetPCBackground + 0x1 * iB) = savedata.pc.box[iB].background;
 		}
 		printf(" OK\n");
@@ -638,7 +638,7 @@ void SaveManager::saveBankData(void)
 		}
 
 		memset((u16*)(bankbuffer + offsetBKLayout + 0x22 * iB), 0, 0x11 * sizeof(uint16_t));
-		utf32_to_utf16((u16*)(bankbuffer + offsetBKLayout + 0x22 * iB), bankdata.bk.box[iB].title, 0x11);
+		utf32_to_utf16((u16*)(bankbuffer + offsetBKLayout + 0x22 * iB), bankdata.bk.box[iB].title, 0x10);
 		*(bankbuffer + offsetBKBackground + 0x1 * iB) = bankdata.bk.box[iB].background;
 	}
 	printf(" OK\n");
