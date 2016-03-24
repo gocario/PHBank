@@ -82,6 +82,7 @@ enum class CursorType : u8
 	SingleSelect = 0,
 	QuickSelect = 1,
 	MultiSelect = 2,
+	DevSelect = 3,
 };
 
 void computeSlot(CursorBox_s* cursorBox);
@@ -141,6 +142,8 @@ class BoxViewer : public Viewer
 		void selectViewPokemon();
 		void selectMovePokemon();
 		void selectMultiMovePokemon(bool check);
+		void selectPastePokemon();
+		void selectMultiPastePokemon(bool check);
 		void cancelMovePokemon();
 		void populateVPkmData(vPkm_s* vPkm);
 };

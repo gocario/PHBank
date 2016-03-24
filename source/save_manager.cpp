@@ -30,6 +30,11 @@ SaveManager::SaveManager(void)
 	sizeBank = SaveConst::BANK_size;
 
 	version = Game::None;
+
+	gspWaitForVBlank();
+	hidScanInput();
+	dev = !(hidKeysHeld() & KEY_L) && !(hidKeysHeld() & KEY_R) && (hidKeysHeld() & KEY_ZL) && (hidKeysHeld() & KEY_ZR);
+	if (dev) printf("Dev mode enabled\n");
 }
 
 

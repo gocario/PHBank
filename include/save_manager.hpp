@@ -17,6 +17,7 @@ class SaveManager
 		bankbuffer_t bankbuffer;
 		savedata_s savedata;
 		bankdata_s bankdata;
+		bool dev;
 
 	public:
 		/* PC Offsets */

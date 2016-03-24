@@ -661,6 +661,46 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 			return CHILD_STEP;
 		}
 	}
+	else if (cursorType == CursorType::DevSelect)
+	{
+		if (kDown & KEY_A)
+		{
+			// Paste a Pokémon (copy & paste)
+			selectPastePokemon();
+		}
+
+		if (kDown & KEY_B)
+		{
+			// Drop a Pokémon
+			cancelMovePokemon();
+		}
+
+		if (kDown & KEY_X)
+		{
+			// Paste the checked Pokémon to the current box
+			selectMultiPastePokemon(false);
+		}
+
+		if (kDown & KEY_Y)
+		{
+			// Toggle a Pokémon (check & move)
+			selectMultiPastePokemon(true);
+
+			if (vPkm.pkm)
+			{
+				checkToggle = vPkm.pkm->checked;
+				isPkmChecking = true;
+			}
+		}
+		else if (kHeld & KEY_Y)
+		{
+			if (vPkm.pkm && vPkm.pkm->checked != checkToggle)
+			{
+				// Toggle a Pokémon (check & move)
+				selectMultiPastePokemon(true);
+			}
+		}
+	}
 
 	{
 		if (bboxMod); // Cancel selection if the (PC|BK) changed
@@ -1112,6 +1152,8 @@ void BoxViewer::switchCursorType()
 	else if (cursorType == CursorType::QuickSelect)
 		selectCursorType(CursorType::MultiSelect);
 	else if (cursorType == CursorType::MultiSelect)
+		selectCursorType(save->dev ? CursorType::DevSelect : CursorType::SingleSelect);
+	else if (cursorType == CursorType::DevSelect)
 		selectCursorType(CursorType::SingleSelect);
 }
 
@@ -1195,7 +1237,7 @@ void BoxViewer::selectMovePokemon()
 		// If the selected Pokémon isn't the current Pokémon
 		if (sPkm != vPkm.pkm)
 		{
-			// Swap the Pokémon currenlty selected and the current Pokémon, and keep the return value (true: had moved, false: hadn't)
+			// Swap the selected Pokémon and the current Pokémon, and keep the return value (true: had moved, false: hadn't)
 			bool moved = save->movePkm(sPkm, vPkm.pkm, sSlot.inBank, cursorBox.inBank);
 
 			// If the Pokémon had moved
@@ -1203,10 +1245,10 @@ void BoxViewer::selectMovePokemon()
 			{
 				// Cancel the selection
 				cancelMovePokemon();
-			}
 
-			// And populate the Pokémon data
-			populateVPkmData(&vPkm);
+				// And populate the Pokémon data
+				populateVPkmData(&vPkm);
+			}
 		}
 		else
 		{
@@ -1224,6 +1266,7 @@ void BoxViewer::selectMultiMovePokemon(bool check)
 	// Compute the current cursor slot
 	computeSlot(&cursorBox);
 
+	// We check
 	if (check)
 	{
 		// If there is a real Pokémon to check
@@ -1248,6 +1291,7 @@ void BoxViewer::selectMultiMovePokemon(bool check)
 			}
 		}
 	}
+	// Else we move
 	else
 	{
 		u8 vPkmCount = 0;
@@ -1271,6 +1315,115 @@ void BoxViewer::selectMultiMovePokemon(bool check)
 				// Find the next empty slot
 				for (; !save->isPkmEmpty(&box->slot[i]) && i < BOX_PKM_COUNT; i++);
 				save->movePkm(sPkms[ii], &box->slot[i], sPkmBanked[ii], cursorBox.inBank);
+				box->slot[i].checked = false;
+				i++;
+			}
+
+			cancelMovePokemon();
+		}
+	}
+}
+
+
+// --------------------------------------------------
+void BoxViewer::selectPastePokemon()
+// --------------------------------------------------
+{
+	// Compute the current cursor slot
+	computeSlot(&cursorBox);
+
+	// If no Pokémon is currently selected
+	if (!sPkm)
+	{
+		// If the current Pokémon slot isn't empty (to avoid empty slot paste)
+		if (!vPkm.emptySlot)
+		{
+			// Select the current Pokémon
+			sPkm = vPkm.pkm;
+			extractBoxSlot(&sSlot, &cursorBox);
+
+			// If the buttons are used.
+			if (!isPkmDragged)
+			{
+				isPkmHeld = true;
+			}
+		}
+	}
+	// Else if there is no real current Pokémon
+	else if (vPkm.pkm && vPkm.emptySlot)
+	{
+		// Paste the selected Pokémon to the current slot, and keep the return value (true: was pasted, false: wasn't)
+		bool pasted = save->pastePkm(sPkm, vPkm.pkm, sSlot.inBank, cursorBox.inBank);
+
+		// If the Pokémon was pasted
+		if (pasted)
+		{
+			// Cancel the selection..?
+			// cancelMovePokemon();
+
+			// And populate the Pokémon data
+			populateVPkmData(&vPkm);
+		}
+	}
+}
+
+
+// --------------------------------------------------
+void BoxViewer::selectMultiPastePokemon(bool check)
+// --------------------------------------------------
+{
+	// Compute the current cursor slot
+	computeSlot(&cursorBox);
+
+	// We check
+	if (check)
+	{
+		// If there is a real Pokémon to check
+		if (vPkm.pkm && !vPkm.emptySlot)
+		{
+			// If the Pokémon is already checked, uncheck it
+			if (vPkm.pkm->checked)
+			{
+				u8 i;
+				sPkmCount--;
+				vPkm.pkm->checked = false;
+				for (i = 0; sPkms[i] != vPkm.pkm; i++);
+				for (; i < sPkmCount; i++) sPkms[i] = sPkms[i+1];
+			}
+			// If there is enough place in the checked list
+			else if (sPkmCount < BOX_PKM_COUNT)
+			{
+				vPkm.pkm->checked = true;
+				sPkms[sPkmCount] = vPkm.pkm;
+				sPkmBanked[sPkmCount] = cursorBox.inBank;
+				sPkmCount++;
+			}
+		}
+	}
+	// Else we paste
+	else
+	{
+		u8 vPkmCount = 0;
+		box_s* box = (cursorBox.inBank ? vBKBox : vPCBox);
+
+		// Count the free slots
+		for (u8 i = 0; i < BOX_PKM_COUNT; i++)
+		{
+			if (save->isPkmEmpty(&box->slot[i]))
+			{
+				vPkmCount++;
+			}
+		}
+
+		// If there is enough free slot
+		if (vPkmCount >= sPkmCount)
+		{
+			// Paste the checked Pokémon to the current box
+			for (u8 i = 0, ii = 0; ii < sPkmCount; ii++)
+			{
+				// Find the next empty slot
+				for (; !save->isPkmEmpty(&box->slot[i]) && i < BOX_PKM_COUNT; i++);
+				save->pastePkm(sPkms[ii], &box->slot[i], sPkmBanked[ii], cursorBox.inBank);
 				box->slot[i].checked = false;
 				i++;
 			}
