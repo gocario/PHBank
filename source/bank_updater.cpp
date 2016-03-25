@@ -40,7 +40,12 @@ namespace BankUpdater
 			printf("\a0x00000000->0x020000B0\n");
 
 			*(u32*)(bankbuffer + 0x00) = MakeMagic('B', 'A', 'N', 'K');
-			printf("\e"); // It is really needed else it will freeze
+			printf("\r"); // It is really needed else it will freeze
+
+			// bankbuffer[0] = 'B';
+			// bankbuffer[1] = 'A';
+			// bankbuffer[2] = 'N';
+			// bankbuffer[3] = 'K';
 
 			*(u32*)(bankbuffer + 0x04) = version = 0x020000B0;
 			*(u32*)(bankbuffer + 0x20) = 0x00000100;	///< Box data offset (NEW)
@@ -49,6 +54,7 @@ namespace BankUpdater
 			*(u32*)(bankbuffer + 0x2C) = 0x00000000;	///< ??? offset (NEW)
 		}
 
+		// Before the wonderbox
 		if (version == 0x020000B0)
 		{
 			printf("\a0x020000B0->0x020001B0\n");
@@ -64,8 +70,8 @@ namespace BankUpdater
 			return true;
 		}
 
-		// It didn't reach the current version
-		return false;
+		// Current real version
+		return version == VERSION;
 	}
 
 	/**
