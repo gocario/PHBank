@@ -157,11 +157,11 @@ clean:
 #---------------------------------------------------------------------------------
 run: $(BUILD)
 	@echo run ...
-	@echo TODO: add citra path
+	$(DEVKITPRO)/devkitCITRA/citra.exe $(TARGET).elf
 
 #---------------------------------------------------------------------------------
 3dsx: $(BUILD)
-	@echo built ... $(TARGET).cia
+	@echo built ... $(TARGET).3dsx
 	
 #---------------------------------------------------------------------------------
 cia: $(BUILD)
@@ -171,11 +171,6 @@ cia: $(BUILD)
 #	@echo built ... $(TARGET).smdh
 	@makerom -f cia -target t -exefslogo -o $(TARGET).cia -elf $(TARGET).elf -rsf $(CIA_RSF) -banner $(CIA_BANNER) -icon $(CIA_SMDH)
 	@echo built ... $(TARGET).cia
-
-#---------------------------------------------------------------------------------
-send: $(BUILD)
-	@echo send ...
-	@echo TODO: add 3dslink cmd
 
 #---------------------------------------------------------------------------------
 else
