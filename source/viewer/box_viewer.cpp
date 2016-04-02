@@ -1471,8 +1471,17 @@ static void _loadVPkmIcon(void* arg)
 {
 	vPkm_s* vPkm = (vPkm_s*) arg;
 	char path[0x40];
-	snprintf(path, 0x40, PK_ROMFS_FOLDER "pokemon_sprites/%03u%s.png", vPkm->pkm->speciesID, vPkm->pkm->isShiny ? "s" : "");
+
+	// Try to load from sdmc:/
+	snprintf(path, 0x40, SDMC ROMFS_FOLDER "pokemon_sprites/%03u%s.png", vPkm->pkm->speciesID, vPkm->pkm->isShiny ? "s" : "");
 	vPkm->icon = sfil_load_PNG_file(path, SF2D_PLACE_RAM);
+
+	if (!vPkm->icon)
+	{
+		// Try to load from romfs:/
+		snprintf(path, 0x40, ROMFS ROMFS_FOLDER "pokemon_sprites/%03u%s.png", vPkm->pkm->speciesID, vPkm->pkm->isShiny ? "s" : "");
+		vPkm->icon = sfil_load_PNG_file(path, SF2D_PLACE_RAM);
+	}
 }
 
 // --------------------------------------------------

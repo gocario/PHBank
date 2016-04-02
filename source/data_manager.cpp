@@ -122,11 +122,19 @@ Result DataManager::load()
 
 Result DataManager::loadPersonal(const char* file, bool ao, u32 personalCount, u32 personalInfoSize)
 {
-	char path[32];
-	sprintf(path, PK_DATA_FOLDER "%s", file);
+	FILE* fp;
+	char path[0x30];
 
-	FILE* fp = fopen(path, "rb");
-	if (!fp) return -1;
+	// Try to load from sdmc:/
+	sprintf(path, SDMC DATA_FOLDER "%s", file);
+	fp = fopen(path, "rb");
+	if (!fp)
+	{
+		// Try to load from romfs:/
+		sprintf(path, ROMFS DATA_FOLDER "%s", file);
+		fp = fopen(path, "rb");
+		if (!fp) return -1;
+	}
 
 	u8* personal_ao = new u8[personalCount * personalInfoSize];
 
@@ -145,15 +153,30 @@ Result DataManager::loadPersonal(const char* file, bool ao, u32 personalCount, u
 
 Result DataManager::loadDataFile(const char* file, uint32_t** data, u32 lineCount)
 {
-	char path[40];
-	sprintf(path, PK_DATA_FOLDER "%s/%s_%s.txt", lang(), file, lang());
+	FILE* fp;
+	char path[0x30];
 
-	FILE* fp = fopen(path, "r");
+	// Try to load the lang from sdmc:/
+	sprintf(path, SDMC DATA_FOLDER "%s/%s_%s.txt", lang(), file, lang());
+	fp = fopen(path, "r");
 	if (!fp)
 	{
-		sprintf(path, PK_DATA_FOLDER "en/%s_en.txt", file);
+		// Try to load the lang from romfs:/
+		sprintf(path, ROMFS DATA_FOLDER "%s/%s_%s.txt", lang(), file, lang());
 		fp = fopen(path, "r");
-		if (!fp) return -1;
+		if (!fp)
+		{
+			// Try to load the default lang from sdmc:/
+			sprintf(path, SDMC DATA_FOLDER "en/%s_en.txt", file);
+			fp = fopen(path, "r");
+			if (!fp)
+			{
+				// Try to load the default lang from romfs:/
+				sprintf(path, ROMFS DATA_FOLDER "en/%s_en.txt", file);
+				fp = fopen(path, "r");
+				if (!fp) return -1;
+			}
+		}
 	}
 
 	fseek(fp, 0L, SEEK_END);

@@ -9,7 +9,7 @@ RomFs:
 
 TitleInfo:
   Category                : Application
-  UniqueId                : 0xf04ed
+  UniqueId                : 0x0f04ed
 
 Option:
   UseOnSD                 : true # true if App is to be installed to SD

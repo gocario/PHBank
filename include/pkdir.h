@@ -9,22 +9,28 @@
 /**
  * @brief Brew files.
  */
-#define PK_SAVE_FILE "main"
-#define PK_BANK_FILE "bank"
+#define SAVE_FILE "main"
+#define BANK_FILE "bank"
+
+/**
+ * @brief Devices.
+ */
+#define ROOT "/"
+#define SDMC "sdmc:/"
+#define ROMFS "romfs:/"
+#define SAVE "pksave:/"
 
 /**
  * @brief Shared folders.
  */
-#define PK_ROOT_FOLDER "/"
-#define PK_BASE_FOLDER PK_ROOT_FOLDER "pk/"
-#define PK_BACKUP_FOLDER PK_ROOT_FOLDER "pk/backup/"
-#define PK_DATA_FOLDER PK_ROOT_FOLDER "pk/data/"
-#define PK_ROMFS_FOLDER PK_ROOT_FOLDER "pk/romfs/"
+#define BASE_FOLDER "pk/"
+#define BACKUP_FOLDER "pk/backup/"
+#define DATA_FOLDER "pk/data/"
+#define ROMFS_FOLDER "pk/romfs/"
 
 /**
  * @brief Brew folders.
  */
-#define PK_BANK_FOLDER PK_ROOT_FOLDER "pk/bank/"
-#define PK_PCHEXPP_FOLDER PK_ROOT_FOLDER "pk/PCHex++/"
+#define BANK_FOLDER "pk/bank/"
 
 #endif // PKDIR_H
