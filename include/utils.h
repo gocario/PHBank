@@ -92,7 +92,7 @@ inline u16 str8nlen(const u8* str, s16 max)
 	if (!str) return 0;
 	u16 i = 0;
 	for (u16 ii = 0; ii < max && str[ii]; ii++)
-		if ((str[ii] & 0xC0) != 0x80)
+		if ((str[ii] & 0xC0) ^ 0x80)
 			i++;
 	return i;
 }
