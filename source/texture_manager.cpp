@@ -73,7 +73,7 @@ TextureManager::~TextureManager(void)
 
 Result TextureManager::load(void)
 {
-	printf("Loading ballLoadingScreen: %p\n", (ballLoadingScreen = sfil_load_PNG_file(ROMFS "ball_loading_screen.png", SF2D_PLACE_RAM)));
+	printf("Loading ballLoadingScreen: @%p\n", (ballLoadingScreen = sfil_load_PNG_file(ROMFS "ball_loading_screen.png", SF2D_PLACE_RAM)));
 
 	if (!ballLoadingScreen) return -5;
 
@@ -85,6 +85,7 @@ Result TextureManager::load(void)
 	// threadCreate(_loadingScreen, (void*) this, 4*1024, prio-1, -2, true);
 
 	Result ret = (loadTextures() ? 0 : -5);
+	if (R_FAILED(ret)) return ret;
 
 	sf2d_texture_set_params(this->boxTiles, GPU_TEXTURE_MAG_FILTER(GPU_LINEAR) | GPU_TEXTURE_MIN_FILTER(GPU_LINEAR));
 
@@ -95,18 +96,47 @@ Result TextureManager::load(void)
 
 bool TextureManager::loadTextures()
 {
-	printf("Loading pkmIcons: %p\n", (this->pkmIcons = sfil_load_PNG_file(ROMFS "pokemon_icons_spritesheet.png", SF2D_PLACE_RAM)));
-	printf("Loading pkmShinyIcons: %p\n", (this->pkmShinyIcons = sfil_load_PNG_file(ROMFS "pokemon_shiny_icons_spritesheet.png", SF2D_PLACE_RAM)));
-	printf("Loading pkmFormIcons: %p\n", (this->pkmFormIcons = sfil_load_PNG_file(ROMFS "pokemon_form_icons_spritesheet.png", SF2D_PLACE_RAM)));
-	printf("Loading pkmShinyFormIcons: %p\n", (this->pkmShinyFormIcons = sfil_load_PNG_file(ROMFS "pokemon_shiny_form_icons_spritesheet.png", SF2D_PLACE_RAM)));
-	printf("Loading itemIcons: %p\n", (this->itemIcons = sfil_load_PNG_file(ROMFS "item_icons_spritesheet.png", SF2D_PLACE_RAM)));
-	printf("Loading ballIcons: %p\n", (this->ballIcons = sfil_load_PNG_file(ROMFS "ball_icons_spritesheet.png", SF2D_PLACE_RAM)));
-	printf("Loading types: %p\n", (this->types = sfil_load_PNG_file(ROMFS "types_lang.png", SF2D_PLACE_RAM)));
-	printf("Loading boxTiles: %p\n", (this->boxTiles = sfil_load_PNG_file(ROMFS "box_tiles.png", SF2D_PLACE_RAM)));
-	printf("Loading boxBackgrounds: %p\n", (this->boxBackgrounds = sfil_load_PNG_file(ROMFS "box_backgrounds.png", SF2D_PLACE_RAM)));
-	printf("Loading resumeBackground: %p\n", (this->resumeBackground = sfil_load_PNG_file(ROMFS "resume_background.png", SF2D_PLACE_RAM)));
+	this->pkmIcons = sfil_load_PNG_file(ROMFS "pokemon_icons_spritesheet.png", SF2D_PLACE_RAM);
+	printf("Loading pkmIcons: @%p\n", this->pkmIcons);
+	if (!this->pkmIcons) return false;
 
-	return (pkmIcons && pkmShinyIcons && pkmFormIcons && pkmShinyFormIcons && itemIcons && ballIcons && types && boxTiles && boxBackgrounds && resumeBackground);
+	this->pkmShinyIcons = sfil_load_PNG_file(ROMFS "pokemon_shiny_icons_spritesheet.png", SF2D_PLACE_RAM);
+	printf("Loading pkmShinyIcons: @%p\n", this->pkmShinyIcons);
+	if (!this->pkmShinyIcons) return false;
+
+	this->pkmFormIcons = sfil_load_PNG_file(ROMFS "pokemon_form_icons_spritesheet.png", SF2D_PLACE_RAM);
+	printf("Loading pkmFormIcons: @%p\n", this->pkmFormIcons);
+	if (!this->pkmFormIcons) return false;
+
+	this->pkmShinyFormIcons = sfil_load_PNG_file(ROMFS "pokemon_shiny_form_icons_spritesheet.png", SF2D_PLACE_RAM);
+	printf("Loading pkmShinyFormIcons: @%p\n", this->pkmShinyFormIcons);
+	if (!this->pkmShinyFormIcons) return false;
+
+	this->itemIcons = sfil_load_PNG_file(ROMFS "item_icons_spritesheet.png", SF2D_PLACE_RAM);
+	printf("Loading itemIcons: @%p\n", this->itemIcons);
+	if (!this->itemIcons) return false;
+
+	this->ballIcons = sfil_load_PNG_file(ROMFS "ball_icons_spritesheet.png", SF2D_PLACE_RAM);
+	printf("Loading ballIcons: @%p\n", this->ballIcons);
+	if (!this->ballIcons) return false;
+
+	this->types = sfil_load_PNG_file(ROMFS "types_lang.png", SF2D_PLACE_RAM);
+	printf("Loading types: @%p\n", this->types);
+	if (!this->types) return false;
+
+	this->boxTiles = sfil_load_PNG_file(ROMFS "box_tiles.png", SF2D_PLACE_RAM);
+	printf("Loading boxTiles: @%p\n", this->boxTiles);
+	if (!this->boxTiles) return false;
+
+	this->boxBackgrounds = sfil_load_PNG_file(ROMFS "box_backgrounds.png", SF2D_PLACE_RAM);
+	printf("Loading boxBackgrounds: @%p\n", this->boxBackgrounds);
+	if (!this->boxBackgrounds) return false;
+
+	this->resumeBackground = sfil_load_PNG_file(ROMFS "resume_background.png", SF2D_PLACE_RAM);
+	printf("Loading resumeBackground: @%p\n", this->resumeBackground);
+	if (!this->resumeBackground) return false;
+
+	return true;
 }
 
 void TextureManager::drawStaticLoadingScreen(void)

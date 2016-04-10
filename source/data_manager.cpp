@@ -6,6 +6,7 @@
 #include "personal.hpp"
 
 extern "C" {
+#include <3ds/result.h>
 #include <3ds/util/utf.h>
 }
 
@@ -105,18 +106,30 @@ Result DataManager::load()
 {
 	updateSystemLanguage();
 
-	Result ret = 0;
+	Result ret;
 
-	ret |= loadDataFile("bank_text", wText, BANK_TEXT_COUNT);
-	ret |= loadDataFile("abilities", wAbilities, DEX_ABILITIES_COUNT);
-	ret |= loadDataFile("items", wItems, DEX_ITEMS_COUNT);
-	ret |= loadDataFile("moves", wMoves, DEX_MOVES_COUNT);
-	ret |= loadDataFile("natures", wNatures, DEX_NATURES_COUNT);
-	ret |= loadDataFile("species", wSpecies, DEX_SPECIES_COUNT);
-	ret |= loadDataFile("types", wTypes, DEX_TYPES_COUNT);
+	ret = loadDataFile("bank_text", wText, BANK_TEXT_COUNT);
+	if (R_FAILED(ret)) return ret;
+	
+	ret = loadDataFile("abilities", wAbilities, DEX_ABILITIES_COUNT);
+	if (R_FAILED(ret)) return ret;
 
-	ret |= loadPersonal("personal_ao", true, PERSONAL_AO_COUNT, PERSONAL_INFO_AO_SIZE);
+	ret = loadDataFile("items", wItems, DEX_ITEMS_COUNT);
+	if (R_FAILED(ret)) return ret;
 
+	ret = loadDataFile("moves", wMoves, DEX_MOVES_COUNT);
+	if (R_FAILED(ret)) return ret;
+
+	ret = loadDataFile("natures", wNatures, DEX_NATURES_COUNT);
+	if (R_FAILED(ret)) return ret;
+
+	ret = loadDataFile("species", wSpecies, DEX_SPECIES_COUNT);
+	if (R_FAILED(ret)) return ret;
+
+	ret = loadDataFile("types", wTypes, DEX_TYPES_COUNT);
+	if (R_FAILED(ret)) return ret;
+
+	ret = loadPersonal("personal_ao", true, PERSONAL_AO_COUNT, PERSONAL_INFO_AO_SIZE);
 	return ret;
 }
 
