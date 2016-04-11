@@ -403,6 +403,8 @@ void SaveManager::loadSaveData(void)
 		savedata.SID = *(u16*)(savebuffer + offsetTrainerCard + 0x02);
 		savedata.TSV = (savedata.TID ^ savedata.SID) >> 4;
 		savedata.OTGender = *(u8*)(savebuffer + offsetTrainerCard + 0x05);
+		savedata.GEORegion = *(u8*)(savebuffer + offsetTrainerCard + 0x26);
+		savedata.GEOCountry = *(u8*)(savebuffer + offsetTrainerCard + 0x27);
 		memset(savedata.OTName, 0, 0xD * sizeof(uint32_t));
 		utf16_to_utf32(savedata.OTName, (u16*)(savebuffer + offsetTrainerCard + 0x48), 0xD);
 		str32nfix(savedata.OTName, 0xD);
