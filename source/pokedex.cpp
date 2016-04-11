@@ -153,19 +153,21 @@ namespace Pokedex
 
 	void importToGame(GameVersion version, savebuffer_t sav, pkm_s* pkm)
 	{
-		u32 SAV_offsetDex = (Game::is(version, Game::XY) ? SaveConst::XY_offsetDex : SaveConst::ORAS_offsetDex);
-		u32 SAV_offsetFormDex = SAV_offsetDex + 0x368;
-		u32 SAV_lengthForm = (Game::is(version, Game::XY) ? 0x18 : 0x26);
+		const u32 SAV_offsetDex = (Game::is(version, Game::XY) ? SaveConst::XY_offsetDex : SaveConst::ORAS_offsetDex);
+		const u32 SAV_offsetFormDex = SAV_offsetDex + 0x368;
+		const u32 SAV_lengthForm = (Game::is(version, Game::XY) ? 0x18 : 0x26);
 
 		bool isShiny = Pokemon::isShiny(pkm); bool shiny = isShiny;
 		bool isFemale = Pokemon::gender(pkm) % 2; bool gender = isFemale;
 		bool isKalosBorn = Pokemon::isKalosBorn(pkm);
-		u16 speciesID = Pokemon::speciesID(pkm); u16 species = speciesID--;
-		u8 formID = Pokemon::formID(pkm); u8 form = formID;
+		u16 speciesID = Pokemon::speciesID(pkm);
+		u8 formID = Pokemon::formID(pkm);
 		u8 lang = Pokemon::language(pkm);
 		if (lang-- > 5) lang--; // {1|2|3|4|5|.|7|8} -> {0|1|2|3|4|5|6|7}
+		u16 species = speciesID--;
+		u8 form = formID;
 
-		const PersonalInfo pInfo = Personal(species, formID);
+		const PersonalInfo pInfo = Personal(species, form);
 
 		printf("\naddDex: [%03u|%u]\n", species, form);
 
@@ -226,7 +228,7 @@ namespace Pokedex
 				// Form Displayed
 				if (!alreadySeen && !alreadyDisplayed) // Not seen nor displayed
 				{
-					{ printf("SH_FORM_DISPLAYED_FLAG\n"); setOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*(shiny+2) /* SH_FORM_DISPLAYED_OFFSET */, formdexBit, true); }
+					{ printf("SH_FORM_DISPLAYED_FLAG\n"); setOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*(shiny+2) /* SH_FORM_DISPLAYED_OFFSET */, formdexBit + formID, true); }
 				}
 				else // Already seen or displayed
 				{
