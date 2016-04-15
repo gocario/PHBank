@@ -6,6 +6,7 @@
 
 #include "fs.h"
 #include "key.h"
+#include "error.h"
 #include "version.h"
 #include "phbank.hpp"
 #include "box_viewer.hpp"
@@ -44,7 +45,7 @@ int main(void)
 	if (R_FAILED(ret))
 	{
 		// Graphics
-		error |= BIT(5);
+		error |= ERR_GRAPHICS;
 	}
 
 	printf("> Loading font manager\n");
@@ -53,7 +54,7 @@ int main(void)
 	if (R_FAILED(ret))
 	{
 		// Font
-		error |= BIT(4);
+		error |= ERR_FONT;
 	}
 
 	printf("> Loading data manager\n");
@@ -62,7 +63,7 @@ int main(void)
 	if (R_FAILED(ret))
 	{
 		// Data
-		error |= BIT(3);
+		error |= ERR_DATA;
 	}
 
 #ifdef __cia
@@ -78,7 +79,7 @@ int main(void)
 	if (R_FAILED(ret))
 	{
 		// Filesystem
-		error |= BIT(7);
+		error |= ERR_FILESYSTEM;
 	}
 #else // __3dsx
 	printf("> Loading filesystem services\n");
@@ -86,7 +87,7 @@ int main(void)
 	if (R_FAILED(ret))
 	{
 		// Filesystem
-		error |= BIT(7);
+		error |= ERR_FILESYSTEM;
 	}
 #endif
 
@@ -96,7 +97,7 @@ int main(void)
 	if (R_FAILED(ret))
 	{
 		// Save
-		error |= BIT(2);
+		error |= ERR_SAVE;
 	}
 
 	if (!error)
@@ -154,6 +155,11 @@ int main(void)
 		// ^
 
 		printf("\nProblem happened: 0x%lx\n", error);
+		if (error & ERR_SAVE) printf(" \a Save\n");
+		if (error & ERR_DATA) printf(" \a Data\n");
+		if (error & ERR_FONT) printf(" \a Font\n");
+		if (error & ERR_GRAPHICS) printf(" \a Graphics\n");
+		if (error & ERR_FILESYSTEM) printf(" \a Filesystem\n");
 		printf("PHBank version: %08x\n", VERSION);
 		printf("Can't start the viewer.\n");
 		printf("Press any key to exit\n");
