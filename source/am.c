@@ -102,11 +102,11 @@ Result AM_GetPokemonTitleEntryList(AM_TitleMediaEntry** titleList, u32* count)
 	titleIDs_SD = (u64*) malloc(count_SD * sizeof(u64));
 	titleIDs_Card = (u64*) malloc(count_Card * sizeof(u64));
 
-	ret = AM_GetTitleIdList(MEDIATYPE_SD, count_SD, titleIDs_SD);
-	r(" > AM_GetTitleIdList: %lx\n", ret);
+	ret = AM_GetTitleList(NULL, MEDIATYPE_SD, count_SD, titleIDs_SD);
+	r(" > AM_GetTitleList: %lx\n", ret);
 
-	ret = AM_GetTitleIdList(MEDIATYPE_GAME_CARD, count_Card, titleIDs_Card);
-	r(" > AM_GetTitleIdList: %lx\n", ret);
+	ret = AM_GetTitleList(NULL, MEDIATYPE_GAME_CARD, count_Card, titleIDs_Card);
+	r(" > AM_GetTitleList: %lx\n", ret);
 
 	debug_print("Count SD  : %lu\n", count_SD);
 	debug_print("Count Card: %lu\n", count_Card);
