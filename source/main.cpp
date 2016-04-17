@@ -33,6 +33,7 @@ int main(void)
 
 	sf2d_init();
 	sftd_init();
+	romfsInit();
 
 	srand(osGetTime());
 
@@ -170,6 +171,7 @@ int main(void)
 	delete PHBanku::font;
 	delete PHBanku::texture;
 
+	romfsExit();
 	sftd_fini();
 	sf2d_fini();
 	return 0;

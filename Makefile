@@ -32,16 +32,18 @@ BUILD		:=	build
 DATA		:=	data
 SOURCES		:=	source source/viewer
 INCLUDES	:=	include include/viewer
-# ROMFS		:=	romfs
 
 APP_TITLE		:=	PHBank
 APP_DESCRIPTION	:=	Pokémon Homebrew Bank
 APP_AUTHOR		:=	Gocario
 
-NO_SMDH			:=	NO_SMDH
+# NO_SMDH			:=	NO_SMDH
+ROMFS			:=	romfs
 ICON 			:=	assets/icon-48px.png
+3DSX_SMDH		:=	assets/icon.smdh
 CIA_RSF			:=	assets/build-cia.rsf
 CIA_SMDH		:=	assets/icon.smdh
+CIA_ROMFS		:=	assets/romfs.bin
 CIA_BANNER		:=	assets/banner.bnr
 CIA_BANNER_PNG	:=	assets/banner.png
 CIA_BANNER_WAV	:=	assets/banner_shorter.cwav
@@ -84,7 +86,7 @@ export OUTPUT	:=	$(CURDIR)/$(TARGET)
 export TOPDIR	:=	$(CURDIR)
 
 export VPATH	:=	$(foreach dir,$(SOURCES),$(CURDIR)/$(dir)) \
-			$(foreach dir,$(DATA),$(CURDIR)/$(dir))
+					$(foreach dir,$(DATA),$(CURDIR)/$(dir))
 
 export DEPSDIR	:=	$(CURDIR)/$(BUILD)
 
@@ -152,24 +154,26 @@ $(BUILD):
 #---------------------------------------------------------------------------------
 clean:
 	@echo clean ...
-	@rm -fr $(BUILD) $(TARGET).elf $(TARGET).3dsx $(OUTPUT).smdh $(TARGET).cia
+	@rm -fr $(BUILD) $(TARGET).elf $(TARGET).3dsx $(TARGET).smdh $(TARGET).cia
 
 #---------------------------------------------------------------------------------
 run: $(BUILD)
 	@echo run ...
-	$(DEVKITPRO)/devkitCITRA/citra.exe $(TARGET).elf
+	$(DEVKITPRO)/devkitCITRA/citra.exe $(TARGET).3dsx
 
 #---------------------------------------------------------------------------------
 3dsx: $(BUILD)
 	@echo built ... $(TARGET).3dsx
-	
+
 #---------------------------------------------------------------------------------
 cia: $(BUILD)
 #	@bannertool makebanner -o $(CIA_BANNER) -i $(CIA_BANNER_PNG) -ca $(CIA_BANNER_WAV)
 #	@echo built ... $(CIA_BANNER)
 #	@bannertool makesmdh -o $(CIA_SMDH) -i $(ICON) -s "$(APP_TITLE)" -l "$(APP_DESCRIPTION)" -p "$(APP_AUTHOR)" -fvisible
 #	@echo built ... $(TARGET).smdh
-	@makerom -f cia -target t -exefslogo -o $(TARGET).cia -elf $(TARGET).elf -rsf $(CIA_RSF) -banner $(CIA_BANNER) -icon $(CIA_SMDH)
+#	@3dstool -c -t romfs -f $(CIA_ROMFS) --romfs-dir $(ROMFS)
+#	@echo built ... $(CIA_ROMFS)
+	@makerom -f cia -target t -o $(TARGET).cia -rsf $(CIA_RSF) -elf $(TARGET).elf -icon $(CIA_SMDH) -banner $(CIA_BANNER) -exefslogo -romfs $(CIA_ROMFS)
 	@echo built ... $(TARGET).cia
 
 #---------------------------------------------------------------------------------
