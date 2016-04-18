@@ -148,7 +148,7 @@ class BoxViewer : public Viewer
 		void selectPastePokemon();
 		void selectMultiPastePokemon(bool check);
 		void cancelMovePokemon();
-		void populateVPkmData(vPkm_s* vPkm);
+		void populateVPkmData(vPkm_s* vPkm, pkm_s* pkm);
 };
 
 #endif // BOX_VIEWER_HPP

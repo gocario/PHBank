@@ -196,7 +196,7 @@ Result BoxViewer::drawTopScreen()
 	// If there is a current Pokémon
 	if ((vPkm.pkm && !vPkm.emptySlot) || sPkm)
 	{
-		pkm_s* pkm = !vPkm.emptySlot ? vPkm.pkm : sPkm;
+		pkm_s* pkm = vPkm.pkm && !vPkm.emptySlot ? vPkm.pkm : sPkm;
 
 		sftd_draw_wtextf_white(91, 40, L"%S (%lu/%lu)", save->savedata.OTName, save->savedata.TSV, vPkm.PSV);
 
@@ -1019,7 +1019,7 @@ void BoxViewer::drawPokemon(pkm_s* pkm, int16_t x, int16_t y, bool shadow)
 	// Draw the shadow
 	if (shadow)
 	{
-		sf2d_draw_texture_part_blend(pkmIcons, x+4, y+4, (sprite % widthCount) * 40, (sprite / widthCount) * 30, 40, 30, RGBA8(0x00,0x00,0x00,0x55));
+		sf2d_draw_texture_part_blend(pkmIcons, x + 4, y + 4, (sprite % widthCount) * 40, (sprite / widthCount) * 30, 40, 30, RGBA8(0x00,0x00,0x00,0x55));
 	}
 
 	if (pkm->isEggy)
@@ -1054,27 +1054,37 @@ void BoxViewer::drawPokemonScale(pkm_s* pkm, int16_t x, int16_t y, float scale)
 {
 	if (pkm->speciesID == 0) return;
 
-	// TODO: Draw the Pokémon's form
-
+	u16 widthCount = 25;
+	u16 sprite = pkm->speciesID;
 	sf2d_texture* pkmIcons = PHBanku::texture->pkmIcons;
-	if (pkm->isShiny) pkmIcons = PHBanku::texture->pkmShinyIcons;
+
+	// If a particular form and the species isn't Scatterbug/Spewpa (that is ugly tho)
+	if (pkm->formID > 0 && pkm->speciesID != 664 && pkm->speciesID != 665)
+	{
+		if (pkm->isShiny) pkmIcons = PHBanku::texture->pkmShinyFormIcons;
+		else pkmIcons = PHBanku::texture->pkmFormIcons;
+
+		widthCount = 12;
+		sprite = Personal(pkm->speciesID).formSprite + pkm->formID - 1;
+	}
+	else if (pkm->isShiny) pkmIcons = PHBanku::texture->pkmShinyIcons;
 
 	// Draw the shadow
 	{
-		sf2d_draw_texture_part_scale_blend(pkmIcons, x + 2 * scale, y + 2 * scale, (pkm->speciesID % 25) * 40, (pkm->speciesID / 25) * 30, 40, 30, scale, scale, RGBA8(0x00,0x00,0x00,0x55));
+		sf2d_draw_texture_part_scale_blend(pkmIcons, x + 2 * scale, y + 2 * scale, (sprite % widthCount) * 40, (sprite / widthCount) * 30, 40, 30, scale, scale, RGBA8(0x00,0x00,0x00,0x55));
 	}
 
 	if (pkm->isEggy)
 	{
 		// Draw the egg+Pokémon icon
 		// TODO: Enhance the egg display
-		sf2d_draw_texture_part_scale(pkmIcons, x, y, (pkm->speciesID % 25) * 40, (pkm->speciesID / 25) * 30, 40, 30, scale, scale);
-		sf2d_draw_texture_part(pkmIcons, x, y + 30 * (scale - 0.5f), (EGG_ID % 25) * 40, (EGG_ID / 25) * 30, 40, 30);
+		sf2d_draw_texture_part_scale(pkmIcons, x, y, (sprite % widthCount) * 40, (sprite / widthCount) * 30, 40, 30, scale, scale);
+		sf2d_draw_texture_part(pkmIcons, x, y + 30 * (scale - 0.5f), (EGG_ID % widthCount) * 40, (EGG_ID / widthCount) * 30, 40, 30);
 	}
 	else
 	{
 		// Draw the Pokémon icon
-		sf2d_draw_texture_part_scale(pkmIcons, x, y, (pkm->speciesID % 25) * 40, (pkm->speciesID / 25) * 30, 40, 30, scale, scale);
+		sf2d_draw_texture_part_scale(pkmIcons, x, y, (sprite % widthCount) * 40, (sprite / widthCount) * 30, 40, 30, scale, scale);
 
 		// Draw the item
 		if (pkm->itemID > 0)
@@ -1091,6 +1101,7 @@ void BoxViewer::drawViewPokemon(vPkm_s* vPkm, int16_t x, int16_t y)
 {
 	if (!vPkm->pkm || vPkm->pkm->speciesID == 0) return;
 
+	// If the big icon is loaded
 	if (vPkm->icon)
 	{
 		// TODO: Draw the Pokémon's form
@@ -1213,7 +1224,7 @@ void BoxViewer::selectViewPokemon()
 			vPkm.pkm = save->getPkm(*cursorBox.box, cursorBox.inslot, cursorBox.inBank);
 		}
 
-		populateVPkmData(&vPkm);
+		populateVPkmData(&vPkm, NULL);
 	}
 }
 
@@ -1258,7 +1269,7 @@ void BoxViewer::selectMovePokemon()
 				cancelMovePokemon();
 
 				// And populate the Pokémon data
-				populateVPkmData(&vPkm);
+				populateVPkmData(&vPkm, NULL);
 			}
 		}
 		else
@@ -1373,7 +1384,7 @@ void BoxViewer::selectPastePokemon()
 			// cancelMovePokemon();
 
 			// And populate the Pokémon data
-			populateVPkmData(&vPkm);
+			populateVPkmData(&vPkm, NULL);
 		}
 	}
 }
@@ -1494,24 +1505,23 @@ static void loadVPkmIconAsync(vPkm_s* vPkm)
 }
 
 // --------------------------------------------------
-void BoxViewer::populateVPkmData(vPkm_s* vPkm)
+void BoxViewer::populateVPkmData(vPkm_s* vPkm, pkm_s* pkm)
 // --------------------------------------------------
 {
+	if (!pkm) pkm = vPkm->pkm;
+
 	if (vPkm->icon)
 	{
 		sf2d_free_texture(vPkm->icon);
 		vPkm->icon = NULL;
 	}
 	
-	vPkm->emptySlot = save->isPkmEmpty(vPkm->pkm);
+	vPkm->emptySlot = save->isPkmEmpty(pkm);
 	
 	if (!vPkm->emptySlot) loadVPkmIconAsync(vPkm);
 	else if (sPkm)
 	{
-		pkm_s* pkm = vPkm->pkm;
-		vPkm->pkm = sPkm;
-		populateVPkmData(vPkm);
-		vPkm->pkm = pkm;
+		populateVPkmData(vPkm, sPkm);
 		vPkm->emptySlot = true;
 		return;
 	}
@@ -1519,62 +1529,61 @@ void BoxViewer::populateVPkmData(vPkm_s* vPkm)
 	memset(vPkm->NKName, 0, 0xD * sizeof(uint32_t));
 	memset(vPkm->OTName, 0, 0xD * sizeof(uint32_t));
 	memset(vPkm->HTName, 0, 0xD * sizeof(uint32_t));
-	utf16_to_utf32(vPkm->NKName, Pokemon::NK_name(vPkm->pkm), 0xD);
-	utf16_to_utf32(vPkm->OTName, Pokemon::OT_name(vPkm->pkm), 0xD);
-	utf16_to_utf32(vPkm->HTName, Pokemon::HT_name(vPkm->pkm), 0xD);
+	utf16_to_utf32(vPkm->NKName, Pokemon::NK_name(pkm), 0xD);
+	utf16_to_utf32(vPkm->OTName, Pokemon::OT_name(pkm), 0xD);
+	utf16_to_utf32(vPkm->HTName, Pokemon::HT_name(pkm), 0xD);
 	str32nfix(vPkm->NKName, 0xD);
 	str32nfix(vPkm->OTName, 0xD);
 	str32nfix(vPkm->HTName, 0xD);
 
+	vPkm->isKalosBorn = Pokemon::isKalosBorn(pkm);
+	vPkm->isInfected = Pokemon::isInfected(pkm);
+	vPkm->isCured = Pokemon::isCured(pkm);
 
-	vPkm->isKalosBorn = Pokemon::isKalosBorn(vPkm->pkm);
-	vPkm->isInfected = Pokemon::isInfected(vPkm->pkm);
-	vPkm->isCured = Pokemon::isCured(vPkm->pkm);
+	vPkm->circle = Pokemon::circle(pkm);
+	vPkm->triangle = Pokemon::triangle(pkm);
+	vPkm->square = Pokemon::square(pkm);
+	vPkm->heart = Pokemon::heart(pkm);
+	vPkm->star = Pokemon::star(pkm);
+	vPkm->diamond = Pokemon::diamond(pkm);
 
-	vPkm->circle = Pokemon::circle(vPkm->pkm);
-	vPkm->triangle = Pokemon::triangle(vPkm->pkm);
-	vPkm->square = Pokemon::square(vPkm->pkm);
-	vPkm->heart = Pokemon::heart(vPkm->pkm);
-	vPkm->star = Pokemon::star(vPkm->pkm);
-	vPkm->diamond = Pokemon::diamond(vPkm->pkm);
+	vPkm->species = data->species(pkm->speciesID);
+	vPkm->item = data->items(pkm->itemID);
+	vPkm->nature = data->natures(Pokemon::nature(pkm));
+	vPkm->ability = data->abilities(Pokemon::ability(pkm));
+	vPkm->hpType = data->types(Pokemon::HPType(pkm)+1);
 
-	vPkm->species = data->species(vPkm->pkm->speciesID);
-	vPkm->item = data->items(vPkm->pkm->itemID);
-	vPkm->nature = data->natures(Pokemon::nature(vPkm->pkm));
-	vPkm->ability = data->abilities(Pokemon::ability(vPkm->pkm));
-	vPkm->hpType = data->types(Pokemon::HPType(vPkm->pkm)+1);
+	vPkm->moves[0] = data->moves(Pokemon::move1(pkm));
+	vPkm->moves[1] = data->moves(Pokemon::move2(pkm));
+	vPkm->moves[2] = data->moves(Pokemon::move3(pkm));
+	vPkm->moves[3] = data->moves(Pokemon::move4(pkm));
 
-	vPkm->moves[0] = data->moves(Pokemon::move1(vPkm->pkm));
-	vPkm->moves[1] = data->moves(Pokemon::move2(vPkm->pkm));
-	vPkm->moves[2] = data->moves(Pokemon::move3(vPkm->pkm));
-	vPkm->moves[3] = data->moves(Pokemon::move4(vPkm->pkm));
+	vPkm->PSV = Pokemon::PSV(pkm);
+	vPkm->level = Pokemon::level(pkm);
+	vPkm->stats[Stat::HP] = Pokemon::HP(pkm);
+	vPkm->stats[Stat::ATK] = Pokemon::ATK(pkm);
+	vPkm->stats[Stat::DEF] = Pokemon::DEF(pkm);
+	vPkm->stats[Stat::SPA] = Pokemon::SPA(pkm);
+	vPkm->stats[Stat::SPD] = Pokemon::SPD(pkm);
+	vPkm->stats[Stat::SPE] = Pokemon::SPE(pkm);
+	vPkm->ivs[Stat::HP] = Pokemon::IV_HP(pkm);
+	vPkm->ivs[Stat::ATK] = Pokemon::IV_ATK(pkm);
+	vPkm->ivs[Stat::DEF] = Pokemon::IV_DEF(pkm);
+	vPkm->ivs[Stat::SPA] = Pokemon::IV_SPA(pkm);
+	vPkm->ivs[Stat::SPD] = Pokemon::IV_SPD(pkm);
+	vPkm->ivs[Stat::SPE] = Pokemon::IV_SPE(pkm);
+	vPkm->evs[Stat::HP] = Pokemon::EV_HP(pkm);
+	vPkm->evs[Stat::ATK] = Pokemon::EV_ATK(pkm);
+	vPkm->evs[Stat::DEF] = Pokemon::EV_DEF(pkm);
+	vPkm->evs[Stat::SPA] = Pokemon::EV_SPA(pkm);
+	vPkm->evs[Stat::SPD] = Pokemon::EV_SPD(pkm);
+	vPkm->evs[Stat::SPE] = Pokemon::EV_SPE(pkm);
 
-	vPkm->PSV = Pokemon::PSV(vPkm->pkm);
-	vPkm->level = Pokemon::level(vPkm->pkm);
-	vPkm->stats[Stat::HP] = Pokemon::HP(vPkm->pkm);
-	vPkm->stats[Stat::ATK] = Pokemon::ATK(vPkm->pkm);
-	vPkm->stats[Stat::DEF] = Pokemon::DEF(vPkm->pkm);
-	vPkm->stats[Stat::SPA] = Pokemon::SPA(vPkm->pkm);
-	vPkm->stats[Stat::SPD] = Pokemon::SPD(vPkm->pkm);
-	vPkm->stats[Stat::SPE] = Pokemon::SPE(vPkm->pkm);
-	vPkm->ivs[Stat::HP] = Pokemon::IV_HP(vPkm->pkm);
-	vPkm->ivs[Stat::ATK] = Pokemon::IV_ATK(vPkm->pkm);
-	vPkm->ivs[Stat::DEF] = Pokemon::IV_DEF(vPkm->pkm);
-	vPkm->ivs[Stat::SPA] = Pokemon::IV_SPA(vPkm->pkm);
-	vPkm->ivs[Stat::SPD] = Pokemon::IV_SPD(vPkm->pkm);
-	vPkm->ivs[Stat::SPE] = Pokemon::IV_SPE(vPkm->pkm);
-	vPkm->evs[Stat::HP] = Pokemon::EV_HP(vPkm->pkm);
-	vPkm->evs[Stat::ATK] = Pokemon::EV_ATK(vPkm->pkm);
-	vPkm->evs[Stat::DEF] = Pokemon::EV_DEF(vPkm->pkm);
-	vPkm->evs[Stat::SPA] = Pokemon::EV_SPA(vPkm->pkm);
-	vPkm->evs[Stat::SPD] = Pokemon::EV_SPD(vPkm->pkm);
-	vPkm->evs[Stat::SPE] = Pokemon::EV_SPE(vPkm->pkm);
+	vPkm->ball = Pokemon::ball(pkm) - 1;
 
-	vPkm->ball = Pokemon::ball(vPkm->pkm) - 1;
-
-	if (Pokemon::isGen6Born(vPkm->pkm)) vPkm->gen = 6;
-	else if (Pokemon::isGen5Born(vPkm->pkm)) vPkm->gen = 5;
-	else if (Pokemon::isGen4Born(vPkm->pkm)) vPkm->gen = 4;
-	else if (Pokemon::isGen3Born(vPkm->pkm)) vPkm->gen = 3;
+	if (Pokemon::isGen6Born(pkm)) vPkm->gen = 6;
+	else if (Pokemon::isGen5Born(pkm)) vPkm->gen = 5;
+	else if (Pokemon::isGen4Born(pkm)) vPkm->gen = 4;
+	else if (Pokemon::isGen3Born(pkm)) vPkm->gen = 3;
 	else vPkm->gen = 0;
 }
