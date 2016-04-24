@@ -226,19 +226,6 @@ Result BoxViewer::drawTopScreen()
 
 		sftd_draw_wtextf_white(x + 168, y, L"%S%u", data->text(BankText::Level), vPkm.level);
 
-		if (pkm->speciesID == 265) // Show Wurmple's final evolution's sprite
-		{
-			u8 mod = (Pokemon::encryptionKey(pkm) / 65536) % 10;
-			u16 sprite = 0;
-
-			if (mod < 5) // Beautifly
-				sprite = 267;
-			else // Dustox
-				sprite = 269;
-
-			sf2d_draw_texture_part_scale(PHBanku::texture->pkmIcons, 365, 27, (sprite % 25) * 40, (sprite / 25) * 30, 40, 30, 1.0f, 1.0f);
-		}
-
 		x = 11;
 		y = 42 - 2;
 		sftd_draw_wtext_white(x, (y += 15), data->text(BankText::DexNo));
@@ -290,7 +277,19 @@ Result BoxViewer::drawTopScreen()
 		sftd_draw_wtext_white(x+10, (y += 15), vPkm.moves[2]);
 		sftd_draw_wtext_white(x+10, (y += 15), vPkm.moves[3]);
 
+		// Draw the Pokémon icon and the egg icon if so
 		drawViewPokemon(&vPkm, 256, 36);
+
+		// Show Wurmple's final evolution indicator
+		if (pkm->speciesID == 265)
+		{
+			sf2d_texture* pkmIcons = (pkm->isShiny ? PHBanku::texture->pkmShinyIcons : PHBanku::texture->pkmIcons);
+
+			// If < 5 then Beautifly else Dustox
+			u16 species = ((Pokemon::encryptionKey(pkm) >> 16) % 10 < 5 ? 267 : 269);
+
+			sf2d_draw_texture_part(pkmIcons, 365, 27, (species % 25) * 40, (species / 25) * 30, 40, 30);
+		}
 
 		if (pkm->isShiny)
 		{
