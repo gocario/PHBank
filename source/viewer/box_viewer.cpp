@@ -506,7 +506,7 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 			if (cursorBox.row == BOX_HEADER_SELECTED)
 				boxMod--;
 			else
-				colMod--; 
+				colMod--;
 			heldTick.KEY_LEFT = svcGetSystemTick() + HELD_TICK * 2;
 		}
 		else if (kHeld & KEY_LEFT && heldTick.KEY_LEFT + HELD_TICK < svcGetSystemTick())
@@ -514,7 +514,7 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 			if (cursorBox.row == BOX_HEADER_SELECTED)
 				boxMod--;
 			else
-				colMod--; 
+				colMod--;
 			heldTick.KEY_LEFT = svcGetSystemTick();
 		}
 		if (kDown & KEY_RIGHT)
@@ -1036,6 +1036,20 @@ void BoxViewer::drawPokemon(pkm_s* pkm, int16_t x, int16_t y, bool shadow)
 		widthCount = 12;
 		sprite = Personal(pkm->speciesID).formSprite + pkm->formID - 1;
 	}
+	// If female form with Pyroar/Frillish/Jellicent/Unfezant
+	else if (pkm->gender == 1 && (pkm->speciesID == 521 || pkm->speciesID == 592 || pkm->speciesID == 593 || pkm->speciesID == 668))
+	{
+		if (pkm->isShiny) pkmIcons = PHBanku::texture->pkmShinyFormIcons;
+		else pkmIcons = PHBanku::texture->pkmFormIcons;
+
+		widthCount = 12;
+		sprite = 173 +
+			(pkm->speciesID == 521 ? 1 :
+			(pkm->speciesID == 592 ? 2 :
+			(pkm->speciesID == 593 ? 3 :
+			(pkm->speciesID == 668 ? 4 :
+			0))));
+	}
 	else if (pkm->isShiny) pkmIcons = PHBanku::texture->pkmShinyIcons;
 
 	// Draw the shadow
@@ -1088,6 +1102,20 @@ void BoxViewer::drawPokemonScale(pkm_s* pkm, int16_t x, int16_t y, float scale)
 
 		widthCount = 12;
 		sprite = Personal(pkm->speciesID).formSprite + pkm->formID - 1;
+	}
+	// If female form with Pyroar/Frillish/Jellicent/Unfezant
+	else if (pkm->gender == 1 && (pkm->speciesID == 521 || pkm->speciesID == 592 || pkm->speciesID == 593 || pkm->speciesID == 668))
+	{
+		if (pkm->isShiny) pkmIcons = PHBanku::texture->pkmShinyFormIcons;
+		else pkmIcons = PHBanku::texture->pkmFormIcons;
+
+		widthCount = 12;
+		sprite = 173 +
+			(pkm->speciesID == 521 ? 1 :
+			(pkm->speciesID == 592 ? 2 :
+			(pkm->speciesID == 593 ? 3 :
+			(pkm->speciesID == 668 ? 4 :
+			0))));
 	}
 	else if (pkm->isShiny) pkmIcons = PHBanku::texture->pkmShinyIcons;
 
@@ -1537,9 +1565,9 @@ void BoxViewer::populateVPkmData(vPkm_s* vPkm, pkm_s* pkm)
 		sf2d_free_texture(vPkm->icon);
 		vPkm->icon = NULL;
 	}
-	
+
 	vPkm->emptySlot = save->isPkmEmpty(pkm);
-	
+
 	if (!vPkm->emptySlot) loadVPkmIconAsync(vPkm);
 	else if (sPkm)
 	{
@@ -1547,7 +1575,7 @@ void BoxViewer::populateVPkmData(vPkm_s* vPkm, pkm_s* pkm)
 		vPkm->emptySlot = true;
 		return;
 	}
-	
+
 	memset(vPkm->NKName, 0, 0xD * sizeof(uint32_t));
 	memset(vPkm->OTName, 0, 0xD * sizeof(uint32_t));
 	memset(vPkm->HTName, 0, 0xD * sizeof(uint32_t));
