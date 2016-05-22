@@ -21,7 +21,7 @@
 static bool saveInitialized = false;
 FS_Archive saveArchive;
 
-Result FS_ReadFile(const char* path, void* dst, u64 maxSize, const FS_Archive* archive, u32* bytesRead)
+Result FS_ReadFile(const char* path, void* dst, u64 maxSize, FS_Archive archive, u32* bytesRead)
 {
 	if (!path || !dst || !archive || !bytesRead) return -1;
 
@@ -31,7 +31,7 @@ Result FS_ReadFile(const char* path, void* dst, u64 maxSize, const FS_Archive* a
 
 	debug_print("FS_ReadFile:\n");
 
-	ret = FSUSER_OpenFile(&fileHandle, *archive, fsMakePath(PATH_ASCII, path), FS_OPEN_READ, FS_ATTRIBUTE_NONE);
+	ret = FSUSER_OpenFile(&fileHandle, archive, fsMakePath(PATH_ASCII, path), FS_OPEN_READ, FS_ATTRIBUTE_NONE);
 	r(" > FSUSER_OpenFile: %lx\n", ret);
 	if (R_FAILED(ret)) return ret;
 
@@ -52,7 +52,7 @@ Result FS_ReadFile(const char* path, void* dst, u64 maxSize, const FS_Archive* a
 	return ret;
 }
 
-Result FS_WriteFile(const char* path, const void* src, u64 size, const FS_Archive* archive, u32* bytesWritten)
+Result FS_WriteFile(const char* path, const void* src, u64 size, FS_Archive archive, u32* bytesWritten)
 {
 	if (!path || !src || !archive || !bytesWritten) return -1;
 
@@ -61,7 +61,7 @@ Result FS_WriteFile(const char* path, const void* src, u64 size, const FS_Archiv
 
 	debug_print("FS_WriteFile:\n");
 
-	ret = FSUSER_OpenFile(&fileHandle, *archive, fsMakePath(PATH_ASCII, path), FS_OPEN_WRITE | FS_OPEN_CREATE, FS_ATTRIBUTE_NONE);
+	ret = FSUSER_OpenFile(&fileHandle, archive, fsMakePath(PATH_ASCII, path), FS_OPEN_WRITE | FS_OPEN_CREATE, FS_ATTRIBUTE_NONE);
 	r(" > FSUSER_OpenFile: %lx\n", ret);
 	if (R_FAILED(ret)) return ret;
 
@@ -78,7 +78,7 @@ Result FS_WriteFile(const char* path, const void* src, u64 size, const FS_Archiv
 	return ret;
 }
 
-Result FS_DeleteFile(const char* path, const FS_Archive* archive)
+Result FS_DeleteFile(const char* path, FS_Archive archive)
 {
 	if (!path || !archive) return -1;
 
@@ -86,13 +86,13 @@ Result FS_DeleteFile(const char* path, const FS_Archive* archive)
 
 	debug_print("FS_DeleteFile:\n");
 
-	ret = FSUSER_DeleteFile(*archive, fsMakePath(PATH_ASCII, path));
+	ret = FSUSER_DeleteFile(archive, fsMakePath(PATH_ASCII, path));
 	r(" > FSUSER_DeleteFile: %lx\n", ret);
 
 	return ret;
 }
 
-Result FS_CommitArchive(const FS_Archive* archive)
+Result FS_CommitArchive(FS_Archive archive)
 {
 	if (!archive) return -1;
 
@@ -100,7 +100,7 @@ Result FS_CommitArchive(const FS_Archive* archive)
 
 	debug_print("FS_CommitArchive:\n");
 
-	ret = FSUSER_ControlArchive(*archive, ARCHIVE_ACTION_COMMIT_SAVE_DATA, NULL, 0, NULL, 0);
+	ret = FSUSER_ControlArchive(archive, ARCHIVE_ACTION_COMMIT_SAVE_DATA, NULL, 0, NULL, 0);
 	r(" > FSUSER_ControlArchive: %lx\n", ret);
 
 	return ret;
@@ -126,9 +126,7 @@ Result FSCIA_Init(u64 titleid, FS_MediaType mediatype)
 		debug_print(" > [1]: 0x%016lx\n", lowPath[1]);
 		debug_print(" > [2]: 0x%016lx\n", lowPath[2]);
 
-		saveArchive = (FS_Archive) { ARCHIVE_USER_SAVEDATA, (FS_Path) { PATH_BINARY, 12, lowPath } };
-
-		ret = FSUSER_OpenArchive(&saveArchive);
+		ret = FSUSER_OpenArchive(&saveArchive, ARCHIVE_USER_SAVEDATA, (FS_Path) { PATH_BINARY, 12, lowPath });
 		r(" > FSUSER_OpenArchive: %lx\n", ret);
 
 		saveInitialized = R_SUCCEEDED(ret); // true
@@ -149,10 +147,10 @@ Result FSCIA_Exit(void)
 
 	if (saveInitialized)
 	{
-		ret = FS_CommitArchive(&saveArchive);
+		ret = FS_CommitArchive(saveArchive);
 		r(" > FS_CommitArchive: %lx\n", ret);
 
-		ret = FSUSER_CloseArchive(&saveArchive);
+		ret = FSUSER_CloseArchive(saveArchive);
 		r(" > FSUSER_CloseArchive: %lx\n", ret);
 
 		saveInitialized = !R_SUCCEEDED(ret); // false
@@ -165,7 +163,7 @@ Result FSCIA_Exit(void)
 	return ret;
 }
 
-#else
+#else // __3dsx
 
 static Handle fsHandle;
 
@@ -183,14 +181,12 @@ Result FS_Init(void)
 	r(" > FSUSER_Initialize: %lx\n", ret);
 	if (R_FAILED(ret)) return ret;
 
-	fsUseSession(fsHandle, false);
+	fsUseSession(fsHandle);
 	debug_print(" > fsUseSession\n");
 
 	if (!saveInitialized)
 	{
-		saveArchive = (FS_Archive) { ARCHIVE_SAVEDATA, fsMakePath(PATH_EMPTY, NULL) };
-
-		ret = FSUSER_OpenArchive(&saveArchive);
+		ret = FSUSER_OpenArchive(&saveArchive, ARCHIVE_SAVEDATA, fsMakePath(PATH_EMPTY, NULL));
 		r(" > FSUSER_OpenArchive: %lx\n", ret);
 
 		saveInitialized = R_SUCCEEDED(ret); // true
@@ -211,10 +207,10 @@ Result FS_Exit(void)
 
 	if (saveInitialized)
 	{
-		ret = FS_CommitArchive(&saveArchive);
+		ret = FS_CommitArchive(saveArchive);
 		r(" > FS_CommitArchive: %lx\n", ret);
 
-		ret = FSUSER_CloseArchive(&saveArchive);
+		ret = FSUSER_CloseArchive(saveArchive);
 		r(" > FSUSER_CloseArchive: %lx\n", ret);
 
 		saveInitialized = !R_SUCCEEDED(ret); // false

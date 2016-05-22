@@ -204,7 +204,7 @@ Result SaveManager::loadSaveFile(void)
 	sprintf(path, ROOT SAVE_FILE);
 
 	printf("Loading savefile...");
-	ret = FS_ReadFile(path, savebuffer, size, &saveArchive, &bytesRead);
+	ret = FS_ReadFile(path, savebuffer, size, saveArchive, &bytesRead);
 
 	if (R_FAILED(ret)) printf(" ERROR\n");
 	else printf(" OK\n");
@@ -284,12 +284,12 @@ Result SaveManager::saveSaveFile(void)
 	sprintf(path, ROOT SAVE_FILE);
 
 	printf("Deleting old savefile...");
-	ret = FS_DeleteFile(path, &saveArchive);
+	ret = FS_DeleteFile(path, saveArchive);
 	if (R_FAILED(ret)) printf(" ERROR\n");
 	else printf(" OK\n");
 
 	printf("Writing savefile...");
-	ret = FS_WriteFile(path, savebuffer, size, &saveArchive, &bytesWritten);
+	ret = FS_WriteFile(path, savebuffer, size, saveArchive, &bytesWritten);
 	if (R_FAILED(ret)) printf(" ERROR\n");
 	else printf(" OK\n  Written %ld bytes\n", bytesWritten);
 

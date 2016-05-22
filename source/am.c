@@ -46,7 +46,7 @@ static Result AM_GetSmdh(AM_TitleMediaEntry* title)
 	u32 archivePath[] = { title->titleid & 0xFFFFFFFF, (title->titleid >> 32) & 0xFFFFFFFF, title->mediatype, 0x00000000 };
 	u32 filePath[] = { 0x00000000, 0x00000000, 0x00000002, 0x6E6F6369, 0x00000000 };
 
-	ret = FSUSER_OpenFileDirectly(&fileHandle, (FS_Archive) { ARCHIVE_SAVEDATA_AND_CONTENT , (FS_Path) { PATH_BINARY, 16, archivePath } }, (FS_Path) { PATH_BINARY, 20, filePath }, FS_OPEN_READ, FS_ATTRIBUTE_NONE);
+	ret = FSUSER_OpenFileDirectly(&fileHandle, ARCHIVE_SAVEDATA_AND_CONTENT, (FS_Path) { PATH_BINARY, 16, archivePath }, (FS_Path) { PATH_BINARY, 20, filePath }, FS_OPEN_READ, FS_ATTRIBUTE_NONE);
 	r(" > FSUSER_OpenFileDirectly: %lx\n", ret);
 
 	if (R_SUCCEEDED(ret))
