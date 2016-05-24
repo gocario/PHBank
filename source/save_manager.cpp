@@ -581,6 +581,7 @@ void SaveManager::loadPkmPk6(pkm_s* pkm)
 	pkm->speciesID = Pokemon::speciesID(pkm);
 	pkm->itemID = Pokemon::itemID(pkm);
 	pkm->formID = Pokemon::formID(pkm);
+	pkm->gender = Pokemon::gender(pkm);
 }
 
 

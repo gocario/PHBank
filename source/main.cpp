@@ -145,7 +145,7 @@ int main(void)
 		printf("\nThe app execution ended!\n");
 		printf("Thanks for being awesome!\n");
 	}
-#else
+#else // __3dsx
 	FS_Exit();
 #endif
 

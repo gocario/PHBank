@@ -324,7 +324,7 @@ Result BoxViewer::drawTopScreen()
 		sf2d_draw_texture_part(PHBanku::texture->boxTiles, 330 ,135, 9*4, 64 + 9*vPkm.star, 9, 9);
 		sf2d_draw_texture_part(PHBanku::texture->boxTiles, 340 ,135, 9*5, 64 + 9*vPkm.diamond, 9, 9);
 
-		switch (Pokemon::gender(pkm))
+		switch (pkm->gender)
 		{
 			case 0: // Male
 				sf2d_draw_texture_part(PHBanku::texture->boxTiles, 385, 130, 60, 82, 12, 12);
