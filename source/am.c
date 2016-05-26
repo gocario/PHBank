@@ -25,14 +25,6 @@ static const u64 pokemonTitleIDs[] = {
 	0x0000000000000000,	///< Not Pokémon
 };
 
-static const char* pokemonTitleName[] = {
-	"Pokemon X",
-	"Pokemon Y",
-	"Pokemon Omega Ruby",
-	"Pokemon Alpha Sapphire",
-	"Not Pokemon",
-};
-
 static Result AM_GetSmdh(AM_TitleMediaEntry* title)
 {
 	if (!title || title->smdh) return -1;
@@ -67,14 +59,6 @@ static Result AM_GetSmdh(AM_TitleMediaEntry* title)
 	r(" > FSFILE_Close\n");
 
 	return ret;
-}
-
-const char* AM_GetPokemonTitleName(u64 titleID)
-{
-	for (u32 ii = 0; ii < pokemonTitleCount; ii++)
-		if	(titleID == pokemonTitleIDs[ii])
-			return pokemonTitleName[ii];
-	return pokemonTitleName[pokemonTitleCount];
 }
 
 Result AM_GetPokemonTitleEntryList(AM_TitleMediaEntry** titleList, u32* count)

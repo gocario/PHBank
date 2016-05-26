@@ -8,12 +8,12 @@ Language userlang = LANGUAGE_EN;
 
 void updateSystemLanguage(void)
 {
-	cfguInit();
-
 	Result ret;
 	u8 language = 0;
 
+	cfguInit();
 	ret = CFGU_GetConfigInfoBlk2(1, 0xA0002, &language);
+	cfguExit();
 	
 	if (R_SUCCEEDED(ret))
 	{
@@ -25,9 +25,7 @@ void updateSystemLanguage(void)
 			case CFG_LANGUAGE_DE: userlang = LANGUAGE_DE; break;
 			case CFG_LANGUAGE_ES: userlang = LANGUAGE_ES; break;
 			case CFG_LANGUAGE_KO: userlang = LANGUAGE_KR; break;
-			default:              userlang = LANGUAGE_EN;
+			default:              userlang = LANGUAGE_EN; break;
 		}
 	}
-
-	cfguExit();
 }

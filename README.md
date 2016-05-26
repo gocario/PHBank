@@ -6,6 +6,7 @@ This homebrew is not intended to cheat (not even cloning). It's just a storage s
 
 The source code is available under the [GPLv3 license](https://github.com/gocario/PHBank/blob/master/LICENSE) on [github](https://github.com/gocario/PHBank), and the resources are available on [github](https://github.com/gocario/PKBrew) too.
 
+
 ## What this Homebrew can do:
 * Work on o3ds and n3ds!
 * Navigate through the PC boxes of a XY/ORAS save and the Bank boxes.
@@ -64,7 +65,7 @@ The source code is available under the [GPLv3 license](https://github.com/gocari
 * When moving Pokémon with the DPad/A, switch the held Pokémon.
 
 ## Nota Bene
-I only tested this homebrew with Pokémon Alpha Sapphire on a cartridge on a n3ds (9.3+).
+I only tested this homebrew with Pokémon Alpha Sapphire on a cartridge on a n3ds.
 Not cheat, no kidding.
 
 ## Credits

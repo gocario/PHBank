@@ -25,7 +25,6 @@ Result FontManager::load(void)
 
 bool FontManager::loadFonts(void)
 {
-	printf("Loading font: %p\n", (font = sftd_load_font_mem(NotoSans_Regular_ttf, NotoSans_Regular_ttf_size)));
 	font = sftd_load_font_mem(NotoSans_Regular_ttf, NotoSans_Regular_ttf_size);
 	printf("Loading font: @%p\n", font);
 	if (!font) return false;

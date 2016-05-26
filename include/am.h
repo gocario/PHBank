@@ -25,13 +25,6 @@ typedef struct
 } AM_TitleMediaEntry;
 
 /**
- * @brief Retrieves the name of a title.
- * @param titleID The id of the title.
- * @return The name of the title.
- */
-const char* AM_GetPokemonTitleName(u64 titleID);
-
-/**
  * @brief Gets a list of Pokémon title IDs paired with its mediatype.
  * @param count Pointer to write the title count to.
  * @param titleList Buffer to write retrieved title media entries to. (it's malloc'd inside)
