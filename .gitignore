@@ -1,5 +1,7 @@
 build/
 romfs/
+data/
+assets/
 PHBank.elf
 PHBank.3dsx
 PHBank.smdh
