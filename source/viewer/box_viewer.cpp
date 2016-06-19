@@ -1631,9 +1631,5 @@ void BoxViewer::populateVPkmData(vPkm_s* vPkm, pkm_s* pkm)
 
 	vPkm->ball = Pokemon::ball(pkm) - 1;
 
-	if (Pokemon::isGen6Born(pkm)) vPkm->gen = 6;
-	else if (Pokemon::isGen5Born(pkm)) vPkm->gen = 5;
-	else if (Pokemon::isGen4Born(pkm)) vPkm->gen = 4;
-	else if (Pokemon::isGen3Born(pkm)) vPkm->gen = 3;
-	else vPkm->gen = 0;
+	vPkm->gen = Pokemon::generation(pkm);
 }

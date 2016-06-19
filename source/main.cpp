@@ -135,16 +135,6 @@ int main(void)
 	consoleExit(GFX_TOP, NULL);
 	break; // TODO Remove! The app crash itself after the 2nd ts, unknown cause.
 	} // while (TS_LOOP())
-
-	if (!error)
-	{
-		// TODO Remove when better exit display!
-		consoleInit(GFX_BOTTOM, NULL);
-		// ^
-
-		printf("\nThe app execution ended!\n");
-		printf("Thanks for being awesome!\n");
-	}
 #else // __3dsx
 	FS_Exit();
 #endif
@@ -165,6 +155,15 @@ int main(void)
 		printf("Can't start the viewer.\n");
 		printf("Press any key to exit\n");
 		waitKey(KEY_ANY);
+	}
+	else
+	{
+		// TODO Remove when better exit display!
+		consoleInit(GFX_BOTTOM, NULL);
+		// ^
+
+		printf("\nThe app execution ended!\n");
+		printf("Thanks for being awesome!\n");
 	}
 
 	delete PHBanku::data;

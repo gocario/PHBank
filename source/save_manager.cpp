@@ -133,7 +133,7 @@ Result SaveManager::loadFile(void)
 	if (R_FAILED(ret)) return ret;
 
 	hidScanInput();
-	if (hidKeysHeld() & KEY_L)
+	if (!(hidKeysHeld() & KEY_L))
 	{
 		printf(">Backing up\n");
 		ret = backupFile();

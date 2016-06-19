@@ -188,13 +188,22 @@ bool Pokemon::isGen3Born(pkm_s* pkm)
 	return (version(pkm) >= 1 && version(pkm) <= 5) || version(pkm) == 15;
 }
 
+bool Pokemon::generation(pkm_s* pkm)
+{
+	if (Pokemon::isGen3Born(pkm)) return 3;
+	if (Pokemon::isGen4Born(pkm)) return 4;
+	if (Pokemon::isGen5Born(pkm)) return 5;
+	if (Pokemon::isGen6Born(pkm)) return 6;
+	return 0;
+}
+
 
 u8 Pokemon::level(pkm_s* pkm)
 {
-	u32 expVal = Pokemon::EXP(pkm);
-	u8 xpType = Personal(Pokemon::speciesID(pkm)).expGrowth;
 	u8 iterLevel = 1;
-	while (iterLevel < 100 && expVal >= expTable[iterLevel][xpType]) iterLevel++;
+	u32 expVal = Pokemon::EXP(pkm);
+	u8 expType = Personal(Pokemon::speciesID(pkm)).expGrowth;
+	while (iterLevel < 100 && expVal >= expTable[iterLevel][expType]) iterLevel++;
 	return iterLevel;
 }
 

@@ -39,6 +39,7 @@ namespace Pokemon
 	bool isGen5Born(pkm_s* pkm);
 	bool isGen4Born(pkm_s* pkm);
 	bool isGen3Born(pkm_s* pkm);
+	bool generation(pkm_s* pkm);
 
 	u8 level(pkm_s* pkm);
 	u16 stat(u16 species, u8 IV, u8 EV, u8 nature, u8 level, u8 stat, u8 form);
