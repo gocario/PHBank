@@ -66,6 +66,16 @@ namespace BankUpdater
 		// Current version
 		if (version == 0x020001B0)
 		{
+			printf("\a0x020001B0->0x020101B0\n");
+
+			*(u32*)(bankbuffer + 0x04) = version = 0x020101B0;
+			*(u32*)(bankbuffer + 0x34) = 0x000AC930;	///< Trash box data offset (NEW)
+
+			return true;
+		}
+
+		if (version == 0x020101B0)
+		{
 			printf("\a0x020001B0\n");
 			return true;
 		}

@@ -31,6 +31,7 @@ class SaveManager
 		saveConst_t offsetBKLayout;
 		saveConst_t offsetBKBackground;
 		saveConst_t offsetWonderBox;
+		saveConst_t offsetTrashBox;
 
 		/* Global const */
 		saveConst_t sizeSave;
@@ -53,8 +54,10 @@ class SaveManager
 		bool isSlotEmpty(u16 boxId, u16 slotId, bool inBank);
 		box_s* countBox(u16 boxId, bool inBank);
 		box_s* getWBox(void);
+		box_s* getTBox(void);
 		box_s* getBox(u16 boxId, bool inBank);
 		pkm_s* getWPkm(u16 slotId);
+		pkm_s* getTPkm(u16 slotId);
 		pkm_s* getPkm(u16 slotId, bool inBank);
 		pkm_s* getPkm(u16 boxId, u16 slotId, bool inBank);
 		bool movePkm(pkm_s* src, pkm_s* dst);
@@ -100,9 +103,11 @@ class SaveManager
 		pkm_s* loadPkmPC(u16 boxId, u16 slotId);
 		pkm_s* loadPkmBK(u16 boxId, u16 slotId);
 		pkm_s* loadPkmWBK(u16 slotId);
+		pkm_s* loadPkmTBK(u16 slotId);
 		void loadEk6PC(pkm_s* pkm, u32 offsetSlot);
 		void loadEk6BK(pkm_s* pkm, u32 offsetSlot);
 		void loadEk6WBK(pkm_s* pkm, u32 offsetSlot);
+		void loadEk6TBK(pkm_s* pkm, u32 offsetSlot);
 		void loadPk6Ek6(pkm_s* pkm);
 		void loadPkmPk6(pkm_s* pkm);
 

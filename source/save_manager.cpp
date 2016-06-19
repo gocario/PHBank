@@ -450,7 +450,9 @@ void SaveManager::loadBankData(void)
 
 		for (u16 iP = 0; iP < BOX_PKM_COUNT; iP++)
 		{
-			if (!isPkmEmpty(loadPkmBK(iB, iP)))
+			pkm_s* pkm = loadPkmBK(iB, iP);
+
+			if (!isPkmEmpty(pkm))
 				bankdata.bk.box[iB].count++;
 		}
 
@@ -469,7 +471,10 @@ void SaveManager::loadBankData(void)
 
 		// If the wbox contains a Pokémon, unlock it.
 		if (!isPkmEmpty(pkm));
+		// {
+		// 	bankdata.bk.wbox.count++;
 		// 	bankdata.bk.wboxUnlocked = true; // TODO: Uncomment when working wbox!
+		// }
 	}
 	bankdata.bk.wbox.title[0] = 'W';
 	bankdata.bk.wbox.title[1] = 'o';
@@ -482,8 +487,30 @@ void SaveManager::loadBankData(void)
 	bankdata.bk.wbox.title[8] = 'o';
 	bankdata.bk.wbox.title[9] = 'x';
 	bankdata.bk.wbox.title[10] = '\0';
-	bankdata.bk.wbox.background = 15;
+	bankdata.bk.wbox.background = 12;
 	bankdata.bk.wbox.number = 0;
+	printf(" OK\n");
+
+	printf("Loading Trash box:");
+	for (u16 iP = 0; iP < BOX_PKM_COUNT; iP++)
+	{
+		pkm_s* pkm = loadPkmTBK(iP);
+
+		if (!isPkmEmpty(pkm))
+			bankdata.bk.tbox.count++;
+	}
+	bankdata.bk.tbox.title[0] = 'T';
+	bankdata.bk.tbox.title[1] = 'r';
+	bankdata.bk.tbox.title[2] = 'a';
+	bankdata.bk.tbox.title[3] = 's';
+	bankdata.bk.tbox.title[4] = 'h';
+	bankdata.bk.tbox.title[5] = ' ';
+	bankdata.bk.tbox.title[6] = 'B';
+	bankdata.bk.tbox.title[7] = 'o';
+	bankdata.bk.tbox.title[8] = 'x';
+	bankdata.bk.tbox.title[9] = '\0';
+	bankdata.bk.tbox.background = 15;
+	bankdata.bk.tbox.number = 0;
 	printf(" OK\n");
 }
 
@@ -519,7 +546,20 @@ pkm_s* SaveManager::loadPkmWBK(u16 slotId)
 // ----------------------------------------------
 {
 	pkm_s* pkm = &bankdata.bk.wbox.slot[slotId];
-	loadEk6BK(pkm, PKM_SIZE * slotId);
+	loadEk6WBK(pkm, PKM_SIZE * slotId);
+	// loadPk6Ek6(pkm); // Pokemon stored as Pk6
+	loadPkmPk6(pkm);
+	pkm->fromBank = true;
+	return pkm;
+}
+
+
+// ----------------------------------------------
+pkm_s* SaveManager::loadPkmTBK(u16 slotId)
+// ----------------------------------------------
+{
+	pkm_s* pkm = &bankdata.bk.tbox.slot[slotId];
+	loadEk6TBK(pkm, PKM_SIZE * slotId);
 	// loadPk6Ek6(pkm); // Pokemon stored as Pk6
 	loadPkmPk6(pkm);
 	pkm->fromBank = true;
@@ -551,6 +591,17 @@ void SaveManager::loadEk6WBK(pkm_s* pkm, u32 offsetSlot)
 // ------------------------------------
 {
 	pkm->ek6 = bankbuffer + offsetWonderBox + offsetSlot;
+	// Pokemon stored as Pk6
+	pkm->pk6 = new pk6_t[PK6_SIZE];
+	memcpy(pkm->pk6, pkm->ek6, PKM_SIZE);
+}
+
+
+// ------------------------------------
+void SaveManager::loadEk6TBK(pkm_s* pkm, u32 offsetSlot)
+// ------------------------------------
+{
+	pkm->ek6 = bankbuffer + offsetTrashBox + offsetSlot;
 	// Pokemon stored as Pk6
 	pkm->pk6 = new pk6_t[PK6_SIZE];
 	memcpy(pkm->pk6, pkm->ek6, PKM_SIZE);
@@ -650,6 +701,13 @@ void SaveManager::saveBankData(void)
 	for (u16 iP = 0; iP < BOX_PKM_COUNT; iP++)
 	{
 		// savePkmWBK(iP);
+	}
+	printf(" OK\n");
+
+	printf("Saving Trash box:");
+	for (u16 iP = 0; iP < BOX_PKM_COUNT; iP++)
+	{
+		// savePkmTBK(iP);
 	}
 	printf(" OK\n");
 }
@@ -799,6 +857,7 @@ void SaveManager::setBankOffsets(void)
 	offsetBKLayout = *(u32*)(bankbuffer + SaveConst::BANK_offsetOffsetBKLayout);
 	offsetBKBackground = *(u32*)(bankbuffer + SaveConst::BANK_offsetOffsetBKBackground);
 	offsetWonderBox = *(u32*)(bankbuffer + SaveConst::BANK_offsetOffsetWonderBox);
+	offsetTrashBox = *(u32*)(bankbuffer + SaveConst::BANK_offsetOffsetTrashBox);
 
 	sizeBank = SaveConst::BANK_size;
 }
@@ -846,6 +905,16 @@ box_s* SaveManager::getWBox(void)
 
 
 // ------------------------------------
+box_s* SaveManager::getTBox(void)
+// ------------------------------------
+{
+	// printf("getTBox(): %p\n", &bankdata.bk.tbox);
+
+	return &bankdata.bk.tbox;
+}
+
+
+// ------------------------------------
 box_s* SaveManager::getBox(u16 boxId, bool inBank)
 // ------------------------------------
 {
@@ -863,6 +932,15 @@ pkm_s* SaveManager::getWPkm(u16 slotId)
 	// printf("getWPkm(%u): %p\n", slotId, &bankdata.bk.wbox.slot[slotId]);
 
 	return &bankdata.bk.wbox.slot[slotId];
+}
+
+// ------------------------------------
+pkm_s* SaveManager::getTPkm(u16 slotId)
+// ------------------------------------
+{
+	// printf("getTPkm(%u): %p\n", slotId, &bankdata.bk.tbox.slot[slotId]);
+
+	return &bankdata.bk.tbox.slot[slotId];
 }
 
 

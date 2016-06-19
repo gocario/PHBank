@@ -18,7 +18,7 @@
 #define BOX_SIZE (PKM_SIZE * BOX_PKM_COUNT)
 
 #define SAVEDATA_SIZE (0x76000)
-#define BANKDATA_SIZE (0xACA00)
+#define BANKDATA_SIZE (0xAEA00)
 #define EK6_SIZE PKM_SIZE
 #define PK6_SIZE PKM_SIZE
 
@@ -67,6 +67,7 @@ struct pc_s
 struct bk_s
 {
 	box_s wbox;					///< Wonderbox
+	box_s tbox;					///< Trashbox
 	box_s box[BK_BOX_COUNT];	///< Boxes
 	u8 boxUnlocked;				///< Unlocked boxes
 	bool wboxUnlocked;			///< Wonder box unlocked
@@ -133,6 +134,7 @@ namespace SaveConst
 	const saveConst_t BANK_offsetOffsetBKLayout = 0x24;
 	const saveConst_t BANK_offsetOffsetBKBackground = 0x28;
 	const saveConst_t BANK_offsetOffsetWonderBox = 0x30;
+	const saveConst_t BANK_offsetOffsetTrashBox = 0x34;
 }
 
 #endif // SAVE_HPP

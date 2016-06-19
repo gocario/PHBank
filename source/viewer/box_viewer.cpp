@@ -576,11 +576,13 @@ Result BoxViewer::updateControls(const u32& kDown, const u32& kHeld, const u32& 
 
 			if (save->bankdata.bk.wboxUnlocked)
 			{
-				if (*cursorBox.box < 0) *cursorBox.box = (cursorBox.inBank ? save->bankdata.bk.boxUnlocked+1 : save->savedata.pc.boxUnlocked)-1;
-				else if (*cursorBox.box > (cursorBox.inBank ? save->bankdata.bk.boxUnlocked+1 : save->savedata.pc.boxUnlocked)-1) *cursorBox.box = 0;
+				// Box cycle if wonderbox and trashbox
+				if (*cursorBox.box < -2) *cursorBox.box = (cursorBox.inBank ? save->bankdata.bk.boxUnlocked : save->savedata.pc.boxUnlocked)-1;
+				else if (*cursorBox.box > (cursorBox.inBank ? save->bankdata.bk.boxUnlocked : save->savedata.pc.boxUnlocked)-1) *cursorBox.box = -2;
 			}
 			else
 			{
+				// Box cycle if no wonderbox, but trashbox
 				if (*cursorBox.box < 0) *cursorBox.box = (cursorBox.inBank ? save->bankdata.bk.boxUnlocked : save->savedata.pc.boxUnlocked)-1;
 				else if (*cursorBox.box > (cursorBox.inBank ? save->bankdata.bk.boxUnlocked : save->savedata.pc.boxUnlocked)-1) *cursorBox.box = 0;
 			}
@@ -1201,7 +1203,15 @@ void BoxViewer::drawCursorButton(int16_t x, int16_t y)
 bool BoxViewer::isWonderBox(u16 boxId, bool inBank)
 // --------------------------------------------------
 {
-	return save->bankdata.bk.wboxUnlocked && inBank ? boxId == save->bankdata.bk.boxUnlocked : false;
+	return save->bankdata.bk.wboxUnlocked && inBank ? boxId == -2 : false;
+}
+
+
+// --------------------------------------------------
+bool BoxViewer::isTrashBox(u16 boxId, bool inBank)
+// --------------------------------------------------
+{
+	return inBank && boxId == -1;
 }
 
 
@@ -1242,6 +1252,10 @@ void BoxViewer::selectViewBox()
 	{
 		vBKBox = save->getWBox();
 	}
+	else if (isTrashBox(*cursorBox.box, cursorBox.inBank))
+	{
+		vBKBox = save->getTBox();
+	}
 	else
 	{
 		(cursorBox.inBank ? vBKBox : vPCBox) = save->getBox(*cursorBox.box, cursorBox.inBank);
@@ -1268,6 +1282,11 @@ void BoxViewer::selectViewPokemon()
 		if (isWonderBox(*cursorBox.box, cursorBox.inBank))
 		{
 			vPkm.pkm = save->getWPkm(cursorBox.inslot);
+		}
+		// Trash box
+		else if (isTrashBox(*cursorBox.box, cursorBox.inBank))
+		{
+			vPkm.pkm = save->getTPkm(cursorBox.inslot);
 		}
 		else
 		{

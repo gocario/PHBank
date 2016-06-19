@@ -138,6 +138,7 @@ class BoxViewer : public Viewer
 		void drawCursorButton(int16_t x, int16_t y);
 
 		bool isWonderBox(u16 boxId, bool inBank);
+		bool isTrashBox(u16 boxId, bool inBank);
 
 		void selectCursorType(CursorType cursorType);
 		void switchCursorType();
