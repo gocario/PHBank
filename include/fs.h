@@ -2,6 +2,7 @@
 /**
  * @file fs.h
  * @brief Filesystem Services
+ * @author Gocario
  */
 #ifndef FS_H
 #define FS_H
@@ -73,7 +74,7 @@ Result FSCIA_Init(u64 titleid, FS_MediaType mediatype);
  */
 Result FSCIA_Exit(void);
 
-#else
+#else // __3dsx
 
 /**
  * @brief Initializes the filesystem service.
@@ -85,7 +86,7 @@ Result FS_Init(void);
  */
 Result FS_Exit(void);
 
-#endif // __cia
+#endif
 
 #ifdef __cplusplus
 }

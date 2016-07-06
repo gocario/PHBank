@@ -2,41 +2,56 @@
 /**
  * @file filter.hpp
  * @brief Filter module
+ * @author Gocario
  */
-#ifndef FILTER_HPP
-#define FILTER_HPP
 
-#include "save.hpp"
+#include "pkm/pk6.hpp"
 
 namespace Filter
 {
 	/**
 	 * @brief Runs a filter to see if the Pokémon can be transfered from Bank to XY
-	 * @param pkm The Pokémon to filter.
+	 * @param pk6 The Pokémon to filter.
 	 * @return Wether the Pokémon runs through the filter.
 	 */
-	bool filterToXY(pkm_s* pkm);
+	bool filterToXY(const PK6_s* pk6);
 
 	/**
 	 * @brief Runs a filter to see if the Pokémon can be transfered from the Bank to ORAS
-	 * @param pkm The Pokémon to filter.
+	 * @param pk6 The Pokémon to filter.
 	 * @return Wether the Pokémon runs through the filter.
 	 */
-	bool filterFromXY(pkm_s* pkm);
+	bool filterFromXY(const PK6_s* pk6);
 
 	/**
 	 * @brief Runs a filter to see if the Pokémon can be transfered from the Bank to ORAS
-	 * @param pkm The Pokémon to filter.
+	 * @param pk6 The Pokémon to filter.
 	 * @return Wether the Pokémon runs through the filter.
 	 */
-	bool filterToORAS(pkm_s* pkm);
+	bool filterToORAS(const PK6_s* pk6);
 
 	/**
 	 * @brief Runs a filter to see if the Pokémon can be transfered from ORAS to the Bank
-	 * @param pkm The Pokémon to filter.
+	 * @param pk6 The Pokémon to filter.
 	 * @return Wether the Pokémon runs through the filter.
 	 */
-	bool filterFromORAS(pkm_s* pkm);
+	bool filterFromORAS(const PK6_s* pk6);
+
+	/**
+	 * @brief Runs a filter to see if the Pokémon can be transfered from the Bank to SM
+	 * @param pk6 The Pokémon to filter.
+	 * @return Wether the Pokémon runs through the filter.
+	 * @todo Implement!
+	 */
+	bool filterToSM(const PK6_s* pk6);
+
+	/**
+	 * @brief Runs a filter to see if the Pokémon can be transfered from SM to the Bank
+	 * @param pk6 The Pokémon to filter.
+	 * @return Wether the Pokémon runs through the filter.
+	 * @todo Implement!
+	 */
+	bool filterFromSM(const PK6_s* pk6);
 };
 
-#endif // FILTER_HPP
+// FILTER_HPP

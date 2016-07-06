@@ -18,19 +18,19 @@
 #define ROOT "/"
 #define SDMC "sdmc:/"
 #define ROMFS "romfs:/"
-#define SAVE "pksave:/"
+#define SAVE "pksav:/"
 
 /**
  * @brief Shared folders.
  */
 #define BASE_FOLDER "pk/"
-#define BACKUP_FOLDER "pk/backup/"
-#define DATA_FOLDER "pk/data/"
-#define ROMFS_FOLDER "pk/romfs/"
+#define BACKUP_FOLDER BASE_FOLDER "backup/"
+#define DATA_FOLDER BASE_FOLDER "data/"
+#define ROMFS_FOLDER BASE_FOLDER "romfs/"
 
 /**
  * @brief Brew folders.
  */
-#define BANK_FOLDER "pk/bank/"
+#define BANK_FOLDER BASE_FOLDER "bank/"
 
 #endif // PKDIR_H

@@ -2,6 +2,7 @@
 /**
  * @file am.h
  * @brief Application Manager Services for Pokémon titles
+ * @author Gocario
  */
 #ifndef AM_H
 #define AM_H

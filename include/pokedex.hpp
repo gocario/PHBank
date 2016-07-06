@@ -1,11 +1,13 @@
 #pragma once
 /**
  * @file pokedex.hpp
+ * @author Gocario
  */
-#ifndef POKEDEX_HPP
-#define POKEDEX_HPP
 
-#include "save.hpp"
+#include "sav/sav6.hpp"
+#include "save/save.hpp"
+
+#define PKM_COUNT (721)
 
 namespace Pokedex
 {
@@ -15,7 +17,7 @@ namespace Pokedex
 	 * @param sav The save buffer of the Pokédex.
 	 * @param pkm The Pokémon to register.
 	 */
-	void importToGame(GameVersion version, savebuffer_t sav, pkm_s* pkm);
+	void importToGame(Game::Version version, u8* sav, const PK6_s* pkm);
 }
 
-#endif // POKEDEX_HPP
+// POKEDEX_HPP

@@ -1,6 +1,6 @@
 #include "pokedex.hpp"
-#include "pokemon.hpp"
 #include "personal.hpp"
+#include "save/pk6.hpp"
 
 #include <3ds.h>
 #include <stdio.h>
@@ -144,50 +144,42 @@ namespace Pokedex
 		}
 	}
 
-	/// Regex to add printfs:
-	/// ([s]et.* /\* (.*)(_OFFSET) \*/.*;)
-	/// { printf("$2_FLAG\\n"); $1 }
-	/// Regex to remove printfs:
-	/// \{ (printf.*;) (.*;) \}
-	/// $2
-
-	void importToGame(GameVersion version, savebuffer_t sav, pkm_s* pkm)
+	void importToGame(Game::Version version, u8* sav, const PK6_s* pk6)
 	{
-		const u32 SAV_offsetDex = (Game::is(version, Game::XY) ? SaveConst::XY_offsetDex : SaveConst::ORAS_offsetDex);
-		const u32 SAV_offsetFormDex = SAV_offsetDex + 0x368;
-		const u32 SAV_lengthForm = (Game::is(version, Game::XY) ? 0x18 : 0x26);
+		if (!Game::is(version, Game::Gen6)) return;
 
-		bool isShiny = Pokemon::isShiny(pkm); bool shiny = isShiny;
-		bool isFemale = Pokemon::gender(pkm) % 2; bool gender = isFemale;
-		bool isKalosBorn = Pokemon::isKalosBorn(pkm);
-		u16 speciesID = Pokemon::speciesID(pkm);
-		u8 formID = Pokemon::formID(pkm);
-		u8 lang = Pokemon::language(pkm);
+		const Game::SaveConst SAV_offsetDex = 0x15000;
+		const Game::SaveConst SAV_offsetFormDex = SAV_offsetDex + 0x368;
+		const Game::SaveConst SAV_lengthForm = (Game::is(version, Game::XY) ? 0x18 : 0x26);
+
+		bool shiny = PK6::isShiny(pk6);
+		bool gender = pk6->Gender % 2; // Is female
+		bool isKalosBorn = PK6::isKalosBorn(pk6);
+		u8 species = pk6->Species - 1;
+		u8 lang = pk6->Language;
 		if (lang-- > 5) lang--; // {1|2|3|4|5|.|7|8} -> {0|1|2|3|4|5|6|7}
-		u16 species = speciesID--;
-		u8 form = formID;
 
-		const PersonalInfo pInfo = Personal(species, form);
+		const PersonalInfo pInfo = Personal(pk6->Species, pk6->AltForm);
 
-		printf("\naddDex: [%03u|%u]\n", species, form);
+		printf("\naddDex: [%03u|%u]\n", pk6->Species, pk6->AltForm);
 
 		bool alreadySeen = false;
 		bool alreadyDisplayed = false;
 		for (u8 i = 0; i < 4; i++)
 		{
-			alreadySeen |= getOffsetBit(sav, SAV_offsetDex + 0x8 + 0x60 + 0x60*(i%2) + 0x60*2*(i/2) /* SH_SEEN_OFFSET */, speciesID);
-			alreadyDisplayed |= getOffsetBit(sav, SAV_offsetDex + 0x8 + 0x60*5 + 0x60*(i%2) + 0x60*2*(i/2) /* SH_DISPLAYED_OFFSET */, speciesID);
+			alreadySeen |= getOffsetBit(sav, SAV_offsetDex + 0x8 + 0x60 + 0x60*(i%2) + 0x60*2*(i/2) /* SH_SEEN_OFFSET */, species);
+			alreadyDisplayed |= getOffsetBit(sav, SAV_offsetDex + 0x8 + 0x60*5 + 0x60*(i%2) + 0x60*2*(i/2) /* SH_DISPLAYED_OFFSET */, species);
 		}
 
 		// Formdex
-		if (pInfo.formCount > 0)
+		if (pInfo.FormCount > 0)
 		{
-			s32 formdexBit = Game::is(version, Game::XY) ? getFormDexOffsetXY(species) : getFormDexOffsetORAS(species);
+			s32 formdexBit = Game::is(version, Game::XY) ? getFormDexOffsetXY(pk6->Species) : getFormDexOffsetORAS(pk6->Species);
 
 			if (formdexBit >= 0)
 			{
 				// Form Seen
-				switch (species)
+				switch (pk6->Species)
 				{
 					case 351: // Castform
 					case 421: // Cherrim
@@ -195,7 +187,7 @@ namespace Pokedex
 					case 648: // Meloetta
 					case 681: // Aegislash
 					{
-						for (u8 i = 0; i < pInfo.formCount; i++)
+						for (u8 i = 0; i < pInfo.FormCount; i++)
 						{
 							{ printf("SH_FORM_SEEN_FLAG\n"); setOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*(shiny) /* SH_FORM_SEEN_OFFSET */, formdexBit + i, true); }
 						}
@@ -210,25 +202,25 @@ namespace Pokedex
 					// TODO: Handle Mega forms
 					// case XXX: // Mega
 					// {
-					// 	if (formID > 0)
+					// 	if (pk6->AltForm > 0)
 					// 	{
 					// 		{ printf("SH_FORM_SEEN_FLAG\n"); setOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*(shiny) /* SH_FORM_SEEN_OFFSET */, formdexBit, true); }
 					// 	}
-					// 	{ printf("SH_FORM_SEEN_FLAG\n"); setOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*(shiny) /* SH_FORM_SEEN_OFFSET */, formdexBit + formID, true); }
+					// 	{ printf("SH_FORM_SEEN_FLAG\n"); setOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*(shiny) /* SH_FORM_SEEN_OFFSET */, formdexBit + pk6->AltForm, true); }
 					// 	break;
 					// }
 					default:
 					{
-						{ printf("SH_FORM_SEEN_FLAG\n"); setOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*(shiny) /* SH_FORM_SEEN_OFFSET */, formdexBit + formID, true); }
+						{ printf("SH_FORM_SEEN_FLAG\n"); setOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*(shiny) /* SH_FORM_SEEN_OFFSET */, formdexBit + pk6->AltForm, true); }
 					}
 				}
 
-				formdexBit += formID;
+				formdexBit += pk6->AltForm;
 
 				// Form Displayed
 				if (!alreadySeen && !alreadyDisplayed) // Not seen nor displayed
 				{
-					{ printf("SH_FORM_DISPLAYED_FLAG\n"); setOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*(shiny+2) /* SH_FORM_DISPLAYED_OFFSET */, formdexBit + formID, true); }
+					{ printf("SH_FORM_DISPLAYED_FLAG\n"); setOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*(shiny+2) /* SH_FORM_DISPLAYED_OFFSET */, formdexBit + pk6->AltForm, true); }
 				}
 				else // Already seen or displayed
 				{
@@ -236,7 +228,7 @@ namespace Pokedex
 					// Should not happens in a regular use.
 
 					bool alreadyFormDisplayed = false;
-					for (u8 i = 0; i < pInfo.formCount; i++)
+					for (u8 i = 0; i < pInfo.FormCount; i++)
 					for (u8 j = 0; j < 2; j++)
 					{
 						alreadyFormDisplayed |= getOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*(j+2) /* SH_FORM_DISPLAYED_OFFSET */, i);
@@ -249,7 +241,7 @@ namespace Pokedex
 					else // Seen and form displayed
 					{
 						alreadyFormDisplayed = false;
-						for (u8 i = 0; i < pInfo.formCount; i++)
+						for (u8 i = 0; i < pInfo.FormCount; i++)
 						for (u8 j = 0; j < 2; j++)
 						{
 							if (getOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*(j+2) /* SH_FORM_DISPLAYED_OFFSET */, i))
@@ -272,36 +264,113 @@ namespace Pokedex
 		}
 
 		// Seen
-		{ printf("SH_SEEN_FLAG\n"); setOffsetBit(sav, SAV_offsetDex + 0x8 + 0x60 + 0x60*(gender) + 0x60*2*(shiny) /* SH_SEEN_OFFSET */, speciesID, true); }
+		{ printf("SH_SEEN_FLAG\n"); setOffsetBit(sav, SAV_offsetDex + 0x8 + 0x60 + 0x60*(gender) + 0x60*2*(shiny) /* SH_SEEN_OFFSET */, species, true); }
 
 		// Displayed
 		if (!alreadyDisplayed)
 		{
-			{ printf("SH_DISPLAYED_FLAG\n"); setOffsetBit(sav, SAV_offsetDex + 0x8 + 0x60*5 + 0x60*(gender) + 0x60*2*(shiny) /* SH_DISPLAYED_OFFSET */, speciesID, true); }
+			{ printf("SH_DISPLAYED_FLAG\n"); setOffsetBit(sav, SAV_offsetDex + 0x8 + 0x60*5 + 0x60*(gender) + 0x60*2*(shiny) /* SH_DISPLAYED_OFFSET */, species, true); }
 		}
 
 		// Lang
 		if (lang >= 0 && lang < 7)
 		{
-			{ printf("LANG_FLAG\n"); setOffsetBit(sav, SAV_offsetDex + 0x3C8 /* LANG_OFFSET */, speciesID * 7 + lang, true); }
+			{ printf("LANG_FLAG\n"); setOffsetBit(sav, SAV_offsetDex + 0x3C8 /* LANG_OFFSET */, species * 7 + lang, true); }
 		}
 
 		// Foreign
 		if (Game::is(version, Game::XY) && !isKalosBorn && species < 650)
 		{
-			{ printf("FOREIGN_FLAG\n"); setOffsetBit(sav, SAV_offsetDex + 0x64C /* FOREIGN_OFFSET */, speciesID, true); }
+			{ printf("FOREIGN_FLAG\n"); setOffsetBit(sav, SAV_offsetDex + 0x64C /* FOREIGN_OFFSET */, species, true); }
 		}
 		// Owned
 		else if (Game::is(version, Game::ORAS) || isKalosBorn)
 		{
-			{ printf("OWNED_FLAG\n"); setOffsetBit(sav, SAV_offsetDex + 0x8 /* OWNED_OFFSET */, speciesID, true); }
+			{ printf("OWNED_FLAG\n"); setOffsetBit(sav, SAV_offsetDex + 0x8 /* OWNED_OFFSET */, species, true); }
 		}
 
 		// DexNav
 		if (Game::is(version, Game::ORAS))
 		{
-			u16* dexNav = (u16*)(sav + SAV_offsetDex + 0x686 /* DEXNAV_OFFSET */ + speciesID * 2);
+			u16* dexNav = (u16*)(sav + SAV_offsetDex + 0x686 /* DEXNAV_OFFSET */ + species * 2);
 			if (*dexNav == 0) { printf("DEXNAV_SET\n"); *dexNav = 1; }
+		}
+	}
+
+	void fill(Game::Version version, u8* sav)
+	{
+		const Game::SaveConst SAV_offsetDex = 0x15000;
+		const Game::SaveConst SAV_offsetFormDex = SAV_offsetDex + 0x368;
+		const Game::SaveConst SAV_lengthForm = (Game::is(version, Game::XY) ? 0x18 : 0x26);
+
+		for (u16 species = 0; species < PKM_COUNT; species++)
+		{
+			const PersonalInfo pInfo = Personal(species+1);
+
+			bool alreadyDisplayed = false;
+			for (u8 i = 0; i < 4; i++)
+			{
+				alreadyDisplayed |= getOffsetBit(sav, SAV_offsetDex + 0x8 + 0x60*5 + 0x60*(i%2) + 0x60*2*(i/2) /* SH_DISPLAYED_OFFSET */, species);
+			}
+
+			for (u8 gender = 0; gender < 2; gender++)
+			{
+				for (u8 shiny = 0; shiny < 2; shiny++)
+				{
+					// Formdex
+					if (pInfo.FormCount > 0)
+					{
+						s32 formdexBit = Game::is(version, Game::XY) ? getFormDexOffsetXY(species+1) : getFormDexOffsetORAS(species+1);
+
+						if (formdexBit >= 0)
+						{
+							for (u8 form = 0; form< pInfo.FormCount; form++)
+							{
+								// Form seen
+								{ printf("SH_FORM_SEEN_FLAG\n"); setOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*(shiny) /* SH_FORM_SEEN_OFFSET */, formdexBit + form, true); }
+							}
+						}
+
+						// Form displayed
+						if (!alreadyDisplayed)
+						{
+							{ printf("SH_FORM_DISPLAYED_FLAG\n"); setOffsetBit(sav, SAV_offsetFormDex + SAV_lengthForm*(shiny+2) /* SH_FORM_DISPLAYED_OFFSET */, formdexBit, true); }
+						}
+					}
+
+					// Seen
+					{ printf("SH_SEEN_FLAG\n"); setOffsetBit(sav, SAV_offsetDex + 0x8 + 0x60 + 0x60*(gender) + 0x60*2*(shiny) /* SH_SEEN_OFFSET */, species, true); }
+
+					// Displayed
+					if (!alreadyDisplayed)
+					{
+						{ printf("SH_DISPLAYED_FLAG\n"); setOffsetBit(sav, SAV_offsetDex + 0x8 + 0x60*5 + 0x60*(gender) + 0x60*2*(shiny) /* SH_DISPLAYED_OFFSET */, species, true); }
+						alreadyDisplayed = true;
+					}
+				}
+			}
+
+			for (u8 lang = 0; lang < 7; lang++)
+			{
+				// Lang
+				{ printf("LANG_FLAG\n"); setOffsetBit(sav, SAV_offsetDex + 0x3C8 /* LANG_OFFSET */, species * 7 + lang, true); }
+			}
+
+			// Foreign
+			if (Game::is(version, Game::XY) && species < 650)
+			{
+				{ printf("FOREIGN_FLAG\n"); setOffsetBit(sav, SAV_offsetDex + 0x64C /* FOREIGN_OFFSET */, species, true); }
+			}
+
+			// Owned
+			{ printf("OWNED_FLAG\n"); setOffsetBit(sav, SAV_offsetDex + 0x8 /* OWNED_OFFSET */, species, true); }
+
+			// DexNav
+			if (Game::is(version, Game::ORAS))
+			{
+				u16* dexNav = (u16*)(sav + SAV_offsetDex + 0x686 /* DEXNAV_OFFSET */ + species * 2);
+				if (*dexNav == 0) { printf("DEXNAV_SET\n"); *dexNav = 1; }
+			}
 		}
 	}
 }

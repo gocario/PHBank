@@ -1,6 +1,8 @@
 #pragma once
 /**
  * @file utils.h
+ * @brief Some utilis functions
+ * @author Gocario
  */
 #ifndef UTILS_H
 #define UTILS_H
@@ -26,7 +28,7 @@ inline s32 str16cmp(const u16* str1, const u16* str2)
 }
 
 /**
- * @brief Compares two u16 strings.
+ * @brief Compares two u16 strings with a max length specified.
  * @param[in] str1 The first u16 string.
  * @param[in] str2 The second u16 string.
  * @param max The max length of the strings.
@@ -42,7 +44,7 @@ inline s32 str16ncmp(const u16* str1, const u16* str2, s16 max)
 }
 
 /**
- * @brief Replaces some character of a string.
+ * @brief Replaces some characters of a string.
  * @param[in/out] str The u16 string.
  * @param max The max length of the string.
  * @return The number of characters replaced.
@@ -62,7 +64,7 @@ inline u8 str16nfix(u16* str, s16 max)
 }
 
 /**
- * @brief Replaces some character of a string.
+ * @brief Replaces some characters of a string.
  * @param[in/out] str The u32 string.
  * @param max The max length of the string.
  * @return The number of characters replaced.
@@ -82,7 +84,7 @@ inline u8 str32nfix(u32* str, s16 max)
 }
 
 /**
- * @brief Gets the length of a u8 string.
+ * @brief Gets the real length of an u8 string.
  * @param[in] str The u8 string.
  * @param max The max length of the string.
  * @return The length of the string.

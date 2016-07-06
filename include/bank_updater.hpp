@@ -1,12 +1,14 @@
 #pragma once
 /**
  * @file bank_updater.hpp
+ * @author Gocario
  */
 #ifndef BANK_UPDATER_HPP
 #define BANK_UPDATER_HPP
 
 #include "version.h"
-#include "save.hpp"
+
+#include <3ds/types.h>
 
 namespace BankUpdater
 {
@@ -17,7 +19,12 @@ namespace BankUpdater
 	 * @return Whether the buffer is up to date.
 	 * @see VERSION
 	 */
-	bool updateBank(bankbuffer_t bankbuffer, u32 bytesRead);
+	bool updateBank(u8* bank, u32 bytesRead);
+
+	/**
+	 * @todo
+	 */
+	bool convertBankToGen7(u8* bank, u32 bytesRead);
 }
 
 #endif // BANK_UPDATER_HPP

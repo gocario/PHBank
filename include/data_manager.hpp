@@ -2,9 +2,8 @@
 /**
  * @file data_manager.hpp
  * @brief Data Manager
+ * @author Gocario
  */
-#ifndef DATA_MANAGER_HPP
-#define DATA_MANAGER_HPP
 
 #include <3ds/types.h>
 
@@ -61,12 +60,12 @@ class DataManager
 		uint32_t* wTypes[DEX_TYPES_COUNT];
 
 	public:
-		DataManager(void);
-		~DataManager(void);
+		DataManager();
+		~DataManager();
 
-		Result load(void);
+		Result load();
 
-		const char* lang(void);
+		const char* lang();
 		const uint32_t* text(BankText text);
 		const uint32_t* abilities(u32 ability);
 		const uint32_t* items(u32 item);
@@ -82,4 +81,4 @@ class DataManager
 		void freeDataLines(uint32_t** data, u32 lineCount);
 };
 
-#endif // DATA_MANAGER_HPP
+// DATA_MANAGER_HPP

@@ -1,9 +1,9 @@
 #include "phbank.hpp"
 
-namespace PHBanku
+namespace PHBank
 {
-	SaveManager* save = NULL;
-	DataManager* data = NULL;
-	FontManager* font = NULL;
-	TextureManager* texture = NULL;
+	SaveManager* Save = NULL;
+	DataManager* Data = NULL;
+	FontManager* Font = NULL;
+	TextureManager* Texture = NULL;
 }

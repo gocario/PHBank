@@ -1,10 +1,8 @@
 #pragma once
 /**
  * @file texture_manager.hpp
- * @brief Texture Manager
+ * @author Gocario
  */
-#ifndef TEXTURE_MANAGER_HPP
-#define TEXTURE_MANAGER_HPP
 
 #include <sf2d.h>
 
@@ -24,15 +22,15 @@ class TextureManager
 		sf2d_texture* resumeBackground;		///< The resume background for top screen.
 
 	public:
-		TextureManager(void);
-		~TextureManager(void);
+		TextureManager();
+		~TextureManager();
 
-		Result load(void);
+		Result load();
 
-		void drawStaticLoadingScreen(void);
+		void drawStaticLoadingScreen();
 
 	private:
-		bool loadTextures(void);
+		bool loadTextures();
 		void drawLoadingTopScreen();
 		void drawLoadingBottomScreen();
 		inline void drawLoadingPokeball(int x, int y);
@@ -44,4 +42,4 @@ class TextureManager
 		friend void _loadTextures(void* arg);
 };
 
-#endif // TEXTURE_MANAGER_HPP
+// TEXTURE_MANAGER_HPP

@@ -30,8 +30,8 @@ include $(DEVKITARM)/3ds_rules
 TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
 DATA		:=	data
-SOURCES		:=	source source/viewer
-INCLUDES	:=	include include/viewer
+SOURCES		:=	source source/save source/view
+INCLUDES	:=	include include/pkm include/sav include/save include/view
 
 APP_TITLE		:=	PHBank
 APP_DESCRIPTION	:=	Pokémon Homebrew Bank

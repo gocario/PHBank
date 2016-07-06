@@ -7,9 +7,9 @@
 #include <3ds/svc.h>
 #include <string.h>
 
-// #define DEBUG_FS
+#define FS_DEBUG
 
-#ifdef DEBUG_FS
+#ifdef FS_DEBUG
 #include <stdio.h>
 #define debug_print(fmt, args ...) printf(fmt, ##args)
 #define r(fmt, args ...) printf(fmt, ##args)
@@ -41,7 +41,7 @@ Result FS_ReadFile(const char* path, void* dst, u64 maxSize, FS_Archive archive,
 
 	if (R_SUCCEEDED(ret))
 	{
-		ret = FSFILE_Read(fileHandle, bytesRead, 0x0, dst, size);
+		ret = FSFILE_Read(fileHandle, bytesRead, 0L, dst, size);
 		r(" > FSFILE_Read: %lx\n", ret);
 		if (R_FAILED(ret) || *bytesRead < size) ret = -3;
 	}
@@ -130,6 +130,14 @@ Result FSCIA_Init(u64 titleid, FS_MediaType mediatype)
 		r(" > FSUSER_OpenArchive: %lx\n", ret);
 
 		saveInitialized = R_SUCCEEDED(ret); // true
+
+		if (!saveInitialized)
+		{
+			ret = FSUSER_OpenArchive(&saveArchive, ARCHIVE_SDMC, fsMakePath(PATH_EMPTY, NULL));
+			r(" > FSUSER_OpenArchive: %lx\n", ret);
+
+			saveInitialized = R_SUCCEEDED(ret); // true
+		}
 	}
 	else
 	{
@@ -190,6 +198,14 @@ Result FS_Init(void)
 		r(" > FSUSER_OpenArchive: %lx\n", ret);
 
 		saveInitialized = R_SUCCEEDED(ret); // true
+
+		if (!saveInitialized)
+		{
+			ret = FSUSER_OpenArchive(&saveArchive, ARCHIVE_SDMC, fsMakePath(PATH_EMPTY, NULL));
+			r(" > FSUSER_OpenArchive: %lx\n", ret);
+
+			saveInitialized = R_SUCCEEDED(ret); // true
+		}
 	}
 	else
 	{

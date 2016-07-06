@@ -1,7 +1,5 @@
 #include "filter.hpp"
 
-#include "pokemon.hpp"
-
 namespace Filter
 {
 	static bool filterItemORASExclusiv(u16 itemID)
@@ -47,18 +45,18 @@ namespace Filter
 
 	static bool filterAbilityORASExclusiv(u16 abilityID)
 	{
-		// const u16 abilityCount = 3;
-		// const u16 abilityFilterList[abilityCount] = {
-		// 	0xbd, 0xbe, 0xbf
-		// };
+		const u16 abilityCount = 3;
+		const u16 abilityFilterList[abilityCount] = {
+			0xbd, 0xbe, 0xbf
+		};
 
 		bool isFiltered = true;
 
-		// for (u32 i = 0; i < abilityCount && isFiltered; i++)
-		// {
-		// 	if (abilityFilterList[i] == abilityID)
-		// 		isFiltered = false;
-		// }
+		for (u32 i = 0; i < abilityCount && isFiltered; i++)
+		{
+			if (abilityFilterList[i] == abilityID)
+				isFiltered = false;
+		}
 
 		// printf(" Ability[%x] %s\n", abilityID, (isFiltered ? "allowed" : "forbidden"));
 
@@ -77,24 +75,23 @@ namespace Filter
 		return isFiltered;
 	}
 
-	bool filterToXY(pkm_s* pkm)
+	bool filterToXY(const PK6_s* pk6)
 	{
 		bool isFiltered = true;
 
-		isFiltered &= Filter::filterItemORASExclusiv(Pokemon::itemID(pkm));
-		isFiltered &= Filter::filterMoveORASExclusiv(Pokemon::move1(pkm));
-		isFiltered &= Filter::filterMoveORASExclusiv(Pokemon::move2(pkm));
-		isFiltered &= Filter::filterMoveORASExclusiv(Pokemon::move3(pkm));
-		isFiltered &= Filter::filterMoveORASExclusiv(Pokemon::move4(pkm));
-		isFiltered &= Filter::filterAbilityORASExclusiv(Pokemon::ability(pkm));
-		// isFiltered &= Filter::filterSchoolGirlPikachu(Pokemon::speciesID(pkm), Pokemon::formID(pkm));
+		isFiltered &= Filter::filterItemORASExclusiv(pk6->HeldItem);
+		isFiltered &= Filter::filterMoveORASExclusiv(pk6->Moves[0]);
+		isFiltered &= Filter::filterMoveORASExclusiv(pk6->Moves[1]);
+		isFiltered &= Filter::filterMoveORASExclusiv(pk6->Moves[2]);
+		isFiltered &= Filter::filterMoveORASExclusiv(pk6->Moves[3]);
+		isFiltered &= Filter::filterAbilityORASExclusiv(pk6->Ability);
 
 		// printf("To XY %s\n", (isFiltered ? "allowed" : "forbidden"));
 
 		return isFiltered;
 	}
 
-	bool filterFromXY(pkm_s* pkm)
+	bool filterFromXY(const PK6_s* pk6)
 	{
 		bool isFiltered = true;
 
@@ -103,7 +100,7 @@ namespace Filter
 		return isFiltered;
 	}
 
-	bool filterToORAS(pkm_s* pkm)
+	bool filterToORAS(const PK6_s* pk6)
 	{
 		bool isFiltered = true;
 
@@ -112,11 +109,11 @@ namespace Filter
 		return isFiltered;
 	}
 
-	bool filterFromORAS(pkm_s* pkm)
+	bool filterFromORAS(const PK6_s* pk6)
 	{
 		bool isFiltered = true;
 
-		isFiltered &= Filter::filterSchoolGirlPikachu(Pokemon::speciesID(pkm), Pokemon::formID(pkm));
+		isFiltered &= Filter::filterSchoolGirlPikachu(pk6->Species, pk6->AltForm);
 
 		// printf("From ORAS %s\n", (isFiltered ? "allowed" : "forbidden"));
 

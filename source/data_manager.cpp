@@ -13,15 +13,13 @@ extern "C" {
 #include <stdio.h>
 #include <string.h>
 
-// wstring for "(None)", just a safe case
+// uint32_t string for "(None)", just a safe case
 const uint32_t wNone[] = { 0x00000028, 0x0000004E, 0x0000004F, 0x0000004E, 0x00000045, 0x00000029, 0x00000000 };
+// const uint32_t* wNone = U"(None)";
 
-DataManager::DataManager(void)
-{
+DataManager::DataManager() { }
 
-}
-
-DataManager::~DataManager(void)
+DataManager::~DataManager()
 {
 	freeDataLines(wText, BANK_TEXT_COUNT);
 	freeDataLines(wAbilities, DEX_ABILITIES_COUNT);
@@ -32,7 +30,7 @@ DataManager::~DataManager(void)
 	freeDataLines(wTypes, DEX_TYPES_COUNT);
 }
 
-const char* DataManager::lang(void)
+const char* DataManager::lang()
 {
 	switch (userlang)
 	{
@@ -238,5 +236,4 @@ void DataManager::freeDataLines(uint32_t** data, u32 lineCount)
 {
 	for (u32 i = 0; i < lineCount; i++)
 		delete data[i];
-	// delete[] data;
 }

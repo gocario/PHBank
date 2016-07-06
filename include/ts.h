@@ -2,6 +2,7 @@
 /**
  * @file am.h
  * @brief Title Selector Module for Pokémon titles
+ * @author Gocario
  */
 #ifndef TS_H
 #define TS_H

@@ -1,23 +1,21 @@
 #pragma once
 /**
  * @file font_manager.hpp
- * @brief Font Manager
+ * @author Gocario
  */
-#ifndef FONT_MANAGER_HPP
-#define FONT_MANAGER_HPP
 
 #include <sftd.h>
 
 class FontManager
 {
 	public:
-		FontManager(void);
-		~FontManager(void);
+		FontManager();
+		~FontManager();
 
-		Result load(void);
+		Result load();
 
 	private:
-		bool loadFonts(void);
+		bool loadFonts();
 };
 
-#endif // FONT_MANAGER_HPP
+// FONT_MANAGER_HPP

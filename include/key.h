@@ -2,8 +2,8 @@
 /**
  * @file key.h
  */
-#ifndef KEY_HPP
-#define KEY_HPP
+#ifndef KEY_H
+#define KEY_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -40,4 +40,4 @@ inline void waitKey(u32 key)
 }
 #endif
 
-#endif // KEY_HPP
+#endif // KEY_H
